@@ -1,0 +1,22 @@
+server_host: "irc.freenode.net"
+server_port: 6667
+bot_nickname: pmxbot
+log_channels: 
+    - "#botone"
+other_channels:
+    - "#bottwo"
+inane_channel: "#botone"
+database_dir: "./bot_database"
+places: ["Palo Alto, CA", "Canton, OH", "Washington, DC", "London, England"]
+lunch_choices:
+    PA: ["Pasta?", "Thaiphoon", "Pluto's", "Penninsula Creamery", "Kan Zeman"]
+feed_interval: 15 #15 minutes
+feeds:
+    - name    : "pmxbot bitbucket"
+      channel : "#botone"
+      linkurl : "http://bitbucket.org/yougov/pmxbot"
+      url     : "http://bitbucket.org/yougov/pmxbot"
+    - name    : "pmxbot bitbucket"
+      channel : "#bottwo"
+      linkurl : "http://bitbucket.org/yougov"
+      url     : "http://bitbucket.org/yougov/rss"

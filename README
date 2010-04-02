@@ -1,0 +1,67 @@
+-*- restructuredtext -*-
+
+======
+pmxbot
+======
+
+pmxbot is an IRC bot written in python. Originally built for internal use,
+it's been sanitized and set free upon the world.
+
+
+Commands
+========
+pmxbot listens to commands prefixed by a '!'
+If it's a command it knows it will reply, take an action, etc. 
+It can search the web, quote you, track karma, make decisions,
+and do just about anything else you could want. It logs text in a sqlite3
+database, and eventually we'll write a web interface to it.
+
+Contains
+========
+pmxbot will respond to things you say if it detects words and phrases it's
+been told to recognize. For example, mention sql on rails.
+
+Requirements
+============
+pmxbot requires python, of course. Probably 2.5+. It also requires a few python packages:
+
+* python-irclib
+* pyyaml
+* simplejson or json
+* feedparser
+* httplib2
+* sqlite3
+
+
+Configuration
+=============
+Configuration is based on very easy YAML files. Check out config.yaml in the
+source tree for an example.
+
+Usage
+=====
+Once you've setup a config file, you just need to call ``pmxbot config.yaml``
+and it will join and connect. We recommend running pmxbot under djb's
+daemontools to make it automatically restart if it crashes. 
+
+
+
+Writing a new feature
+=====================
+Adding new features is very easy, you just need to add them to pmxbot.py
+following the established convention. A command gets the @command deocator::
+
+  @command("tinytear", aliases=('tt', 'tear', 'cry'), doc="I cry a tiny tear for you.")
+  def tinytear(client, event, channel, nick, rest):
+  	if rest:
+  		return "/me sheds a single tear for %s" % rest
+  	else:
+  		return "/me sits and cries as a single tear slowly trickles down its cheek"
+
+A response uses the @contains decorator::
+
+  @contains("sqlonrails")
+  def yay_sor(client, event, channel, nick, rest):
+  	karmaChange(botbase.logger.db, 'sql on rails', 1)
+  	return "Only 76,417 lines..."
+
