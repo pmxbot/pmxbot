@@ -132,6 +132,7 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 			FEED_SEEN = [x[0] for x in res]
 		except:
 			db.execute('CREATE TABLE feed_seen (key varchar)')
+			db.execute('CREATE INDEX IF NOT EXISTS ix_feed_seen_key ON feed_seen (key)')
 			db.commit()
 			FEED_SEEN = []
 		NEWLY_SEEN = []
@@ -218,9 +219,11 @@ class Logger(object):
 			MESSAGE TEXT,
 			PRIMARY KEY (id) )
 		'''
-		INDEX_CREATE_SQL = 'CREATE INDEX IF NOT EXISTS ix_logs_datetime_channel ON logs (datetime, channel)'
+		INDEX_DTC_CREATE_SQL = 'CREATE INDEX IF NOT EXISTS ix_logs_datetime_channel ON logs (datetime, channel)'
+		INDEX_DT_CREATE_SQL = 'CREATE INDEX IF NOT EXISTS ix_logs_datetime ON logs (datetime desc)'
 		self.db.execute(LOG_CREATE_SQL)
-		self.db.execute(INDEX_CREATE_SQL)
+		self.db.execute(INDEX_DTC_CREATE_SQL)
+		self.db.execute(INDEX_DT_CREATE_SQL)
 		self.db.commit()
 		
 	def message(self, channel, nick, msg):
