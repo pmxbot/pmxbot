@@ -58,7 +58,7 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 				c.notice(nick, line)
 	
 	def on_pubmsg(self, c, e):
-		msg = ''.join(e.arguments())
+		msg = (''.join(e.arguments())).decode('utf8', 'ignore')
 		nick = e.source().split('!', 1)[0]
 		channel = e.target()
 		if msg == '':
