@@ -230,7 +230,7 @@ class Logger(object):
 		INSERT_LOG_SQL = 'INSERT INTO logs (datetime, channel, nick, message) VALUES (?, ?, ?, ?)'
 		now = datetime.datetime.now()
 		channel = channel.replace('#', '')
-		self.db.execute(INSERT_LOG_SQL, [now, channel, nick, msg.encode('utf-8')])
+		self.db.execute(INSERT_LOG_SQL, [now, channel, nick, msg])
 		self.db.commit()
 
 	def last_seen(self, nick):
