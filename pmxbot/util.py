@@ -86,6 +86,7 @@ weapon_opts = [
 'cocktail sword',
 'spatula',
 'scimitar',
+'pipe',
 ]
 
 weapon_adjs = [
@@ -486,6 +487,7 @@ def get_html(url):
 
 wiki_exp = re.compile(r"(.*?)en\.wikipedia\.org\/wiki\/", re.MULTILINE | re.DOTALL)
 def_exp = re.compile(r"<li>([^<]+)", re.MULTILINE)
+urbd_exp = re.compile(r"<td class='word'>(.+?)^</td>$(?:.+?)<div class='definition'>(.+?)</div>", re.MULTILINE | re.DOTALL )
 
 def lookup(word):
 	'''Gets a wikipedia summary for a word.
@@ -499,6 +501,18 @@ def lookup(word):
 	all_defs = list(def_exp.finditer(defs_sec))
 	show_def = all_defs[-1].group(1)
 	return show_def.strip()
+
+def urbanlookup(word):
+        '''Gets a Urban Dictionary summary for a word.
+        '''
+        word = urllib.quote_plus(word)
+        html = get_html('http://urbandictionary.com/define.php?term=%s' % word)
+        match = urbd_exp.search(html)
+        if not match:
+                return None, None
+        word, definition = match.groups()
+        definition = ' '.join(definition.replace('<br/>', '').splitlines())
+        return word.strip(), definition.strip()
 
 
 html_strip = re.compile(r'<[^>]+?>')
