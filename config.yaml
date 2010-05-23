@@ -20,3 +20,4 @@ feeds:
       channel : "#bottwo"
       linkurl : "http://bitbucket.org/yougov"
       url     : "http://bitbucket.org/yougov/rss"
+local_extensions: ['local.py']

@@ -796,13 +796,18 @@ def run():
 	config_file = sys.argv[1]
 	class O(object): 
 		def __init__(self, d):
-			for k, v in d.iteritems(): setattr(self, k, v)
+			for k, v in d.iteritems():
+			    setattr(self, k, v)
 			
 	config = O(yaml.load(open(config_file)))
 
 	@contains(config.bot_nickname)
 	def rand_bot2(*args):
 		return rand_bot(*args)
+	
+    for extension in config.local_extensions:
+        print "Loading", extension
+        execfile(extension)
 
 	bot = LoggingCommandBot(config.database_dir, config.server_host, config.server_port, 
 		config.bot_nickname, config.log_channels, config.other_channels,
