@@ -58,7 +58,7 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 				c.notice(nick, line)
 	
 	def on_pubmsg(self, c, e):
-		msg = ''.join(e.arguments())
+		msg = (''.join(e.arguments())).decode('utf8', 'ignore')
 		nick = e.source().split('!', 1)[0]
 		channel = e.target()
 		if msg == '':
@@ -230,7 +230,7 @@ class Logger(object):
 		INSERT_LOG_SQL = 'INSERT INTO logs (datetime, channel, nick, message) VALUES (?, ?, ?, ?)'
 		now = datetime.datetime.now()
 		channel = channel.replace('#', '')
-		self.db.execute(INSERT_LOG_SQL, [now, channel, nick, msg.encode('utf-8')])
+		self.db.execute(INSERT_LOG_SQL, [now, channel, nick, msg])
 		self.db.commit()
 
 	def last_seen(self, nick):
