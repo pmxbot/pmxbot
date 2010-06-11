@@ -11,6 +11,8 @@ import re
 import feedparser
 import socket
 
+from threading import Thread
+
 exists = os.path.exists
 pjoin = os.path.join
 
@@ -36,14 +38,17 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 		setup_repo(repo)
 		self._repo = repo
 		self._nickname = nickname
-        self._feed_interval = feed_interval
-        self._feeds = feeds
+		self._feed_interval = feed_interval
+		self._feeds = feeds
 
 	def on_welcome(self, c, e):
 		for channel in self._channels:
 			if not channel.startswith('#'):
 				channel = '#' + channel
 			c.join(channel)
+		for action in _delay_registry:
+			name, channel, howlong, func, args, doc = action 
+			c.execute_delayed(howlong, self.background_runner, arguments=(c, e, channel, func, args))
 		c.execute_delayed(30, self.feed_parse, arguments=(c, e, self._feed_interval, self._feeds))
 
 	def on_join(self, c, e):
@@ -81,6 +86,29 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 		time.sleep(1)
 		c.privmsg(channel, "You summoned me, master %s?" % nick)
 		
+	def background_runner(self, c, e, channel, func, args):
+		"""
+		Wrapper to run scheduled type tasks cleanly.
+		"""
+		secret = False
+		res = func(c, e, *args)
+		def out(s):
+			if s.startswith('/me '):
+				c.action(channel, s.split(' ', 1)[-1].lstrip())
+			else:
+				c.privmsg(channel, s)
+				if channel not in self._nolog and not secret:
+					logger.message(channel, self._nickname, s)
+		if res:
+			if isinstance(res, basestring):
+				out(res)
+			else:
+				for item in res:
+					if item == NoLog:
+						secret = True
+					else:
+						out(item)
+
 
 	def handle_action(self, c, e, channel, nick, msg):
 		lc_msg = msg.lower()
@@ -124,20 +152,21 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 					else:
 						out(item)
 
+
+
 	def feed_parse(self, c, e, interval, feeds):
-		socket.setdefaulttimeout(20)
-		db = logger.db
-		try:
-			res = db.execute('select key from feed_seen')
-			FEED_SEEN = [x[0] for x in res]
-		except:
-			db.execute('CREATE TABLE feed_seen (key varchar)')
-			db.execute('CREATE INDEX IF NOT EXISTS ix_feed_seen_key ON feed_seen (key)')
-			db.commit()
-			FEED_SEEN = []
-		NEWLY_SEEN = []
-		for this_feed in feeds:
+		"""
+		This is used to parse RSS feeds and spit out new articles at
+		regular intervals in the relevant channels.
+		"""
+		def check_single_feed(this_feed):
+			"""
+			This function is run in a new thread for each feed, so we don't
+			lock up the main thread while checking (potentially slow) RSS feeds
+			"""
+			socket.setdefaulttimeout(20)
 			outputs = []
+			NEWLY_SEEN = []
 			try:
 				feed = feedparser.parse(this_feed['url'])
 			except:
@@ -171,37 +200,63 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 						out = '%s' % entry['title']
 				outputs.append(out)
 			if outputs:
+				c.execute_delayed(20, self.add_feed_entries, arguments=(NEWLY_SEEN,))
 				txt = 'News from %s %s : %s' % (this_feed['name'], this_feed['linkurl'], ' || '.join(outputs[:10]))
 				txt = txt.encode('utf-8')
 				c.privmsg(this_feed['channel'], txt)
-			if NEWLY_SEEN:
-				db.executemany('INSERT INTO feed_seen (key) values (?)', [(x,) for x in NEWLY_SEEN])
-				db.commit()
+		#end of check_single_feed
+		db = logger.db
+		try:
+			res = db.execute('select key from feed_seen')
+			FEED_SEEN = [x[0] for x in res]
+		except:
+			db.execute('CREATE TABLE feed_seen (key varchar)')
+			db.execute('CREATE INDEX IF NOT EXISTS ix_feed_seen_key ON feed_seen (key)')
+			db.commit()
+			FEED_SEEN = []
+		for feed in feeds:
+			t = Thread(target=check_single_feed, args=[feed])
+			t.setDaemon(True)
+			t.start()
 		c.execute_delayed(interval, self.feed_parse, arguments=(c, e, interval, feeds))
 
+	def add_feed_entries(self, entries):
+		"""
+		This is to let the main pmxbot thread update the database and avoid
+		issues with accessing sqlite from multiple threads
+		"""
+		logger.db.executemany('INSERT INTO feed_seen (key) values (?)', [(x,) for x in entries])
+		logger.db.commit()
 
 _handler_registry = []
 _handler_sort_order = {'command' : 1, 'alias' : 2, 'contains' : 3}
+_delay_registry = []
 
-def contains(s, doc=None):
-	def deco(f):
-		if s == '#':
-			_handler_registry.append(('#', s.lower(), f, doc))
+def contains(name, doc=None):
+	def deco(func):
+		if name == '#':
+			_handler_registry.append(('#', name.lower(), func, doc))
 		else:
-			_handler_registry.append(('contains', s.lower(), f, doc))
-		return f
+			_handler_registry.append(('contains', name.lower(), func, doc))
+		return func
 	return deco
 
-def command(s, aliases=None, doc=None):
-	def deco(f):
-		_handler_registry.append(('command', s.lower(), f, doc))
+def command(name, aliases=None, doc=None):
+	def deco(func):
+		_handler_registry.append(('command', name.lower(), func, doc))
 		if aliases:
 			for a in aliases:
 				if not a.endswith(' '):
 					pass
 					#a += ' '
-				_handler_registry.append(('alias', a.lower(), f, doc))
-		return f
+				_handler_registry.append(('alias', a, func, doc))
+		return func
+	return deco
+	
+def execdelay(name, channel, howlong, args=[], doc=None):
+	def deco(func):
+		_delay_registry.append((name.lower(), channel, howlong, func, args, doc))
+		return func
 	return deco
 
 class Logger(object):

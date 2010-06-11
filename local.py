@@ -34,3 +34,7 @@ def paste(client, event, channel, nick, rest):
         return post_url
     else:
         return "hmm.. I didn't find a recent paste of yours, %s. Checkout http://libpa.st" % nick
+
+@execdelay("hi", channel="#botone", howlong=10)
+def howdy(client, event):
+	return "Howdy everybody!"

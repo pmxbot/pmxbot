@@ -281,7 +281,8 @@ def splitem(s):
 	c = choices.split(',')
 	if ' or ' in c[-1]:
 		c = c[:-1] + c[-1].split(' or ')
-	c = map(str.strip, c)
+	
+	c = [x.strip() for x in c]
 	c = filter(None, c)
 	return c
 
