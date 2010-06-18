@@ -72,6 +72,15 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 			if channel not in self._nolog:
 				logger.message(channel, nick, msg)
 			self.handle_action(c, e, channel, nick, msg)
+	
+	def on_privmsg(self, c, e):
+		msg = (''.join(e.arguments())).decode('utf8', 'ignore')
+		nick = e.source().split('!', 1)[0]
+		channel = nick
+		if msg == '':
+			pass
+		else:
+			self.handle_action(c, e, channel, nick, msg)
 
 	def on_invite(self, c, e):
 		nick = e.source().split('!', 1)[0]
