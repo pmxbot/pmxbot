@@ -1,0 +1,19 @@
+server_host: "localhost"
+server_port: 6668
+bot_nickname: integrationbot
+log_channels: 
+    - "#logged"
+other_channels:
+    - "#inane"
+inane_channel: "#inane"
+database_dir: "tests/functional"
+places: ["Palo Alto, CA", "Canton, OH", "Washington, DC", "London, England"]
+lunch_choices:
+    PA: ["Pasta?", "Thaiphoon", "Pluto's", "Penninsula Creamery", "Kan Zeman"]
+feed_interval: 15 #15 minutes
+feeds:
+    - name    : "pmxbot bitbucket"
+      channel : "#inane"
+      linkurl : "http://bitbucket.org/yougov/pmxbot"
+      url     : "http://bitbucket.org/yougov/pmxbot"
+local_extensions: []

@@ -786,20 +786,25 @@ def where(client, event, channel, nick, rest):
 
 global config
 
-def run():
+def run(configFile=None, configDict=None):
 	global config
 	import sys, yaml
-	if len(sys.argv) < 2:
-		sys.stderr.write("error: need config file as first argument")
-		raise SystemExit(1)
-	
-	config_file = sys.argv[1]
 	class O(object): 
 		def __init__(self, d):
 			for k, v in d.iteritems():
 			    setattr(self, k, v)
-			
-	config = O(yaml.load(open(config_file)))
+
+	if configDict:
+        config = O(configDict)
+	else:
+	    if configFile:
+    	    config_file = configFile
+        else:
+    	    if len(sys.argv) < 2:
+        		sys.stderr.write("error: need config file as first argument")
+        		raise SystemExit(1)
+        	config_file = sys.argv[1]
+	    config = O(yaml.load(open(config_file)))
 
 	@contains(config.bot_nickname)
 	def rand_bot2(*args):

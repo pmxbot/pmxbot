@@ -32,6 +32,14 @@ pmxbot requires python, of course. Probably 2.5+. It also requires a few python 
 * httplib2
 * sqlite3
 
+Optionally nosetests for the test suite.
+
+Testing
+=======
+We have a basic nose test suite that does some functional tests with an included
+TCL IRC daemon, and some basic unit tests as well. Just run them from the pmxbot
+root directory with "nosetests" and it should do it all for you. You'll need
+TCL and nosetests to do it though.
 
 Configuration
 =============
@@ -46,7 +54,7 @@ daemontools to make it automatically restart if it crashes.
 
 
 Adding a custom, local feature
-=====================
+==============================
 Adding a new feature is easy, you just need to add them to a local_extensions
 file, following the established convention. The files to load are specified
 in the local_extensions configuration setting. All files in the list are run

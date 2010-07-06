@@ -16,8 +16,8 @@ feeds:
       channel : "#botone"
       linkurl : "http://bitbucket.org/yougov/pmxbot"
       url     : "http://bitbucket.org/yougov/pmxbot"
-    - name    : "pmxbot bitbucket"
+    - name    : "pmxbot on twitter"
       channel : "#bottwo"
-      linkurl : "http://bitbucket.org/yougov"
-      url     : "http://bitbucket.org/yougov/rss"
+      linkurl : "http://search.twitter.com/search?q=pmxbot"
+      url     : "http://search.twitter.com/search.atom?q=pmxbot"
 local_extensions: ['local.py']

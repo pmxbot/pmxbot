@@ -280,7 +280,7 @@ class Logger(object):
 			datetime DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			channel VARCHAR NOT NULL,
 			nick VARCHAR NOT NULL,
-			MESSAGE TEXT,
+			message TEXT,
 			PRIMARY KEY (id) )
 		'''
 		INDEX_DTC_CREATE_SQL = 'CREATE INDEX IF NOT EXISTS ix_logs_datetime_channel ON logs (datetime, channel)'
