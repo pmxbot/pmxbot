@@ -330,7 +330,6 @@ class Karma():
 	def karmaChange(self, thing, change):
 		thing = thing.strip().lower()
 		value = int(self.karmaLookup(thing)) + int(change)
-		log_id, log_message = self.db.execute('SELECT id, message FROM LOGS order by datetime desc limit 1').fetchone()
 		UPDATE_SQL = 'UPDATE karma_values SET karmavalue = ? where karmaid = (select karmaid from karma_keys where karmakey = ?)'
 		res = self.db.execute(UPDATE_SQL, (value, thing))
 		if res.rowcount == 0:
@@ -338,8 +337,6 @@ class Karma():
 			INSERT_KEY_SQL = 'INSERT INTO karma_keys (karmakey, karmaid) VALUES (?, ?)'
 			ins = self.db.execute(INSERT_VALUE_SQL, [value])
 			self.db.execute(INSERT_KEY_SQL, (thing, ins.lastrowid))
-		if thing in log_message.lower():
-			self.db.execute('INSERT INTO karma_log (karmakey, logid, change) VALUES (?, ?, ?)', (thing, log_id, change))
 		self.db.commit()
 
 	def karmaList(self, select=0):

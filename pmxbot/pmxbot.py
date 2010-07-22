@@ -33,9 +33,15 @@ def google(client, event, channel, nick, rest):
 @command("googlecalc", aliases=('gc',), doc="Calculate something using google")
 def googlecalc(client, event, channel, nick, rest):
 	query = rest
-	gcre = re.compile('<h2 class=r style="font-size:138%"><b>(.+?)</b>')
 	html = get_html('http://www.google.com/search?%s' % urllib.urlencode({'q' : query}))
-	return plaintext(gcre.search(html).group(1))
+	try:
+		gcre = re.compile('<h2 class=r style="font-size:138%"><b>(.+?)</b>')
+		res = plaintext(gcre.search(html).group(1))
+	except AttributeError:
+		gcre = re.compile('<h3 class=r><b>(.+?)</b>')
+		res = plaintext(gcre.search(html).group(1))
+	return res
+		
 
 @command("time", doc="What time is it in.... Similar to !weather")
 def googletime(client, event, channel, nick, rest):
@@ -786,7 +792,7 @@ def where(client, event, channel, nick, rest):
 
 global config
 
-def run(configFile=None, configDict=None):
+def run(configFile=None, configDict=None, start=True):
 	global config
 	import sys, yaml
 	class O(object): 
@@ -817,4 +823,5 @@ def run(configFile=None, configDict=None):
 	bot = LoggingCommandBot(config.database_dir, config.server_host, config.server_port, 
 		config.bot_nickname, config.log_channels, config.other_channels,
 		config.feed_interval*60, config.feeds)
-	bot.start()
+	if start:
+		bot.start()

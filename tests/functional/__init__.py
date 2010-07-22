@@ -15,7 +15,7 @@ class TestingClient(object):
 		
 	def send_message(self, channel, message):
 	   	self.c.privmsg(channel, message)
-		time.sleep(0.1)
+		time.sleep(0.05)
 
 class PmxbotHarness(object):
 	@classmethod
@@ -29,17 +29,17 @@ class PmxbotHarness(object):
 		cls.db = sqlite3.connect(cls.dbfile)
 		
 		serverargs = shlex.split('/usr/bin/tclsh tclird/ircd.tcl')
-		cls.server = subprocess.Popen(['tclsh', os.path.join(path, 'tclircd/ircd.tcl')])
-		time.sleep(1)
+		cls.server = subprocess.Popen(['tclsh', os.path.join(path, 'tclircd/ircd.tcl')], stdout=open('/dev/null', 'w'), stderr=open('/dev/null', 'w'))
+		time.sleep(0.5)
 		cls.bot = subprocess.Popen(['pmxbot', configfile])
-		time.sleep(1)
+		time.sleep(0.5)
 		
 		cls.client = TestingClient('localhost', 6668, 'testingbot')
 
 	def check_logs(cls, channel='', nick='', message=''):
 		if channel.startswith('#'):
 			channel = channel[1:]
-		time.sleep(0.25)
+		time.sleep(0.1)
 		cursor = cls.db.cursor()
 		query = "select * from logs where 1=1"
 		if channel:
@@ -58,7 +58,6 @@ class PmxbotHarness(object):
 	
 	@classmethod
 	def teardown_class(cls):
-		time.sleep(1)
 		cls.bot.terminate()
 		cls.server.terminate()
 		cls.db.rollback()
