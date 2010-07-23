@@ -33,6 +33,11 @@ class TestCommands(object):
 		pmxbot.run(configFile=configfile, start=False)
 		pmxbot.botbase.logger.message("logged", "testrunner", "some text")
 		
+	@classmethod
+	def teardown_class(self):
+		path = os.path.dirname(os.path.abspath(__file__))
+		os.remove(os.path.join(path, 'pmxbot.sqlite'))
+
 	def test_google(self):
 		"""
 		Basic google search for "pmxbot". Result must contain a link.
@@ -382,6 +387,57 @@ class TestCommands(object):
 		assert len(flags) == 3
 		assert i < 30
 
+	def test_calc_simple(self):
+		"""
+		Test the built-in python calculator with a simple expression - 2+2
+		"""
+		res = pmxbot.calc(c, e, "#test", "testrunner", "2+2")
+		assert res == "4"
+		
+	def test_calc_complex(self):
+		"""
+		Test the built-in python calculator with a more complicated formula
+		((((781**2)*5)/92835.3)+4)**0.5
+		"""
+		res = pmxbot.calc(c, e, "#test", "testrunner", "((((781**2)*5)/92835.3)+4)**0.5")
+		assert res.startswith("6.070566")
+		
+	def test_define_keyboard(self):
+		"""
+		Test the wikipedia dictionary with the word keyboard.
+		"""
+		res = pmxbot.defit(c, e, "#test", "testrunner", "keyboard")
+		assert res.startswith("Wikipedia says: In computing, a keyboard is an input device, partially modeled after the typewriter keyboard,")
+
+	def test_define_irc(self):
+		"""
+		Test the wikipedia dictionary with the word IRC.
+		"""
+		res = pmxbot.defit(c, e, "#test", "testrunner", "irc")
+		assert res.startswith("Wikipedia says: Internet Relay Chat (IRC) is a form of real-time Internet text messaging (chat) or synchronous conferencing")
+
+	def test_urb_irc(self):
+		"""
+		Test the urban dictionary with the word IRC.
+		"""
+		res = pmxbot.urbandefit(c, e, "#test", "testrunner", "irc")
+		assert res == "Urban Dictionary says IRC: Abbreviation for Internet Relay Chat. A multiplayer notepad."
+
+	def test_acronym_irc(self):
+		"""
+		Test acronym finder with the word IRC.
+		"""
+		res = pmxbot.acit(c, e, "#test", "testrunner", "irc")
+		assert "Internet Relay Chat" in res
+		assert "|" in res
+		
+	def test_progress(self):
+		"""
+		Test the progress bar
+		"""
+		res = pmxbot.progress(c, e, "#test", "testrunner", "1|98123|30")
+		print res
+		assert res == "1 [===       ] 98123"
 
 #	def test_yahoolunch_zip(self):
 #		"""
