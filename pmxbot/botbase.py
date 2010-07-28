@@ -124,7 +124,7 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 		lc_cmd = msg.split()[0]
 		res = None
 		secret = False
-		for typ, name, f, doc in sorted(_handler_registry, key=lambda x: (_handler_sort_order[x[0]], 0-len(x[1]), x[1])):
+		for typ, name, f, doc, channels, exclude, rate in _handler_registry:
 			if typ in ('command', 'alias') and lc_cmd == '!%s' % name:
 				try:
 					if ' ' in msg:
@@ -137,13 +137,16 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 					traceback.print_exc()
 				break
 			elif typ in('contains', '#') and name in lc_msg:
-				try:
-					res = f(c, e, channel, nick, msg)
-				except Exception, e:
-					res = "DO NOT TRY TO BREAK PMXBOT!!!"
-					res += '\n%s' % e
-					traceback.print_exc()
-				break
+				if (channels and channel in channels) \
+				and (exclude and channel not in exclude) \
+				and (rate == 1.0 or random.random() <= rate):
+					try:
+						res = f(c, e, channel, nick, msg)
+					except Exception, e:
+						res = "DO NOT TRY TO BREAK PMXBOT!!!"
+						res += '\n%s' % e
+						traceback.print_exc()
+					break
 		def out(s):
 			if s.startswith('/me '):
 				c.action(channel, s.split(' ', 1)[-1].lstrip())
@@ -241,24 +244,26 @@ _handler_registry = []
 _handler_sort_order = {'command' : 1, 'alias' : 2, 'contains' : 3}
 _delay_registry = []
 
-def contains(name, doc=None):
+def contains(name, channels=None, exclude=None, rate=1.0, priority=1, doc=None):
 	def deco(func):
-		if name == '#':
-			_handler_registry.append(('#', name.lower(), func, doc))
+		if name == '#' or priority == 2:
+			_handler_registry.append(('#', name.lower(), func, doc, channels, exclude, rate))
 		else:
-			_handler_registry.append(('contains', name.lower(), func, doc))
+			_handler_registry.append(('contains', name.lower(), func, doc, channels, exclude, rate))
+		_handler_registry.sort(key=lambda x: (_handler_sort_order[x[0]], 0-len(x[1]), x[1]))
 		return func
 	return deco
 
 def command(name, aliases=None, doc=None):
 	def deco(func):
-		_handler_registry.append(('command', name.lower(), func, doc))
+		_handler_registry.append(('command', name.lower(), func, doc, None, None, None))
 		if aliases:
 			for a in aliases:
 				if not a.endswith(' '):
 					pass
 					#a += ' '
-				_handler_registry.append(('alias', a, func, doc))
+				_handler_registry.append(('alias', a, func, doc, None, None, None))
+		_handler_registry.sort(key=lambda x: (_handler_sort_order[x[0]], 0-len(x[1]), x[1]))
 		return func
 	return deco
 	

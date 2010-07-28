@@ -244,7 +244,7 @@ class TestCommands(object):
 		GOOG at 4:00pm (ET): 484.81 (1.5%)
 		"""
 		res = pmxbot.ticker(c, e, "#test", "testrunner", "goog")
-		assert re.match(r"""^GOOG at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{2,4}.\d{2} \(\d{1,3}.\d%\)$""", res)
+		assert re.match(r"""^GOOG at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{2,4}.\d{2} \(\-?\d{1,3}.\d%\)$""", res), res
 		
 	def test_ticker_yougov(self):
 		"""
@@ -253,7 +253,7 @@ class TestCommands(object):
 		YOU.L at 10:37am (ET): 39.40 (0.4%)
 		"""
 		res = pmxbot.ticker(c, e, "#test", "testrunner", "you.l")
-		assert re.match(r"""^YOU.L at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{1,4}.\d{2} \(\d{1,3}.\d%\)$""", res)
+		assert re.match(r"""^YOU.L at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{1,4}.\d{2} \(\-?\d{1,3}.\d%\)$""", res), res
 		
 	def test_ticker_dow(self):
 		"""
@@ -262,7 +262,7 @@ class TestCommands(object):
 		^DJI at 10:37am (ET): 39.40 (0.4%)
 		"""
 		res = pmxbot.ticker(c, e, "#test", "testrunner", "^dji")
-		assert re.match(r"""^\^DJI at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{4,5}.\d{2} \(\d{1,3}.\d%\)$""", res)
+		assert re.match(r"""^\^DJI at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{4,5}.\d{2} \(\-?\d{1,3}.\d%\)$""", res), res
 		
 	def test_pick_or(self):
 		"""
