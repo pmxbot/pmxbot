@@ -214,6 +214,13 @@ def hire(client, event, channel, nick, rest):
 	task = featurecreep(client, event, channel, nick, rest)
 	return "/me finds a new %s to %s" % (title, task.lower())
 
+@command('strategy', doc='Social Media Strategy, courtsey of http://whatthefuckismysocialmediastrategy.com/')
+def strategy(client, event, channel, nick, rest):
+	html = get_html('http://whatthefuckismysocialmediastrategy.com/')
+	res = plaintext(re.search(r"""<span class="bigfuckingtext">(.+?)</span>""", html).group(1))
+	return res
+	
+
 @command('oregontrail', aliases=('otrail',), doc='It\'s edutainment!')
 def oregontrail(client, event, channel, nick, rest):
 	rest = rest.strip()

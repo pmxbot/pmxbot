@@ -439,6 +439,14 @@ class TestCommands(object):
 		print res
 		assert res == "1 [===       ] 98123"
 
+	def test_strategy(self):
+		"""
+		Test the social strategy thingie
+		"""
+		res = pmxbot.strategy(c, e, "#test", "testrunner", "")
+		print res
+		assert res != ""
+
 #	def test_yahoolunch_zip(self):
 #		"""
 #		Test that the lunch function returns something that looks right when asked with a zip.
