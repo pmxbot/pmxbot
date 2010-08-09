@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block body %}
+
+<h3>#{{ channel }} logs for {{ pdate }}</h3>
+<div class="navsec">
+(<a href="{{ request.base }}/channel/{{ channel }}">Back to #{{ channel }} overview</a>)
+(<a href="{{ request.base }}">Back to channel listing</a>)
+</div>
+
+<div class="logsection">
+{% for tm, name, marker, msg in history %}
+	<div class="logline">
+	<a name="{{ marker }}"></a>
+	[<a href="#{{ marker }}" class="comment-link">{{ tm }}</a>] &lt;<span style="color: #{{ color_map[name] }}">{{ name }}</span>&gt; {{ msg }}
+	</div>
+{% endfor %}
+</div>
+
+
+{% endblock %}

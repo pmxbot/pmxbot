@@ -27,13 +27,16 @@
 	</head>
 	<body>
 	<div id="header">
-		<div style="float: right; text-align: right;">
-			<img src="{{ logo }}" border="0" alt="PMXBOT" />
-			<h1><a href="{{ request.base }}">Log file Viewer</a></h1>
-		</div>
+		<h1><img src="{{ logo }}" border="0" alt="PMXBOT" height="50"/>
+		<a href="{{ request.base }}">Log file Viewer</a></h1>
+		<h3>
+		    <a href="{{ request.base }}/help">Help</a> | 
+		    <a href="{{ request.base }}/karma">Karma</a> | 
+            <a href="{{ request.base }}/quotes">Quotes</a>
+        </h3>
 		<div>
 			<form action="{{ request.base }}/search" method="GET">
-				<input type="text" name="term" />
+				Search: <input type="text" name="term" />
 				<input type="submit" value="Search" />
 			</form>
 		</div>

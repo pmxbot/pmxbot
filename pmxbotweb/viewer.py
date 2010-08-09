@@ -79,7 +79,32 @@ class ChannelPage(object):
 	default.exposed = True
 
 class DayPage(object):
-	pass
+	def default(self, channel, day):
+		page = jenv.get_template('day.html')
+		dbfile = cherrypy.request.app.config['db']['database']
+		db = sqlite.connect(dbfile)
+		context = get_context()
+		db.text_factory = lambda x: unicode(x, "utf-8", "ignore")
+		DAY_DETAIL_SQL = 'SELECT time(datetime), nick, message from logs where channel = ? and date(datetime) = ? order by datetime'
+		day_logs = db.execute(DAY_DETAIL_SQL, [channel, day])
+		data = [(t, n, make_anchor((t, n)), escape(m)) for (t,n,m) in day_logs]
+		usernames = [x[1] for x in data]
+		color_map = {}
+		clrs = colors[:]
+		for u in usernames:
+			if u not in color_map:
+				try:
+					color = clrs.pop(0)
+				except IndexError:
+					color = "000"
+				color_map[u] = color
+		context['color_map'] = color_map
+		context['history'] = data
+		context['channel'] = channel
+		context['pdate'] = "%s of %s" % (pday(day), pmon(day.rsplit('-', 1)[0]))
+		print context
+		return page.render(**context)
+	default.exposed = True
 
 class KarmaPage(object):
 	pass
