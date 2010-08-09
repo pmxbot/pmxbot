@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>{{ name }} IRC Log Viewer</title>
+		<style>
+			body {
+				font-family: Verdana, Arial, Helvetica, sans-serif;
+				font-size: 13px;
+				}
+			div.logsection { font-family: fixed; background-color: #ddd; padding: 6px; border: black 1px dashed;}
+			div.navsec { margin-bottom: 10px;}
+			div.monthsec { background-color: #ddd; padding: 6px; border: black 1px dashed; margin-bottom: 10px;}
+			div.monthhead { font-weight: bold;}
+			span.termhi { background-color: yellow; }
+			tr.even { background-color: #eee; }
+			td.left { padding-right: 20px; } 
+			a.comment-link {color: #0088AA;}
+			div#quote { margin-top: 25px; margin-bottom: 25px; clear: both; width: 650px; margin-left: auto; margin-right: auto; text-align: center; background-color: gray; padding: 10px;}
+			#quote a { text-decoration: none; color: white; font-size: 18px; line-height: 150%}
+			.wordlist {width: 800px; bottom-pad: 25px;}
+			.freq {font-size: .8em; text-color: gray;}
+		</style>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+		{{ headerExtras }}
+	</head>
+	<body>
+	<div id="header">
+		<div style="float: right; text-align: right;">
+			<img src="{{ logo }}" border="0" alt="PMXBOT" />
+			<h1><a href="{{ request.base }}">Log file Viewer</a></h1>
+		</div>
+		<div>
+			<form action="{{ request.base }}/search" method="GET">
+				<input type="text" name="term" />
+				<input type="submit" value="Search" />
+			</form>
+		</div>
+
+    {% block body %}
+    {% endblock %}
+	</body>
+</html>

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block body %}
+
+<h3>Current Channels</h3>
+<ol>
+{% for chan, dt, day, time, nick, msg, marker in chans %}
+	<li><a href="{{ request.base }}/channel/{{ chan }}">{{ chan }}</a>&nbsp;&mdash;&nbsp; <span style="font-family: fixed;">[<a href="{{ request.base }}/day/{{ chan }}/{{ day }}#{{ marker }}" class="comment-link">{{ dt }}</a>] &lt;{{ nick }}&gt; {{ msg }}</li>
+{% endfor %}
+</ol>
+
+{% endblock %}

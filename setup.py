@@ -8,6 +8,7 @@ setup(name="pmxbot",
             'console_scripts' : 
 '''
 pmxbot=pmxbot.pmxbot:run
+pmxbotweb=pmxbotweb.pmxbotweb:run
 '''
     },
     install_requires=[
@@ -16,6 +17,9 @@ pmxbot=pmxbot.pmxbot:run
         "simplejson",
         "httplib2",
         "feedparser",
+		#for viewer
+		"jinja2",
+		"cherrypy",
     ],
     description="IRC bot - full featured, yet extensible and customizable",
     license = 'MIT',
