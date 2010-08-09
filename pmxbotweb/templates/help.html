@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block body %}
+
+<h3>Commands</h3>
+<table style="border: none;">
+{% for name, doc, aliases in commands %}
+	<tr><td class="left" style="font-weight: bold; font-family: fixed-width; ">{{ name }}
+	{% if aliases %}
+		{{ aliases }}
+	{% endif %}
+	</td><td>{{ doc }}</td></tr>
+{% endfor %}
+</table>
+
+<h3>Triggers</h3>
+<table style="border: none;">
+{% for name, doc in contains %}
+	<tr><td class="left" style="font-weight: bold; font-family: fixed-width; ">{{ name }}</td>
+	<td>{{ doc|default("") }}</td></tr>
+{% endfor %}
+</table>
+
+
+{% endblock %}

@@ -20,7 +20,7 @@ shuffle(colors)
 
 def get_context():
 	c = cherrypy.request.app.config['botconf']['config']
-	d = {'request': cherrypy.request, 'name' : c.bot_nickname}
+	d = {'request': cherrypy.request, 'name' : c.bot_nickname,	'config' : c}
 	try:
 		d['logo'] = c.logo
 	except AttributeError:
@@ -113,7 +113,22 @@ class SearchPage(object):
 	pass
 	
 class HelpPage(object):
-	pass
+	def default(self):
+		page = jenv.get_template('help.html')
+		context = get_context()
+		context['commands'] = []
+		context['contains'] = []
+		import pmxbot.pmxbot as p
+		p.run(configInput = context['config'], start=False)
+		for typ, name, f, doc, channels, exclude, rate in sorted(p._handler_registry, key=lambda x: x[1]):
+			if typ == 'command':
+				aliases = sorted([x[1] for x in p._handler_registry if x[0] == 'alias' and x[2] == f])
+				context['commands'].append((name, doc, aliases))
+			elif typ == 'contains':
+				context['contains'].append((name, doc))
+		return page.render(**context)
+	default.exposed = True
+	
 
 class PmxbotPages(object):
 	channel = ChannelPage()

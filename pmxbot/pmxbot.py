@@ -799,7 +799,7 @@ def where(client, event, channel, nick, rest):
 
 global config
 
-def run(configFile=None, configDict=None, start=True):
+def run(configFile=None, configDict=None, configInput=None, start=True):
 	global config
 	import sys, yaml
 	class O(object): 
@@ -807,7 +807,9 @@ def run(configFile=None, configDict=None, start=True):
 			for k, v in d.iteritems():
 			    setattr(self, k, v)
 
-	if configDict:
+	if configInput:
+		config = configInput
+	elif configDict:
         config = O(configDict)
 	else:
 	    if configFile:
