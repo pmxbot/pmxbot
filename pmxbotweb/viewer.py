@@ -113,19 +113,26 @@ class SearchPage(object):
 	pass
 	
 class HelpPage(object):
+	def __init__(self):
+		self.run = False
+		
 	def default(self):
 		page = jenv.get_template('help.html')
 		context = get_context()
-		context['commands'] = []
-		context['contains'] = []
-		import pmxbot.pmxbot as p
-		p.run(configInput = context['config'], start=False)
-		for typ, name, f, doc, channels, exclude, rate in sorted(p._handler_registry, key=lambda x: x[1]):
-			if typ == 'command':
-				aliases = sorted([x[1] for x in p._handler_registry if x[0] == 'alias' and x[2] == f])
-				context['commands'].append((name, doc, aliases))
-			elif typ == 'contains':
-				context['contains'].append((name, doc))
+		if not self.run:
+			self.commands = []
+			self.contains = []
+			import pmxbot.pmxbot as p
+			p.run(configInput = context['config'], start=False)
+			for typ, name, f, doc, channels, exclude, rate in sorted(p._handler_registry, key=lambda x: x[1]):
+				if typ == 'command':
+					aliases = sorted([x[1] for x in p._handler_registry if x[0] == 'alias' and x[2] == f])
+					self.commands.append((name, doc, aliases))
+				elif typ == 'contains':
+					self.contains.append((name, doc))
+			self.run = True
+		context['commands'] = self.commands
+		context['contains'] = self.contains
 		return page.render(**context)
 	default.exposed = True
 	
