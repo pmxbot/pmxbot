@@ -29,17 +29,15 @@
 	<div id="header">
 		<h1><img src="{{ logo }}" border="0" alt="PMXBOT" height="50"/>
 		<a href="{{ request.base }}">Log file Viewer</a></h1>
+		<form action="{{ request.base }}/search" method="GET">
 		<h3>
 		    <a href="{{ request.base }}/help">Help</a> | 
 		    <a href="{{ request.base }}/karma">Karma</a> | 
-            <a href="{{ request.base }}/quotes">Quotes</a>
-        </h3>
-		<div>
-			<form action="{{ request.base }}/search" method="GET">
+            <a href="{{ request.base }}/quotes">Quotes</a> | 
 				Search: <input type="text" name="term" />
 				<input type="submit" value="Search" />
-			</form>
-		</div>
+		</h3>
+		</form>
 
     {% block body %}
     {% endblock %}

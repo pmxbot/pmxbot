@@ -106,8 +106,53 @@ class DayPage(object):
 		return page.render(**context)
 	default.exposed = True
 
+
+def karmaList(db, select=0):
+	KARMIC_VALUES_SQL = 'SELECT karmaid, karmavalue from karma_values order by karmavalue desc'
+	KARMA_KEYS_SQL= 'SELECT karmakey from karma_keys where karmaid = ?'
+
+	karmalist = db.execute(KARMIC_VALUES_SQL).fetchall()
+	karmalist.sort(key=lambda x: int(x[1]), reverse=True)
+	if select > 0:
+		selected = karmalist[:select]
+	elif select < 0:
+		selected = karmalist[select:]
+	else:
+		selected = karmalist
+	keysandkarma = []
+	for karmaid, value in selected:
+		keys = [x[0] for x in db.execute(KARMA_KEYS_SQL, [karmaid])]
+		keysandkarma.append((keys, value))
+	return keysandkarma
+
 class KarmaPage(object):
-	pass
+	def default(self, term=""):
+		page = jenv.get_template('karma.html')
+		context = get_context()
+		dbfile = cherrypy.request.app.config['db']['database']
+		db = sqlite.connect(dbfile)
+		db.text_factory = lambda x: unicode(x, "utf-8", "ignore")
+		term = term.strip()
+		if term:
+			context['lookup'] = []
+			context['term'] = term
+			KARMA_SEARCH_SQL = "SELECT distinct karmaid from karma_keys where karmakey like ? "
+			KARMA_VALUE_SQL = "SELECT karmavalue from karma_values where karmaid = ?"
+			KARMA_KEYS_SQL = "SELECT karmakey from karma_keys where karmaid = ?"
+			matches = db.execute(KARMA_SEARCH_SQL, ['%%%s%%' % term])
+			KARMA_VALUE_SQL = "SELECT karmavalue from karma_values where karmaid = ?"
+			for (id,) in matches:
+				karmavalue = db.execute(KARMA_VALUE_SQL, [id]).fetchone()[0]
+				names = db.execute(KARMA_KEYS_SQL, [id]).fetchall()
+				names = sorted([x[0] for x in names])
+				context['lookup'].append((', '.join(names), karmavalue))
+			if not context['lookup']:
+				context['lookup'].append(('NO RESULTS FOUND', ''))
+		context['top100'] = karmaList(db, 100)
+		context['bottom100'] = karmaList(db, -100)
+		return page.render(**context)
+	default.exposed = True
+		
 
 class SearchPage(object):
 	pass

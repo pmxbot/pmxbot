@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block body %}
+
+<hr/>
+<h3>Karma Lookup</h3>
+<form action="{{ request.base }}/karma" method="GET">
+	Lookup: <input type="text" name="term" value="{{ term }}"/>
+	<input type="submit" value="Lookup" />
+</form>
+<table style="border: none;">
+{% for names, points in lookup %}
+	<tr><td class="left" style="font-weight: bold; font-family: fixed-width; ">{{ names }}
+	</td><td>{{ points }}</td></tr>
+{% endfor %}
+</table>
+
+
+<h3>Top 100 Karmas</h3>
+<table style="border: none;">
+{% for names, points in top100 %}
+	<tr><td class="left" style="font-weight: bold; font-family: fixed-width; ">{{ names }}
+	</td><td>{{ points }}</td></tr>
+{% endfor %}
+</table>
+
+<h3>Bottom 100 Karmas</h3>
+<table style="border: none;">
+{% for names, points in bottom100 %}
+	<tr><td class="left" style="font-weight: bold; font-family: fixed-width; ">{{ names }}</td>
+	<td>{{ points }}</td></tr>
+{% endfor %}
+</table>
+
+
+{% endblock %}
