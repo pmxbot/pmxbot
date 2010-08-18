@@ -109,7 +109,7 @@ def translate(client, event, channel, nick, rest):
 	return translation
 
 
-@command("boo", aliases=("b"), doc="Boo someone")
+@command("boo", doc="Boo someone")
 def boo(client, event, channel, nick, rest):
 	slapee = rest
 	karmaChange(botbase.logger.db, slapee, -1)
@@ -127,7 +127,7 @@ def keelhaul(client, event, channel, nick, rest):
 	karmaChange(botbase.logger.db, keelee, -1)
 	return "/me straps %s to a dirty rope, tosses 'em overboard and pulls with great speed. Yarrr!" % keelee
 
-@command("annoy", aliases=("a",), doc="Annoy everyone with meaningless banter")
+@command("annoy", aliases=("a", "bother",), doc="Annoy everyone with meaningless banter")
 def annoy(client, event, channel, nick, rest):
 	def a1():
 		yield 'OOOOOOOHHH, WHAT DO YOU DO WITH A DRUNKEN SAILOR'
@@ -164,6 +164,12 @@ def panic(client, event, channel, nick, rest):
 	yield 'O-<-<'
 	yield 'O->-<'
 	yield 'AAAAAAAHHHH!!!  HEAD FOR THE HILLS!'
+	
+@command("duck", aliases=("ducky",), doc="Display a helpful duck")
+def duck(client, event, channel, nick, rest):
+	yield '__("<'
+	yield '\__/'
+	yield ' ^^'
 
 @command("rubberstamp",  aliases=('approve',), doc="Approve something")
 def rubberstamp(client, event, channel, nick, rest):
@@ -267,6 +273,16 @@ def anchorman(client, event, channel, nick, rest):
 	qt = bartletts(popular_quote_db, 'anchorman', nick, rest)
 	if qt:	return qt
 
+@command('hangover', aliases=(), doc='Quote hangover.')
+def hangover(client, event, channel, nick, rest):
+	qt = bartletts(popular_quote_db, 'hangover', nick, rest)
+	if qt:	return qt
+
+@command('R', aliases=('r',), doc='Quote the R mailing list')
+def R(client, event, channel, nick, rest):
+	qt = bartletts(popular_quote_db, 'R', nick, rest)
+	if qt:	return qt
+
 #Added quotes
 @command('quote', aliases=('q',), doc='If passed with nothing then get a random quote. If passed with some string then search for that. If prepended with "add:" then add it to the db, eg "!quote add: drivers: I only work here because of pmxbot!"')
 def quote(client, event, channel, nick, rest):
@@ -309,6 +325,13 @@ def imotivate(client, event, channel, nick, rest):
 	else:
 		r = channel
 	return '''you're "doing" "good" "work", %s!''' % r
+	
+@command("nailedit", aliases=("nail", "n"), doc="Nail that interview")
+def nailedit(client, event, channel, nick, rest):
+	random.shuffle(interview_excuses)
+	yield "Sorry, but " + interview_excuses[0]
+	yield("/me Nailed it!")
+
 
 @command("demotivate", aliases=("dm",), doc="Demotivate someone")
 def demotivate(client, event, channel, nick, rest):
@@ -573,6 +596,14 @@ def blame(client, event, channel, nick, rest):
 	else:
 		yield "I blame %s for everything!  it's your fault!  it's all your fault!!" % blamee
 		yield "/me cries and weeps in despair"
+		
+@command("paste", aliases=(), doc="Drop a link to your latest paste on %s" % config.librarypaste)
+def paste(client, event, channel, nick, rest):
+	post_url = browser.catch_redirect_url("%s/last/%s" % (config.librarypaste, nick))
+	if post_url:
+		return post_url
+	else:
+		return "hmm.. I didn't find a recent paste of yours, %s. Checkout %s" % (nick, config.librarypaste)
 
 @contains('pmxbot')
 def rand_bot(client, event, channel, nick, rest):
@@ -824,7 +855,7 @@ def run(configFile=None, configDict=None, configInput=None, start=True):
 	@contains(config.bot_nickname)
 	def rand_bot2(*args):
 		return rand_bot(*args)
-	
+
     for extension in config.local_extensions:
         print "Loading", extension
         execfile(extension)

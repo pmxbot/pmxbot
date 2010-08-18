@@ -34,11 +34,13 @@ def words_from_file(f):
 			yield '\n'
 	yield '\n'
 
-def words_from_db(db):
+def words_from_db(db, max=100000):
 	db.text_factory = str
-	WORDS_SQL = '''SELECT message FROM logs UNION SELECT quote FROM quotes where library = 'pmx' '''
+	WORDS_SQL = '''SELECT message FROM logs order by random() limit %s''' % max
 	lines = db.execute(WORDS_SQL)
-	for line in lines:
+	QUOTE_SQL = '''SELECT quote FROM quotes where library = 'pmx''''
+	quotes = db.execute(QUOTE_SQL) 
+	for line in lines + quotes:
 		words = line[0].strip().lower().split()
 		for word in words:
 			yield word

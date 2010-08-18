@@ -591,6 +591,25 @@ apologies = [
 	"%(a)s is sorry or something.",
 ]
 
+interview_excuses = [
+	"I need to go to the Dentist",
+	"I have a Doctor's appointment",
+	"my little brother got his arm stuck in the microwave, and my mom had to take him to the hospital and my grandma freaked out and dropped acid and hijacked a busload of penguins, so it's kind of a family crisis.",
+	"I need to go car shopping",
+	"I have an appointment with an attorney to make a will",
+	"my grandmother's funeral is today",
+	"I need to go to the DMV",
+	"I have a terrible case of diarrhea",
+	"I need to get some allergy shots",
+	"the power went out in Tennessee",
+	"um, a huge snowpocalypse hit DC",
+	'''I'm getting lunch with a "friend"''',
+	"I'm heading off to a concert",
+	'''It looks like I'll be "working" from "home" today''',
+	"I've been maliciously sunburned, and need to stay home and get jumped by my chihuahuas",
+	"I need to go get a haircut",
+]
+
 def passagg(recipient='', sender=''):
 	adj = random.choice(adjs)
 	if random.randint(0,1):

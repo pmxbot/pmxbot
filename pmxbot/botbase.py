@@ -137,9 +137,15 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 					traceback.print_exc()
 				break
 			elif typ in('contains', '#') and name in lc_msg:
-				if (channels and channel in channels) \
-				and (exclude and channel not in exclude) \
-				and (rate == 1.0 or random.random() <= rate):
+				if channels and (channel not in channels \
+				or (channels == "logged" and channel in self._nolog) \
+				or (channels == "unlogged" and channel not in self._nolog)):
+					continue
+				if exclude and (channel not in exclude \
+				or (exclude == "logged" and channel in self._nolog) \
+				or (exclude == "unlogged" and channel not in self._nolog)):
+					continue
+				if random.random() <= rate:
 					try:
 						res = f(c, e, channel, nick, msg)
 					except Exception, e:
