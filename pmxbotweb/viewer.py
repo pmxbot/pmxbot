@@ -152,10 +152,44 @@ class KarmaPage(object):
 		context['bottom100'] = karmaList(db, -100)
 		return page.render(**context)
 	default.exposed = True
-		
+
+def search_logs(term, db):
+	terms = term.strip().split()
+
+	SEARCH_SQL = 'SELECT id, date(datetime), time(datetime), datetime, channel, nick, message FROM logs WHERE %s' % (' AND '.join(["message like '%%%s%%'" % x for x in terms]))
+
+	matches = []
+	alllines = []
+	search_res = db.execute(SEARCH_SQL)
+	for id, date, time, dt, channel, nick, message in search_res:
+			line = (time, nick, message)
+			if line in alllines:
+				continue
+			prev2 = db.execute('SELECT time(datetime), nick, message from logs where channel = ? and datetime < ? order by datetime desc limit 2', [channel, dt])
+			next2 = db.execute('SELECT time(datetime), nick, message from logs where channel = ? and datetime > ? order by datetime asc limit 2', [channel, dt])
+			lines = prev2.fetchall() + [line] + next2.fetchall()
+			marker = make_anchor(line)
+			matches.append((channel, date, marker, lines))
+			alllines.extend(lines)
+	return matches		
 
 class SearchPage(object):
-	pass
+	def default(self, term=''):
+		page = jenv.get_template('search.html')
+		context = get_context()
+		dbfile = cherrypy.request.app.config['db']['database']
+		db = sqlite.connect(dbfile)
+		db.text_factory = lambda x: unicode(x, "utf-8", "ignore")
+	
+		if not term:
+			raise cherrypy.HTTPRedirect(cherrypy.request.base)
+		results = sorted(search_logs(term, db), key=lambda x: x[1], reverse=True)
+		context['search_results'] = results
+		context['num_results'] = len(results)
+		context['term'] = term
+		return page.render(**context)
+	default.exposed = True
+		
 	
 class HelpPage(object):
 	def __init__(self):

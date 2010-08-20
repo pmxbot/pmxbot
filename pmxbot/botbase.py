@@ -10,6 +10,7 @@ import time
 import re
 import feedparser
 import socket
+import random
 
 from threading import Thread
 
@@ -66,20 +67,17 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 		msg = (''.join(e.arguments())).decode('utf8', 'ignore')
 		nick = e.source().split('!', 1)[0]
 		channel = e.target()
-		if msg == '':
-			pass
-		else:
+		if msg > '':
 			if channel not in self._nolog:
 				logger.message(channel, nick, msg)
 			self.handle_action(c, e, channel, nick, msg)
+			
 	
 	def on_privmsg(self, c, e):
 		msg = (''.join(e.arguments())).decode('utf8', 'ignore')
 		nick = e.source().split('!', 1)[0]
 		channel = nick
-		if msg == '':
-			pass
-		else:
+		if msg > '':
 			self.handle_action(c, e, channel, nick, msg)
 
 	def on_invite(self, c, e):
@@ -126,14 +124,15 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 		secret = False
 		for typ, name, f, doc, channels, exclude, rate in _handler_registry:
 			if typ in ('command', 'alias') and lc_cmd == '!%s' % name:
+				if ' ' in msg:
+					msg = msg.split(' ', 1)[-1].lstrip()
+				else:
+					msg = ''
 				try:
-					if ' ' in msg:
-						msg = msg.split(' ', 1)[-1].lstrip()
-					else:
-						msg = ''
 					res = f(c, e, channel, nick, msg)
 				except Exception, e:
 					res = "DO NOT TRY TO BREAK PMXBOT!!!"
+					res += '\n%s' % e
 					traceback.print_exc()
 				break
 			elif typ in('contains', '#') and name in lc_msg:
@@ -253,7 +252,7 @@ _delay_registry = []
 def contains(name, channels=None, exclude=None, rate=1.0, priority=1, doc=None):
 	def deco(func):
 		if name == '#' or priority == 2:
-			_handler_registry.append(('#', name.lower(), func, doc, channels, exclude, rate))
+			_handler_registry.append(('contains', name.lower(), func, doc, channels, exclude, rate))
 		else:
 			_handler_registry.append(('contains', name.lower(), func, doc, channels, exclude, rate))
 		_handler_registry.sort(key=lambda x: (_handler_sort_order[x[0]], 0-len(x[1]), x[1]))

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block body %}
+
+<h3>{{ num_results }} Results Found for "{{ term }}" (showing most recent first)</h3>
+
+{% for chan, date, marker, history in search_results %}
+<div class="result_heading">
+<a href="{{ request.base }}/day/{{ chan }}/{{ date }}#{{ marker }}"><i>{{ date }} in {{ chan }}</i></a>
+</div>
+<div class="logsection">
+{% for tm, name, msg in history %}
+	<div class="logline">
+	[{{ tm }}] &lt;<span>{{ name }}</span>&gt; {{ msg }}
+	</div>
+{% endfor %}
+</div>
+<br/>
+<br/>
+{% endfor %}
+
+
+
+{% endblock %}

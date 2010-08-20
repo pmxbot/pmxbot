@@ -222,9 +222,7 @@ def hire(client, event, channel, nick, rest):
 
 @command('strategy', doc='Social Media Strategy, courtsey of http://whatthefuckismysocialmediastrategy.com/')
 def strategy(client, event, channel, nick, rest):
-	html = get_html('http://whatthefuckismysocialmediastrategy.com/')
-	res = plaintext(re.search(r"""<span class="bigfuckingtext">(.+?)</span>""", html).group(1))
-	return res
+	return random.choice(socialstrategies)
 	
 
 @command('oregontrail', aliases=('otrail',), doc='It\'s edutainment!')
@@ -597,11 +595,11 @@ def blame(client, event, channel, nick, rest):
 		yield "I blame %s for everything!  it's your fault!  it's all your fault!!" % blamee
 		yield "/me cries and weeps in despair"
 		
-@command("paste", aliases=(), doc="Drop a link to your latest paste on %s" % config.librarypaste)
+@command("paste", aliases=(), doc="Drop a link to your latest paste")
 def paste(client, event, channel, nick, rest):
-	post_url = browser.catch_redirect_url("%s/last/%s" % (config.librarypaste, nick))
-	if post_url:
-		return post_url
+	req = urllib.urlopen("%slast/%s" % (config.librarypaste, nick))
+	if req.getcode() >= 200 and req.getcode() < 400:
+		return req.geturl()
 	else:
 		return "hmm.. I didn't find a recent paste of yours, %s. Checkout %s" % (nick, config.librarypaste)
 
@@ -609,11 +607,10 @@ def paste(client, event, channel, nick, rest):
 def rand_bot(client, event, channel, nick, rest):
 	if (channel == config.inane_channel and random.random() < .2):
 		normal_functions = [featurecreep, insult, motivate, compliment, cheer,
-			golfclap, excuse, nastygram, curse, bless, job, hire, 
-			bakecake, cutcake, oregontrail, chain, tinytear, blame,
-			reweight, panic, rubberstamp, dance, annoy, klingon, 
+			golfclap, excuse, nastygram, curse, bless, job, hire, oregontrail,
+			chain, tinytear, blame, panic, rubberstamp, dance, annoy, klingon, 
 			storytime, murphy]
-		quote_functions = [quote, falconer, gir, zim, zoidberg, simpsons, bender, hal, grail]
+		quote_functions = [quote, zoidberg, simpsons, bender, hal, grail, R, anchorman, hangover]
 		ftype = random.choice('n'*len(normal_functions) + 'q'*len(quote_functions))
 		if ftype == 'n':
 			func = random.choice(normal_functions)
@@ -777,7 +774,7 @@ def help(client, event, channel, nick, rest):
 					if aliases:
 						res += " (%s)" % ', '.join(aliases)
 					yield res
-		o = StringIO("|".join(mk_entries()))
+		o = StringIO(" ".join(mk_entries()))
 		more = o.read(160)
 		while more:
 			yield more

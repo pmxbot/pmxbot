@@ -38,7 +38,7 @@ def words_from_db(db, max=100000):
 	db.text_factory = str
 	WORDS_SQL = '''SELECT message FROM logs order by random() limit %s''' % max
 	lines = db.execute(WORDS_SQL)
-	QUOTE_SQL = '''SELECT quote FROM quotes where library = 'pmx''''
+	QUOTE_SQL = '''SELECT quote FROM quotes where library = 'pmx' '''
 	quotes = db.execute(QUOTE_SQL) 
 	for line in lines + quotes:
 		words = line[0].strip().lower().split()
