@@ -44,6 +44,10 @@ def run(configFile=None, configDict=None, start=True):
 		config.web_port
 	except AttributeError:
 		config.web_port = 8080
+	try:
+		config.logo
+	except AttributeError:
+		config.logo = '%s/pmxbot.png' % config.web_base
 
     # Cherrypy configuration here
     app_conf = {
@@ -51,6 +55,10 @@ def run(configFile=None, configDict=None, start=True):
             'server.socket_port': config.web_port,
             'server.socket_host': config.web_host,
         },
+		'/pmxbot.png' : {
+			'tools.staticfile.on' : True,
+			'tools.staticfile.filename' : os.path.join(os.path.dirname(__file__), 'templates/pmxbot.png'),
+		},
         'db' : {'database' : os.path.join(config.database_dir, 'pmxbot.sqlite')},
 		'botconf' : {'config' : config},
     }

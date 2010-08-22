@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+# -*- coding: utf-8 -*-
 import os
 import cherrypy
 from sqlite3 import dbapi2 as sqlite
@@ -11,7 +12,7 @@ from jinja2 import Environment, FileSystemLoader
 from cgi import escape
 
 BASE = os.path.abspath(os.path.dirname(__file__))
-jenv = Environment(loader=FileSystemLoader(os.path.join(BASE, 'templates')))
+jenv = Environment(loader=FileSystemLoader(os.path.join(BASE, 'templates'), encoding='utf-8'))
 
 
 
@@ -20,7 +21,7 @@ shuffle(colors)
 
 def get_context():
 	c = cherrypy.request.app.config['botconf']['config']
-	d = {'request': cherrypy.request, 'name' : c.bot_nickname,	'config' : c}
+	d = {'request': cherrypy.request, 'name' : c.bot_nickname, 'config' : c, 'base' : c.web_base, }
 	try:
 		d['logo'] = c.logo
 	except AttributeError:
@@ -75,7 +76,7 @@ class ChannelPage(object):
 		context['months'] = sorted(months.items(), key=lambda v: sort_month_key(v[0]),
 		reverse=True) 
 		context['channel'] = channel
-		return page.render(**context)
+		return page.render(**context).encode('utf-8')
 	default.exposed = True
 
 class DayPage(object):
@@ -84,7 +85,7 @@ class DayPage(object):
 		dbfile = cherrypy.request.app.config['db']['database']
 		db = sqlite.connect(dbfile)
 		context = get_context()
-		db.text_factory = lambda x: unicode(x, "utf-8", "ignore")
+		#db.text_factory = lambda x: unicode(x, "utf-8", "ignore")
 		DAY_DETAIL_SQL = 'SELECT time(datetime), nick, message from logs where channel = ? and date(datetime) = ? order by datetime'
 		day_logs = db.execute(DAY_DETAIL_SQL, [channel, day])
 		data = [(t, n, make_anchor((t, n)), escape(m)) for (t,n,m) in day_logs]
@@ -102,8 +103,7 @@ class DayPage(object):
 		context['history'] = data
 		context['channel'] = channel
 		context['pdate'] = "%s of %s" % (pday(day), pmon(day.rsplit('-', 1)[0]))
-		print context
-		return page.render(**context)
+		return page.render(**context).encode('utf-8')
 	default.exposed = True
 
 
@@ -131,7 +131,6 @@ class KarmaPage(object):
 		context = get_context()
 		dbfile = cherrypy.request.app.config['db']['database']
 		db = sqlite.connect(dbfile)
-		db.text_factory = lambda x: unicode(x, "utf-8", "ignore")
 		term = term.strip()
 		if term:
 			context['lookup'] = []
@@ -150,7 +149,7 @@ class KarmaPage(object):
 				context['lookup'].append(('NO RESULTS FOUND', ''))
 		context['top100'] = karmaList(db, 100)
 		context['bottom100'] = karmaList(db, -100)
-		return page.render(**context)
+		return page.render(**context).encode('utf-8')
 	default.exposed = True
 
 def search_logs(term, db):
@@ -187,7 +186,7 @@ class SearchPage(object):
 		context['search_results'] = results
 		context['num_results'] = len(results)
 		context['term'] = term
-		return page.render(**context)
+		return page.render(**context).encode('utf-8')
 	default.exposed = True
 		
 	
@@ -212,7 +211,7 @@ class HelpPage(object):
 			self.run = True
 		context['commands'] = self.commands
 		context['contains'] = self.contains
-		return page.render(**context)
+		return page.render(**context).encode('utf-8')
 	default.exposed = True
 	
 
@@ -228,7 +227,7 @@ class PmxbotPages(object):
 		dbfile = cherrypy.request.app.config['db']['database']
 		db = sqlite.connect(dbfile)
 		context = get_context()
-		CHANNEL_LIST_SQL = "SELECT distinct channel from logs order by channel"
+		CHANNEL_LIST_SQL = "SELECT distinct channel from logs order by lower(channel)"
 		LAST_LINE_SQL = '''SELECT strftime("%Y-%m-%d %H:%M", datetime), date(datetime), time(datetime), nick, message from logs where channel = ? order by datetime desc limit 1'''
 		chans = []
 		for chan in db.execute(CHANNEL_LIST_SQL).fetchall():
@@ -238,7 +237,7 @@ class PmxbotPages(object):
 			last.append(make_anchor((last[2], last[3])))
 			chans.append([chan] + last)
 		context['chans'] = chans
-		return page.render(**context)
+		return page.render(**context).encode('utf-8')
 	default.exposed = True
 		
 		

@@ -3,7 +3,7 @@
 
 <h3>#{{ channel }} logs</h3>
 <div class="navsec">
-(<a href="{{ request.base }}">Back to channel listing</a>)
+(<a href="{{ base }}">Back to channel listing</a>)
 </div>
 
 {% for month, days in months %}
@@ -11,7 +11,7 @@
 	<div class="monthhead">{{ month }}</div>
 	<ul>
     {% for daylab, day in days %}
-	<li><a href="{{ request.base }}/day/{{ channel }}/{{ day }}">{{ daylab }}</a></li>
+	<li><a href="{{ base }}/day/{{ channel }}/{{ day }}">{{ daylab }}</a></li>
     {% endfor %}
 	</ul>
 </div>

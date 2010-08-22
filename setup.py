@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name="pmxbot",
-    version="1001",
+    version="1002-beta",
     packages=["pmxbot"],
     package_data={'pmxbot' : ["popquotes.sqlite"]},
     entry_points={
@@ -53,6 +53,10 @@ pmxbotweb=pmxbotweb.pmxbotweb:run
     It can search the web, quote you, track karma, make decisions,
     and do just about anything else you could want. It logs text in a sqlite3
     database, and eventually we'll write a web interface to it.
+
+    Web
+    ===
+    pmxbotweb is the web interface to view and search all the logs.
     """,
     )
     

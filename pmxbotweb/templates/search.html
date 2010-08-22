@@ -5,7 +5,7 @@
 
 {% for chan, date, marker, history in search_results %}
 <div class="result_heading">
-<a href="{{ request.base }}/day/{{ chan }}/{{ date }}#{{ marker }}"><i>{{ date }} in {{ chan }}</i></a>
+<a href="{{ base }}/day/{{ chan }}/{{ date }}#{{ marker }}"><i>{{ date }} in {{ chan }}</i></a>
 </div>
 <div class="logsection">
 {% for tm, name, msg in history %}

@@ -22,5 +22,8 @@ feeds:
       url     : "http://search.twitter.com/search.atom?q=pmxbot"
 local_extensions: ['local.py']
 librarypaste: http://a.libpa.st/
+
+web_base: /
 web_port: 8080
 web_host: 0.0.0.0
+#logo: /pmxbot.png

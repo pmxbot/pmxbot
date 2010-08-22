@@ -28,12 +28,11 @@
 	<body>
 	<div id="header">
 		<h1><img src="{{ logo }}" border="0" alt="PMXBOT" height="50"/>
-		<a href="{{ request.base }}">Log file Viewer</a></h1>
-		<form action="{{ request.base }}/search" method="GET">
+		<a href="{{ base }}">Log file Viewer</a></h1>
+		<form action="{{ base }}/search" method="GET">
 		<h3>
-		    <a href="{{ request.base }}/help">Help</a> | 
-		    <a href="{{ request.base }}/karma">Karma</a> | 
-            <a href="{{ request.base }}/quotes">Quotes</a> | 
+		    <a href="{{ base }}/help">Help</a> | 
+		    <a href="{{ base }}/karma">Karma</a> | 
 				Search: <input type="text" name="term" />
 				<input type="submit" value="Search" />
 		</h3>

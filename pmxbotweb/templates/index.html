@@ -2,10 +2,10 @@
 {% block body %}
 
 <h3>Current Channels</h3>
-<ol>
+<ul>
 {% for chan, dt, day, time, nick, msg, marker in chans %}
-	<li><a href="{{ request.base }}/channel/{{ chan }}">{{ chan }}</a>&nbsp;&mdash;&nbsp; <span style="font-family: fixed;">[<a href="{{ request.base }}/day/{{ chan }}/{{ day }}#{{ marker }}" class="comment-link">{{ dt }}</a>] &lt;{{ nick }}&gt; {{ msg }}</li>
+	<li><a href="{{ base }}/channel/{{ chan }}">{{ chan }}</a>&nbsp;&mdash;&nbsp; <span style="font-family: fixed;">[<a href="{{ base }}/day/{{ chan }}/{{ day }}#{{ marker }}" class="comment-link">{{ dt }}</a>] &lt;{{ nick }}&gt; {{ msg }}</li>
 {% endfor %}
-</ol>
+</ul>
 
 {% endblock %}
