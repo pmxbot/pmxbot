@@ -1,5 +1,6 @@
 # vim:ts=4:sw=4:noexpandtab
 import random
+from itertools import chain
 
 nlnl = '\n', '\n'
 
@@ -40,7 +41,7 @@ def words_from_db(db, max=100000):
 	lines = db.execute(WORDS_SQL)
 	QUOTE_SQL = '''SELECT quote FROM quotes where library = 'pmx' '''
 	quotes = db.execute(QUOTE_SQL) 
-	for line in lines + quotes:
+	for line in chain(lines, quotes):
 		words = line[0].strip().lower().split()
 		for word in words:
 			yield word

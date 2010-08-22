@@ -142,7 +142,7 @@ class KarmaPage(object):
 			KARMA_VALUE_SQL = "SELECT karmavalue from karma_values where karmaid = ?"
 			for (id,) in matches:
 				karmavalue = db.execute(KARMA_VALUE_SQL, [id]).fetchone()[0]
-				names = db.execute(KARMA_KEYS_SQL, [id]).fetchall()
+				names = ', '.join(db.execute(KARMA_KEYS_SQL, [id]).fetchall())
 				names = sorted([x[0] for x in names])
 				context['lookup'].append((', '.join(names), karmavalue))
 			if not context['lookup']:
