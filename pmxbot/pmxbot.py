@@ -302,17 +302,15 @@ def zinger(client, event, channel, nick, rest):
 	if rest:
 		name = rest.strip()
 		karmaChange(botbase.logger.db, name, -1)
-	#qt = bartletts(botbase.logger.db, 'simpsons', nick, 'pardon my zinger')
-	#if qt:	return qt
 	return "OH MAN!!! %s TOTALLY GOT ZING'D!" % (name.upper())
 
 @command("motivate", aliases=("m", "appreciate", "thanks", "thank"), doc="Motivate someone")
 def motivate(client, event, channel, nick, rest):
 	if rest:
 		r = rest.strip()
-		karmaChange(botbase.logger.db, r, 1)
 	else:
 		r = channel
+	karmaChange(botbase.logger.db, r, 1)
 	return "you're doing good work, %s!" % r
 
 @command("imotivate", aliases=("im", 'ironicmotivate',), doc='''Ironically "Motivate" someone''')
@@ -335,9 +333,9 @@ def nailedit(client, event, channel, nick, rest):
 def demotivate(client, event, channel, nick, rest):
 	if rest:
 		r = rest.strip()
-		karmaChange(botbase.logger.db, r, -1)
 	else:
 		r = channel
+	karmaChange(botbase.logger.db, r, -1)
 	return "you're doing horrible work, %s!" % r
 
 @command("8ball", aliases=("8",), doc="Ask the magic 8ball a question")

@@ -3,8 +3,6 @@
 # vim:ts=4:sw=4:noexpandtab
 """
 pmxbotweb.py
-
-s
 """
 
 import sys
@@ -36,6 +34,8 @@ def run(configFile=None, configDict=None, start=True):
         	config.web_base = '/%s' % config.web_base
 	except AttributeError:
 		config.web_base = '/'
+	if config.web_base[-1] == '/':
+		config.web_base = config.web_base[:-1]
 	try:
 		config.web_host
 	except AttributeError:

@@ -1,10 +1,18 @@
 from setuptools import setup
 
 setup(name="pmxbot",
-    version="1003-beta1",
+    version="1003",
     packages=["pmxbot", "pmxbotweb",],
-    data_files=[('pmxbot', ["popquotes.sqlite",]),
-		('pmxbotweb/templates', ["*.html"]),
+    data_files=[('pmxbot', ["pmxbot/popquotes.sqlite",]),
+		('pmxbotweb/templates', ["pmxbotweb/templates/base.html",
+			"pmxbotweb/templates/channel.html",
+			"pmxbotweb/templates/day.html",
+			"pmxbotweb/templates/help.html",
+			"pmxbotweb/templates/index.html",
+			"pmxbotweb/templates/karma.html",
+			"pmxbotweb/templates/search.html",
+			"pmxbotweb/templates/pmxbot.png",
+			]),
 		],
     entry_points={
             'console_scripts' : 

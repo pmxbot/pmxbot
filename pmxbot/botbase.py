@@ -59,7 +59,7 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 			return
 		if time.time() - warn_history.get(nick, 0) > LOGWARN_EVERY:
 			warn_history[nick] = time.time()
-			msg = LOGWARN_MESSAGE % (', '.join(['#'+chan for chan in self._channels if '#'+chan not in self._nolog]))
+			msg = LOGWARN_MESSAGE % (', '.join([chan for chan in sorted(self._channels) if chan not in self._nolog]))
 			for line in msg.splitlines():
 				c.notice(nick, line)
 	
@@ -157,7 +157,7 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 				c.action(channel, s.split(' ', 1)[-1].lstrip())
 			else:
 				c.privmsg(channel, s)
-				if channel not in self._nolog and not secret:
+				if channel in self._channels and channel not in self._nolog and not secret:
 					logger.message(channel, self._nickname, s)
 		if res:
 			if isinstance(res, basestring):
