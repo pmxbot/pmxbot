@@ -1,0 +1,2 @@
+include pmxbot/popquotes.sqlite
+include pmxbotweb/templates/*html

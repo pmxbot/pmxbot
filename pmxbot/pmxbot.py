@@ -759,7 +759,7 @@ def meaculpa(client, event, channel, nick, rest):
 def help(client, event, channel, nick, rest):
 	rs = rest.strip()
 	if rs:
-		for typ, name, f, doc in _handler_registry:
+		for typ, name, f, doc, junk1, junk2, junk3 in _handler_registry:
 			if name == rs:
 				yield '!%s: %s' % (name, doc)
 				break
@@ -767,7 +767,7 @@ def help(client, event, channel, nick, rest):
 			yield "command not found"
 	else:
 		def mk_entries():
-			for typ, name, f, doc in sorted(_handler_registry, key=lambda x: x[1]):
+			for typ, name, f, doc, junk1, junk2, junk3 in sorted(_handler_registry, key=lambda x: x[1]):
 				if typ == 'command':
 					aliases = sorted([x[1] for x in _handler_registry if x[0] == 'alias' and x[2] == f])
 					res =  "!%s" % name
