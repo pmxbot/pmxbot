@@ -217,7 +217,7 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 						out = '%s' % entry['title']
 				outputs.append(out)
 			if outputs:
-				c.execute_delayed(20, self.add_feed_entries, arguments=(NEWLY_SEEN,))
+				c.execute_delayed(60, self.add_feed_entries, arguments=(NEWLY_SEEN,))
 				txt = 'News from %s %s : %s' % (this_feed['name'], this_feed['linkurl'], ' || '.join(outputs[:10]))
 				txt = txt.encode('utf-8')
 				c.privmsg(this_feed['channel'], txt)

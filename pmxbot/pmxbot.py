@@ -90,7 +90,7 @@ def weather(client, event, channel, nick, rest):
 			future_conds = wdata.find('weather/forecast_conditions/condition').get('data')
 			future_conds = conds.replace('Snow Showers', '\xe2\x98\x83')
 			future_conds = conds.replace('Snow', '\xe2\x98\x83') # Fix snow description
-			weather = u"%s. Currently: %sF/%sC, %s.	%s: %sF/%sC, %s" % (city, tempf, tempc, conds, future_day, future_highf, future_highc, future_conds)
+			weather = u"%s. Currently: %sF/%sC, %s.    %s: %sF/%sC, %s" % (city, tempf, tempc, conds, future_day, future_highf, future_highc, future_conds)
 			yield weather
 		except:
 			pass
