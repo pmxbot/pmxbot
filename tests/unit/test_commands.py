@@ -447,6 +447,23 @@ class TestCommands(object):
 		print res
 		assert res != ""
 
+	def test_paste_newuser(self):
+		"""
+		Test the pastebin with an unknown user
+		"""
+		person = str(uuid.uuid4())[:9]
+		res = pmxbot.paste(c, e, '#test', person, '')
+		print res
+		assert res == "hmm.. I didn't find a recent paste of yours, %s. Checkout http://a.libpa.st/" % person
+
+	def test_paste_real_user(self):
+		"""
+		Test the pastebin with a valid user with an existing paste
+		"""
+		person = 'vbSptH3ByfQQ6h' 
+		res = pmxbot.paste(c, e, '#test', person, '')
+		assert res == "http://a.libpa.st/40a4345a-4e4b-40d8-ad06-c0a22a26b282"
+
 #	def test_yahoolunch_zip(self):
 #		"""
 #		Test that the lunch function returns something that looks right when asked with a zip.

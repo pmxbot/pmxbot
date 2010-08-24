@@ -846,6 +846,12 @@ def run(configFile=None, configDict=None, configInput=None, start=True):
         		raise SystemExit(1)
         	config_file = sys.argv[1]
 	    config = O(yaml.load(open(config_file)))
+	try:
+		config.librarypaste
+	except AttributeError:
+		config.librarypaste = "http://a.libpa.st/"
+	if config.librarypaste[-1] != '/':
+		config.librarypaste = '%s/' % config.librarypaste
 
 	@contains(config.bot_nickname)
 	def rand_bot2(*args):
