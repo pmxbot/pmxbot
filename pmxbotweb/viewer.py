@@ -124,7 +124,7 @@ def karmaList(db, select=0):
 		selected = karmalist
 	keysandkarma = []
 	for karmaid, value in selected:
-		keys = [x[0] for x in db.execute(KARMA_KEYS_SQL, [karmaid])]
+		keys = ', '.join([x[0] for x in db.execute(KARMA_KEYS_SQL, [karmaid])])
 		keysandkarma.append((keys, value))
 	return keysandkarma
 
@@ -145,8 +145,8 @@ class KarmaPage(object):
 			KARMA_VALUE_SQL = "SELECT karmavalue from karma_values where karmaid = ?"
 			for (id,) in matches:
 				karmavalue = db.execute(KARMA_VALUE_SQL, [id]).fetchone()[0]
-				names = db.execute(KARMA_KEYS_SQL, [id]).fetchall())
-				names = ', '.join(sorted([x[0] for x in names]))
+				names = db.execute(KARMA_KEYS_SQL, [id]).fetchall()
+				names = sorted([x[0] for x in names])
 				context['lookup'].append((', '.join(names), karmavalue))
 			if not context['lookup']:
 				context['lookup'].append(('NO RESULTS FOUND', ''))

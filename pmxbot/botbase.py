@@ -245,6 +245,7 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 		This is to let the main pmxbot thread update the database and avoid
 		issues with accessing sqlite from multiple threads
 		"""
+		print "Starting to add_feed_entries"
 		try:
 			logger.db.executemany('INSERT INTO feed_seen (key) values (?)', [(x,) for x in entries])
 			logger.db.commit()
@@ -290,7 +291,7 @@ class Logger(object):
 	def __init__(self, repo):
 		self.repo = repo
 		self.dbfn = pjoin(self.repo, 'pmxbot.sqlite')
-		self.db = sqlite.connect(self.dbfn)
+		self.db = sqlite.connect(self.dbfn, timeout=10.0)
 		LOG_CREATE_SQL = '''
 		CREATE TABLE IF NOT EXISTS logs (
 			id INTEGER NOT NULL,
