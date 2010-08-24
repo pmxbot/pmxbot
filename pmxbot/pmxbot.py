@@ -27,7 +27,7 @@ sayer = FastSayer()
 @command("google", aliases=('g',), doc="Look a phrase up on google")
 def google(client, event, channel, nick, rest):
 	BASE_URL = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&'
-	url = BASE_URL + urllib.urlencode({'q' : rest.strip()})
+	url = BASE_URL + urllib.urlencode({'q' : rest.encode('utf-8').strip()})
 	raw_res = urllib.urlopen(url).read()
 	results = json.loads(raw_res)
 	hit1 = results['responseData']['results'][0]
@@ -36,7 +36,7 @@ def google(client, event, channel, nick, rest):
 @command("googlecalc", aliases=('gc',), doc="Calculate something using google")
 def googlecalc(client, event, channel, nick, rest):
 	query = rest
-	html = get_html('http://www.google.com/search?%s' % urllib.urlencode({'q' : query}))
+	html = get_html('http://www.google.com/search?%s' % urllib.urlencode({'q' : query.encode('utf-8')}))
 	try:
 		gcre = re.compile('<h2 class=r style="font-size:138%"><b>(.+?)</b>')
 		res = plaintext(gcre.search(html).group(1))
@@ -61,7 +61,7 @@ def googletime(client, event, channel, nick, rest):
 		else:
 			query = place
 		timere = re.compile('<td valign=[a-z]+><em>(.+?)(?=<br>|</table>)')
-		html = get_html('http://www.google.com/search?%s' % urllib.urlencode({'q' : query}))
+		html = get_html('http://www.google.com/search?%s' % urllib.urlencode({'q' : query.encode('utf-8')}))
 		try:
 			time = plaintext(timere.search(html).group(1))
 			yield time
@@ -79,7 +79,7 @@ def weather(client, event, channel, nick, rest):
 		places = [rest]
 	for place in places:
 		try:
-			url = "http://www.google.com/ig/api?" + urllib.urlencode({'weather' : place})
+			url = "http://www.google.com/ig/api?" + urllib.urlencode({'weather' : place.encode('utf-8')})
 			wdata = ElementTree.parse(urllib.urlopen(url))
 			city = wdata.find('weather/forecast_information/city').get('data')
 			tempf = wdata.find('weather/current_conditions/temp_f').get('data')
@@ -105,7 +105,7 @@ def translate(client, event, channel, nick, rest):
 	if '|' not in langpair:
 		langpair = '|' + langpair
 	BASE_URL = 'http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&format=text&'
-	url = BASE_URL + urllib.urlencode({'q' : rest, 'langpair' : langpair})
+	url = BASE_URL + urllib.urlencode({'q' : rest.encode('utf-8'), 'langpair' : langpair})
 	raw_res = urllib.urlopen(url).read()
 	results = json.loads(raw_res)
 	translation = results['responseData']['translatedText']
