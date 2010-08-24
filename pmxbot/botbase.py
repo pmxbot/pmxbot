@@ -156,6 +156,7 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 						traceback.print_exc()
 					break
 		def out(s):
+			s = s.encode('utf-8')
 			if s.startswith('/me '):
 				c.action(channel, s.split(' ', 1)[-1].lstrip())
 			else:
