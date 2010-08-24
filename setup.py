@@ -1,7 +1,8 @@
 from setuptools import setup
+import os
 
 setup(name="pmxbot",
-    version="1003",
+    version="1004-beta3",
     packages=["pmxbot", "pmxbotweb",],
     data_files=[('pmxbot', ["pmxbot/popquotes.sqlite",]),
 		('pmxbotweb/templates', ["pmxbotweb/templates/base.html",
@@ -47,26 +48,8 @@ pmxbotweb=pmxbotweb.pmxbotweb:run
         'Programming Language :: Python :: 2.7',
         'Topic :: Communications :: Chat',
         'Topic :: Communications :: Chat :: Internet Relay Chat',
+		'Topic :: Internet :: WWW/HTTP :: WSGI :: Application',
     ],
-    long_description = """
-    pmxbot
-    ======
-    
-    pmxbot is an IRC bot written in python. Originally built for internal use,
-    it's been sanitized and set free upon the world.
-    
-    
-    Commands
-    ========
-    pmxbot listens to commands prefixed by a '!'
-    If it's a command it knows it will reply, take an action, etc.
-    It can search the web, quote you, track karma, make decisions,
-    and do just about anything else you could want. It logs text in a sqlite3
-    database, and eventually we'll write a web interface to it.
-
-    Web
-    ===
-    pmxbotweb is the web interface to view and search all the logs.
-    """,
+    long_description = open(os.path.join(os.path.dirname(__file__), 'README')).read(),
     )
     

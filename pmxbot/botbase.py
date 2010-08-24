@@ -3,7 +3,10 @@
 import sys
 import ircbot
 import datetime
-from sqlite3 import dbapi2 as sqlite
+try:
+	from pysqlite2 import dbapi2 as sqlite
+except ImportError:
+	from sqlite3 import dbapi2 as sqlite
 import os
 import traceback
 import time
@@ -242,8 +245,12 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 		This is to let the main pmxbot thread update the database and avoid
 		issues with accessing sqlite from multiple threads
 		"""
-		logger.db.executemany('INSERT INTO feed_seen (key) values (?)', [(x,) for x in entries])
-		logger.db.commit()
+		try:
+			logger.db.executemany('INSERT INTO feed_seen (key) values (?)', [(x,) for x in entries])
+			logger.db.commit()
+		except Exception, e:
+			print "Oh crap, couldn't add_feed_entries"
+			print e
 
 _handler_registry = []
 _handler_sort_order = {'command' : 1, 'alias' : 2, 'contains' : 3}

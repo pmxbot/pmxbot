@@ -14,7 +14,10 @@ except ImportError:
 from saysomething import FastSayer
 from cleanhtml import plaintext
 from xml.etree import ElementTree
-from sqlite3 import dbapi2 as sqlite
+try:
+	from pysqlite2 import dbapi2 as sqlite
+except ImportError:
+	from sqlite3 import dbapi2 as sqlite
 
 QUOTE_PATH = os.path.join(os.path.dirname(__file__), "popquotes.sqlite")
 popular_quote_db = sqlite.connect(QUOTE_PATH)
