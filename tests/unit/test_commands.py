@@ -60,13 +60,22 @@ class TestCommands(object):
 		res = pmxbot.googlecalc(c, e, "#test", "testrunner", "40 gallons in liters")
 		assert "151.4" in res
 
-	def test_googlecalc_currency(self):
+	def test_googlecalc_currency_usd_gbp(self):
 		"""
 		Test that google calculator for a currency conversion: 1 USD in GBP
 		"""
 		res = pmxbot.googlecalc(c, e, "#test", "testrunner", "1 USD in GBP")
 		print res
-		assert re.match(r"""1 US dollars? = \d\.\d+ British pounds? sterling""", res) 
+		assert re.match(r"""1 (?:US|U\.S\.) dollars? = \d\.\d+ British pounds?(?: sterling)""", res) 
+		
+
+	def test_googlecalc_currency_czk_euro(self):
+		"""
+		Test that google calculator for a currency conversion: 12 CZK in euros
+		"""
+		res = pmxbot.googlecalc(c, e, "#test", "testrunner", "12 CZK in euros")
+		print res
+		assert re.match(r"""12 Czech Republic [Kk]orunas? = \d\.\d+ euros?""", res) 
 		
 	def test_time_one(self):
 		"""

@@ -139,6 +139,8 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 					traceback.print_exc()
 				break
 			elif typ in('contains', '#') and name in lc_msg:
+				#this overly complicated logic is to let the deco's include
+				#and exclude channels take affect 
 				if channels and (channel not in channels \
 				or (channels == "logged" and channel in self._nolog) \
 				or (channels == "unlogged" and channel not in self._nolog)):
@@ -151,8 +153,6 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 					try:
 						res = f(c, e, channel, nick, msg)
 					except Exception, e:
-						res = "DO NOT TRY TO BREAK PMXBOT!!!"
-						res += '\n%s' % e
 						traceback.print_exc()
 					break
 		def out(s):
@@ -254,6 +254,7 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 			print "Oh crap, couldn't add_feed_entries"
 			print e
 
+
 _handler_registry = []
 _handler_sort_order = {'command' : 1, 'alias' : 2, 'contains' : 3}
 _delay_registry = []
@@ -268,21 +269,35 @@ def contains(name, channels=None, exclude=None, rate=1.0, priority=1, doc=None):
 		return func
 	return deco
 
-def command(name, aliases=None, doc=None):
+def command(name, aliases=[], doc=None):
 	def deco(func):
 		_handler_registry.append(('command', name.lower(), func, doc, None, None, None))
-		if aliases:
-			for a in aliases:
-				if not a.endswith(' '):
-					pass
-					#a += ' '
-				_handler_registry.append(('alias', a, func, doc, None, None, None))
+		for a in aliases:
+			_handler_registry.append(('alias', a, func, doc, None, None, None))
 		_handler_registry.sort(key=lambda x: (_handler_sort_order[x[0]], 0-len(x[1]), x[1]))
 		return func
 	return deco
 	
 def execdelay(name, channel, howlong, args=[], doc=None):
 	def deco(func):
+		_delay_registry.append((name.lower(), channel, howlong, func, args, doc))
+		return func
+	return deco
+	
+	
+def execat(name, channel, scheduledtime, args=[], doc=None):
+	def deco(func):
+		if type(when) == datetime.datetime:
+			difference = when - datetime.datetime.now()				
+		elif type(when) == datetime.date:
+			whendt = datetime.datetime.fromordinal(tomorrow.toordinal())
+			difference = whendt - datetime.datetime.now()
+		elif type(when) == datetime.time:
+			whendt = datetime.datetime.combine(datetime.date.today(), when)
+			difference = whendt - datetime.datetime.now()
+		else:
+			raise TypeError
+		howlong = (difference.days * 86400) + difference.seconds
 		_delay_registry.append((name.lower(), channel, howlong, func, args, doc))
 		return func
 	return deco

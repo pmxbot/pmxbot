@@ -635,6 +635,7 @@ interview_excuses = [
 	"I stepped out to get my marriage license",
 	"I, um...",
 	"I, um... won't be in...",
+	'my VPN connectiond dropped, so I took the opportunity to grab some food.',
 ]
 
 def passagg(recipient='', sender=''):

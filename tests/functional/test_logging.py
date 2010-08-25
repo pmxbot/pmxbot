@@ -77,3 +77,13 @@ class TestPmxbotLog(PmxbotHarness):
 		for i in xrange(1, 4):
 			assert not self.check_logs(channel="#logged", message=(base % i))
 		assert self.check_logs(channel="#logged", message=pre_text)
+		
+	def test_blank_input_logged(self):
+		self.client.send_message("#logged", '')
+		time.sleep(1)
+		assert self.bot.poll() == None
+		
+	def test_blank_input_notlogged(self):
+		self.client.send_message("#inane", '')
+		time.sleep(1)
+		assert self.bot.poll() == None
