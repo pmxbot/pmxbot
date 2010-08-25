@@ -87,3 +87,14 @@ class TestPmxbotLog(PmxbotHarness):
 		self.client.send_message("#inane", '')
 		time.sleep(1)
 		assert self.bot.poll() == None
+		
+
+	def test_onespace_input_logged(self):
+		self.client.send_message("#logged", '  ')
+		time.sleep(1)
+		assert self.bot.poll() == None
+
+	def test_onespace_input_notlogged(self):
+		self.client.send_message("#inane", '  ')
+		time.sleep(1)
+		assert self.bot.poll() == None

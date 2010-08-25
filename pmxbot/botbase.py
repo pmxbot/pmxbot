@@ -70,7 +70,7 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 		msg = (''.join(e.arguments())).decode('utf8', 'ignore')
 		nick = e.source().split('!', 1)[0]
 		channel = e.target()
-		if msg > '':
+		if msg.strip() > '':
 			if channel not in self._nolog:
 				logger.message(channel, nick, msg)
 			self.handle_action(c, e, channel, nick, msg)
@@ -80,7 +80,7 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 		msg = (''.join(e.arguments())).decode('utf8', 'ignore')
 		nick = e.source().split('!', 1)[0]
 		channel = nick
-		if msg > '':
+		if msg.strip() > '':
 			self.handle_action(c, e, channel, nick, msg)
 
 	def on_invite(self, c, e):
