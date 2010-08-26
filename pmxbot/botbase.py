@@ -45,14 +45,44 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 		self._feed_interval = feed_interval
 		self._feeds = feeds
 
+	def out(self, channel, s, log=True):
+		if s.startswith('/me '):
+			self.c.action(channel, s.split(' ', 1)[-1].lstrip())
+		else:
+			self.c.privmsg(channel, s)
+			if channel in self._channels and channel not in self._nolog and log:
+				logger.message(channel, self._nickname, s)
+
+	def _schedule_at(self, name, channel, when, func, args, doc):
+		if type(when) == datetime.datetime:
+			difference = when - datetime.datetime.now()
+			repeat=False
+		elif type(when) == datetime.date:
+			whendt = datetime.datetime.fromordinal(tomorrow.toordinal())
+			difference = whendt - datetime.datetime.now()
+			repeat=False
+		elif type(when) == datetime.time:
+			if when > datetime.datetime.now().time():
+				nextday = datetime.date.today()
+			else:
+				nextday = datetime.date.today() + datetime.timedelta(days=1)
+			whendt = datetime.datetime.combine(nextday, when)
+			difference = whendt - datetime.datetime.now()
+			repeat=True
+		howlong = (difference.days * 86400) + difference.seconds
+		if howlong > 0:
+			self.c.execute_delayed(howlong, self.background_runner, arguments=(self.c, channel, func, args, None, when, repeat))
+
 	def on_welcome(self, c, e):
+		self.c = c
 		for channel in self._channels:
 			if not channel.startswith('#'):
 				channel = '#' + channel
 			c.join(channel)
-		for action in _delay_registry:
-			name, channel, howlong, func, args, doc = action 
-			c.execute_delayed(howlong, self.background_runner, arguments=(c, e, channel, func, args))
+		for name, channel, howlong, func, args, doc, repeat in _delay_registry:
+			self.c.execute_delayed(howlong, self.background_runner, arguments=(self.c, channel, func, args, howlong, None, repeat))
+		for action in _at_registry:
+			self._schedule_at(*action)
 		c.execute_delayed(30, self.feed_parse, arguments=(c, e, self._feed_interval, self._feeds))
 
 	def on_join(self, c, e):
@@ -86,38 +116,38 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 	def on_invite(self, c, e):
 		nick = e.source().split('!', 1)[0]
 		channel = e.arguments()[0]
-		if channel.startswith('#'):
-			channel = channel[1:]
+		if not channel.startswith('#'):
+			channel = '#' + channel
 		self._channels.append(channel)
-		channel = '#' + channel
 		self._nolog.add(channel)
 		time.sleep(1)
 		c.join(channel)
 		time.sleep(1)
 		c.privmsg(channel, "You summoned me, master %s?" % nick)
 		
-	def background_runner(self, c, e, channel, func, args):
+	def background_runner(self, c, channel, func, args, howlong, when, repeat):
 		"""
 		Wrapper to run scheduled type tasks cleanly.
 		"""
-		secret = False
-		res = func(c, e, *args)
-		def out(s):
-			if s.startswith('/me '):
-				c.action(channel, s.split(' ', 1)[-1].lstrip())
-			else:
-				c.privmsg(channel, s)
-				if channel not in self._nolog and not secret:
-					logger.message(channel, self._nickname, s)
-		if res:
-			if isinstance(res, basestring):
-				out(res)
-			else:
-				for item in res:
-					if item == NoLog:
-						secret = True
-					else:
-						out(item)
+		try:
+			secret = False
+			res = func(c, None, *args)
+			if res:
+				if isinstance(res, basestring):
+					self.out(channel, res)
+				else:
+					for item in res:
+						if item == NoLog:
+							secret = True
+						else:
+							self.out(channel, item, not secret)
+		except:
+			print "Error in bacakground runner for ", func
+			traceback.print_exc()
+		if repeat and howlong:
+			self.c.execute_delayed(howlong, self.background_runner, arguments=(self.c, channel, func, args, howlong, None, repeat))
+		elif repeat and when:
+			self._schedule_at('rescheduled task', channel, when, func, args, '')
 
 
 	def handle_action(self, c, e, channel, nick, msg):
@@ -155,23 +185,15 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 					except Exception, e:
 						traceback.print_exc()
 					break
-		def out(s):
-			s = s.encode('utf-8')
-			if s.startswith('/me '):
-				c.action(channel, s.split(' ', 1)[-1].lstrip())
-			else:
-				c.privmsg(channel, s)
-				if channel in self._channels and channel not in self._nolog and not secret:
-					logger.message(channel, self._nickname, s)
 		if res:
 			if isinstance(res, basestring):
-				out(res)
+				self.out(channel, res)
 			else:
 				for item in res:
 					if item == NoLog:
 						secret = True
 					else:
-						out(item)
+						self.out(channel, item, not secret)
 
 
 
@@ -246,7 +268,6 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 		This is to let the main pmxbot thread update the database and avoid
 		issues with accessing sqlite from multiple threads
 		"""
-		print "Starting to add_feed_entries"
 		try:
 			logger.db.executemany('INSERT INTO feed_seen (key) values (?)', [(x,) for x in entries])
 			logger.db.commit()
@@ -256,13 +277,15 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 
 
 _handler_registry = []
-_handler_sort_order = {'command' : 1, 'alias' : 2, 'contains' : 3}
+_handler_sort_order = {'command' : 1, 'alias' : 2, 'contains high priority' : 3, 'contains' : 4}
 _delay_registry = []
+_at_registry = []
+
 
 def contains(name, channels=None, exclude=None, rate=1.0, priority=1, doc=None):
 	def deco(func):
 		if name == '#' or priority == 2:
-			_handler_registry.append(('contains', name.lower(), func, doc, channels, exclude, rate))
+			_handler_registry.append(('contains high priority', name.lower(), func, doc, channels, exclude, rate))
 		else:
 			_handler_registry.append(('contains', name.lower(), func, doc, channels, exclude, rate))
 		_handler_registry.sort(key=lambda x: (_handler_sort_order[x[0]], 0-len(x[1]), x[1]))
@@ -278,27 +301,18 @@ def command(name, aliases=[], doc=None):
 		return func
 	return deco
 	
-def execdelay(name, channel, howlong, args=[], doc=None):
+def execdelay(name, channel, howlong, args=[], doc=None, repeat=False):
 	def deco(func):
-		_delay_registry.append((name.lower(), channel, howlong, func, args, doc))
+		_delay_registry.append((name.lower(), channel, howlong, func, args, doc, repeat))
 		return func
 	return deco
 	
 	
-def execat(name, channel, scheduledtime, args=[], doc=None):
+def execat(name, channel, when, args=[], doc=None):
 	def deco(func):
-		if type(when) == datetime.datetime:
-			difference = when - datetime.datetime.now()				
-		elif type(when) == datetime.date:
-			whendt = datetime.datetime.fromordinal(tomorrow.toordinal())
-			difference = whendt - datetime.datetime.now()
-		elif type(when) == datetime.time:
-			whendt = datetime.datetime.combine(datetime.date.today(), when)
-			difference = whendt - datetime.datetime.now()
-		else:
+		if type(when) not in (datetime.date, datetime.datetime, datetime.time):
 			raise TypeError
-		howlong = (difference.days * 86400) + difference.seconds
-		_delay_registry.append((name.lower(), channel, howlong, func, args, doc))
+		_at_registry.append((name.lower(), channel, when, func, args, doc))
 		return func
 	return deco
 

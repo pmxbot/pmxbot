@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # vim:ts=4:sw=4:noexpandtab
-from botbase import command, contains, execdelay, _handler_registry, NoLog, LoggingCommandBot
+from botbase import command, contains, execdelay, execat, _handler_registry, NoLog, LoggingCommandBot
 import botbase
 import time
 import sys, re, urllib, random,  csv

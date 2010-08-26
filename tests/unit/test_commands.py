@@ -66,7 +66,7 @@ class TestCommands(object):
 		"""
 		res = pmxbot.googlecalc(c, e, "#test", "testrunner", "1 USD in GBP")
 		print res
-		assert re.match(r"""1 (?:US|U\.S\.) dollars? = \d\.\d+ British pounds?(?: sterling)""", res) 
+		assert re.match(r"""1 (?:US|U\.S\.) dollars? = \d\.\d+ British pounds?(?: sterling)?""", res) 
 		
 
 	def test_googlecalc_currency_czk_euro(self):
