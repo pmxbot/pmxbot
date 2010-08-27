@@ -43,6 +43,7 @@ class TestCommands(object):
 		Basic google search for "pmxbot". Result must contain a link.
 		"""
 		res = pmxbot.google(c, e, "#test", "testrunner", "pmxbot")
+		print res
 		assert "http" in res 
 
 	def test_googlecalc_simple(self):
@@ -50,6 +51,7 @@ class TestCommands(object):
 		Basic google calculator command - 1+1 must include 2 in results
 		"""
 		res = pmxbot.googlecalc(c, e, "#test", "testrunner", "1+1")
+		print res
 		assert "2" in res
 
 	def test_googlecalc_complicated(self):
@@ -58,6 +60,7 @@ class TestCommands(object):
 		include 151.4 in results
 		"""
 		res = pmxbot.googlecalc(c, e, "#test", "testrunner", "40 gallons in liters")
+		print res
 		assert "151.4" in res
 
 	def test_googlecalc_currency_usd_gbp(self):
@@ -75,7 +78,7 @@ class TestCommands(object):
 		"""
 		res = pmxbot.googlecalc(c, e, "#test", "testrunner", "12 CZK in euros")
 		print res
-		assert re.match(r"""12 Czech Republic [Kk]orunas? = \d\.\d+ euros?""", res) 
+		assert re.match(r"""12 Czech(?: Republic)? [Kk]orun(?:a|y)s? = \d\.\d+ [Ee]uros?""", res) 
 		
 	def test_time_one(self):
 		"""
@@ -83,6 +86,7 @@ class TestCommands(object):
 		"""
 		res = pmxbot.googletime(c, e, "#test", "testrunner", "Washington, DC")
 		for line in res:
+			print line
 			assert re.match(r"""^[0-9]{1,2}:[0-9]{2}(?:am|pm) """, line)
 
 	def test_time_three(self):
@@ -92,6 +96,7 @@ class TestCommands(object):
 		"""
 		res = pmxbot.googletime(c, e, "#test", "testrunner", "Washington, DC | Palo Alto, CA | London")
 		for line in res:
+			print line
 			assert re.match(r"""^[0-9]{1,2}:[0-9]{2}(?:am|pm) """, line)
 	
 	def test_time_all(self):
@@ -101,6 +106,7 @@ class TestCommands(object):
 		"""
 		res = pmxbot.googletime(c, e, "#test", "testrunner", "all")
 		for line in res:
+			print line
 			assert re.match(r"""^[0-9]{1,2}:[0-9]{2}(?:am|pm) """, line)
 			
 	def test_weather_one(self):
@@ -109,6 +115,7 @@ class TestCommands(object):
 		"""
 		res = pmxbot.weather(c, e, "#test", "testrunner", "Washington, DC")
 		for line in res:
+			print line
 			assert re.match(r""".+\. Currently: (?:-)?[0-9]{1,3}F/(?:-)?[0-9]{1,2}C, .+\.\W+[A-z]{3}: (?:-)?[0-9]{1,3}F/(?:-)?[0-9]{1,2}C, """, line)
 
 	def test_weather_three(self):
@@ -118,6 +125,7 @@ class TestCommands(object):
 		"""
 		res = pmxbot.weather(c, e, "#test", "testrunner", "Washington, DC | Palo Alto, CA | London")
 		for line in res:
+			print line
 			assert re.match(r""".+\. Currently: (?:-)?[0-9]{1,3}F/(?:-)?[0-9]{1,2}C, .+\.\W+[A-z]{3}: (?:-)?[0-9]{1,3}F/(?:-)?[0-9]{1,2}C, """, line)
 
 	def test_weather_all(self):
@@ -127,6 +135,7 @@ class TestCommands(object):
 		"""
 		res = pmxbot.weather(c, e, "#test", "testrunner", "all")
 		for line in res:
+			print line
 			assert re.match(r""".+\. Currently: (?:-)?[0-9]{1,3}F/(?:-)?[0-9]{1,2}C, .+\.\W+[A-z]{3}: (?:-)?[0-9]{1,3}F/(?:-)?[0-9]{1,2}C, """, line)
 			
 	def test_boo(self):
@@ -253,6 +262,7 @@ class TestCommands(object):
 		GOOG at 4:00pm (ET): 484.81 (1.5%)
 		"""
 		res = pmxbot.ticker(c, e, "#test", "testrunner", "goog")
+		print res
 		assert re.match(r"""^GOOG at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{2,4}.\d{2} \(\-?\d{1,3}.\d%\)$""", res), res
 		
 	def test_ticker_yougov(self):
@@ -262,6 +272,7 @@ class TestCommands(object):
 		YOU.L at 10:37am (ET): 39.40 (0.4%)
 		"""
 		res = pmxbot.ticker(c, e, "#test", "testrunner", "you.l")
+		print res
 		assert re.match(r"""^YOU.L at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{1,4}.\d{2} \(\-?\d{1,3}.\d%\)$""", res), res
 		
 	def test_ticker_dow(self):
@@ -271,6 +282,7 @@ class TestCommands(object):
 		^DJI at 10:37am (ET): 39.40 (0.4%)
 		"""
 		res = pmxbot.ticker(c, e, "#test", "testrunner", "^dji")
+		print res
 		assert re.match(r"""^\^DJI at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{4,5}.\d{2} \(\-?\d{1,3}.\d%\)$""", res), res
 		
 	def test_pick_or(self):

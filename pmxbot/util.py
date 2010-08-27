@@ -496,7 +496,7 @@ def bartletts(db, lib, nick, qsearch):
 	else:
 		qt, i, n = qs.quoteLookupWNum(qsearch)
 		if qt:
-			return '(%s/%s): %s' % (i, n, qt)
+			return u'(%s/%s): %s' % (i, n, qt)
 
 
 

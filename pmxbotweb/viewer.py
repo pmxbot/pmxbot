@@ -4,7 +4,7 @@
 import os
 import cherrypy
 try:
-	c
+	from pysqlite2 import dbapi2 as sqlite
 except ImportError:
 	from sqlite3 import dbapi2 as sqlite
 from random import shuffle
@@ -69,7 +69,7 @@ class ChannelPage(object):
 	def default(self, channel):
 		page = jenv.get_template('channel.html')
 		dbfile = cherrypy.request.app.config['db']['database']
-		db = sqlite.connect(dbfile, timeout=TIMEOUT)
+		db = sqlite.connect(dbfile, isolation_level=None, timeout=Timeout)
 		context = get_context()
 		CHANNEL_DAYS_SQL = 'select distinct date(datetime) from logs where channel = ?'
 		contents = [x[0] for x in db.execute(CHANNEL_DAYS_SQL, [channel])]
@@ -87,7 +87,7 @@ class DayPage(object):
 	def default(self, channel, day):
 		page = jenv.get_template('day.html')
 		dbfile = cherrypy.request.app.config['db']['database']
-		db = sqlite.connect(dbfile, timeout=TIMEOUT)
+		db = sqlite.connect(dbfile, isolation_level=None, timeout=Timeout)
 		context = get_context()
 		#db.text_factory = lambda x: unicode(x, "utf-8", "ignore")
 		DAY_DETAIL_SQL = 'SELECT time(datetime), nick, message from logs where channel = ? and date(datetime) = ? order by datetime'
@@ -134,7 +134,7 @@ class KarmaPage(object):
 		page = jenv.get_template('karma.html')
 		context = get_context()
 		dbfile = cherrypy.request.app.config['db']['database']
-		db = sqlite.connect(dbfile, timeout=TIMEOUT)
+		db = sqlite.connect(dbfile, isolation_level=None, timeout=Timeout)
 		term = term.strip()
 		if term:
 			context['lookup'] = []
@@ -145,7 +145,7 @@ class KarmaPage(object):
 			matches = db.execute(KARMA_SEARCH_SQL, ['%%%s%%' % term])
 			KARMA_VALUE_SQL = "SELECT karmavalue from karma_values where karmaid = ?"
 			for (id,) in matches:
-				karmavalue = db.execute(KARMA_VALUE_SQL, [id]).fetchone()[0]
+				karmavalue = db.execute(KARMA_VALUE_SQL, [id]).fetchall()[0][0]
 				names = db.execute(KARMA_KEYS_SQL, [id]).fetchall()
 				names = sorted([x[0] for x in names])
 				context['lookup'].append((', '.join(names), karmavalue))
@@ -163,7 +163,7 @@ def search_logs(term, db):
 
 	matches = []
 	alllines = []
-	search_res = db.execute(SEARCH_SQL)
+	search_res = db.execute(SEARCH_SQL).fetchall()
 	for id, date, time, dt, channel, nick, message in search_res:
 			line = (time, nick, message)
 			if line in alllines:
@@ -181,7 +181,7 @@ class SearchPage(object):
 		page = jenv.get_template('search.html')
 		context = get_context()
 		dbfile = cherrypy.request.app.config['db']['database']
-		db = sqlite.connect(dbfile, timeout=TIMEOUT)
+		db = sqlite.connect(dbfile, isolation_level=None, timeout=Timeout)
 		db.text_factory = lambda x: unicode(x, "utf-8", "ignore")
 	
 		if not term:
@@ -206,7 +206,7 @@ class HelpPage(object):
 			self.contains = []
 			import pmxbot.pmxbot as p
 			p.run(configInput = context['config'], start=False)
-			for typ, name, f, doc, channels, exclude, rate in sorted(p._handler_registry, key=lambda x: x[1]):
+			for typ, name, f, doc, channels, exclude, rate, priority in sorted(p._handler_registry, key=lambda x: x[1]):
 				if typ == 'command':
 					aliases = sorted([x[1] for x in p._handler_registry if x[0] == 'alias' and x[2] == f])
 					self.commands.append((name, doc, aliases))
@@ -229,7 +229,7 @@ class PmxbotPages(object):
 	def default(self):
 		page = jenv.get_template('index.html')
 		dbfile = cherrypy.request.app.config['db']['database']
-		db = sqlite.connect(dbfile, timeout=TIMEOUT)
+		db = sqlite.connect(dbfile, isolation_level=None, timeout=Timeout)
 		context = get_context()
 		CHANNEL_LIST_SQL = "SELECT distinct channel from logs order by lower(channel)"
 		LAST_LINE_SQL = '''SELECT strftime("%Y-%m-%d %H:%M", datetime), date(datetime), time(datetime), nick, message from logs where channel = ? order by datetime desc limit 1'''

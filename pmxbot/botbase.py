@@ -155,7 +155,7 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 		lc_cmd = msg.split()[0]
 		res = None
 		secret = False
-		for typ, name, f, doc, channels, exclude, rate in _handler_registry:
+		for typ, name, f, doc, channels, exclude, rate, priority in _handler_registry:
 			if typ in ('command', 'alias') and lc_cmd == '!%s' % name:
 				if ' ' in msg:
 					msg = msg.split(' ', 1)[-1].lstrip()
@@ -250,7 +250,7 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 		#end of check_single_feed
 		db = logger.db
 		try:
-			res = db.execute('select key from feed_seen')
+			res = db.execute('select key from feed_seen').fetchall()
 			FEED_SEEN = [x[0] for x in res]
 		except:
 			db.execute('CREATE TABLE feed_seen (key varchar)')
@@ -258,9 +258,10 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 			db.commit()
 			FEED_SEEN = []
 		for feed in feeds:
-			t = Thread(target=check_single_feed, args=[feed])
-			t.setDaemon(True)
-			t.start()
+			check_single_feed(feed)
+			#t = Thread(target=check_single_feed, args=[feed])
+			#t.setDaemon(True)
+			#t.start()
 		c.execute_delayed(interval, self.feed_parse, arguments=(c, e, interval, feeds))
 
 	def add_feed_entries(self, entries):
@@ -277,7 +278,7 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 
 
 _handler_registry = []
-_handler_sort_order = {'command' : 1, 'alias' : 2, 'contains high priority' : 3, 'contains' : 4}
+_handler_sort_order = {'command' : 1, 'alias' : 2, 'contains' : 4}
 _delay_registry = []
 _at_registry = []
 
@@ -285,19 +286,19 @@ _at_registry = []
 def contains(name, channels=None, exclude=None, rate=1.0, priority=1, doc=None):
 	def deco(func):
 		if name == '#' or priority == 2:
-			_handler_registry.append(('contains high priority', name.lower(), func, doc, channels, exclude, rate))
+			_handler_registry.append(('contains', name.lower(), func, doc, channels, exclude, rate, 2))
 		else:
-			_handler_registry.append(('contains', name.lower(), func, doc, channels, exclude, rate))
-		_handler_registry.sort(key=lambda x: (_handler_sort_order[x[0]], 0-len(x[1]), x[1]))
+			_handler_registry.append(('contains', name.lower(), func, doc, channels, exclude, rate, 1))
+		_handler_registry.sort(key=lambda x: (_handler_sort_order[x[0]], 0-len(x[1]), x[7]))
 		return func
 	return deco
 
 def command(name, aliases=[], doc=None):
 	def deco(func):
-		_handler_registry.append(('command', name.lower(), func, doc, None, None, None))
+		_handler_registry.append(('command', name.lower(), func, doc, None, None, None, 5))
 		for a in aliases:
-			_handler_registry.append(('alias', a, func, doc, None, None, None))
-		_handler_registry.sort(key=lambda x: (_handler_sort_order[x[0]], 0-len(x[1]), x[1]))
+			_handler_registry.append(('alias', a, func, doc, None, None, None, 4))
+		_handler_registry.sort(key=lambda x: (_handler_sort_order[x[0]], 0-len(x[1]), x[7]))
 		return func
 	return deco
 	
@@ -321,7 +322,7 @@ class Logger(object):
 	def __init__(self, repo):
 		self.repo = repo
 		self.dbfn = pjoin(self.repo, 'pmxbot.sqlite')
-		self.db = sqlite.connect(self.dbfn, timeout=10.0)
+		self.db = sqlite.connect(self.dbfn, isolation_level=None, timeout=10.0)
 		LOG_CREATE_SQL = '''
 		CREATE TABLE IF NOT EXISTS logs (
 			id INTEGER NOT NULL,
