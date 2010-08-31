@@ -69,7 +69,7 @@ class ChannelPage(object):
 	def default(self, channel):
 		page = jenv.get_template('channel.html')
 		dbfile = cherrypy.request.app.config['db']['database']
-		db = sqlite.connect(dbfile, isolation_level=None, timeout=Timeout)
+		db = sqlite.connect(dbfile, isolation_level=None, timeout=TIMEOUT)
 		context = get_context()
 		CHANNEL_DAYS_SQL = 'select distinct date(datetime) from logs where channel = ?'
 		contents = [x[0] for x in db.execute(CHANNEL_DAYS_SQL, [channel])]
@@ -87,7 +87,7 @@ class DayPage(object):
 	def default(self, channel, day):
 		page = jenv.get_template('day.html')
 		dbfile = cherrypy.request.app.config['db']['database']
-		db = sqlite.connect(dbfile, isolation_level=None, timeout=Timeout)
+		db = sqlite.connect(dbfile, isolation_level=None, timeout=TIMEOUT)
 		context = get_context()
 		#db.text_factory = lambda x: unicode(x, "utf-8", "ignore")
 		DAY_DETAIL_SQL = 'SELECT time(datetime), nick, message from logs where channel = ? and date(datetime) = ? order by datetime'
@@ -134,7 +134,7 @@ class KarmaPage(object):
 		page = jenv.get_template('karma.html')
 		context = get_context()
 		dbfile = cherrypy.request.app.config['db']['database']
-		db = sqlite.connect(dbfile, isolation_level=None, timeout=Timeout)
+		db = sqlite.connect(dbfile, isolation_level=None, timeout=TIMEOUT)
 		term = term.strip()
 		if term:
 			context['lookup'] = []
@@ -181,7 +181,7 @@ class SearchPage(object):
 		page = jenv.get_template('search.html')
 		context = get_context()
 		dbfile = cherrypy.request.app.config['db']['database']
-		db = sqlite.connect(dbfile, isolation_level=None, timeout=Timeout)
+		db = sqlite.connect(dbfile, isolation_level=None, timeout=TIMEOUT)
 		db.text_factory = lambda x: unicode(x, "utf-8", "ignore")
 	
 		if not term:
@@ -229,7 +229,7 @@ class PmxbotPages(object):
 	def default(self):
 		page = jenv.get_template('index.html')
 		dbfile = cherrypy.request.app.config['db']['database']
-		db = sqlite.connect(dbfile, isolation_level=None, timeout=Timeout)
+		db = sqlite.connect(dbfile, isolation_level=None, timeout=TIMEOUT)
 		context = get_context()
 		CHANNEL_LIST_SQL = "SELECT distinct channel from logs order by lower(channel)"
 		LAST_LINE_SQL = '''SELECT strftime("%Y-%m-%d %H:%M", datetime), date(datetime), time(datetime), nick, message from logs where channel = ? order by datetime desc limit 1'''

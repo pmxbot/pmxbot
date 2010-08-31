@@ -505,6 +505,24 @@ def excuse(client, event, channel, nick, rest):
 		url = 'http://www.dowski.com/excuses/new'
 	excuse = get_html(url)
 	return excuse
+	
+@command("gettowork", aliases=("gtw",), doc="You really ought to, ya know...")
+def gettowork(client, event, channel, nick, rest):
+	suggestions = [u"Um, might I suggest working now",
+		u"Get to work",
+		u"Between the coffee break, the smoking break, the lunch break, the tea break, the bagel break, and the water cooler break, may I suggest a work break.  It’s when you do some work",
+		u"Work faster",
+		u"I didn’t realize we paid people for doing that",
+		u"You aren't being paid to believe in the power of your dreams",]
+	suggestion = random.choice(suggestions)
+	rest = rest.strip()
+	if rest:
+		karmaChange(botbase.logger.db, rest, -1)
+		suggestion = suggestion + ', %s' % rest
+	else:
+		karmaChange(botbase.logger.db, channel, -1)
+	karmaChange(botbase.logger.db, nick, -1)
+	return suggestion
 
 @command("curse", doc="Curse the day!")
 def curse(client, event, channel, nick, rest):
