@@ -287,7 +287,7 @@ def contains(name, channels=None, exclude=None, rate=1.0, priority=1, doc=None):
 		if name == '#':
 			priority += 1
 		_handler_registry.append(('contains', name.lower(), func, doc, channels, exclude, rate, priority))
-		_handler_registry.sort(key=lambda x: (_handler_sort_order[x[0]], x[7], 0-len(x[1])))
+		_handler_registry.sort(key=lambda x: (_handler_sort_order[x[0]], 0-x[7], 0-len(x[1])))
 		return func
 	return deco
 
