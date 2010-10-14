@@ -167,22 +167,19 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 					traceback.print_exc()
 				break
 			elif typ in('contains', '#') and name in lc_msg:
-				#this overly complicated logic is to let the deco's include
-				#and exclude channels take affect 
-				if channels and (channel not in channels \
-				or (channels == "logged" and channel in self._nolog) \
-				or (channels == "unlogged" and channel not in self._nolog)):
-					continue
-				if exclude and (channel not in exclude \
+				if (not channels and not exclude) \
+				or channel in channels \
+				or (exclude and channel not in exclude) \
+				or (channels == 'logged' and channel in self._channels and channel not in self._nolog) \
+				or (channels == "unlogged" and channel in self._nolog) \
 				or (exclude == "logged" and channel in self._nolog) \
-				or (exclude == "unlogged" and channel not in self._nolog)):
-					continue
-				if random.random() <= rate:
-					try:
-						res = f(c, e, channel, nick, msg)
-					except Exception, e:
-						traceback.print_exc()
-					break
+				or (exclude == "unlogged" and channel in self._channels and channel not in self._nolog):
+					if random.random() <= rate:
+						try:
+							res = f(c, e, channel, nick, msg)
+						except Exception, e:
+							traceback.print_exc()
+						break
 		if res:
 			if isinstance(res, basestring):
 				self.out(channel, res)
@@ -296,7 +293,7 @@ def command(name, aliases=[], doc=None):
 		_handler_registry.append(('command', name.lower(), func, doc, None, None, None, 5))
 		for a in aliases:
 			_handler_registry.append(('alias', a, func, doc, None, None, None, 4))
-		_handler_registry.sort(key=lambda x: (_handler_sort_order[x[0]], x[7], 0-len(x[1])))
+		_handler_registry.sort(key=lambda x: (_handler_sort_order[x[0]], 0-x[7], 0-len(x[1])))
 		return func
 	return deco
 	

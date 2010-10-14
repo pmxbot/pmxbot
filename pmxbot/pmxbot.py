@@ -622,22 +622,21 @@ def paste(client, event, channel, nick, rest):
 	else:
 		return "hmm.. I didn't find a recent paste of yours, %s. Checkout %s" % (nick, config.librarypaste)
 
-@contains('pmxbot')
+@contains('pmxbot', channels='unlogged', rate=.3)
 def rand_bot(client, event, channel, nick, rest):
-	if (channel == config.inane_channel and random.random() < .2):
-		normal_functions = [featurecreep, insult, motivate, compliment, cheer,
-			golfclap, excuse, nastygram, curse, bless, job, hire, oregontrail,
-			chain, tinytear, blame, panic, rubberstamp, dance, annoy, klingon, 
-			storytime, murphy]
-		quote_functions = [quote, zoidberg, simpsons, bender, hal, grail, R, anchorman, hangover]
-		ftype = random.choice('n'*len(normal_functions) + 'q'*len(quote_functions))
-		if ftype == 'n':
-			func = random.choice(normal_functions)
-			res = func(client, event, channel, 'pmxbot', nick)
-		elif ftype == 'q':
-			func = random.choice(quote_functions)
-			res = func(client, event, channel, 'pmxbot', '')
-		return res
+	normal_functions = [featurecreep, insult, motivate, compliment, cheer,
+		golfclap, excuse, nastygram, curse, bless, job, hire, oregontrail,
+		chain, tinytear, blame, panic, rubberstamp, dance, annoy, klingon, 
+		storytime, murphy]
+	quote_functions = [quote, zoidberg, simpsons, bender, hal, grail, R, anchorman, hangover]
+	ftype = random.choice('n'*len(normal_functions) + 'q'*len(quote_functions))
+	if ftype == 'n':
+		func = random.choice(normal_functions)
+		res = func(client, event, channel, 'pmxbot', nick)
+	elif ftype == 'q':
+		func = random.choice(quote_functions)
+		res = func(client, event, channel, 'pmxbot', '')
+	return res
 		
 @contains("sqlonrails")
 def yay_sor(client, event, channel, nick, rest):
@@ -874,7 +873,7 @@ def run(configFile=None, configDict=None, configInput=None, start=True):
 	if config.librarypaste[-1] != '/':
 		config.librarypaste = '%s/' % config.librarypaste
 
-	@contains(config.bot_nickname)
+	@contains(config.bot_nickname, channels='unlogged', rate=.3)
 	def rand_bot2(*args):
 		return rand_bot(*args)
 
