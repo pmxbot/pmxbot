@@ -873,9 +873,10 @@ def run(configFile=None, configDict=None, configInput=None, start=True):
 	if config.librarypaste[-1] != '/':
 		config.librarypaste = '%s/' % config.librarypaste
 
-	@contains(config.bot_nickname, channels='unlogged', rate=.3)
-	def rand_bot2(*args):
-		return rand_bot(*args)
+	if config.bot_nickname != 'pmxbot':
+		@contains(config.bot_nickname, channels='unlogged', rate=.3)
+		def rand_bot2(*args):
+			return rand_bot(*args)
 
     for extension in config.local_extensions:
         print "Loading", extension
