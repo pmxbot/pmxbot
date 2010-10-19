@@ -87,6 +87,9 @@ weapon_opts = [
 'spatula',
 'scimitar',
 'pipe',
+'bat',
+'stickbat',
+'wooden pallet', 
 ]
 
 weapon_adjs = [
