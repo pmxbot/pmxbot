@@ -512,7 +512,7 @@ def get_html(url):
 
 wiki_exp = re.compile(r"(.*?)en\.wikipedia\.org\/wiki\/", re.MULTILINE | re.DOTALL)
 def_exp = re.compile(r"<li>([^<]+)", re.MULTILINE)
-urbd_exp = re.compile(r"<td class='word'>(.+?)^</td>$(?:.+?)<div class='definition'>(.+?)</div>", re.MULTILINE | re.DOTALL )
+urbd_exp = re.compile(r"""<td class=['"]word['"]>(.+?)^</td>$(?:.+?)<div class=['"]definition['"]>(.+?)</div>""", re.MULTILINE | re.DOTALL )
 
 def lookup(word):
 	'''Gets a wikipedia summary for a word.

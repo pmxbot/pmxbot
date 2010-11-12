@@ -39,11 +39,11 @@ def googlecalc(client, event, channel, nick, rest):
 	html = get_html('http://www.google.com/search?%s' % urllib.urlencode({'q' : query.encode('utf-8')}))
 	try:
 		gcre = re.compile('<h2 class=r style="font-size:138%"><b>(.+?)</b>')
-		res = plaintext(gcre.search(html).group(1))
+		res = gcre.search(html).group(1)
 	except AttributeError:
 		gcre = re.compile('<h3 class=r><b>(.+?)</b>')
-		res = plaintext(gcre.search(html).group(1))
-	return res
+		res = gcre.search(html).group(1)
+	return plaintext(res.decode('utf-8'))
 		
 
 @command("time", doc="What time is it in.... Similar to !weather")
@@ -523,6 +523,17 @@ def gettowork(client, event, channel, nick, rest):
 		karmaChange(botbase.logger.db, channel, -1)
 	karmaChange(botbase.logger.db, nick, -1)
 	return suggestion
+
+@command("bitchingisuseless", aliases=("qbiu",), doc="It really is, ya know...")
+def bitchingisuseless(client, event, channel, nick, rest):
+	rest = rest.strip()
+	if rest:
+		karmaChange(botbase.logger.db, rest, -1)
+	else:
+		karmaChange(botbase.logger.db, channel, -1)
+		rest = "foo'"
+	advice = 'Quiet bitching is useless, %s. Do something about it.' % rest
+	return advice
 
 @command("curse", doc="Curse the day!")
 def curse(client, event, channel, nick, rest):

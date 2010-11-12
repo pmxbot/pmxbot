@@ -63,6 +63,17 @@ class TestCommands(object):
 		print res
 		assert "151.4" in res
 
+	def test_googlecalc_supercomplicated(self):
+		"""
+		Supercomplicated google calculator command - 502 hogsheads per mile in litres per km
+		include 74 388.9641 in results
+		"""
+		res = pmxbot.googlecalc(c, e, "#test", "testrunner", "502 hogsheads per mile in litres per km")
+		print res
+		import pickle
+		pickle.dump(res, open('bleh.cp', 'wb'))
+		assert "74 388.9641" in res
+
 	def test_googlecalc_currency_usd_gbp(self):
 		"""
 		Test that google calculator for a currency conversion: 1 USD in GBP
@@ -275,15 +286,15 @@ class TestCommands(object):
 		print res
 		assert re.match(r"""^YOU.L at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{1,4}.\d{2} \(\-?\d{1,3}.\d%\)$""", res), res
 		
-	def test_ticker_dow(self):
+	def test_ticker_nasdaq(self):
 		"""
-		Get the current stock price of the dow jones.
+		Get the current stock price of the NASDAQ.
 
-		^DJI at 10:37am (ET): 39.40 (0.4%)
+		^IXIC at 10:37am (ET): 2490.40 (0.4%)
 		"""
-		res = pmxbot.ticker(c, e, "#test", "testrunner", "^dji")
+		res = pmxbot.ticker(c, e, "#test", "testrunner", "^ixic")
 		print res
-		assert re.match(r"""^\^DJI at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{4,5}.\d{2} \(\-?\d{1,3}.\d%\)$""", res), res
+		assert re.match(r"""^\^IXIC at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{4,5}.\d{2} \(\-?\d{1,3}.\d%\)$""", res), res
 		
 	def test_pick_or(self):
 		"""
@@ -484,6 +495,23 @@ class TestCommands(object):
 		person = 'vbSptH3ByfQQ6h' 
 		res = pmxbot.paste(c, e, '#test', person, '')
 		assert res == "http://a.libpa.st/40a4345a-4e4b-40d8-ad06-c0a22a26b282"
+
+	def test_qbiu_person(self):
+		"""
+		Test the qbiu function with a specified person.
+		"""
+		bitcher = "all y'all"
+		res = pmxbot.bitchingisuseless(c, e, '#test', 'testrunner', bitcher)
+		print res
+		assert res == "Quiet bitching is useless, all y'all. Do something about it."
+
+	def test_qbiu_blank(self):
+		"""
+		Test the qbiu function with a specified person.
+		"""
+		res = pmxbot.bitchingisuseless(c, e, '#test', 'testrunner', '')
+		print res
+		assert res == "Quiet bitching is useless, foo'. Do something about it."
 
 #	def test_yahoolunch_zip(self):
 #		"""
