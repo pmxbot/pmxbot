@@ -60,7 +60,7 @@ def googletime(client, event, channel, nick, rest):
 			query = 'time ' + place
 		else:
 			query = place
-		timere = re.compile('<td valign=[a-z]+><em>(.+?)(?=<br>|</table>)')
+		timere = re.compile('<td style="font-size:medium"><b>(.+?)</b></table>')
 		html = get_html('http://www.google.com/search?%s' % urllib.urlencode({'q' : query.encode('utf-8')}))
 		try:
 			time = plaintext(timere.search(html).group(1))

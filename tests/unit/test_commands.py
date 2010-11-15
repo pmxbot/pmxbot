@@ -96,9 +96,13 @@ class TestCommands(object):
 		Check the time in Washington, DC. Must include something that looks like a time XX:XX(AM/PM)
 		"""
 		res = pmxbot.googletime(c, e, "#test", "testrunner", "Washington, DC")
+		assert res
+		i = 0
 		for line in res:
 			print line
+			i += 1
 			assert re.match(r"""^[0-9]{1,2}:[0-9]{2}(?:am|pm) """, line)
+		assert i == 1
 
 	def test_time_three(self):
 		"""
@@ -106,9 +110,13 @@ class TestCommands(object):
 		a time XX:XX(AM/PM) on each line
 		"""
 		res = pmxbot.googletime(c, e, "#test", "testrunner", "Washington, DC | Palo Alto, CA | London")
+		assert res
+		i = 0
 		for line in res:
 			print line
+			i += 1
 			assert re.match(r"""^[0-9]{1,2}:[0-9]{2}(?:am|pm) """, line)
+		assert i == 3
 	
 	def test_time_all(self):
 		"""
@@ -116,9 +124,13 @@ class TestCommands(object):
 		a time XX:XX(AM/PM) on each line
 		"""
 		res = pmxbot.googletime(c, e, "#test", "testrunner", "all")
+		assert res
+		i = 0
 		for line in res:
 			print line
+			i += 1
 			assert re.match(r"""^[0-9]{1,2}:[0-9]{2}(?:am|pm) """, line)
+		assert i == 4
 			
 	def test_weather_one(self):
 		"""
