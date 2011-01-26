@@ -1,6 +1,6 @@
 import subprocess
-import shlex
 import os
+import sys
 import yaml
 import irclib
 import time
@@ -13,10 +13,10 @@ class TestingClient(object):
 		self.irc = irclib.IRC()
 		self.c = self.irc.server()
 		self.c.connect(server, port, nickname)
-		self.irc.process_once(0.1)		
-		
+		self.irc.process_once(0.1)
+
 	def send_message(self, channel, message):
-	   	self.c.privmsg(channel, message)
+		self.c.privmsg(channel, message)
 		time.sleep(0.05)
 
 class PmxbotHarness(object):
@@ -29,8 +29,6 @@ class PmxbotHarness(object):
 		cls.config = yaml.load(open(configfile))
 		cls.dbfile = os.path.join(cls.config['database_dir'], 'pmxbot.sqlite')
 		cls.db = sqlite3.connect(cls.dbfile)
-		
-		serverargs = shlex.split('/usr/bin/tclsh tclird/ircd.tcl')
 		try:
 			cls.server = subprocess.Popen(['tclsh', os.path.join(path,
 				'tclircd/ircd.tcl')], stdout=open(os.path.devnull, 'w'),
@@ -38,9 +36,15 @@ class PmxbotHarness(object):
 		except OSError:
 			py.test.skip("Unable to launch irc server (tclsh must be in the path)")
 		time.sleep(0.5)
-		cls.bot = subprocess.Popen(['pmxbot', configfile])
-		time.sleep(0.5)
-		
+		try:
+			# Launch pmxbot using Python directly (rather than through
+			#  the console entry point, which can't be properly
+			#  .terminate()d on Windows.
+			cls.bot = subprocess.Popen([sys.executable, '-c',
+				'from pmxbot.pmxbot import run; run()', configfile])
+		except OSError:
+			py.test.skip("Unable to launch pmxbot (pmxbot must be installed)")
+		time.sleep(1)
 		cls.client = TestingClient('localhost', 6668, 'testingbot')
 
 	def check_logs(cls, channel='', nick='', message=''):
@@ -58,18 +62,29 @@ class PmxbotHarness(object):
 		cursor.execute(query, {'channel' : channel, 'nick' : nick, 'message' : message})
 		res = cursor.fetchall()
 		print res
-		if len(res) >= 1:
-			return True
-		else:
-			return False
-	
+		return len(res) >= 1
+
 	@classmethod
 	def teardown_class(cls):
 		if hasattr(cls, 'bot'):
 			cls.bot.terminate()
+			cls.bot.wait()
 		if hasattr(cls, 'server'):
 			cls.server.terminate()
+			cls.server.wait()
 		if hasattr(cls, 'db'):
 			cls.db.rollback()
 			cls.db.close()
-		os.remove(cls.dbfile)
+			del cls.db
+		if hasattr(cls, 'client'):
+			del cls.client
+		# wait up to 10 seconds for the file to be removable
+		for x in range(100):
+			try:
+				if os.path.isfile(cls.dbfile): os.remove(cls.dbfile)
+				break
+			except OSError:
+				time.sleep(.1)
+		else:
+			raise RuntimeError('Could not remove log db', cls.dbfile)
+
