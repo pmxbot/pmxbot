@@ -72,7 +72,7 @@ class TestCommands(object):
 		print res
 		import pickle
 		pickle.dump(res, open('bleh.cp', 'wb'))
-		assert "74 388.9641" in res
+		assert "388.9641" in res and "74" in res
 
 	def test_googlecalc_currency_usd_gbp(self):
 		"""
@@ -286,7 +286,7 @@ class TestCommands(object):
 		"""
 		res = pmxbot.ticker(c, e, "#test", "testrunner", "goog")
 		print res
-		assert re.match(r"""^GOOG at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{2,4}.\d{2} \(\-?\d{1,3}.\d%\)$""", res), res
+		assert re.match(r"""^GOOG at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{2,4}.\d{1,4} \(\-?\d{1,3}.\d%\)$""", res), res
 		
 	def test_ticker_yougov(self):
 		"""
@@ -436,6 +436,7 @@ class TestCommands(object):
 		Test the built-in python calculator with a simple expression - 2+2
 		"""
 		res = pmxbot.calc(c, e, "#test", "testrunner", "2+2")
+		print res
 		assert res == "4"
 		
 	def test_calc_complex(self):
@@ -444,6 +445,7 @@ class TestCommands(object):
 		((((781**2)*5)/92835.3)+4)**0.5
 		"""
 		res = pmxbot.calc(c, e, "#test", "testrunner", "((((781**2)*5)/92835.3)+4)**0.5")
+		print res
 		assert res.startswith("6.070566")
 		
 	def test_define_keyboard(self):
@@ -451,6 +453,7 @@ class TestCommands(object):
 		Test the wikipedia dictionary with the word keyboard.
 		"""
 		res = pmxbot.defit(c, e, "#test", "testrunner", "keyboard")
+		print res
 		assert res.startswith("Wikipedia says: In computing, a keyboard is an input device, partially modeled after the typewriter keyboard,")
 
 	def test_define_irc(self):
@@ -458,6 +461,7 @@ class TestCommands(object):
 		Test the wikipedia dictionary with the word IRC.
 		"""
 		res = pmxbot.defit(c, e, "#test", "testrunner", "irc")
+		print res
 		assert res.startswith("Wikipedia says: Internet Relay Chat (IRC) is a form of real-time Internet text messaging (chat) or synchronous conferencing")
 
 	def test_urb_irc(self):

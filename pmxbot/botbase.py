@@ -140,7 +140,7 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 						else:
 							self.out(channel, item, not secret)
 		except:
-			print "Error in bacakground runner for ", func
+			print datetime.datetime.now(), "Error in bacakground runner for ", func
 			traceback.print_exc()
 		if repeat and howlong:
 			self.c.execute_delayed(howlong, self.background_runner, arguments=(self.c, channel, func, args, howlong, None, repeat))
@@ -164,6 +164,7 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 				except Exception, e:
 					res = "DO NOT TRY TO BREAK PMXBOT!!!"
 					res += '\n%s' % e
+					print datetime.datetime.now(), "Error with command %s" % name
 					traceback.print_exc()
 				break
 			elif typ in('contains', '#') and name in lc_msg:
@@ -178,6 +179,7 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 						try:
 							res = f(c, e, channel, nick, msg)
 						except Exception, e:
+							print datetime.datetime.now(), "Error with contains  %s" % name
 							traceback.print_exc()
 						break
 		if res:
@@ -265,7 +267,7 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 			logger.db.executemany('INSERT INTO feed_seen (key) values (?)', [(x,) for x in entries])
 			logger.db.commit()
 		except Exception, e:
-			print "Oh crap, couldn't add_feed_entries"
+			print datetime.datetime.now(), "Oh crap, couldn't add_feed_entries"
 			print e
 
 

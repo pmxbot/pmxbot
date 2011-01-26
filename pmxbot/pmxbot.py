@@ -63,8 +63,8 @@ def googletime(client, event, channel, nick, rest):
 		timere = re.compile('<td style="font-size:medium"><b>(.+?)</b></table>')
 		html = get_html('http://www.google.com/search?%s' % urllib.urlencode({'q' : query.encode('utf-8')}))
 		try:
-			time = plaintext(timere.search(html).group(1))
-			yield time
+			t = plaintext(timere.search(html).group(1))
+			yield t
 		except AttributeError:
 			continue
 
@@ -80,22 +80,21 @@ def weather(client, event, channel, nick, rest):
 	for place in places:
 		try:
 			url = "http://www.google.com/ig/api?" + urllib.urlencode({'weather' : place.encode('utf-8')})
-			wdata = ElementTree.parse(urllib.urlopen(url))
+			parser = ElementTree.XMLParser()
+			wdata = ElementTree.parse(urllib.urlopen(url), parser=parser)
 			city = wdata.find('weather/forecast_information/city').get('data')
 			tempf = wdata.find('weather/current_conditions/temp_f').get('data')
 			tempc = wdata.find('weather/current_conditions/temp_c').get('data')
 			conds = wdata.find('weather/current_conditions/condition').get('data')
-			conds = conds.replace('Snow Showers', '\xe2\x98\x83')
-			conds = conds.replace('Snow', '\xe2\x98\x83') # Fix snow description
+			conds = conds.replace('Snow Showers', u'\u2603').replace('Snow', u'\u2603')
 			future_day = wdata.find('weather/forecast_conditions/day_of_week').get('data')
 			future_highf = wdata.find('weather/forecast_conditions/high').get('data')
 			future_highc = int((int(future_highf) - 32) / 1.8)
 			future_conds = wdata.find('weather/forecast_conditions/condition').get('data')
-			future_conds = conds.replace('Snow Showers', '\xe2\x98\x83')
-			future_conds = conds.replace('Snow', '\xe2\x98\x83') # Fix snow description
+			future_conds = future_conds.replace('Snow Showers', u'\u2603').replace('Snow', u'\u2603')
 			weather = u"%s. Currently: %sF/%sC, %s.    %s: %sF/%sC, %s" % (city, tempf, tempc, conds, future_day, future_highf, future_highc, future_conds)
 			yield weather
-		except:
+		except IOError:
 			pass
 
 @command("translate", aliases=('trans', 'googletrans', 'googletranslate'), doc="Translate a phrase using Google Translate. First argument should be the language[s]. It is a 2 letter abbreviation. It will auto detect the orig lang if you only give one; or two languages joined by a |, for example 'en|de' to trans from English to German. Follow this by the phrase you want to translate.")
@@ -485,7 +484,7 @@ def top10(client, event, channel, nick, rest):
 	return res
 
 @command("bottom10", aliases=("bottom",), doc="Return the bottom n (default 10) lowest entities by Karmic value. Use negative numbers for the bottom N.")
-def top10(client, event, channel, nick, rest):
+def bottom10(client, event, channel, nick, rest):
 	if rest:
 		topn = -int(rest)
 	else:
