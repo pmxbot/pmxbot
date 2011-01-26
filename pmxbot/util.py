@@ -518,7 +518,9 @@ def lookup(word):
 	'''Gets a wikipedia summary for a word.
 	'''
 	word = urllib.quote_plus(word)
-	html = get_html('http://www.google.com/search?hl=en&client=firefox-a&q=define:%s' % word)
+	html = get_html('http://www.google.com/search?hl=en&'
+		'client=firefox-a&q=define:%s' % word)
+	html = html.decode('utf-8')
 	mo = wiki_exp.search(html)
 	if not mo:
 		return None
