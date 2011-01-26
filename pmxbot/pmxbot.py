@@ -674,7 +674,7 @@ def defit(client, event, channel, nick, rest):
 	word = rest.strip()
 	res = lookup(word)
 	if res is None:
-		return "Arg!  I didn't find a definition for that."
+		return u"Arg!  I didn't find a definition for that."
 	else:
 		return 'Wikipedia says: ' + res
 
