@@ -457,6 +457,7 @@ class TestCommands(object):
 		"""
 		res = pmxbot.defit(c, e, "#test", "testrunner", "keyboard")
 		print res
+		assert isinstance(res, unicode)
 		assert res.startswith("Wikipedia says: In computing, a keyboard is an input device, partially modeled after the typewriter keyboard,")
 
 	def test_define_irc(self):
@@ -465,6 +466,7 @@ class TestCommands(object):
 		"""
 		res = pmxbot.defit(c, e, "#test", "testrunner", "irc")
 		print res
+		assert isinstance(res, unicode)
 		assert res.startswith("Wikipedia says: Internet Relay Chat (IRC) is a form of real-time Internet text messaging (chat) or synchronous conferencing")
 
 	def test_urb_irc(self):
