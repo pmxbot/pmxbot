@@ -42,6 +42,6 @@ pmxbotweb=pmxbotweb.pmxbotweb:run
         'Topic :: Communications :: Chat :: Internet Relay Chat',
 		'Topic :: Internet :: WWW/HTTP :: WSGI :: Application',
     ],
-    long_description = open(os.path.join(os.path.dirname(__file__), 'README')).read(),
+    long_description = open('README').read(),
     )
     
