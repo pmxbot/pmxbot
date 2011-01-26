@@ -1,8 +1,10 @@
-import pmxbot.pmxbot as pmxbot
 import re
 import os
 import uuid
 import datetime
+
+from pmxbot import pmxbot
+from pmxbot import botbase
 
 class Empty(object):
 	"""
@@ -35,6 +37,7 @@ class TestCommands(object):
 		
 	@classmethod
 	def teardown_class(self):
+		del botbase.logger
 		path = os.path.dirname(os.path.abspath(__file__))
 		os.remove(os.path.join(path, 'pmxbot.sqlite'))
 
