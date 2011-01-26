@@ -6,6 +6,8 @@ import irclib
 import time
 import sqlite3
 
+import py.test
+
 class TestingClient(object):
 	def __init__(self, server, port, nickname):
 		self.irc = irclib.IRC()
@@ -29,7 +31,12 @@ class PmxbotHarness(object):
 		cls.db = sqlite3.connect(cls.dbfile)
 		
 		serverargs = shlex.split('/usr/bin/tclsh tclird/ircd.tcl')
-		cls.server = subprocess.Popen(['tclsh', os.path.join(path, 'tclircd/ircd.tcl')], stdout=open('/dev/null', 'w'), stderr=open('/dev/null', 'w'))
+		try:
+			cls.server = subprocess.Popen(['tclsh', os.path.join(path,
+				'tclircd/ircd.tcl')], stdout=open(os.path.devnull, 'w'),
+				stderr=open(os.path.devnull, 'w'))
+		except OSError:
+			py.test.skip("Unable to launch irc server (tclsh must be in the path)")
 		time.sleep(0.5)
 		cls.bot = subprocess.Popen(['pmxbot', configfile])
 		time.sleep(0.5)
@@ -58,9 +65,11 @@ class PmxbotHarness(object):
 	
 	@classmethod
 	def teardown_class(cls):
-		cls.bot.terminate()
-		cls.server.terminate()
-		cls.db.rollback()
-		cls.db.close()
+		if hasattr(cls, 'bot'):
+			cls.bot.terminate()
+		if hasattr(cls, 'server'):
+			cls.server.terminate()
+		if hasattr(cls, 'db'):
+			cls.db.rollback()
+			cls.db.close()
 		os.remove(cls.dbfile)
-		

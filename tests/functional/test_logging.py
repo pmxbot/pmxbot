@@ -4,8 +4,7 @@ import uuid
 from tests.functional import PmxbotHarness
 
 
-	
-class TestPmxbotLog(PmxbotHarness):	
+class TestPmxbotLog(PmxbotHarness):
 	def test_not_logged_channel(self):
 		"""
 		Test that a basic message in an unlogged room is unlogged.
