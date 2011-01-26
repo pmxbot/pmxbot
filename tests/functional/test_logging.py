@@ -5,6 +5,11 @@ from tests.functional import PmxbotHarness
 
 
 class TestPmxbotLog(PmxbotHarness):
+	def test_no_op(self):
+		"""
+		Test that the harness is working.
+		"""
+
 	def test_not_logged_channel(self):
 		"""
 		Test that a basic message in an unlogged room is unlogged.
