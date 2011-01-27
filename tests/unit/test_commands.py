@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import re
 import os
 import uuid
@@ -94,6 +95,51 @@ class TestCommands(object):
 		print res
 		assert re.match(r"""12 Czech(?: Republic)? [Kk]orun(?:a|y)s? = \d\.\d+ [Ee]uros?""", res) 
 		
+	def test_wolframalpha_simple(self):
+		"""
+		Basic wolframalpha command - 1+1 must include 2 in results
+		"""
+		res = ' '.join(pmxbot.wa(c, e, "#test", "testrunner", "1+1"))
+		print res
+		assert "2" in res
+
+	def test_wolframalpha_complicated(self):
+		"""
+		More complicated wolframalpha command - 40 gallons in liters must
+		include 151.4 in results
+		"""
+		res = ' '.join(pmxbot.wa(c, e, "#test", "testrunner", "40 gallons in liters"))
+		print res
+		assert "151.4" in res
+
+	def test_wolframalpha_supercomplicated(self):
+		"""
+		Supercomplicated wolframalpha command - 502 hogsheads per mile in litres per km
+		include 74 388.9641 in results
+		"""
+		res = ' '.join(pmxbot.wa(c, e, "#test", "testrunner", "502 hogsheads per mile in litres per km"))
+		print res
+		import pickle
+		pickle.dump(res, open('bleh.cp', 'wb'))
+		assert "74" in res and ('388.' in res or '389' in res)
+
+	def test_wolframalpha_currency_usd_gbp(self):
+		"""
+		Test that wolframalpha for a currency conversion: 1 USD in GBP
+		"""
+		res = ' '.join(pmxbot.wa(c, e, "#test", "testrunner", "1 USD in GBP"))
+		print res
+		assert re.search(r"""1.+?dollar.+?\d\.\d+ .+?British pound""", res) 
+		
+
+	def test_wolframalpha_currency_czk_euro(self):
+		"""
+		Test that wolframalpha for a currency conversion: 12 CZK in euros
+		"""
+		res = ' '.join(pmxbot.wa(c, e, "#test", "testrunner", "12 CZK in euros"))
+		print res
+		assert re.search(r"""K.12.+?[Ee]uros? *\d\.\d+""", res) 
+
 	def test_time_one(self):
 		"""
 		Check the time in Washington, DC. Must include something that looks like a time XX:XX(AM/PM)
