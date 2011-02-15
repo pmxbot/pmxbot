@@ -56,8 +56,15 @@ and it will join and connect. We recommend running pmxbot under djb's
 daemontools to make it automatically restart if it crashes. 
 
 
-Adding a custom, local feature
-==============================
+Custom Features
+===============
+
+There are two ways to add a custom feature, either through local python
+scripts or through setuptools entry points.
+
+Python Scripts
+--------------
+
 Adding a new feature is easy, you just need to add them to a local_extensions
 file, following the established convention. The files to load are specified
 in the local_extensions configuration setting. All files in the list are run
@@ -81,6 +88,30 @@ A response (when someone says something) uses the @contains decorator::
   def yay_sor(client, event, channel, nick, rest):
   	karmaChange(botbase.logger.db, 'sql on rails', 1)
   	return "Only 76,417 lines..."
+
+Setuptools Entry Points Plugin
+------------------------------
+
+To create a setuptools (or distribute or compatible packaging tool)
+entry point plugin, package your modules using
+the setuptools tradition and install it alongside pmxbot. Your package
+should define an entry point in the group `pmxbot_handlers` by including
+something similar to the following in the package's setup.py::
+
+    entry_points = {
+        'pmxbot_handlers': [
+            'plugin_name = mylib.mymodule:initialize_func',
+        ],
+    },
+
+During startup (and after loading the traditional script-based plugins),
+pmxbot will load `mylib.mymodule` and call `initialize_func` from that
+module (with no parameters).
+`plugin_name` can be anything, but should be a name suitable to
+identify the plugin. It is not necessary that initialize_func do
+anything at all, but it must be present, and will be called during
+startup.
+
 
 Web Interface
 =============

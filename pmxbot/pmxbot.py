@@ -4,6 +4,7 @@ from botbase import command, contains, execdelay, execat, _handler_registry, NoL
 import botbase
 import time
 import sys, re, urllib, random,  csv
+import logging
 from datetime import date, timedelta
 from util import *
 from cStringIO import StringIO
@@ -21,6 +22,8 @@ except ImportError:
 
 QUOTE_PATH = os.path.join(os.path.dirname(__file__), "popquotes.sqlite")
 popular_quote_db = sqlite.connect(QUOTE_PATH)
+
+log = logging.getLogger(__name__)
 
 sayer = FastSayer()
 
@@ -886,6 +889,8 @@ def run(configFile=None, configDict=None, configInput=None, start=True):
 			for k, v in d.iteritems():
 			    setattr(self, k, v)
 
+	_setup_logging()
+
 	if configInput:
 		config = configInput
 	elif configDict:
@@ -915,8 +920,47 @@ def run(configFile=None, configDict=None, configInput=None, start=True):
         print "Loading", extension
         execfile(extension)
 
+	_load_library_extensions()
+
 	bot = LoggingCommandBot(config.database_dir, config.server_host, config.server_port, 
 		config.bot_nickname, config.log_channels, config.other_channels,
 		config.feed_interval*60, config.feeds)
 	if start:
 		bot.start()
+
+def _setup_logging():
+	logging.basicConfig(level=logging.INFO, format="%(message)s")
+
+def _load_library_extensions():
+	"""
+	Locate all setuptools entry points by the name 'pmxbot_handlers'
+	and initialize them.
+	Any third-party library may register an entry point by adding the
+	following to their setup.py::
+
+		entry_points = {
+			'pmxbot_handlers': [
+				'plugin_name = mylib.mymodule:initialize_func',
+			],
+		},
+
+	`plugin_name` can be anything, and is only used to display the name
+	of the plugin at initialization time.
+	"""
+
+	try:
+		import pkg_resources
+	except ImportError:
+		log.warning('setuptools not available - entry points cannot be '
+			'loaded')
+		return
+
+	group = 'pmxbot_handlers'
+	entry_points = pkg_resources.iter_entry_points(group=group)
+	for ep in entry_points:
+		try:
+			log.info('Loading %s', ep.name)
+			init_func = ep.load()
+			init_func()
+		except Exception:
+			log.exception("Error initializing plugin %s." % ep)
