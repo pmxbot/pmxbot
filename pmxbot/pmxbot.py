@@ -48,30 +48,6 @@ def googlecalc(client, event, channel, nick, rest):
 		res = gcre.search(html).group(1)
 	return plaintext(res.decode('utf-8'))
 
-import wolframalpha		
-@command("wolframalpha", aliases=('wa',), doc="Calculate something using google")
-def wa(client, event, channel, nick, rest):
-	try:
-		query = wolframalpha.WolframAlpha(rest)
-	except:
-		raise InvalidInputError
-	res = query.results
-	resd = dict([(p.title, '    '.join(p.result_raw.split('\\n'))) for p in res])
-	out = ['http://wolframalpha.com/input?%s %s Result pods.' % (urllib.urlencode({'i': rest}), len(res))]
-	if resd.has_key('Input'):
-		out.append('Input:')
-		out.append(resd.pop('Input'))
-	if resd.has_key('Input interpretation'):
-		out.append('Input:')
-		out.append(resd.pop('Input interpretation'))
-	if resd.has_key('Result'):
-		out.append('Result:')
-		out.append(resd.pop('Result'))
-	yield ' '.join(out)
-	for title, result in resd.iteritems():
-		yield '%s: %s' % (title, result)
-	
-
 @command("time", doc="What time is it in.... Similar to !weather")
 def googletime(client, event, channel, nick, rest):
 	rest = rest.strip()
