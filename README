@@ -112,6 +112,9 @@ identify the plugin. It is not necessary that initialize_func do
 anything at all, but it must be present, and will be called during
 startup.
 
+For an example of how to implement a setuptools-based plugin, see
+the `wolframalpha plugin
+<http://bitbucket.org/yougov/pmxbot-wolframalpha>`_.
 
 Web Interface
 =============
