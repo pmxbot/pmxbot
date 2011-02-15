@@ -28,14 +28,14 @@ packages:
 
 * python-irclib
 * pyyaml
-* simplejson or json
+* json (standard library for 2.6+) or simplejson
 * feedparser
 * httplib2
 * sqlite3
 
-Optionally nosetests for the test suite.
-
 The web interface requires cherrypy and jinja2.
+
+Optionally nosetests for the test suite.
 
 Testing
 =======
@@ -59,36 +59,6 @@ daemontools to make it automatically restart if it crashes.
 Custom Features
 ===============
 
-There are two ways to add a custom feature, either through local python
-scripts or through setuptools entry points.
-
-Python Scripts
---------------
-
-Adding a new feature is easy, you just need to add them to a local_extensions
-file, following the established convention. The files to load are specified
-in the local_extensions configuration setting. All files in the list are run
-with execfile, so they inherit the existing globals. As a result you can
-assume that most things you'll need are already imported, like @command,
-@contains, re, urllib, httplib2 and get_html. There's an example in local.py
-that you can use as the basis for yours..
-
-A command (!g) gets the @command deocator::
-
-  @command("tinytear", aliases=('tt', 'tear', 'cry'), doc="I cry a tiny tear for you.")
-  def tinytear(client, event, channel, nick, rest):
-  	if rest:
-  		return "/me sheds a single tear for %s" % rest
-  	else:
-  		return "/me sits and cries as a single tear slowly trickles down its cheek"
-
-A response (when someone says something) uses the @contains decorator::
-
-  @contains("sqlonrails")
-  def yay_sor(client, event, channel, nick, rest):
-  	karmaChange(botbase.logger.db, 'sql on rails', 1)
-  	return "Only 76,417 lines..."
-
 Setuptools Entry Points Plugin
 ------------------------------
 
@@ -111,6 +81,26 @@ module (with no parameters).
 identify the plugin. It is not necessary that initialize_func do
 anything at all, but it must be present, and will be called during
 startup.
+
+Within the script you'll want to import the decorates you need to use with:
+`from pmxbot.botbase import command, contains, execdelay, execat`. You'll then
+decorate each function with the appropriate line so pmxbot registers it.
+
+A command (!g) gets the @command decorator::
+
+  @command("tinytear", aliases=('tt', 'tear', 'cry'), doc="I cry a tiny tear for you.")
+  def tinytear(client, event, channel, nick, rest):
+  	if rest:
+  		return "/me sheds a single tear for %s" % rest
+  	else:
+  		return "/me sits and cries as a single tear slowly trickles down its cheek"
+
+A response (when someone says something) uses the @contains decorator::
+
+  @contains("sqlonrails")
+  def yay_sor(client, event, channel, nick, rest):
+  	karmaChange(botbase.logger.db, 'sql on rails', 1)
+  	return "Only 76,417 lines..."
 
 For an example of how to implement a setuptools-based plugin, see
 the `wolframalpha plugin

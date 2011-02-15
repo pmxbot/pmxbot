@@ -17,7 +17,6 @@ pmxbotweb=pmxbotweb.pmxbotweb:run
     install_requires=[
         "pyyaml",
         "python-irclib",
-        "simplejson",
         "httplib2",
         "feedparser",
 		#for viewer

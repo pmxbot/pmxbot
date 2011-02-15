@@ -2,15 +2,15 @@ server_host: "irc.freenode.net"
 server_port: 6667
 bot_nickname: pmxbot
 log_channels: 
-    - "#botone"
+    - "#pmxbot"
 other_channels:
-    - "#bottwo"
-inane_channel: "#botone"
+    - "#pmxbot2"
+inane_channel: "#pmxbot"
 database_dir: "./bot_database"
 places: ["Palo Alto, CA", "Canton, OH", "Washington, DC", "London, England"]
 lunch_choices:
     PA: ["Pasta?", "Thaiphoon", "Pluto's", "Penninsula Creamery", "Kan Zeman"]
-feed_interval: 15 #15 minutes
+feed_interval: 15 #minutes
 feeds:
     - name    : "pmxbot bitbucket"
       channel : "#botone"
@@ -20,7 +20,6 @@ feeds:
       channel : "#bottwo"
       linkurl : "http://search.twitter.com/search?q=pmxbot"
       url     : "http://search.twitter.com/search.atom?q=pmxbot"
-local_extensions: ['local.py']
 librarypaste: http://a.libpa.st/
 
 web_base: /

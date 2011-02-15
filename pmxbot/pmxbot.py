@@ -11,7 +11,7 @@ from cStringIO import StringIO
 try:
 	import simplejson as json
 except ImportError:
-	import json # one last try-- python 2.6?
+	import json # one last try-- python 2.6+
 from saysomething import FastSayer
 from cleanhtml import plaintext
 from xml.etree import ElementTree
@@ -891,10 +891,6 @@ def run(configFile=None, configDict=None, configInput=None, start=True):
 		@contains(config.bot_nickname, channels='unlogged', rate=.3)
 		def rand_bot2(*args):
 			return rand_bot(*args)
-
-    for extension in config.local_extensions:
-        print "Loading", extension
-        execfile(extension)
 
 	_load_library_extensions()
 
