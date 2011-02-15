@@ -1,8 +1,7 @@
 from setuptools import setup
-import os
 
 setup(name="pmxbot",
-    version="1004.4",
+    version="1005-beta1",
     packages=["pmxbot", "pmxbotweb",],
     package_data={'pmxbot' : ["popquotes.sqlite",],
 		'pmxbotweb' : ["templates/*.html", "templates/pmxbot.png",],
