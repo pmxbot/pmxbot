@@ -1,35 +1,92 @@
 == Welcome ==
+{{https://bitbucket.org/yougov/pmxbot/raw/8af8328a91ce/pmxbotweb/templates/pmxbot.png|pmxbot skynet logo}}{{https://bitbucket.org/yougov/pmxbot/raw/tip/horrible-logos-pmxbot.gif|pmxbot horrible logo}}
 
-Welcome to your wiki! This is the default page we've installed for your convenience. Go ahead and edit it.
+Welcome to pmxbot!
 
-=== Wiki features ===
+== Feature List ==
+While pmxbot's feature set is always growing and changing, here's a list of the current features included as part of version 1004.4. 
 
-This wiki uses the [[http://www.wikicreole.org/|Creole]] syntax, and is fully compatible with the 1.0 specification.
+|= Command |= Aliases |= Description |
+| 8ball | '8' | Ask the magic 8ball a question |
+| acronym | 'ac' | Look up an acronym |
+| anchorman |  | Quote Anchorman. |
+| annoy | 'a', 'bother' | Annoy everyone with meaningless banter |
+| bender | 'bend' | Quote Bender, a la http://en.wikiquote.org/wiki/Futurama |
+| bitchingisuseless | 'qbiu' | It really is, ya know... |
+| blame |  | Pass the buck! |
+| bless |  | Bless the day! |
+| boo |  | Boo someone |
+| bottom10 | 'bottom' | Return the bottom n (default 10) lowest entities by Karmic value. Use negative numbers for the bottom N. |
+| calc |  | Perform a basic calculation |
+| chain |  | Chain some(one~|thing)down. |
+| cheer | 'c' | Cheer for something |
+| compliment | 'surreal' | Generate a random compliment from http://www.madsci.org/cgi-bin/cgiwrap/~lynn/jardin/SCG |
+| ctlaltdel | 'cad', 'controlaltdelete', 'controlaltdelete', 'quit', 'restart' | Quits pmxbot. Daemontools should automatically restart it. |
+| curse |  | Curse the day! |
+| dance | 'd' | Do a little dance |
+| deal |  | Deal or No Deal? |
+| define | 'def' | Define a word |
+| demotivate | 'dm' | Demotivate someone |
+| disembowel | 'dis', 'eviscerate' | Disembowel some(one~|thing)! |
+| duck | 'ducky' | Display a helpful duck |
+| embowel | 'reembowel' | Embowel some(one~|thing)! |
+| excuse | 'e ' | Provide a convenient excuse |
+| featurecreep | 'fc' | Generate feature creep (P+C http://www.dack.com/web/bullshit.html) |
+| fight |  | Pit two sworn enemies against each other |
+| flip |  | Flip a coin |
+| fml |  | A SFW version of fml. |
+| gettowork | 'gtw' | You really ought to, ya know... |
+| golfclap | 'clap' | Clap for something |
+| google | 'g' | Look a phrase up on google |
+| googlecalc | 'gc' | Calculate something using google |
+| grail |  | I questing baby |
+| hal | '2001' | HAL 9000 |
+| hangover |  | Quote hangover. |
+| help | 'h' | Help (this command) |
+| hgup | 'hg', 'hgpull', 'update' | Update with the latest from mercurial |
+| hire |  | When all else fails, pmxbot delivers the perfect employee. |
+| imotivate | 'im', 'ironicmotivate' | Ironically "Motivate" someone |
+| insult |  | Generate a random insult from http://www.webinsult.com/index.php |
+| job | 'card' | Generate a job title, http://www.cubefigures.com/job.html |
+| karma | 'k' | Return or change the karma value for some(one~|thing) |
+| keelhaul | 'kh' | Inflict great pain and embarassment on some(one~|thing) |
+| klingon | 'klingonism' | Ask the magic klingon a question |
+| lunch | 'lunchpick', 'lunchpicker' | Pick where to go to lunch |
+| meaculpa | 'apologize', 'apology' | Sincerely apologize |
+| motivate | 'appreciate', 'm', 'thank', 'thanks' | Motivate someone |
+| murphy | 'law' | Look up one of Murphy's laws |
+| nailedit | 'n', 'nail' | Nail that interview |
+| nastygram | 'bcc', 'nerf', 'passive' | A random passive-agressive comment, optionally directed toward some(one~|thing). |
+| oregontrail | 'otrail' | It's edutainment! |
+| panic | 'pc' | Panic! |
+| password | 'passwd', 'pw' | Generate a random password, similar to http://www.pctools.com/guides/password |
+| paste |  | Drop a link to your latest paste |
+| pick | 'p', 'p:', 'pick:' | Pick between a few options |
+| progress |  | Display the progress of something: start~|end~|percent |
+| quote | 'q' | If passed with nothing then get a random quote. If passed with some string then search for that. If prepended with "add:" then add it to the db, eg "!quote add: drivers: I only work here because of pmxbot!" |
+| r | 'r' | Quote the R mailing list |
+| roll |  | Roll a die, default = 100. |
+| rubberstamp | 'approve' | Approve something |
+| saysomething |  | Generate a Markov Chain response based on past logs. Seed it with a starting word by adding that to the end, eg '!saysomething dowski:' |
+| simpsons | 'simp' | Quote the Simpsons, a la http://snpp.com/ |
+| stab | 'shank', 'shiv' | Stab, shank or shiv some(one~|thing)! |
+| storytime | 'story' | A story is about to be told. |
+| strategy |  | Social Media Strategy, courtsey of http://whatthefuckismysocialmediastrategy.com/ |
+| strike |  | Strike last statements from the record |
+| tgif |  | Thanks for the words of wisdow, Mike. |
+| therethere | 'comfort', 'poor' | Sympathy for you. |
+| ticker | 't' | Look up a ticker symbol's current trading value |
+| time |  | What time is it in.... Similar to !weather |
+| tinytear | 'cry', 'tear', 'tt' | I cry a tiny tear for you. |
+| top10 | 'top' | Return the top n (default 10) highest entities by Karmic value. Use negative numbers for the bottom N. |
+| translate | 'googletrans', 'googletranslate', 'trans' | Translate a phrase using Google Translate. First argument should be the language[s]. It is a 2 letter abbreviation. It will auto detect the orig lang if you only give one; or two languages joined by a ~|, for example 'en~|de' to trans from English to German. Follow this by the phrase you want to translate. |
+| troutslap | 'slap', 'ts' | Slap some(one~|thing) with a fish |
+| urbandict | 'ud', 'urb', 'urbandef', 'urbandefine', 'urbandictionary', 'urbdef' | Define a word with Urban Dictionary |
+| weather | 'w' | Get weather for a place. All offices with "all", or a list of places separated by pipes. |
+| where | 'last', 'lastseen', 'seen' | When did pmxbot last see speak? |
+| wolframalpha | 'wa' | Wolfram Alpha rules |
+| zinger | 'zing' | ZING! |
+| zoidberg | 'zoid' | Quote Zoidberg, a la http://en.wikiquote.org/wiki/Futurama |
 
-The wiki itself is actually a hg repository, which means you can clone it, edit it locally/offline, add images or any other file type, and push it back to us. It will be live immediately.
 
-Go ahead and try:
-
-{{{
-$ hg clone http://bitbucket.org/yougov/pmxbot/wiki/
-}}}
-
-Wiki pages are normal files, with the .wiki extension. You can edit them locally, as well as creating new ones.
-
-=== Syntax highlighting ===
-
-You can also highlight snippets of text, we use the excellent [[http://www.pygments.org/|Pygments]] library.
-
-Here's an example of some Python code:
-
-{{{
-#!python
-
-def wiki_rocks(text):
-	formatter = lambda t: "funky"+t
-	return formatter(text)
-}}}
-
-You can check out the source of this page to see how that's done, and make sure to bookmark [[http://pygments.org/docs/lexers/|the vast library of Pygment lexers]], we accept the 'short name' or the 'mimetype' of anything in there.
-
-Have fun!
+== Example Session ==
