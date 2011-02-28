@@ -142,7 +142,7 @@ It's sometimes hard to get a sense of what pmxbot is like if you've never used i
 < cperry> yes! my favorite!
 < chmullig> Are you teaching the germans sql on rails?
 <@pmxbot> Only 76,417 lines...
-< cperry> ha ha, i wish
+< cperry> nah, they prefer spss
 < chmullig> thank you, pmxbot
 <@pmxbot> I'm afraid that would violate the fire code.
 }}}
