@@ -98,6 +98,9 @@ def weather(client, event, channel, nick, rest):
 			yield weather
 		except IOError:
 			pass
+		except AttributeError:
+			# sometimes wdata.find returns None which has no .get
+			pass
 
 @command("translate", aliases=('trans', 'googletrans', 'googletranslate'), doc="Translate a phrase using Google Translate. First argument should be the language[s]. It is a 2 letter abbreviation. It will auto detect the orig lang if you only give one; or two languages joined by a |, for example 'en|de' to trans from English to German. Follow this by the phrase you want to translate.")
 def translate(client, event, channel, nick, rest):
