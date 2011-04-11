@@ -370,7 +370,45 @@ class Logger(object):
 		rows_deleted = deleted.rowcount - 1
 		self.db.commit()
 		return rows_deleted
-		
+
+class MongoDBLogger(object):
+	def __init__(self, host_uri):
+		# for now do a delayed import to avoid interfering with
+		# canonical logging module.
+		globals().update(pymongo=__import__('pymongo'))
+		self.db = pymongo.Connection(host_uri).pmxbot.logs
+
+	def message(self, channel, nick, msg):
+		channel = channel.replace('#', '')
+		self.db.insert(dict(channel=channel, nick=nick, message=msg))
+
+	def last_seen(self, nick):
+		fields = 'channel',
+		query = dict(nick=nick)
+		cursor = self.db.find(query, fields=fields)
+		cursor = cursor.sort('_id', pymongo.DESCENDING)
+		res = first(cursor)
+		if not res:
+			return None
+		return [res['_id'].generation_time, res['channel']]
+
+	def strike(self, channel, nick, count):
+		channel = channel.replace('#', '')
+		# cap at 19 messages
+		count = min(count, 19)
+		# get rid of 'the last !strike' too!
+		limit = count+1
+		# don't delete anything before the current date
+		date_limit = pymongo.ObjectId.from_datetime(datetime.date.today())
+		query = dict(channel=channel, nick=nick)
+		query['$gt'] = dict(_id=date_limit)
+		cursor = self.db.find(query).sort('_id', pymongo.DESCENDING)
+		cursor = cursor.limit(limit)
+		ids_to_delete = [row['_id'] for row in cursor]
+		if ids_to_delete:
+			self.db.remove({'_id': {'$in': ids_to_delete}}, safe=True)
+		rows_deleted = max(len(ids_to_delete) - 1, 0)
+		return rows_deleted
 
 logger = None
 
