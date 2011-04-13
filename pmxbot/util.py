@@ -6,6 +6,7 @@ import urllib
 import httplib2
 
 from .storage import SQLiteStorage, MongoDBStorage
+from . import storage
 
 ball8_opts = { 
 "Signs point to yes." : 21,
@@ -406,7 +407,54 @@ class Karma(SQLiteStorage):
 		self.db.commit()
 
 class MongoDBKarma(MongoDBStorage):
-	pass # stubbed
+	collection_name = 'karma'
+	def lookup(self, thing):
+		thing = thing.strip().lower()
+		res = self.db.find_one({'names':thing})
+		return res['value'] if res else 0
+
+	def set(self, thing, value):
+		thing = thing.strip().lower()
+		value = int(value)
+		self.db.update({'names': [thing]}, {'$set': {'value': value}}, upsert=True)
+
+	def change(self, thing, change):
+		thing = thing.strip().lower()
+		change = int(change)
+		self.db.update({'names': [thing]}, {'$inc': {'value': change}}, upsert=True)
+
+	def list(self, select=0):
+		res = list(self.db.find().sort('value', storage.pymongo.DESCENDING))
+
+		if select > 0:
+			selected = res[:select]
+		elif select < 0:
+			selected = res[select:]
+		else:
+			selected = res
+		aslist = lambda val: val if isinstance(val, list) else [val]
+		return [
+			(aslist(rec['names']), rec['value'])
+			for rec in selected
+		]
+
+	def link(self, thing1, thing2):
+		thing1 = thing1.strip().lower()
+		thing2 = thing2.strip().lower()
+		rec = self.db.find_one({'names': thing2})
+		if not rec: raise KeyError(thing2)
+		try:
+			query = {'names': thing1}
+			update = {
+				'$inc': {'value': rec['value']},
+				'$pushAll': {'names': rec['names']},
+			}
+			print query
+			print update
+			self.db.update(query, update, safe=True)
+		except Exception:
+			raise KeyError(thing1)
+		self.db.remove(rec)
 
 def get_karma_for_uri(uri):
 	class_ = MongoDBKarma if uri.startswith('mongodb://') else Karma
