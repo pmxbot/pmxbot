@@ -245,15 +245,8 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 				txt = txt.encode('utf-8')
 				c.privmsg(this_feed['channel'], txt)
 		#end of check_single_feed
-		db = logger.db
-		try:
-			res = db.execute('select key from feed_seen').fetchall()
-			FEED_SEEN = [x[0] for x in res]
-		except:
-			db.execute('CREATE TABLE feed_seen (key varchar)')
-			db.execute('CREATE INDEX IF NOT EXISTS ix_feed_seen_key ON feed_seen (key)')
-			db.commit()
-			FEED_SEEN = []
+		db = get_feedparser_db(self._repo)
+		FEED_SEEN = db.get_seen_feeds()
 		for feed in feeds:
 			check_single_feed(feed)
 		c.execute_delayed(interval, self.feed_parse, arguments=(c, e, interval, feeds))
@@ -264,8 +257,8 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 		issues with accessing sqlite from multiple threads
 		"""
 		try:
-			logger.db.executemany('INSERT INTO feed_seen (key) values (?)', [(x,) for x in entries])
-			logger.db.commit()
+			db = get_feedparser_db(self._repo)
+			db.add_entries(entries)
 		except Exception, e:
 			print datetime.datetime.now(), "Oh crap, couldn't add_feed_entries"
 			print e
@@ -314,12 +307,19 @@ def execat(name, channel, when, args=[], doc=None):
 		return func
 	return deco
 
-class Logger(object):
-
+class SQLiteStorage(object):
 	def __init__(self, repo):
 		self.repo = repo
 		self.dbfn = pjoin(self.repo, 'pmxbot.sqlite')
 		self.db = sqlite.connect(self.dbfn, isolation_level=None, timeout=20.0)
+		self.init_tables()
+
+	def init_tables(self):
+		pass
+
+class Logger(SQLiteStorage):
+
+	def init_tables(self):
 		LOG_CREATE_SQL = '''
 		CREATE TABLE IF NOT EXISTS logs (
 			id INTEGER NOT NULL,
@@ -371,12 +371,37 @@ class Logger(object):
 		self.db.commit()
 		return rows_deleted
 
-class MongoDBLogger(object):
+class FeedparserDB(SQLiteStorage):
+	def init_tables(self):
+		self.db.execute("CREATE TABLE IF NOT EXISTS feed_seen (key varchar)")
+		self.db.execute('CREATE INDEX IF NOT EXISTS ix_feed_seen_key ON feed_seen (key)')
+		self.db.commit()
+
+	def get_seen_feeds(self):
+		return [row[0] for row in self.db.execute('select key from feed_seen')]
+
+	def add_entries(self, entries):
+		self.db.executemany('INSERT INTO feed_seen (key) values (?)', [(x,) for x in entries])
+		self.db.commit()
+
+class MongoDBStorage(object):
 	def __init__(self, host_uri):
 		# for now do a delayed import to avoid interfering with
 		# canonical logging module.
 		globals().update(pymongo=__import__('pymongo'))
-		self.db = pymongo.Connection(host_uri).pmxbot.logs
+		self.db = pymongo.Connection(host_uri).pmxbot[self.collection_name]
+
+class MongoDBFeedparserDB(MongoDBStorage):
+	collection_name = 'feed history'
+	def get_seen_feeds(self):
+		return [row['key'] for row in self.db.find()]
+
+	def add_entries(self, entries):
+		for entry in entries:
+			self.db.insert(dict(key=entry))
+		
+class MongoDBLogger(MongeDBStorage):
+	collection_name = 'logs'
 
 	def message(self, channel, nick, msg):
 		channel = channel.replace('#', '')
@@ -412,6 +437,11 @@ class MongoDBLogger(object):
 
 logger = None
 
-def setup_repo(path):
+def setup_repo(uri):
 	global logger
-	logger = Logger(path)
+	class_ = MongoDBLogger if uri.startswith('mongodb://') else Logger
+	logger = class_(uri)
+
+def get_feedparser_db(uri):
+	class_ = MongoDBFeedparserDB if uri.startswith('mongodb://') else FeedparserDB
+	return class_(uri)
