@@ -3,10 +3,6 @@
 import sys
 import ircbot
 import datetime
-try:
-	from pysqlite2 import dbapi2 as sqlite
-except ImportError:
-	from sqlite3 import dbapi2 as sqlite
 import os
 import traceback
 import time
@@ -15,8 +11,9 @@ import feedparser
 import socket
 import random
 
+from .storage import SQLiteStorage, MongoDBStorage
+
 exists = os.path.exists
-pjoin = os.path.join
 
 LOGWARN_EVERY = 60 # seconds
 LOGWARN_MESSAGE = \
@@ -307,16 +304,6 @@ def execat(name, channel, when, args=[], doc=None):
 		return func
 	return deco
 
-class SQLiteStorage(object):
-	def __init__(self, repo):
-		self.repo = repo
-		self.dbfn = pjoin(self.repo, 'pmxbot.sqlite')
-		self.db = sqlite.connect(self.dbfn, isolation_level=None, timeout=20.0)
-		self.init_tables()
-
-	def init_tables(self):
-		pass
-
 class Logger(SQLiteStorage):
 
 	def init_tables(self):
@@ -383,13 +370,6 @@ class FeedparserDB(SQLiteStorage):
 	def add_entries(self, entries):
 		self.db.executemany('INSERT INTO feed_seen (key) values (?)', [(x,) for x in entries])
 		self.db.commit()
-
-class MongoDBStorage(object):
-	def __init__(self, host_uri):
-		# for now do a delayed import to avoid interfering with
-		# canonical logging module.
-		globals().update(pymongo=__import__('pymongo'))
-		self.db = pymongo.Connection(host_uri).pmxbot[self.collection_name]
 
 class MongoDBFeedparserDB(MongoDBStorage):
 	collection_name = 'feed history'
