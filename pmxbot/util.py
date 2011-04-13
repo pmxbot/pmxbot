@@ -5,7 +5,6 @@ import re
 import urllib
 import httplib2
 
-from .storage import SQLiteStorage, MongoDBStorage
 from . import storage
 
 ball8_opts = { 
@@ -316,7 +315,7 @@ def splitem(s):
 	c = filter(None, c)
 	return c
 
-class Karma(SQLiteStorage):
+class Karma(storage.SQLiteStorage):
 	def init_tables(self):
 		CREATE_KARMA_VALUES_TABLE = '''
 			CREATE TABLE IF NOT EXISTS karma_values (karmaid INTEGER NOT NULL, karmavalue INTEGER, primary key (karmaid))
@@ -406,7 +405,7 @@ class Karma(SQLiteStorage):
 		self.db.execute('UPDATE karma_values SET karmavalue = ? where karmaid = ?', (newvalue, t1id)) #set the new combined value
 		self.db.commit()
 
-class MongoDBKarma(MongoDBStorage):
+class MongoDBKarma(storage.MongoDBStorage):
 	collection_name = 'karma'
 	def lookup(self, thing):
 		thing = thing.strip().lower()
@@ -459,8 +458,9 @@ def get_karma_for_uri(uri):
 	return class_(uri)
 
 def init_karma(uri):
-	global karma
-	karma = get_karma_for_uri(uri)
+	globals().update(
+		karma = get_karma_for_uri(uri)
+	)
 
 class Quotes():
 	def __init__(self, db, lib):
