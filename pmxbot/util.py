@@ -524,7 +524,7 @@ class Quotes():
 		if quote in log_message:
 			self.db.execute('INSERT INTO quote_log (quoteid, logid) VALUES (?, ?)', (quoteid, log_id))
 		self.db.commit()
-		
+
 def bartletts(db, lib, nick, qsearch):
 	qs = Quotes(db, lib)
 	qsearch = qsearch.strip()
@@ -568,16 +568,16 @@ def lookup(word):
 	return show_def.strip()
 
 def urbanlookup(word):
-        '''Gets a Urban Dictionary summary for a word.
-        '''
-        word = urllib.quote_plus(word)
-        html = get_html('http://urbandictionary.com/define.php?term=%s' % word)
-        match = urbd_exp.search(html)
-        if not match:
-                return None, None
-        word, definition = match.groups()
-        definition = ' '.join(definition.replace('<br/>', '').splitlines())
-        return word.strip(), definition.strip()
+	'''Gets a Urban Dictionary summary for a word.
+	'''
+	word = urllib.quote_plus(word)
+	html = get_html('http://urbandictionary.com/define.php?term=%s' % word)
+	match = urbd_exp.search(html)
+	if not match:
+			return None, None
+	word, definition = match.groups()
+	definition = ' '.join(definition.replace('<br/>', '').splitlines())
+	return word.strip(), definition.strip()
 
 
 html_strip = re.compile(r'<[^>]+?>')
