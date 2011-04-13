@@ -36,6 +36,7 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 		self._nolog = set(('#' + c if not c.startswith('#') else c) for c in nolog_channels)
 		setup_repo(repo)
 		self._repo = repo
+		util.init_karma(repo)
 		self._nickname = nickname
 		self._feed_interval = feed_interval
 		self._feeds = feeds

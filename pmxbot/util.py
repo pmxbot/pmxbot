@@ -5,6 +5,8 @@ import re
 import urllib
 import httplib2
 
+from .storage import SQLiteStorage, MongoDBStorage
+
 ball8_opts = { 
 "Signs point to yes." : 21,
 "Yes." : 21,
@@ -313,9 +315,8 @@ def splitem(s):
 	c = filter(None, c)
 	return c
 
-class Karma():
-	def __init__(self, db):
-		self.db = db
+class Karma(SQLiteStorage):
+	def init_tables(self):
 		CREATE_KARMA_VALUES_TABLE = '''
 			CREATE TABLE IF NOT EXISTS karma_values (karmaid INTEGER NOT NULL, karmavalue INTEGER, primary key (karmaid))
 		'''
@@ -325,13 +326,12 @@ class Karma():
 		CREATE_KARMA_LOG_TABLE = '''
 			CREATE TABLE IF NOT EXISTS karma_log (karmakey varchar, logid INTEGER, change INTEGER)
 		'''
-		db.execute(CREATE_KARMA_VALUES_TABLE)
-		db.execute(CREATE_KARMA_KEYS_TABLE)
-		db.execute(CREATE_KARMA_LOG_TABLE)
-		db.commit()
-		
+		self.db.execute(CREATE_KARMA_VALUES_TABLE)
+		self.db.execute(CREATE_KARMA_KEYS_TABLE)
+		self.db.execute(CREATE_KARMA_LOG_TABLE)
+		self.db.commit()
 
-	def karmaLookup(self, thing):
+	def lookup(self, thing):
 		thing = thing.strip().lower()
 		LOOKUP_SQL = 'SELECT karmavalue from karma_keys k join karma_values v on k.karmaid = v.karmaid where k.karmakey = ?'
 		try:
@@ -342,7 +342,7 @@ class Karma():
 			karma = 0
 		return karma
 
-	def karmaSet(self, thing, value):
+	def set(self, thing, value):
 		thing = thing.strip().lower()
 		value = int(value)
 		UPDATE_SQL = 'UPDATE karma_values SET karmavalue = ? where karmaid = (select karmaid from karma_keys where karmakey = ?)'
@@ -354,7 +354,7 @@ class Karma():
 			self.db.execute(INSERT_KEY_SQL, (thing, ins.lastrowid))
 		self.db.commit()
 
-	def karmaChange(self, thing, change):
+	def change(self, thing, change):
 		thing = thing.strip().lower()
 		value = int(self.karmaLookup(thing)) + int(change)
 		UPDATE_SQL = 'UPDATE karma_values SET karmavalue = ? where karmaid = (select karmaid from karma_keys where karmakey = ?)'
@@ -366,7 +366,7 @@ class Karma():
 			self.db.execute(INSERT_KEY_SQL, (thing, ins.lastrowid))
 		self.db.commit()
 
-	def karmaList(self, select=0):
+	def list(self, select=0):
 		KARMIC_VALUES_SQL = 'SELECT karmaid, karmavalue from karma_values order by karmavalue desc'
 		KARMA_KEYS_SQL= 'SELECT karmakey from karma_keys where karmaid = ?'
 
@@ -384,7 +384,7 @@ class Karma():
 			keysandkarma.append((keys, value))
 		return keysandkarma
 
-	def karmaLink(self, thing1, thing2):
+	def link(self, thing1, thing2):
 		t1 = thing1.strip().lower()
 		t2 = thing2.strip().lower()
 		GET_KARMAID_SQL = 'SELECT karmaid FROM karma_keys WHERE karmakey = ?'
@@ -405,24 +405,16 @@ class Karma():
 		self.db.execute('UPDATE karma_values SET karmavalue = ? where karmaid = ?', (newvalue, t1id)) #set the new combined value
 		self.db.commit()
 
-		
+class MongoDBKarma(MongoDBStorage):
+	pass # stubbed
 
+def get_karma_for_uri(uri):
+	class_ = MongoDBKarma if uri.startswith('mongodb://') else Karma
+	return class_(uri)
 
-def karmaLookup(db, thing):
-	k = Karma(db)
-	return k.karmaLookup(thing)
-
-def karmaChange(db, thing, change):
-	k = Karma(db)
-	return k.karmaChange(thing, change)
-
-def karmaList(db, select=0):
-	k = Karma(db)
-	return k.karmaList(select)
-
-def karmaLink(db, thing1, thing2):
-	k = Karma(db)
-	return k.karmaLink(thing1, thing2)
+def init_karma(uri):
+	global karma
+	karma = get_karma_for_uri(uri)
 
 class Quotes():
 	def __init__(self, db, lib):
