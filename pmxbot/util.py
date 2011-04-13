@@ -356,7 +356,7 @@ class Karma(SQLiteStorage):
 
 	def change(self, thing, change):
 		thing = thing.strip().lower()
-		value = int(self.karmaLookup(thing)) + int(change)
+		value = int(self.lookup(thing)) + int(change)
 		UPDATE_SQL = 'UPDATE karma_values SET karmavalue = ? where karmaid = (select karmaid from karma_keys where karmakey = ?)'
 		res = self.db.execute(UPDATE_SQL, (value, thing))
 		if res.rowcount == 0:
@@ -392,12 +392,12 @@ class Karma(SQLiteStorage):
 			t1id = self.db.execute(GET_KARMAID_SQL, [t1]).fetchone()[0]
 		except TypeError:
 			raise KeyError
-		t1value = self.karmaLookup(t1)
+		t1value = self.lookup(t1)
 		try:
 			t2id = self.db.execute(GET_KARMAID_SQL, [t2]).fetchone()[0]
 		except TypeError:
 			raise KeyError
-		t2value = self.karmaLookup(t2)
+		t2value = self.lookup(t2)
 
 		newvalue = t1value + t2value
 		self.db.execute('UPDATE karma_keys SET karmaid = ? where karmaid = ?', (t1id, t2id)) #update the keys so t2 points to t1s value
