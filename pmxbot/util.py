@@ -462,10 +462,16 @@ def init_karma(uri):
 		karma = get_karma_for_uri(uri)
 	)
 
-class Quotes():
-	def __init__(self, db, lib):
-		self.db = db
+def get_quotes(uri, lib):
+	class_ = MongoDBQuotes if uri.startswith('mongodb://') else Quotes
+	return class_(uri, lib)
+
+class Quotes(storage.SQLiteStorage):
+	def __init__(self, repo, lib):
+		super(Quotes, self).__init__(repo)
 		self.lib = lib
+
+	def init_tables(self)
 		CREATE_QUOTES_TABLE = '''
 			CREATE TABLE IF NOT EXISTS quotes (quoteid INTEGER NOT NULL, library VARCHAR, quote TEXT, PRIMARY KEY (quoteid))
 		'''
@@ -473,13 +479,12 @@ class Quotes():
 		CREATE_QUOTE_LOG_TABLE = '''
 			CREATE TABLE IF NOT EXISTS quote_log (quoteid varchar, logid INTEGER)
 		'''
-		db.execute(CREATE_QUOTES_TABLE)
-		db.execute(CREATE_QUOTES_INDEX)
-		db.execute(CREATE_QUOTE_LOG_TABLE)
-		db.commit()
+		self.db.execute(CREATE_QUOTES_TABLE)
+		self.db.execute(CREATE_QUOTES_INDEX)
+		self.db.execute(CREATE_QUOTE_LOG_TABLE)
+		self.db.commit()
 
 	def quoteLookupWNum(self, rest=''):
-		lib = self.lib
 		rest = rest.strip()
 		if rest:
 			if rest.split()[-1].isdigit():
@@ -524,6 +529,57 @@ class Quotes():
 		if quote in log_message:
 			self.db.execute('INSERT INTO quote_log (quoteid, logid) VALUES (?, ?)', (quoteid, log_id))
 		self.db.commit()
+
+class MongoDBQuotes(storage.MongoDBStorage):
+	collection_name = 'quotes'
+	def __init__(self, uri, lib):
+		super(MongoDBQuotes, self).__init__(uri)
+		self.lib = lib
+
+	def quoteLookupWNum(self, rest=''):
+		rest = rest.strip()
+		if rest:
+			if rest.split()[-1].isdigit():
+				num = rest.split()[-1]
+				query = ' '.join(rest.split()[:-1])
+				qt, i, n = self.quoteLookup(query, num)
+			else:
+				qt, i, n = self.quoteLookup(rest)
+		else:
+			qt, i, n = self.quoteLookup()
+		return qt, i, n
+
+	def quoteLookup(self, thing='', num=0):
+		thing = thing.strip().lower()
+		num = int(num)
+		words = thing.split()
+		def matches(quote):
+			return all(word in quote for word in words)
+		results = [
+			row['text'] for row in
+			self.db.find(dict(library=self.lib)).sort('_id')
+			if matches(row['text'])
+		]
+		n = len(results)
+		if n > 0:
+			if num:
+				i = num-1
+			else:
+				i = random.randrange(n)
+			quote = results[i]
+		else:
+			i = 0
+			quote = ''
+		return (quote, i+1, n)
+
+	def quoteAdd(self, quote):
+		quote = quote.strip()
+		quote_id = self.db.insert(dict(library=self.lib, text=quote))
+		# see if the quote added is in the last IRC message logged
+		newest_first = ('_id', storage.pymongo.DESCENDING)
+		last_message = self.db.database.logs.find_one(sort=newest_first)
+		if last_message and quote in last_message['message']:
+			self.db.update(quote_id, {'$set': dict(log_id=last_message['_id'])})
 
 def bartletts(db, lib, nick, qsearch):
 	qs = Quotes(db, lib)
