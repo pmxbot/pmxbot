@@ -380,7 +380,7 @@ class MongoDBFeedparserDB(MongoDBStorage):
 		for entry in entries:
 			self.db.insert(dict(key=entry))
 		
-class MongoDBLogger(MongeDBStorage):
+class MongoDBLogger(MongoDBStorage):
 	collection_name = 'logs'
 
 	def message(self, channel, nick, msg):
