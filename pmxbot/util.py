@@ -449,8 +449,6 @@ class MongoDBKarma(MongoDBStorage):
 				'$inc': {'value': rec['value']},
 				'$pushAll': {'names': rec['names']},
 			}
-			print query
-			print update
 			self.db.update(query, update, safe=True)
 		except Exception:
 			raise KeyError(thing1)
