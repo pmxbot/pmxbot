@@ -7,7 +7,6 @@ def pytest_funcarg__mongodb_uri(request):
 		import pymongo
 		conn = pymongo.Connection(test_host)
 	except Exception:
-		raise
 		py.test.skip("No local mongodb found")
 	return test_host
 
@@ -26,3 +25,16 @@ def test_MongoDBKarma(mongodb_uri):
 		assert k.lookup('baz') == k.lookup('foo') == 4
 	finally:
 		k.db.drop()
+
+def test_MongoDBQuotes(mongodb_uri):
+	q = MongoDBQuotes(mongodb_uri, 'test')
+	clean = lambda: q.db.remove({'library': 'test'})
+	clean()
+	try:
+		q.quoteAdd('who would ever say such a thing')
+		q.quoteAdd('go ahead, take my pay')
+		q.quoteAdd("let's do the Time Warp again")
+		q.quoteLookup('time warp')
+		q.quoteLookup('nonexistent')
+	finally:
+		clean()

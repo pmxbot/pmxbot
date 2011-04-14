@@ -40,6 +40,7 @@ class TestCommands(object):
 	def teardown_class(self):
 		del botbase.logger
 		del pmxbot.util.karma
+		del pmxbot.util.quotes
 		path = os.path.dirname(os.path.abspath(__file__))
 		os.remove(os.path.join(path, 'pmxbot.sqlite'))
 

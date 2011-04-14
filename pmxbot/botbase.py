@@ -38,6 +38,7 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 		setup_repo(repo)
 		self._repo = repo
 		util.init_karma(repo)
+		util.init_quotes(repo, 'pmx')
 		self._nickname = nickname
 		self._feed_interval = feed_interval
 		self._feeds = feeds

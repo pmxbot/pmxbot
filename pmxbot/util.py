@@ -462,7 +462,12 @@ def init_karma(uri):
 		karma = get_karma_for_uri(uri)
 	)
 
-def get_quotes(uri, lib):
+def init_quotes(uri, lib):
+	globals().update(
+		quotes = get_quotes_for_uri(uri, lib)
+	)
+
+def get_quotes_for_uri(uri, lib):
 	class_ = MongoDBQuotes if uri.startswith('mongodb://') else Quotes
 	return class_(uri, lib)
 
@@ -471,7 +476,7 @@ class Quotes(storage.SQLiteStorage):
 		super(Quotes, self).__init__(repo)
 		self.lib = lib
 
-	def init_tables(self)
+	def init_tables(self):
 		CREATE_QUOTES_TABLE = '''
 			CREATE TABLE IF NOT EXISTS quotes (quoteid INTEGER NOT NULL, library VARCHAR, quote TEXT, PRIMARY KEY (quoteid))
 		'''
@@ -576,7 +581,7 @@ class MongoDBQuotes(storage.MongoDBStorage):
 		quote = quote.strip()
 		quote_id = self.db.insert(dict(library=self.lib, text=quote))
 		# see if the quote added is in the last IRC message logged
-		newest_first = ('_id', storage.pymongo.DESCENDING)
+		newest_first = [('_id', storage.pymongo.DESCENDING)]
 		last_message = self.db.database.logs.find_one(sort=newest_first)
 		if last_message and quote in last_message['message']:
 			self.db.update(quote_id, {'$set': dict(log_id=last_message['_id'])})

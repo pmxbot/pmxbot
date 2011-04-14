@@ -293,15 +293,14 @@ def R(client, event, channel, nick, rest):
 #Added quotes
 @command('quote', aliases=('q',), doc='If passed with nothing then get a random quote. If passed with some string then search for that. If prepended with "add:" then add it to the db, eg "!quote add: drivers: I only work here because of pmxbot!"')
 def quote(client, event, channel, nick, rest):
-	qs = util.get_quotes(botbase._repo, 'pmx')
 	rest = rest.strip()
 	if rest.startswith('add: ') or rest.startswith('add '):
 		quoteToAdd = rest.split(' ', 1)[1]
-		qs.quoteAdd(quoteToAdd)
+		util.quotes.quoteAdd(quoteToAdd)
 		qt = False
 		return 'Quote added!'
 	else:
-		qt, i, n = qs.quoteLookupWNum(rest)
+		qt, i, n = util.quotes.quoteLookupWNum(rest)
 		if qt:
 			return '(%s/%s): %s' % (i, n, qt)
 
