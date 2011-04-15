@@ -14,7 +14,7 @@ try:
 	import simplejson as json
 except ImportError:
 	import json # one last try-- python 2.6+
-from saysomething import FastSayer
+import saysomething as saysomethinglib
 from cleanhtml import plaintext
 from xml.etree import ElementTree
 try:
@@ -26,8 +26,6 @@ QUOTE_PATH = os.path.join(os.path.dirname(__file__), "popquotes.sqlite")
 popular_quote_db = sqlite.connect(QUOTE_PATH)
 
 log = logging.getLogger(__name__)
-
-sayer = FastSayer()
 
 @command("google", aliases=('g',), doc="Look a phrase up on google")
 def google(client, event, channel, nick, rest):
@@ -752,10 +750,14 @@ def therethere(client, event, channel, nick, rest):
 
 @command("saysomething", aliases=(), doc="Generate a Markov Chain response based on past logs. Seed it with a starting word by adding that to the end, eg '!saysomething dowski:'")
 def saysomething(client, event, channel, nick, rest):
-	sayer.startup(botbase.logger.db)
+	word_factory = functools.partial(
+		saysomethinglib.words_from_db,
+		botbase.logger.db,
+	)
+	sayer = saysomethinglib.FastSayer(word_factory)
 	if rest:
 		return sayer.saysomething(rest)
-	else:	
+	else:
 		return sayer.saysomething()
 
 @command("tgif", doc="Thanks for the words of wisdow, Mike.")

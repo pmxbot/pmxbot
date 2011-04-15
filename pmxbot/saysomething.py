@@ -63,15 +63,11 @@ def saysomething_db(db, initial_word='\n'):
 				initial_word))
 
 class FastSayer(object):
-	def __init__(self):
-		self.started = False
-
-	def startup(self, db):
-		if not self.started:
-			self.db = db
-			self.markovdata = markov_data_from_words(
-						words_from_db(db))
-			self.started = True
+	def __init__(self, word_factory):
+		if not hasattr(self, 'markovdata'):
+			words = word_factory()
+			# save the markov data in the class for future instances
+			self.__class__.markovdata = markov_data_from_words(words)
 
 	def saysomething(self, initial_word='\n'):
 		return paragraph_from_words(words_from_markov_data(self.markovdata, initial_word))
