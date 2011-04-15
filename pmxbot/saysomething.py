@@ -35,18 +35,29 @@ def words_from_file(f):
 			yield '\n'
 	yield '\n'
 
-def words_from_db(db, max=100000):
-	db.text_factory = str
+def words_from_logger(logger, max=100000):
 	WORDS_SQL = '''SELECT message FROM logs order by random() limit %s''' % max
-	lines = db.execute(WORDS_SQL)
+	lines = logger.db.execute(WORDS_SQL)
+	return words_from_lines(lines)
+
+def words_from_quotes(quotes):
 	QUOTE_SQL = '''SELECT quote FROM quotes where library = 'pmx' '''
-	quotes = db.execute(QUOTE_SQL) 
-	for line in chain(lines, quotes):
+	quotes = quotes.db.execute(QUOTE_SQL)
+	return words_from_lines(quotes)
+
+def words_from_lines(lines):
+	for line in lines:
 		words = line[0].strip().lower().split()
 		for word in words:
 			yield word
 		yield '\n'
-	yield '\n'
+
+def words_from_logger_and_quotes(logger, quotes):
+	return chain(
+		words_from_logger(logger),
+		words_from_quotes(quotes),
+		['\n'],
+	)
 
 def paragraph_from_words(words):
 	result = []

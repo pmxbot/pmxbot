@@ -751,8 +751,9 @@ def therethere(client, event, channel, nick, rest):
 @command("saysomething", aliases=(), doc="Generate a Markov Chain response based on past logs. Seed it with a starting word by adding that to the end, eg '!saysomething dowski:'")
 def saysomething(client, event, channel, nick, rest):
 	word_factory = functools.partial(
-		saysomethinglib.words_from_db,
-		botbase.logger.db,
+		saysomethinglib.words_from_logger_and_quotes,
+		botbase.logger,
+		util.quotes,
 	)
 	sayer = saysomethinglib.FastSayer(word_factory)
 	if rest:
