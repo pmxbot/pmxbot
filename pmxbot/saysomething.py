@@ -36,13 +36,9 @@ def words_from_file(f):
 	yield '\n'
 
 def words_from_logger(logger, max=100000):
-	WORDS_SQL = '''SELECT message FROM logs order by random() limit %s''' % max
-	lines = logger.db.execute(WORDS_SQL)
-	return words_from_lines(lines)
+	return words_from_lines(logger.get_random_logs(max))
 
 def words_from_quotes(quotes):
-	QUOTE_SQL = '''SELECT quote FROM quotes where library = 'pmx' '''
-	quotes = quotes.db.execute(QUOTE_SQL)
 	return words_from_lines(quotes)
 
 def words_from_lines(lines):

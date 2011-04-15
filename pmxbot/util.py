@@ -535,6 +535,10 @@ class Quotes(storage.SQLiteStorage):
 			self.db.execute('INSERT INTO quote_log (quoteid, logid) VALUES (?, ?)', (quoteid, log_id))
 		self.db.commit()
 
+	def __iter__(self):
+		query = "SELECT quote FROM quotes WHERE library = ?"
+		return self.db.execute(query, [self.lib])
+
 class MongoDBQuotes(storage.MongoDBStorage):
 	collection_name = 'quotes'
 	def __init__(self, uri, lib):
@@ -585,6 +589,9 @@ class MongoDBQuotes(storage.MongoDBStorage):
 		last_message = self.db.database.logs.find_one(sort=newest_first)
 		if last_message and quote in last_message['message']:
 			self.db.update(quote_id, {'$set': dict(log_id=last_message['_id'])})
+
+	def __iter__(self):
+		return self.db.find(library=self.lib)
 
 def bartletts(db, lib, nick, qsearch):
 	qs = Quotes(db, lib)

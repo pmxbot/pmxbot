@@ -361,6 +361,10 @@ class Logger(SQLiteStorage):
 		self.db.commit()
 		return rows_deleted
 
+	def get_random_logs(self, limit):
+		query = "SELECT message FROM logs order by random() limit %(limit)s" % vars()
+		return db.execute(query)
+
 class FeedparserDB(SQLiteStorage):
 	def init_tables(self):
 		self.db.execute("CREATE TABLE IF NOT EXISTS feed_seen (key varchar)")
@@ -417,6 +421,11 @@ class MongoDBLogger(MongoDBStorage):
 			self.db.remove({'_id': {'$in': ids_to_delete}}, safe=True)
 		rows_deleted = max(len(ids_to_delete) - 1, 0)
 		return rows_deleted
+
+	def get_random_logs(self, limit):
+		cur = self.db.find()
+		limit = max(limit, cur.count())
+		return (item['message'] for item in random.sample(cur, limit))
 
 logger = None
 
