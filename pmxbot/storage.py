@@ -1,11 +1,8 @@
 import os
-try:
-	from pysqlite2 import dbapi2 as sqlite
-except ImportError:
-	from sqlite3 import dbapi2 as sqlite
 
 class SQLiteStorage(object):
 	def __init__(self, repo):
+		self._import_modules()
 		self.repo = repo
 		self.dbfn = os.path.join(self.repo, 'pmxbot.sqlite')
 		self.db = sqlite.connect(self.dbfn, isolation_level=None, timeout=20.0)
@@ -13,6 +10,13 @@ class SQLiteStorage(object):
 
 	def init_tables(self):
 		pass
+
+	def _import_modules(self):
+		try:
+			from pysqlite2 import dbapi2 as sqlite
+		except ImportError:
+			from sqlite3 import dbapi2 as sqlite
+		globals().update(sqlite=sqlite)
 
 class MongoDBStorage(object):
 	def __init__(self, host_uri):
