@@ -462,6 +462,10 @@ def init_karma(uri):
 		karma = get_karma_for_uri(uri)
 	)
 
+# for backward compatibility:
+def karmaChange(*args, **kwargs):
+	return karma.change(*args, **kwargs)
+
 def init_quotes(uri, lib):
 	globals().update(
 		quotes = get_quotes_for_uri(uri, lib)
