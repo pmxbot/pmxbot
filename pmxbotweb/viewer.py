@@ -3,6 +3,7 @@
 # -*- coding: utf-8 -*-
 import os
 import cherrypy
+import string
 try:
 	from pysqlite2 import dbapi2 as sqlite
 except ImportError:
@@ -13,6 +14,8 @@ import calendar
 from jinja2 import Environment, FileSystemLoader
 
 from cgi import escape
+
+from pmxbot.botbase import get_logger_db
 
 BASE = os.path.abspath(os.path.dirname(__file__))
 jenv = Environment(loader=FileSystemLoader(os.path.join(BASE, 'templates'), encoding='utf-8'))
@@ -68,11 +71,10 @@ def sort_month_key(m):
 class ChannelPage(object):
 	def default(self, channel):
 		page = jenv.get_template('channel.html')
-		dbfile = cherrypy.request.app.config['db']['database']
-		db = sqlite.connect(dbfile, isolation_level=None, timeout=TIMEOUT)
+		
+		db = get_logger_db(cherrypy.request.app.config['db']
 		context = get_context()
-		CHANNEL_DAYS_SQL = 'select distinct date(datetime) from logs where channel = ?'
-		contents = [x[0] for x in db.execute(CHANNEL_DAYS_SQL, [channel])]
+		contents = db.get_channel_days(channel)
 		months = {}
 		for fn in sorted(contents, reverse=True):
 			mon_des, day = fn.rsplit('-', 1)
@@ -86,12 +88,9 @@ class ChannelPage(object):
 class DayPage(object):
 	def default(self, channel, day):
 		page = jenv.get_template('day.html')
-		dbfile = cherrypy.request.app.config['db']['database']
-		db = sqlite.connect(dbfile, isolation_level=None, timeout=TIMEOUT)
+		db = get_logger_db(cherrypy.request.app.config['db'])
 		context = get_context()
-		#db.text_factory = lambda x: unicode(x, "utf-8", "ignore")
-		DAY_DETAIL_SQL = 'SELECT time(datetime), nick, message from logs where channel = ? and date(datetime) = ? order by datetime'
-		day_logs = db.execute(DAY_DETAIL_SQL, [channel, day])
+		day_logs = db.get_day_logs()
 		data = [(t, n, make_anchor((t, n)), escape(m)) for (t,n,m) in day_logs]
 		usernames = [x[1] for x in data]
 		color_map = {}
@@ -111,82 +110,47 @@ class DayPage(object):
 	default.exposed = True
 
 
-def karmaList(db, select=0):
-	KARMIC_VALUES_SQL = 'SELECT karmaid, karmavalue from karma_values order by karmavalue desc'
-	KARMA_KEYS_SQL= 'SELECT karmakey from karma_keys where karmaid = ?'
-
-	karmalist = db.execute(KARMIC_VALUES_SQL).fetchall()
-	karmalist.sort(key=lambda x: int(x[1]), reverse=True)
-	if select > 0:
-		selected = karmalist[:select]
-	elif select < 0:
-		selected = karmalist[select:]
-	else:
-		selected = karmalist
-	keysandkarma = []
-	for karmaid, value in selected:
-		keys = ', '.join([x[0] for x in db.execute(KARMA_KEYS_SQL, [karmaid])])
-		keysandkarma.append((keys, value))
-	return keysandkarma
+def karma_comma(karma_results):
+	"""
+	Take the results of a karma query (keys, value) and return the same
+	result with the keys joined by commas.
+	"""
+	return [
+		', '.join(keys), value
+		for keys, value in karma_results
+	]
 
 class KarmaPage(object):
 	def default(self, term=""):
 		page = jenv.get_template('karma.html')
 		context = get_context()
-		dbfile = cherrypy.request.app.config['db']['database']
-		db = sqlite.connect(dbfile, isolation_level=None, timeout=TIMEOUT)
+		karma = util.get_karma_from_uri(cherrypy.request.app.config['db'])
 		term = term.strip()
 		if term:
-			context['lookup'] = []
-			context['term'] = term
-			KARMA_SEARCH_SQL = "SELECT distinct karmaid from karma_keys where karmakey like ? "
-			KARMA_VALUE_SQL = "SELECT karmavalue from karma_values where karmaid = ?"
-			KARMA_KEYS_SQL = "SELECT karmakey from karma_keys where karmaid = ?"
-			matches = db.execute(KARMA_SEARCH_SQL, ['%%%s%%' % term])
-			KARMA_VALUE_SQL = "SELECT karmavalue from karma_values where karmaid = ?"
-			for (id,) in matches:
-				karmavalue = db.execute(KARMA_VALUE_SQL, [id]).fetchall()[0][0]
-				names = db.execute(KARMA_KEYS_SQL, [id]).fetchall()
-				names = sorted([x[0] for x in names])
-				context['lookup'].append((', '.join(names), karmavalue))
-			if not context['lookup']:
-				context['lookup'].append(('NO RESULTS FOUND', ''))
-		context['top100'] = karmaList(db, 100)
-		context['bottom100'] = karmaList(db, -100)
+			context['lookup'] = (
+				[karma_comma(res) for res in karma.search(term)]
+				or [('NO RESULTS FOUND', '')]
+			)
+		context['top100'] = karma_comma(karma.list(select=100))
+		context['bottom100'] = karma_comma(karma.list(select=-100))
 		return page.render(**context).encode('utf-8')
 	default.exposed = True
-
-def search_logs(term, db):
-	terms = term.strip().split()
-
-	SEARCH_SQL = 'SELECT id, date(datetime), time(datetime), datetime, channel, nick, message FROM logs WHERE %s' % (' AND '.join(["message like '%%%s%%'" % x for x in terms]))
-
-	matches = []
-	alllines = []
-	search_res = db.execute(SEARCH_SQL).fetchall()
-	for id, date, time, dt, channel, nick, message in search_res:
-			line = (time, nick, message)
-			if line in alllines:
-				continue
-			prev2 = db.execute('SELECT time(datetime), nick, message from logs where channel = ? and datetime < ? order by datetime desc limit 2', [channel, dt])
-			next2 = db.execute('SELECT time(datetime), nick, message from logs where channel = ? and datetime > ? order by datetime asc limit 2', [channel, dt])
-			lines = prev2.fetchall() + [line] + next2.fetchall()
-			marker = make_anchor(line)
-			matches.append((channel, date, marker, lines))
-			alllines.extend(lines)
-	return matches		
 
 class SearchPage(object):
 	def default(self, term=''):
 		page = jenv.get_template('search.html')
 		context = get_context()
-		dbfile = cherrypy.request.app.config['db']['database']
-		db = sqlite.connect(dbfile, isolation_level=None, timeout=TIMEOUT)
-		db.text_factory = lambda x: unicode(x, "utf-8", "ignore")
+		db = get_logger_db(cherrypy.request.app.config['db'])
+		#db.text_factory = lambda x: unicode(x, "utf-8", "ignore")
+
+		# a hack to enable the database to create anchors when building search
+		#  results
+		db.make_anchor = make_anchor
 	
 		if not term:
 			raise cherrypy.HTTPRedirect(cherrypy.request.base)
-		results = sorted(search_logs(term, db), key=lambda x: x[1], reverse=True)
+		terms = term.strip().split()
+		results = sorted(db.search(*terms), key=lambda x: x[1], reverse=True)
 		context['search_results'] = results
 		context['num_results'] = len(results)
 		context['term'] = term
@@ -228,22 +192,21 @@ class PmxbotPages(object):
 	
 	def default(self):
 		page = jenv.get_template('index.html')
-		dbfile = cherrypy.request.app.config['db']['database']
-		db = sqlite.connect(dbfile, isolation_level=None, timeout=TIMEOUT)
+		db = get_logger_db(cherrypy.request.app.config['db'])
 		context = get_context()
-		CHANNEL_LIST_SQL = "SELECT distinct channel from logs order by lower(channel)"
-		LAST_LINE_SQL = '''SELECT strftime("%Y-%m-%d %H:%M", datetime), date(datetime), time(datetime), nick, message from logs where channel = ? order by datetime desc limit 1'''
 		chans = []
-		for chan in db.execute(CHANNEL_LIST_SQL).fetchall():
-			chan = chan[0]
-			last = list(db.execute(LAST_LINE_SQL, [chan]).fetchone())
-			last[-1] = escape(last[-1][:75])
-			last.append(make_anchor((last[2], last[3])))
-			chans.append([chan] + last)
+		for chan in sorted(db.list_channels(), key = string.lower):
+			last = db.last_message(chan)
+			summary = [
+				chan,
+				last['time'].strftime("%Y-%m-%d %H:%M"),
+				last['time'].date(),
+				last['time'].time(),
+				last['nick'],
+				escape(last['message'][:75]),
+				make_anchor([last['time'].time(), last['nick']]),
+			]
+			chans.append(summary)
 		context['chans'] = chans
 		return page.render(**context).encode('utf-8')
 	default.exposed = True
-		
-		
-		
-		

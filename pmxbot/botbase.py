@@ -7,12 +7,16 @@ import os
 import traceback
 import time
 import re
+import itertools
+import operator
 import feedparser
 import socket
 import random
 
 from .storage import SQLiteStorage, MongoDBStorage
 from . import util
+
+from py25compat import next
 
 exists = os.path.exists
 
@@ -363,7 +367,66 @@ class Logger(SQLiteStorage):
 
 	def get_random_logs(self, limit):
 		query = "SELECT message FROM logs order by random() limit %(limit)s" % vars()
-		return db.execute(query)
+		return self.db.execute(query)
+
+	def get_channel_days(self, channel):
+		query = 'select distinct date(datetime) from logs where channel = ?'
+		return [x[0] for x in self.db.execute(query, [channel])]
+
+	def get_day_logs(self, channel, day):
+		query = """
+			SELECT time(datetime), nick, message from logs
+			where channel = ? and date(datetime) = ? order by datetime
+			"""
+		return self.db.execute(query, [channel, day])
+
+	def search(self, *terms):
+		SEARCH_SQL = (
+			'SELECT id, date(datetime), time(datetime), datetime, '
+			'channel, nick, message FROM logs WHERE %s' % (
+				' AND '.join(["message like '%%%s%%'" % x for x in terms])
+			)
+		)
+
+		matches = []
+		alllines = []
+		search_res = self.db.execute(SEARCH_SQL).fetchall()
+		for id, date, time, dt, channel, nick, message in search_res:
+			line = (time, nick, message)
+			if line in alllines:
+				continue
+			prev_q = """
+				SELECT time(datetime), nick, message
+				from logs
+				where channel = ?
+				  and datetime < ?
+				order by datetime desc
+				limit 2
+				"""
+			prev2 = self.db.execute(prev_q, [channel, dt])
+			next_q = prev_q.replace('<', '>').replace('desc', 'asc')
+			next2 = self.db.execute(next_q, [channel, dt])
+			lines = prev2.fetchall() + [line] + next2.fetchall()
+			marker = self.make_anchor(line)
+			matches.append((channel, date, marker, lines))
+			alllines.extend(lines)
+		return matches
+
+	def list_channels(self):
+		query = "SELECT distinct channel from logs"
+		return (chan[0] for chan in self.db.execute(query).fetchall())
+
+	def last_message(self, channel):
+		query = """
+			SELECT datetime, nick, message
+			from logs
+			where channel = ?
+			order by datetime desc
+			limit 1
+		"""
+		time, nick, message = self.db.execute(query, [channel]).fetchone()
+		return dict(time=time, nick=nick, message=message)
+
 
 class FeedparserDB(SQLiteStorage):
 	def init_tables(self):
@@ -427,12 +490,97 @@ class MongoDBLogger(MongoDBStorage):
 		limit = max(limit, cur.count())
 		return (item['message'] for item in random.sample(cur, limit))
 
+	def get_channel_days(self, channel):
+		cur = self.db.find(fields=['_id'])
+		timestamps = (row['_id'].generation_time.date() for row in cur)
+		return unique_justseen(timestamps)
+
+	def get_day_logs(self, channel, day):
+		start = pymongo.ObjectID.from_datetime(day)
+		one_day = datetime.timedelta(days=1)
+		end = pymongo.ObjectID.from_datetime(day + one_day)
+		query = dict(_id = {'$gte': start, '$lt': end}, channel=channel)
+		cur = self.db.find(query).sort('_id')
+		return (
+			(rec['_id'].generation_time.time(), rec['nick'], rec['message'])
+			for rec in cur
+		)
+
+	def search(self, *terms):
+		patterns = [re.compile('.*' + term + '.*') for term in terms]
+		query = dict(message = {'$all': patterns})
+
+		matches = []
+		alllines = []
+		for match in self.db.find(query):
+			channel = match['channel']
+			row_date = lambda row: row['_id'].generation_time.date()
+			to_line = lambda row: (row['_id'].generation_time.time(),
+				row['nick'], row['message'])
+			line = to_line(match)
+			if line in alllines:
+				# we've seen this line in the context of a previous hit
+				continue
+			# get the context for this line
+			prev2 = self.db.find(dict(
+				channel=match['channel'],
+				_id={'$lt': match['_id']}
+				)).sort('_id', pymongo.DESCENDING).limit(2)
+			prev2 = map(to_line, prev2)
+			next2 = self.db.find(dict(
+				channel=match['channel'],
+				_id={'$gt': match['_id']}
+				)).sort('_id', pymongo.ASCENDING).limit(2)
+			next2 = map(to_line, prev2)
+			context = prev2 + [line] + next2
+			marker = self.make_anchor(line)
+			matches.append((channel, date, marker, context))
+			alllines.extend(context)
+		return matches
+
+	def list_channels(self):
+		return self.db.distinct('channel')
+
+	def last_message(self, channel):
+		rec = next(
+			self.db.find(
+				dict(channel=channel)
+			).sort('_id', pymongo.DESCENDING).limit(1)
+		)
+		return dict(
+			time=rec['_id'].generation_time,
+			nick=rec['nick'],
+			message=rec['message']
+		)
+
+
+# from Python 3.1 documentation
+def unique_justseen(iterable, key=None):
+	"""
+	List unique elements, preserving order. Remember only the element just seen.
+
+	>>> ' '.join(unique_justseen('AAAABBBCCDAABBB'))
+	'A B C D A B'
+	
+	>>> ' '.join(unique_justseen('ABBCcAD', str.lower))
+	'A B C A D'
+	"""
+	return itertools.imap(
+		next, itertools.imap(
+			operator.itemgetter(1),
+			itertools.groupby(iterable, key)
+		))
+
+
 logger = None
 
 def setup_repo(uri):
 	global logger
+	globals().update(logger=get_logger_db(uri))
+
+def get_logger_db(uri):
 	class_ = MongoDBLogger if uri.startswith('mongodb://') else Logger
-	logger = class_(uri)
+	return class_(uri)
 
 def get_feedparser_db(uri):
 	class_ = MongoDBFeedparserDB if uri.startswith('mongodb://') else FeedparserDB

@@ -405,6 +405,23 @@ class Karma(storage.SQLiteStorage):
 		self.db.execute('UPDATE karma_values SET karmavalue = ? where karmaid = ?', (newvalue, t1id)) #set the new combined value
 		self.db.commit()
 
+	def _get(self, id):
+		"""
+		Return keys and value for karma id
+		"""
+		VALUE_SQL = "SELECT karmavalue from karma_values where karmaid = ?"
+		KEYS_SQL = "SELECT karmakey from karma_keys where karmaid = ?"
+		value = db.execute(VALUE_SQL, [id]).fetchall()[0][0]
+		keys_cur = db.execute(KEYS_SQL, [id]).fetchall()
+		keys = sorted(x[0] for x in key_cur)
+		return keys, value
+
+	def search(self, term):
+		query = "SELECT distinct karmaid from karma_keys where karmakey like ?"
+		matches = (id for (id,) in self.db.execute(query, '%%'+term+'%%'))
+		return (self._lookup(id) for id in matches)
+
+
 class MongoDBKarma(storage.MongoDBStorage):
 	collection_name = 'karma'
 	def lookup(self, thing):
@@ -452,6 +469,13 @@ class MongoDBKarma(storage.MongoDBStorage):
 		except Exception:
 			raise KeyError(thing1)
 		self.db.remove(rec)
+
+	def search(self, term):
+		pattern = re.compile('.*' + re.escape(term) + '.*')
+		return (
+			(rec['names'], rec['value'])
+			for rec in self.db.find({'names': pattern})
+		)
 
 def get_karma_for_uri(uri):
 	class_ = MongoDBKarma if uri.startswith('mongodb://') else Karma

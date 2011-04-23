@@ -59,7 +59,7 @@ def run(configFile=None, configDict=None, start=True):
 			'tools.staticfile.on' : True,
 			'tools.staticfile.filename' : os.path.join(os.path.dirname(__file__), 'templates/pmxbot.png'),
 		},
-		'db' : {'database' : os.path.join(config.database_dir, 'pmxbot.sqlite')},
+		'db' : config.database_dir,
 		'botconf' : {'config' : config},
 	}
 
@@ -68,5 +68,3 @@ def run(configFile=None, configDict=None, start=True):
 if __name__ == '__main__':
 	'''Useful for development mode'''
 	run()
-
-
