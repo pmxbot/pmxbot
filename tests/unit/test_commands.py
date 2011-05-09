@@ -541,5 +541,7 @@ class TestCommands(object):
 		"""
 		The translate function should be able to translate a simple string.
 		"""
-		query = 'sp|en que no desea la nueva pregunta'
+		query = '|en que no desea la nueva pregunta'
+		res = pmxbot.translate(c, e, '#test', 'testrunner', query)
+		query = 'es|en que no desea la nueva pregunta'
 		res = pmxbot.translate(c, e, '#test', 'testrunner', query)
