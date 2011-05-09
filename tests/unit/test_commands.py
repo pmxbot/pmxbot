@@ -543,4 +543,3 @@ class TestCommands(object):
 		"""
 		query = 'sp|en que no desea la nueva pregunta'
 		res = pmxbot.translate(c, e, '#test', 'testrunner', query)
-		import py.test; py.test.set_trace()
