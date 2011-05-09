@@ -536,36 +536,3 @@ class TestCommands(object):
 		res = pmxbot.bitchingisuseless(c, e, '#test', 'testrunner', '')
 		print res
 		assert res == "Quiet bitching is useless, foo'. Do something about it."
-
-#	def test_yahoolunch_zip(self):
-#		"""
-#		Test that the lunch function returns something that looks right when asked with a zip.
-#		
-#		Bob's Ranch House @ 585 Collier Way - http://local.yahoo.com/info-21835324-bob-s-ranch-house-etna
-#		The Indian Experience @ 1708 L St Nw - http://local.yahoo.com/info-34655142-the-indian-experience-washington
-#		"""
-#		res = pmxbot.lunch(c, e, "#test", "testrunner", "20009")
-#		print res
-#		assert re.match(r"""^.+? @ .+? - http://local.yahoo.com/info-\d+-.+$""", res, re.DOTALL)
-#		
-#	def test_yahoolunch_zip(self):
-#		"""
-#		Test that the lunch function returns something that looks right when asked with an address.
-#
-#		Bob's Ranch House @ 585 Collier Way - http://local.yahoo.com/info-21835324-bob-s-ranch-house-etna
-#		The Indian Experience @ 1708 L St Nw - http://local.yahoo.com/info-34655142-the-indian-experience-washington
-#		"""
-#		res = pmxbot.lunch(c, e, "#test", "testrunner", "1600 Pennsylvania Ave, Washington, DC")
-#		print res
-#		assert re.match(r"""^.+? @ .+? - http://local.yahoo.com/info-\d+-.+$""", res, re.DOTALL)
-#
-#	def test_yahoolunch_zip_radius(self):
-#		"""
-#		Test that the lunch function returns something when asked with a radius
-#
-#		Bob's Ranch House @ 585 Collier Way - http://local.yahoo.com/info-21835324-bob-s-ranch-house-etna
-#		The Indian Experience @ 1708 L St Nw - http://local.yahoo.com/info-34655142-the-indian-experience-washington
-#		"""
-#		res = pmxbot.lunch(c, e, "#test", "testrunner", "20009 4mi")
-#		print res
-#		assert re.match(r"""^.+? @ .+? - http://local.yahoo.com/info-\d+-.+$""", res, re.DOTALL)
