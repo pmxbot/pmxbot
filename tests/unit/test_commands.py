@@ -536,3 +536,11 @@ class TestCommands(object):
 		res = pmxbot.bitchingisuseless(c, e, '#test', 'testrunner', '')
 		print res
 		assert res == "Quiet bitching is useless, foo'. Do something about it."
+
+	def test_translate(self):
+		"""
+		The translate function should be able to translate a simple string.
+		"""
+		query = 'sp|en que no desea la nueva pregunta'
+		res = pmxbot.translate(c, e, '#test', 'testrunner', query)
+		import py.test; py.test.set_trace()
