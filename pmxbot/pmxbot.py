@@ -112,7 +112,10 @@ def translate(client, event, channel, nick, rest):
 	url = BASE_URL + urllib.urlencode({'q' : rest.encode('utf-8'), 'langpair' : langpair})
 	raw_res = urllib.urlopen(url).read()
 	results = json.loads(raw_res)
-	translation = results['responseData']['translatedText']
+	response = results['responseData']
+	if not response:
+		return "I couldn't find a translation. Are you sure %(langpair)s is a valid language?" % vars()
+	translation = response['translatedText']
 	return translation
 
 

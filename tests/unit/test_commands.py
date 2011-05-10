@@ -545,3 +545,6 @@ class TestCommands(object):
 		res = pmxbot.translate(c, e, '#test', 'testrunner', query)
 		query = 'es|en que no desea la nueva pregunta'
 		res = pmxbot.translate(c, e, '#test', 'testrunner', query)
+		# sp is not a language
+		invalid_query = 'sp|en que no desea la nueva pregunta'
+		res = pmxbot.translate(c, e, '#test', 'testrunner', query)
