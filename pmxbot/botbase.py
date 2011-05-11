@@ -427,6 +427,11 @@ class Logger(SQLiteStorage):
 		time, nick, message = self.db.execute(query, [channel]).fetchone()
 		return dict(time=time, nick=nick, message=message)
 
+	def all_messages(self):
+		query = 'SELECT datetime, nick, message, channel from logs'
+		cursor = self.db.execute(query).fetchall()
+		fields = 'datetime', 'nick', 'message', 'channel'
+		return (dict(zip(fields, record) for record in cursor)
 
 class FeedparserDB(SQLiteStorage):
 	def init_tables(self):
@@ -553,6 +558,12 @@ class MongoDBLogger(MongoDBStorage):
 			message=rec['message']
 		)
 
+	def all_messages(self):
+		cursor = self.db.find()
+		def fix_time(rec):
+			rec['datetime'] = rec.pop('_id').generation_time
+			return rec
+		return itertools.imap(fix_time, cursor)
 
 # from Python 3.1 documentation
 def unique_justseen(iterable, key=None):
