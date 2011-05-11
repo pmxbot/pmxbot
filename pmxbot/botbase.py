@@ -565,6 +565,15 @@ class MongoDBLogger(MongoDBStorage):
 			return rec
 		return itertools.imap(fix_time, cursor)
 
+	def import_message(self, message):
+		# construct a unique objectid with the correct datetime.
+		oid_time = pymongo.objectid.ObjectId.from_datetime(message.pop['datetime'])
+		oid_rest = pymongo.objectid.ObjectId()
+		oid_new = str(oid_time)[:8] + str(oid_rest)[8:]
+		oid = pymongo.objectid.ObjectId(oid_new)
+		message['_id'] = oid
+		self.db.insert(message)
+
 # from Python 3.1 documentation
 def unique_justseen(iterable, key=None):
 	"""

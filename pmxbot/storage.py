@@ -24,3 +24,12 @@ class MongoDBStorage(object):
 		# canonical logging module.
 		globals().update(pymongo=__import__('pymongo'))
 		self.db = pymongo.Connection(host_uri).pmxbot[self.collection_name]
+
+def migrate_all(source, dest):
+	migrate_logs(source, dest)
+
+def migrate_logs(source, dest):
+	source_db = botbase.get_logger_db(source)
+	dest_db = botbase.get_logger_db(dest)
+	for msg in source_db.all_messages():
+		dest_db.import_message(msg)
