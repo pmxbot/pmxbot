@@ -548,3 +548,6 @@ class TestCommands(object):
 		# sp is not a language
 		invalid_query = 'sp|en que no desea la nueva pregunta'
 		res = pmxbot.translate(c, e, '#test', 'testrunner', query)
+
+	def test_excuse(self):
+		pmxbot.excuse(c, e, '#test', 'testrunner', '')
