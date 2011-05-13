@@ -125,9 +125,17 @@ class Logger(storage.SQLiteStorage):
 
 	def all_messages(self):
 		query = 'SELECT datetime, nick, message, channel from logs'
-		cursor = self.db.execute(query).fetchall()
+		def robust_text(text):
+			for encoding in 'utf-8', 'latin-1':
+				try:
+					return text.decode(encoding)
+				except UnicodeDecodeError:
+					pass
+			raise
+		self.db.text_factory = robust_text
+		cursor = self.db.execute(query)
 		fields = 'datetime', 'nick', 'message', 'channel'
-		return (dict(zip(fields, record) for record in cursor))
+		return (dict(zip(fields, record)) for record in cursor)
 
 class MongoDBLogger(storage.MongoDBStorage):
 	collection_name = 'logs'
