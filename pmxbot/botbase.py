@@ -1,25 +1,18 @@
 # vim:ts=4:sw=4:noexpandtab
 
 import sys
-import ircbot
 import datetime
 import os
 import traceback
 import time
-import re
-import itertools
-import operator
-import feedparser
-import socket
 import random
 
-from .storage import SQLiteStorage, MongoDBStorage
-from . import util
-from .logging import init_logger
-
+import ircbot
 from py25compat import next
 
-exists = os.path.exists
+from . import util
+from .logging import init_logger
+from .rss import FeedparserSupport
 
 LOGWARN_EVERY = 60 # seconds
 LOGWARN_MESSAGE = \
@@ -34,9 +27,10 @@ logger = None
 
 class NoLog(object): pass
 
-class LoggingCommandBot(ircbot.SingleServerIRCBot):
+class LoggingCommandBot(FeedparserSupport, ircbot.SingleServerIRCBot):
 	def __init__(self, repo, server, port, nickname, channels, nolog_channels=None, feed_interval=60, feeds=[]):
 		ircbot.SingleServerIRCBot.__init__(self, [(server, port)], nickname, nickname)
+		FeedparserSupport.__init__(self, feed_interval, feeds)
 		nolog_channels = nolog_channels or []
 		self.nickname = nickname
 		self._channels = channels + nolog_channels
@@ -46,8 +40,6 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 		util.init_karma(repo)
 		util.init_quotes(repo, 'pmx')
 		self._nickname = nickname
-		self._feed_interval = feed_interval
-		self._feeds = feeds
 
 	def out(self, channel, s, log=True):
 		if s.startswith('/me '):
@@ -87,7 +79,7 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 			self.c.execute_delayed(howlong, self.background_runner, arguments=(self.c, channel, func, args, howlong, None, repeat))
 		for action in _at_registry:
 			self._schedule_at(*action)
-		c.execute_delayed(30, self.feed_parse, arguments=(c, e, self._feed_interval, self._feeds))
+		FeedparserSupport.on_welcome(self, c, e)
 
 	def on_join(self, c, e):
 		nick = e.source().split('!', 1)[0]
@@ -199,77 +191,6 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 						self.out(channel, item, not secret)
 
 
-
-	def feed_parse(self, c, e, interval, feeds):
-		"""
-		This is used to parse RSS feeds and spit out new articles at
-		regular intervals in the relevant channels.
-		"""
-		def check_single_feed(this_feed):
-			"""
-			This function is run in a new thread for each feed, so we don't
-			lock up the main thread while checking (potentially slow) RSS feeds
-			"""
-			socket.setdefaulttimeout(20)
-			outputs = []
-			NEWLY_SEEN = []
-			try:
-				feed = feedparser.parse(this_feed['url'])
-			except:
-				pass
-			for entry in feed['entries']:
-				if entry.has_key('id'):
-					id = entry['id']
-				elif entry.has_key('link'):
-					id = entry['link']
-				elif entry.has_key('title'):
-					id = entry['title']
-				else:
-					continue #this is bad...
-				#If this is google let's overwrite
-				if 'google.com' in this_feed['url'].lower():
-					GNEWS_RE = re.compile(r'[?&]url=(.+?)[&$]', re.IGNORECASE)
-					try:
-						id = GNEWS_RE.findall(entry['link'])[0]
-					except:
-						pass
-				if id in FEED_SEEN:
-					continue
-				FEED_SEEN.append(id)
-				NEWLY_SEEN.append(id)
-				if ' by ' in entry['title']: #We don't need to add the author
-					out = '%s' % entry['title']
-				else:
-					try:
-						out = '%s by %s' % (entry['title'], entry['author'])
-					except KeyError:
-						out = '%s' % entry['title']
-				outputs.append(out)
-			if outputs:
-				c.execute_delayed(60, self.add_feed_entries, arguments=(NEWLY_SEEN,))
-				txt = 'News from %s %s : %s' % (this_feed['name'], this_feed['linkurl'], ' || '.join(outputs[:10]))
-				txt = txt.encode('utf-8')
-				c.privmsg(this_feed['channel'], txt)
-		#end of check_single_feed
-		db = get_feedparser_db(self._repo)
-		FEED_SEEN = db.get_seen_feeds()
-		for feed in feeds:
-			check_single_feed(feed)
-		c.execute_delayed(interval, self.feed_parse, arguments=(c, e, interval, feeds))
-
-	def add_feed_entries(self, entries):
-		"""
-		This is to let the main pmxbot thread update the database and avoid
-		issues with accessing sqlite from multiple threads
-		"""
-		try:
-			db = get_feedparser_db(self._repo)
-			db.add_entries(entries)
-		except Exception, e:
-			print datetime.datetime.now(), "Oh crap, couldn't add_feed_entries"
-			print e
-
-
 _handler_registry = []
 _handler_sort_order = {'command' : 1, 'alias' : 2, 'contains' : 4}
 _delay_registry = []
@@ -312,30 +233,3 @@ def execat(name, channel, when, args=[], doc=None):
 		_at_registry.append((name.lower(), channel, when, func, args, doc))
 		return func
 	return deco
-
-class FeedparserDB(SQLiteStorage):
-	def init_tables(self):
-		self.db.execute("CREATE TABLE IF NOT EXISTS feed_seen (key varchar)")
-		self.db.execute('CREATE INDEX IF NOT EXISTS ix_feed_seen_key ON feed_seen (key)')
-		self.db.commit()
-
-	def get_seen_feeds(self):
-		return [row[0] for row in self.db.execute('select key from feed_seen')]
-
-	def add_entries(self, entries):
-		self.db.executemany('INSERT INTO feed_seen (key) values (?)', [(x,) for x in entries])
-		self.db.commit()
-
-class MongoDBFeedparserDB(MongoDBStorage):
-	collection_name = 'feed history'
-	def get_seen_feeds(self):
-		return [row['key'] for row in self.db.find()]
-
-	def add_entries(self, entries):
-		for entry in entries:
-			self.db.insert(dict(key=entry))
-		
-
-def get_feedparser_db(uri):
-	class_ = MongoDBFeedparserDB if uri.startswith('mongodb://') else FeedparserDB
-	return class_(uri)
