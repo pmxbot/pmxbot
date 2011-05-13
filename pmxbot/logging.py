@@ -148,7 +148,7 @@ class MongoDBLogger(storage.MongoDBStorage):
 		fields = 'channel',
 		query = dict(nick=nick)
 		cursor = self.db.find(query, fields=fields)
-		cursor = cursor.sort('_id', pymongo.DESCENDING)
+		cursor = cursor.sort('_id', storage.pymongo.DESCENDING)
 		res = first(cursor)
 		if not res:
 			return None
@@ -161,10 +161,10 @@ class MongoDBLogger(storage.MongoDBStorage):
 		# get rid of 'the last !strike' too!
 		limit = count+1
 		# don't delete anything before the current date
-		date_limit = pymongo.ObjectId.from_datetime(datetime.date.today())
+		date_limit = storage.pymongo.ObjectId.from_datetime(datetime.date.today())
 		query = dict(channel=channel, nick=nick)
 		query['$gt'] = dict(_id=date_limit)
-		cursor = self.db.find(query).sort('_id', pymongo.DESCENDING)
+		cursor = self.db.find(query).sort('_id', storage.pymongo.DESCENDING)
 		cursor = cursor.limit(limit)
 		ids_to_delete = [row['_id'] for row in cursor]
 		if ids_to_delete:
@@ -183,9 +183,9 @@ class MongoDBLogger(storage.MongoDBStorage):
 		return unique_justseen(timestamps)
 
 	def get_day_logs(self, channel, day):
-		start = pymongo.ObjectID.from_datetime(day)
+		start = storage.pymongo.ObjectID.from_datetime(day)
 		one_day = datetime.timedelta(days=1)
-		end = pymongo.ObjectID.from_datetime(day + one_day)
+		end = storage.pymongo.ObjectID.from_datetime(day + one_day)
 		query = dict(_id = {'$gte': start, '$lt': end}, channel=channel)
 		cur = self.db.find(query).sort('_id')
 		return (
@@ -212,12 +212,12 @@ class MongoDBLogger(storage.MongoDBStorage):
 			prev2 = self.db.find(dict(
 				channel=match['channel'],
 				_id={'$lt': match['_id']}
-				)).sort('_id', pymongo.DESCENDING).limit(2)
+				)).sort('_id', storage.pymongo.DESCENDING).limit(2)
 			prev2 = map(to_line, prev2)
 			next2 = self.db.find(dict(
 				channel=match['channel'],
 				_id={'$gt': match['_id']}
-				)).sort('_id', pymongo.ASCENDING).limit(2)
+				)).sort('_id', storage.pymongo.ASCENDING).limit(2)
 			next2 = map(to_line, prev2)
 			context = prev2 + [line] + next2
 			marker = self.make_anchor(line)
@@ -232,7 +232,7 @@ class MongoDBLogger(storage.MongoDBStorage):
 		rec = next(
 			self.db.find(
 				dict(channel=channel)
-			).sort('_id', pymongo.DESCENDING).limit(1)
+			).sort('_id', storage.pymongo.DESCENDING).limit(1)
 		)
 		return dict(
 			time=rec['_id'].generation_time,
@@ -249,10 +249,10 @@ class MongoDBLogger(storage.MongoDBStorage):
 
 	def import_message(self, message):
 		# construct a unique objectid with the correct datetime.
-		oid_time = pymongo.objectid.ObjectId.from_datetime(message.pop['datetime'])
-		oid_rest = pymongo.objectid.ObjectId()
+		oid_time = storage.pymongo.objectid.ObjectId.from_datetime(message.pop('datetime'))
+		oid_rest = storage.pymongo.objectid.ObjectId()
 		oid_new = str(oid_time)[:8] + str(oid_rest)[8:]
-		oid = pymongo.objectid.ObjectId(oid_new)
+		oid = storage.pymongo.objectid.ObjectId(oid_new)
 		message['_id'] = oid
 		self.db.insert(message)
 

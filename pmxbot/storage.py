@@ -22,7 +22,7 @@ class MongoDBStorage(object):
 	def __init__(self, host_uri):
 		# for now do a delayed import to avoid interfering with
 		# canonical logging module.
-		globals().update(pymongo=__import__('pymongo'))
+		globals().update(pymongo=__import__('pymongo.objectid'))
 		self.db = pymongo.Connection(host_uri).pmxbot[self.collection_name]
 
 def migrate_all(source, dest):
