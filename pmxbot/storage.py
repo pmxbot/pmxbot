@@ -26,10 +26,4 @@ class MongoDBStorage(object):
 		self.db = pymongo.Connection(host_uri).pmxbot[self.collection_name]
 
 def migrate_all(source, dest):
-	migrate_logs(source, dest)
-
-def migrate_logs(source, dest):
-	source_db = botbase.init_logger(source)
-	dest_db = botbase.init_logger(dest)
-	for msg in source_db.all_messages():
-		dest_db.import_message(msg)
+	pass #migrate_logs(source, dest)

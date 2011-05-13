@@ -265,3 +265,9 @@ def unique_justseen(iterable, key=None):
 			operator.itemgetter(1),
 			itertools.groupby(iterable, key)
 		))
+
+def migrate_logs(source, dest):
+	source_db = init_logger(source)
+	dest_db = init_logger(dest)
+	for msg in source_db.all_messages():
+		dest_db.import_message(msg)
