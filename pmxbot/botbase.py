@@ -15,6 +15,7 @@ import random
 
 from .storage import SQLiteStorage, MongoDBStorage
 from . import util
+from .logging import get_logger_db
 
 from py25compat import next
 
@@ -29,6 +30,7 @@ convenient, searchable archive of conversation histories:
 %s
 '''
 warn_history = {}
+logger = None
 
 class NoLog(object): pass
 
@@ -39,8 +41,8 @@ class LoggingCommandBot(ircbot.SingleServerIRCBot):
 		self.nickname = nickname
 		self._channels = channels + nolog_channels
 		self._nolog = set(('#' + c if not c.startswith('#') else c) for c in nolog_channels)
-		setup_repo(repo)
 		self._repo = repo
+		globals().update(logger=init_logger(repo))
 		util.init_karma(repo)
 		util.init_quotes(repo, 'pmx')
 		self._nickname = nickname
@@ -592,13 +594,7 @@ def unique_justseen(iterable, key=None):
 		))
 
 
-logger = None
-
-def setup_repo(uri):
-	global logger
-	globals().update(logger=get_logger_db(uri))
-
-def get_logger_db(uri):
+def init_logger(uri):
 	class_ = MongoDBLogger if uri.startswith('mongodb://') else Logger
 	return class_(uri)
 
