@@ -1,5 +1,7 @@
 import re
 import datetime
+import itertools
+import pytz
 
 from . import storage
 
@@ -135,7 +137,27 @@ class Logger(storage.SQLiteStorage):
 		self.db.text_factory = robust_text
 		cursor = self.db.execute(query)
 		fields = 'datetime', 'nick', 'message', 'channel'
-		return (dict(zip(fields, record)) for record in cursor)
+		results = (dict(zip(fields, record)) for record in cursor)
+		return itertools.imap(parse_date, results)
+
+def parse_date(record):
+	dt = record.pop('datetime')
+	fmts = [
+		'%Y-%m-%d %H:%M:%S.%f',
+		'%Y-%m-%d %H:%M:%S',
+	]
+	for fmt in fmts:
+		try:
+			dt = datetime.datetime.strptime(dt, fmt)
+			break
+		except ValueError:
+			pass
+	else:
+		raise
+	tz = pytz.timezone('US/Pacific')
+	loc_dt = tz.localize(dt)
+	record['datetime'] = loc_dt
+	return record
 
 class MongoDBLogger(storage.MongoDBStorage):
 	collection_name = 'logs'
