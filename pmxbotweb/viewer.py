@@ -36,7 +36,8 @@ def get_context():
 	return d
 
 def make_anchor(line):
-	return "%s.%s" % (line[0].replace(':', '.'), line[1])
+	time, nick = line
+	return "%s.%s" % (str(time).replace(':', '.'), nick)
 
 
 th_map = {1 : 'st', 2 : 'nd', 3 : 'rd'}
