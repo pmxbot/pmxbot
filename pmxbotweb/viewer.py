@@ -15,7 +15,7 @@ from jinja2 import Environment, FileSystemLoader
 
 from cgi import escape
 
-from pmxbot.botbase import get_logger_db
+from pmxbot.logging import init_logger
 
 BASE = os.path.abspath(os.path.dirname(__file__))
 jenv = Environment(loader=FileSystemLoader(os.path.join(BASE, 'templates'), encoding='utf-8'))
@@ -72,7 +72,7 @@ class ChannelPage(object):
 	def default(self, channel):
 		page = jenv.get_template('channel.html')
 		
-		db = get_logger_db(cherrypy.request.app.config['db']
+		db = init_logger(cherrypy.request.app.config['db'])
 		context = get_context()
 		contents = db.get_channel_days(channel)
 		months = {}
@@ -116,7 +116,7 @@ def karma_comma(karma_results):
 	result with the keys joined by commas.
 	"""
 	return [
-		', '.join(keys), value
+		(', '.join(keys), value)
 		for keys, value in karma_results
 	]
 
