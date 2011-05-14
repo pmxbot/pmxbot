@@ -67,12 +67,14 @@ def sort_month_key(m):
 	parts[0] = rev_month[parts[0]]
 	return parts[1], parts[0]
 
+def log_db():
+	return init_logger(cherrypy.request.app.config['botconf']['config'].database_dir)
 
 class ChannelPage(object):
 	def default(self, channel):
 		page = jenv.get_template('channel.html')
 		
-		db = init_logger(cherrypy.request.app.config['db'])
+		db = log_db()
 		context = get_context()
 		contents = db.get_channel_days(channel)
 		months = {}
@@ -88,7 +90,7 @@ class ChannelPage(object):
 class DayPage(object):
 	def default(self, channel, day):
 		page = jenv.get_template('day.html')
-		db = get_logger_db(cherrypy.request.app.config['db'])
+		db = log_db()
 		context = get_context()
 		day_logs = db.get_day_logs()
 		data = [(t, n, make_anchor((t, n)), escape(m)) for (t,n,m) in day_logs]
@@ -124,7 +126,9 @@ class KarmaPage(object):
 	def default(self, term=""):
 		page = jenv.get_template('karma.html')
 		context = get_context()
-		karma = util.get_karma_from_uri(cherrypy.request.app.config['db'])
+		karma = util.get_karma_from_uri(
+			cherrypy.request.app.config['botconf']['config'].database_dir
+		)
 		term = term.strip()
 		if term:
 			context['lookup'] = (
@@ -140,7 +144,7 @@ class SearchPage(object):
 	def default(self, term=''):
 		page = jenv.get_template('search.html')
 		context = get_context()
-		db = get_logger_db(cherrypy.request.app.config['db'])
+		db = log_db()
 		#db.text_factory = lambda x: unicode(x, "utf-8", "ignore")
 
 		# a hack to enable the database to create anchors when building search
@@ -192,7 +196,7 @@ class PmxbotPages(object):
 	
 	def default(self):
 		page = jenv.get_template('index.html')
-		db = get_logger_db(cherrypy.request.app.config['db'])
+		db = log_db()
 		context = get_context()
 		chans = []
 		for chan in sorted(db.list_channels(), key = string.lower):

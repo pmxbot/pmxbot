@@ -59,7 +59,6 @@ def run(configFile=None, configDict=None, start=True):
 			'tools.staticfile.on' : True,
 			'tools.staticfile.filename' : os.path.join(os.path.dirname(__file__), 'templates/pmxbot.png'),
 		},
-		'db' : config.database_dir,
 		'botconf' : {'config' : config},
 	}
 
