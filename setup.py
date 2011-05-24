@@ -19,6 +19,7 @@ setup(
 		"python-irclib",
 		"httplib2",
 		"feedparser",
+		"pytz",
 		#for viewer
 		"jinja2",
 		"cherrypy",
