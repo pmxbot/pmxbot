@@ -1,7 +1,6 @@
 import re
 import datetime
 import itertools
-import operator
 
 import pytz
 
@@ -210,13 +209,10 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		return self.db.find(fields=['datetime.d']).distinct('datetime.d')
 
 	def get_day_logs(self, channel, day):
-		start = storage.pymongo.ObjectID.from_datetime(day)
-		one_day = datetime.timedelta(days=1)
-		end = storage.pymongo.ObjectID.from_datetime(day + one_day)
-		query = dict(_id = {'$gte': start, '$lt': end}, channel=channel)
+		query = {'datetime.d': day}
 		cur = self.db.find(query).sort('_id')
 		return (
-			(rec['_id'].generation_time.time(), rec['nick'], rec['message'])
+			(rec['datetime']['t'], rec['nick'], rec['message'])
 			for rec in cur
 		)
 
@@ -280,24 +276,6 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		message['_id'] = oid
 		message['datetime'] = dict(d=str(dt.date()), t=str(dt.time()))
 		self.db.insert(message)
-
-
-# from Python 3.1 documentation
-def unique_justseen(iterable, key=None):
-	"""
-	List unique elements, preserving order. Remember only the element just seen.
-
-	>>> ' '.join(unique_justseen('AAAABBBCCDAABBB'))
-	'A B C D A B'
-	
-	>>> ' '.join(unique_justseen('ABBCcAD', str.lower))
-	'A B C A D'
-	"""
-	return itertools.imap(
-		next, itertools.imap(
-			operator.itemgetter(1),
-			itertools.groupby(iterable, key)
-		))
 
 def migrate_logs(source, dest):
 	source_db = Logger.from_URI(source)

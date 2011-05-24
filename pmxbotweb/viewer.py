@@ -78,8 +78,8 @@ class ChannelPage(object):
 		for fn in sorted(contents, reverse=True):
 			mon_des, day = fn.rsplit('-', 1)
 			months.setdefault(pmon(mon_des), []).append((pday(fn), fn))
-		context['months'] = sorted(months.items(), key=lambda v: sort_month_key(v[0]),
-		reverse=True) 
+		sort_key = lambda v: sort_month_key(v[0])
+		context['months'] = sorted(months.items(), key=sort_key, reverse=True)
 		context['channel'] = channel
 		return page.render(**context).encode('utf-8')
 	default.exposed = True
@@ -89,7 +89,7 @@ class DayPage(object):
 		page = jenv.get_template('day.html')
 		db = log_db()
 		context = get_context()
-		day_logs = db.get_day_logs()
+		day_logs = db.get_day_logs(channel, day)
 		data = [(t, n, make_anchor((t, n)), escape(m)) for (t,n,m) in day_logs]
 		usernames = [x[1] for x in data]
 		color_map = {}
