@@ -69,7 +69,7 @@ def sort_month_key(m):
 	return parts[1], parts[0]
 
 def log_db():
-	return init_logger(cherrypy.request.app.config['botconf']['config'].database_dir)
+	return init_logger(cherrypy.request.app.config['botconf']['config'].database)
 
 class ChannelPage(object):
 	def default(self, channel):
@@ -128,7 +128,7 @@ class KarmaPage(object):
 		page = jenv.get_template('karma.html')
 		context = get_context()
 		karma = util.get_karma_from_uri(
-			cherrypy.request.app.config['botconf']['config'].database_dir
+			cherrypy.request.app.config['botconf']['config'].database
 		)
 		term = term.strip()
 		if term:

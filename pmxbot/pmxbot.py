@@ -906,7 +906,7 @@ def run(configFile=None, configDict=None, configInput=None, start=True):
 
 	_load_library_extensions()
 
-	bot = LoggingCommandBot(config.database_dir, config.server_host, config.server_port, 
+	bot = LoggingCommandBot(config.database, config.server_host, config.server_port, 
 		config.bot_nickname, config.log_channels, config.other_channels,
 		config.feed_interval*60, config.feeds)
 	if start:

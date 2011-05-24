@@ -1,10 +1,12 @@
 import subprocess
 import os
 import sys
-import yaml
-import irclib
 import time
 import sqlite3
+import urlparse
+
+import irclib
+import yaml
 
 import py.test
 
@@ -27,7 +29,7 @@ class PmxbotHarness(object):
 		path = os.path.dirname(os.path.abspath(__file__))
 		configfile = os.path.join(path, 'testconf.yaml')
 		cls.config = yaml.load(open(configfile))
-		cls.dbfile = os.path.join(cls.config['database_dir'], 'pmxbot.sqlite')
+		cls.dbfile = urlparse.urlparse(cls.config['database']).path
 		cls.db = sqlite3.connect(cls.dbfile)
 		try:
 			cls.server = subprocess.Popen(['tclsh', os.path.join(path,

@@ -7,11 +7,11 @@ import pytz
 
 from . import storage
 
-def init_logger(uri):
-	class_ = MongoDBLogger if uri.startswith('mongodb://') else Logger
-	return class_(uri)
+class Logger(storage.SelectableStorage): pass
 
-class Logger(storage.SQLiteStorage):
+init_logger = Logger.from_URI
+
+class SQLiteLogger(Logger, storage.SQLiteStorage):
 
 	def init_tables(self):
 		LOG_CREATE_SQL = '''
@@ -161,7 +161,7 @@ def parse_date(record):
 	record['datetime'] = loc_dt
 	return record
 
-class MongoDBLogger(storage.MongoDBStorage):
+class MongoDBLogger(Logger, storage.MongoDBStorage):
 	collection_name = 'logs'
 
 	def message(self, channel, nick, msg):
@@ -299,7 +299,7 @@ def unique_justseen(iterable, key=None):
 		))
 
 def migrate_logs(source, dest):
-	source_db = init_logger(source)
-	dest_db = init_logger(dest)
+	source_db = Logger.from_URI(source)
+	dest_db = Logger.from_URI(dest)
 	for msg in source_db.all_messages():
 		dest_db.import_message(msg)

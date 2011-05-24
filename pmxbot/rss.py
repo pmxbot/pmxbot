@@ -71,7 +71,7 @@ class FeedparserSupport(object):
 				txt = txt.encode('utf-8')
 				c.privmsg(this_feed['channel'], txt)
 		#end of check_single_feed
-		db = init_feedparser_db(self._repo)
+		db = init_feedparser_db(self.db_uri)
 		FEED_SEEN = db.get_seen_feeds()
 		for feed in feeds:
 			check_single_feed(feed)

@@ -6,7 +6,7 @@ log_channels:
 other_channels:
     - "#inane"
 inane_channel: "#inane"
-database_dir: "tests/functional"
+database: "sqlite:tests/functional/pmxbot.sqlite"
 places: ["Palo Alto, CA", "Canton, OH", "Washington, DC", "London, England"]
 lunch_choices:
     PA: ["Pasta?", "Thaiphoon", "Pluto's", "Penninsula Creamery", "Kan Zeman"]

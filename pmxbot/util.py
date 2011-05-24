@@ -315,7 +315,10 @@ def splitem(s):
 	c = filter(None, c)
 	return c
 
-class Karma(storage.SQLiteStorage):
+class Karma(storage.SelectableStorage):
+	pass
+
+class SQLiteKarma(Karma, storage.SQLiteStorage):
 	def init_tables(self):
 		CREATE_KARMA_VALUES_TABLE = '''
 			CREATE TABLE IF NOT EXISTS karma_values (karmaid INTEGER NOT NULL, karmavalue INTEGER, primary key (karmaid))
@@ -422,7 +425,7 @@ class Karma(storage.SQLiteStorage):
 		return (self._lookup(id) for id in matches)
 
 
-class MongoDBKarma(storage.MongoDBStorage):
+class MongoDBKarma(Karma, storage.MongoDBStorage):
 	collection_name = 'karma'
 	def lookup(self, thing):
 		thing = thing.strip().lower()
@@ -477,33 +480,22 @@ class MongoDBKarma(storage.MongoDBStorage):
 			for rec in self.db.find({'names': pattern})
 		)
 
-def get_karma_for_uri(uri):
-	class_ = MongoDBKarma if uri.startswith('mongodb://') else Karma
-	return class_(uri)
-
 def init_karma(uri):
 	globals().update(
-		karma = get_karma_for_uri(uri)
+		karma = Karma.from_URI(uri)
 	)
 
 # for backward compatibility:
 def karmaChange(*args, **kwargs):
 	return karma.change(*args, **kwargs)
 
-def init_quotes(uri, lib):
-	globals().update(
-		quotes = get_quotes_for_uri(uri, lib)
-	)
+def init_quotes(uri):
+	globals().update(quotes = Quotes.from_URI(uri))
 
-def get_quotes_for_uri(uri, lib):
-	class_ = MongoDBQuotes if uri.startswith('mongodb://') else Quotes
-	return class_(uri, lib)
+class Quotes(storage.SelectableStorage):
+	lib = 'pmx'
 
-class Quotes(storage.SQLiteStorage):
-	def __init__(self, repo, lib):
-		super(Quotes, self).__init__(repo)
-		self.lib = lib
-
+class SQLiteQuotes(Quotes, storage.SQLiteStorage):
 	def init_tables(self):
 		CREATE_QUOTES_TABLE = '''
 			CREATE TABLE IF NOT EXISTS quotes (quoteid INTEGER NOT NULL, library VARCHAR, quote TEXT, PRIMARY KEY (quoteid))
@@ -567,11 +559,8 @@ class Quotes(storage.SQLiteStorage):
 		query = "SELECT quote FROM quotes WHERE library = ?"
 		return self.db.execute(query, [self.lib])
 
-class MongoDBQuotes(storage.MongoDBStorage):
+class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 	collection_name = 'quotes'
-	def __init__(self, uri, lib):
-		super(MongoDBQuotes, self).__init__(uri)
-		self.lib = lib
 
 	def quoteLookupWNum(self, rest=''):
 		rest = rest.strip()

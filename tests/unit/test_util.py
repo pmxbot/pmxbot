@@ -11,7 +11,7 @@ def pytest_funcarg__mongodb_uri(request):
 	return test_host
 
 def test_MongoDBKarma(mongodb_uri):
-	k = MongoDBKarma(mongodb_uri)
+	k = Karma.from_URI(mongodb_uri)
 	k.db = k.db.database.connection[k.db.database.name+'_test'][k.db.name]
 	k.db.drop()
 	try:
@@ -27,7 +27,8 @@ def test_MongoDBKarma(mongodb_uri):
 		k.db.drop()
 
 def test_MongoDBQuotes(mongodb_uri):
-	q = MongoDBQuotes(mongodb_uri, 'test')
+	q = Quotes.from_URI(mongodb_uri)
+	q.lib = 'test'
 	clean = lambda: q.db.remove({'library': 'test'})
 	clean()
 	try:
