@@ -165,8 +165,13 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 	collection_name = 'logs'
 
 	def message(self, channel, nick, msg):
+		self.db.ensure_index(['datetime.d'])
 		channel = channel.replace('#', '')
-		self.db.insert(dict(channel=channel, nick=nick, message=msg))
+		now = datetime.datetime.utcnow()
+		self.db.insert(dict(channel=channel, nick=nick, message=msg,
+			date=now.date(),
+			time=now.time(),
+			))
 
 	def last_seen(self, nick):
 		fields = 'channel',
@@ -202,9 +207,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		return (item['message'] for item in random.sample(cur, limit))
 
 	def get_channel_days(self, channel):
-		cur = self.db.find(fields=['_id'])
-		timestamps = (row['_id'].generation_time.date() for row in cur)
-		return unique_justseen(timestamps)
+		return self.db.find(fields=['datetime.d']).distinct('datetime.d')
 
 	def get_day_logs(self, channel, day):
 		start = storage.pymongo.ObjectID.from_datetime(day)
@@ -265,19 +268,17 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		)
 
 	def all_messages(self):
-		cursor = self.db.find()
-		def fix_time(rec):
-			rec['datetime'] = rec.pop('_id').generation_time
-			return rec
-		return itertools.imap(fix_time, cursor)
+		return self.db.find()
 
 	def import_message(self, message):
 		# construct a unique objectid with the correct datetime.
-		oid_time = storage.pymongo.objectid.ObjectId.from_datetime(message.pop('datetime'))
+		dt = message['datetime']
+		oid_time = storage.pymongo.objectid.ObjectId.from_datetime(dt)
 		oid_rest = storage.pymongo.objectid.ObjectId()
 		oid_new = str(oid_time)[:8] + str(oid_rest)[8:]
 		oid = storage.pymongo.objectid.ObjectId(oid_new)
 		message['_id'] = oid
+		message['datetime'] = dict(d=str(dt.date()), t=str(dt.time()))
 		self.db.insert(message)
 
 
