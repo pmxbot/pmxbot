@@ -124,7 +124,9 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
 			limit 1
 		"""
 		time, nick, message = self.db.execute(query, [channel]).fetchone()
-		return dict(time=time, nick=nick, message=message)
+		result = dict(datetime=time, nick=nick, message=message)
+		parse_date(result)
+		return result
 
 	def all_messages(self):
 		query = 'SELECT datetime, nick, message, channel from logs'
@@ -168,9 +170,12 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		channel = channel.replace('#', '')
 		now = datetime.datetime.utcnow()
 		self.db.insert(dict(channel=channel, nick=nick, message=msg,
-			date=now.date(),
-			time=now.time(),
+			datetime=self._fmt_date(now),
 			))
+
+	@staticmethod
+	def _fmt_date(datetime):
+		return dict(d=str(datetime.date()), t=str(datetime.time()))
 
 	def last_seen(self, nick):
 		fields = 'channel',
@@ -258,7 +263,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 			).sort('_id', storage.pymongo.DESCENDING).limit(1)
 		)
 		return dict(
-			time=rec['_id'].generation_time,
+			datetime=rec['_id'].generation_time,
 			nick=rec['nick'],
 			message=rec['message']
 		)
@@ -274,7 +279,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		oid_new = str(oid_time)[:8] + str(oid_rest)[8:]
 		oid = storage.pymongo.objectid.ObjectId(oid_new)
 		message['_id'] = oid
-		message['datetime'] = dict(d=str(dt.date()), t=str(dt.time()))
+		message['datetime'] = self._fmt_date(dt)
 		self.db.insert(message)
 
 def migrate_logs(source, dest):

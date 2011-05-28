@@ -200,12 +200,12 @@ class PmxbotPages(object):
 			last = db.last_message(chan)
 			summary = [
 				chan,
-				last['time'].strftime("%Y-%m-%d %H:%M"),
-				last['time'].date(),
-				last['time'].time(),
+				last['datetime'].strftime("%Y-%m-%d %H:%M"),
+				last['datetime'].date(),
+				last['datetime'].time(),
 				last['nick'],
 				escape(last['message'][:75]),
-				make_anchor([last['time'].time(), last['nick']]),
+				make_anchor([last['datetime'].time(), last['nick']]),
 			]
 			chans.append(summary)
 		context['chans'] = chans
