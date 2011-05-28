@@ -2,6 +2,8 @@
 Popular Quotes Database
 """
 
+import itertools
+
 import pkg_resources
 
 from ..botbase import command
@@ -24,34 +26,22 @@ def bartletts(lib, nick, qsearch):
 		if qt:
 			return u'(%s/%s): %s' % (i, n, qt)
 
-@command('bender', aliases=('bend',), doc='Quote Bender, a la http://en.wikiquote.org/wiki/Futurama')
-def bender(client, event, channel, nick, rest):
-	return bartletts('bender', nick, rest)
+# declare all of the popquotes commands
+quote_libs = (
+	# name, aliases, doc, lib
+	('bender', ('bend',), 'Quote Bender, a la http://en.wikiquote.org/wiki/Futurama', 'bender'),
+	('zoidberg', ('zoid',), 'Quote Zoidberg, a la http://en.wikiquote.org/wiki/Futurama', 'zoid'),
+	('simpsons', ('simp',), 'Quote the Simpsons, a la http://snpp.com/', 'simpsons'),
+	('hal', ('2001',), 'HAL 9000', 'hal'),
+	('grail', (), 'I questing baby', 'grail'),
+	('anchorman', (), 'Quote Anchorman.', 'anchorman'),
+	('hangover', (), 'Quote hangover.', 'hangover'),
+	('R', ('r',), 'Quote the R mailing list', 'R'),
+)
 
-@command('zoidberg', aliases=('zoid',), doc='Quote Zoidberg, a la http://en.wikiquote.org/wiki/Futurama')
-def zoidberg(client, event, channel, nick, rest):
-	return bartletts('zoid', nick, rest)
-
-@command('simpsons', aliases=('simp',), doc='Quote the Simpsons, a la http://snpp.com/')
-def simpsons(client, event, channel, nick, rest):
-	return bartletts('simpsons', nick, rest)
-
-@command('hal', aliases=('2001',), doc='HAL 9000')
-def hal(client, event, channel, nick, rest):
-	return bartletts('hal', nick, rest)
-
-@command('grail', aliases=(), doc='I'' questing baby')
-def grail(client, event, channel, nick, rest):
-	return bartletts('grail', nick, rest)
-
-@command('anchorman', aliases=(), doc='Quote Anchorman.')
-def anchorman(client, event, channel, nick, rest):
-	return bartletts('anchorman', nick, rest)
-
-@command('hangover', aliases=(), doc='Quote hangover.')
-def hangover(client, event, channel, nick, rest):
-	return bartletts('hangover', nick, rest)
-
-@command('R', aliases=('r',), doc='Quote the R mailing list')
-def R(client, event, channel, nick, rest):
-	return bartletts('R', nick, rest)
+# create the popquotes commands per the declarations above
+def make_command(name, aliases, doc, lib):
+	cmd_func = lambda client, event, channel, nick, rest: bartletts(lib, nick, rest)
+	cmd_func = command(name, aliases=aliases, doc=doc)(cmd_func)
+	globals().update({name: cmd_func})
+list(itertools.starmap(make_command, quote_libs))
