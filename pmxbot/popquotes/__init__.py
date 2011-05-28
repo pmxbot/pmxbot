@@ -26,41 +26,32 @@ def bartletts(lib, nick, qsearch):
 
 @command('bender', aliases=('bend',), doc='Quote Bender, a la http://en.wikiquote.org/wiki/Futurama')
 def bender(client, event, channel, nick, rest):
-	qt = bartletts('bender', nick, rest)
-	if qt:	return qt
+	return bartletts('bender', nick, rest)
 
 @command('zoidberg', aliases=('zoid',), doc='Quote Zoidberg, a la http://en.wikiquote.org/wiki/Futurama')
 def zoidberg(client, event, channel, nick, rest):
-	qt = bartletts('zoid', nick, rest)
-	if qt:	return qt
+	return bartletts('zoid', nick, rest)
 
 @command('simpsons', aliases=('simp',), doc='Quote the Simpsons, a la http://snpp.com/')
 def simpsons(client, event, channel, nick, rest):
-	qt = bartletts('simpsons', nick, rest)
-	if qt:	return qt
+	return bartletts('simpsons', nick, rest)
 
 @command('hal', aliases=('2001',), doc='HAL 9000')
 def hal(client, event, channel, nick, rest):
-	qt = bartletts('hal', nick, rest)
-	if qt:	return qt
+	return bartletts('hal', nick, rest)
 
 @command('grail', aliases=(), doc='I'' questing baby')
 def grail(client, event, channel, nick, rest):
-	qt = bartletts('grail', nick, rest)
-	if qt:	return qt
+	return bartletts('grail', nick, rest)
 
 @command('anchorman', aliases=(), doc='Quote Anchorman.')
 def anchorman(client, event, channel, nick, rest):
-	qt = bartletts('anchorman', nick, rest)
-	if qt:	return qt
+	return bartletts('anchorman', nick, rest)
 
 @command('hangover', aliases=(), doc='Quote hangover.')
 def hangover(client, event, channel, nick, rest):
-	qt = bartletts('hangover', nick, rest)
-	if qt:	return qt
+	return bartletts('hangover', nick, rest)
 
 @command('R', aliases=('r',), doc='Quote the R mailing list')
 def R(client, event, channel, nick, rest):
-	qt = bartletts('R', nick, rest)
-	if qt:	return qt
-
+	return bartletts('R', nick, rest)
