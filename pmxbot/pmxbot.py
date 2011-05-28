@@ -18,14 +18,8 @@ except ImportError:
 	import json # one last try-- python 2.6+
 from . import saysomething as saysomethinglib
 from .cleanhtml import plaintext
+from . import popquotes
 from xml.etree import ElementTree
-try:
-	from pysqlite2 import dbapi2 as sqlite
-except ImportError:
-	from sqlite3 import dbapi2 as sqlite
-
-QUOTE_PATH = os.path.join(os.path.dirname(__file__), "popquotes.sqlite")
-popular_quote_db = sqlite.connect(QUOTE_PATH)
 
 log = logging.getLogger(__name__)
 
@@ -251,47 +245,6 @@ def oregontrail(client, event, channel, nick, rest):
 	else:
 		text = '%s %s' % (who, action)
 	return text
-
-#popquotes
-@command('bender', aliases=('bend',), doc='Quote Bender, a la http://en.wikiquote.org/wiki/Futurama')
-def bender(client, event, channel, nick, rest):
-	qt = bartletts(popular_quote_db, 'bender', nick, rest)
-	if qt:	return qt
-
-@command('zoidberg', aliases=('zoid',), doc='Quote Zoidberg, a la http://en.wikiquote.org/wiki/Futurama')
-def zoidberg(client, event, channel, nick, rest):
-	qt = bartletts(popular_quote_db, 'zoid', nick, rest)
-	if qt:	return qt
-
-@command('simpsons', aliases=('simp',), doc='Quote the Simpsons, a la http://snpp.com/')
-def simpsons(client, event, channel, nick, rest):
-	qt = bartletts(popular_quote_db, 'simpsons', nick, rest)
-	if qt:	return qt
-
-@command('hal', aliases=('2001',), doc='HAL 9000')
-def hal(client, event, channel, nick, rest):
-	qt = bartletts(popular_quote_db, 'hal', nick, rest)
-	if qt:	return qt
-
-@command('grail', aliases=(), doc='I'' questing baby')
-def grail(client, event, channel, nick, rest):
-	qt = bartletts(popular_quote_db, 'grail', nick, rest)
-	if qt:	return qt
-
-@command('anchorman', aliases=(), doc='Quote Anchorman.')
-def anchorman(client, event, channel, nick, rest):
-	qt = bartletts(popular_quote_db, 'anchorman', nick, rest)
-	if qt:	return qt
-
-@command('hangover', aliases=(), doc='Quote hangover.')
-def hangover(client, event, channel, nick, rest):
-	qt = bartletts(popular_quote_db, 'hangover', nick, rest)
-	if qt:	return qt
-
-@command('R', aliases=('r',), doc='Quote the R mailing list')
-def R(client, event, channel, nick, rest):
-	qt = bartletts(popular_quote_db, 'R', nick, rest)
-	if qt:	return qt
 
 #Added quotes
 @command('quote', aliases=('q',), doc='If passed with nothing then get a random quote. If passed with some string then search for that. If prepended with "add:" then add it to the db, eg "!quote add: drivers: I only work here because of pmxbot!"')

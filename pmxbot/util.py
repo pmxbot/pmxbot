@@ -610,22 +610,6 @@ class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 	def __iter__(self):
 		return self.db.find(library=self.lib)
 
-def bartletts(db, lib, nick, qsearch):
-	qs = Quotes(db, lib)
-	qsearch = qsearch.strip()
-	if nick == 'pmxbot':
-		qt, i, n = qs.quoteLookup()
-		if qt:
-			if qt.find(':', 0, 15) > -1:
-				qt = qt.split(':', 1)[1].strip()
-			return qt
-	else:
-		qt, i, n = qs.quoteLookupWNum(qsearch)
-		if qt:
-			return u'(%s/%s): %s' % (i, n, qt)
-
-
-
 def get_html(url):
 	h = httplib2.Http()
 	resp, html = h.request(url,

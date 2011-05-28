@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
 	name="pmxbot",
 	version="1005",
-	packages=["pmxbot", "pmxbotweb",],
+	packages=["pmxbot", "pmxbotweb", "pmxbot.popquotes"],
 	package_data={
 		'pmxbot' : ["popquotes.sqlite",],
 		'pmxbotweb' : ["templates/*.html", "templates/pmxbot.png",],
