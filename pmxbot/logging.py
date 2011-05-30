@@ -1,6 +1,7 @@
 import re
 import datetime
 import itertools
+import struct
 
 import pytz
 
@@ -128,8 +129,8 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
 		parse_date(result)
 		return result
 
-	def all_messages(self):
-		query = 'SELECT datetime, nick, message, channel from logs'
+	def export_all(self):
+		query = 'SELECT id, datetime, nick, message, channel from logs'
 		def robust_text(text):
 			for encoding in 'utf-8', 'latin-1':
 				try:
@@ -139,11 +140,9 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
 			raise
 		self.db.text_factory = robust_text
 		cursor = self.db.execute(query)
-		fields = 'datetime', 'nick', 'message', 'channel'
+		fields = 'id', 'datetime', 'nick', 'message', 'channel'
 		results = (dict(zip(fields, record)) for record in cursor)
 		return itertools.imap(parse_date, results)
-
-	export_all = all_messages
 
 def parse_date(record):
 	dt = record.pop('datetime')
@@ -277,8 +276,10 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		# construct a unique objectid with the correct datetime.
 		dt = message['datetime']
 		oid_time = storage.pymongo.objectid.ObjectId.from_datetime(dt)
-		oid_rest = storage.pymongo.objectid.ObjectId()
-		oid_new = str(oid_time)[:8] + str(oid_rest)[8:]
+		# store the original sqlite object ID in the 
+		orig_id = message.pop('id')
+		orig_id_packed = struct.pack('L', orig_id)
+		oid_new = str(oid_time)[:4] + '\x00'*4 + orig_id_packed
 		oid = storage.pymongo.objectid.ObjectId(oid_new)
 		message['_id'] = oid
 		message['datetime'] = self._fmt_date(dt)
