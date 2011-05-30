@@ -143,6 +143,8 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
 		results = (dict(zip(fields, record)) for record in cursor)
 		return itertools.imap(parse_date, results)
 
+	export_all = all_messages
+
 def parse_date(record):
 	dt = record.pop('datetime')
 	fmts = [
@@ -271,7 +273,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 	def all_messages(self):
 		return self.db.find()
 
-	def import_message(self, message):
+	def import_(self, message):
 		# construct a unique objectid with the correct datetime.
 		dt = message['datetime']
 		oid_time = storage.pymongo.objectid.ObjectId.from_datetime(dt)
@@ -281,9 +283,3 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		message['_id'] = oid
 		message['datetime'] = self._fmt_date(dt)
 		self.db.insert(message)
-
-def migrate_logs(source, dest):
-	source_db = Logger.from_URI(source)
-	dest_db = Logger.from_URI(dest)
-	for msg in source_db.all_messages():
-		dest_db.import_message(msg)
