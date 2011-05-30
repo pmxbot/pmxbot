@@ -70,4 +70,8 @@ class MongoDBStorage(Storage):
 		self.db = pymongo.Connection(host_uri).pmxbot[self.collection_name]
 
 def migrate_all(source, dest):
-	pass #migrate_logs(source, dest)
+	for cls in SelectableStorage.__subclasses__():
+		try:
+			cls.migrate(source, dest)
+		except AttributeError:
+			print("Unable to migrate {cls}".format(**vars()))
