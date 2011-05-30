@@ -424,6 +424,9 @@ class SQLiteKarma(Karma, storage.SQLiteStorage):
 		matches = (id for (id,) in self.db.execute(query, '%%'+term+'%%'))
 		return (self._lookup(id) for id in matches)
 
+	def export_all(self):
+		return self.list()
+
 
 class MongoDBKarma(Karma, storage.MongoDBStorage):
 	collection_name = 'karma'
@@ -479,6 +482,13 @@ class MongoDBKarma(Karma, storage.MongoDBStorage):
 			(rec['names'], rec['value'])
 			for rec in self.db.find({'names': pattern})
 		)
+
+	def import_(self, item):
+		names, value = item
+		self.db.insert(dict(
+			names = names,
+			value = value,
+			))
 
 def init_karma(uri):
 	globals().update(
