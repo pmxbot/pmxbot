@@ -22,6 +22,12 @@ class SelectableStorage(object):
 		super_matches = super(SelectableStorage, cls).uri_matches(uri)
 		return urlparse.urlparse(uri).scheme == cls.scheme or super_matches
 
+	@classmethod
+	def migrate(cls, source_uri, dest_uri):
+		source = cls.from_URI(source_uri)
+		dest = cls.from_URI(dest_uri)
+		map(dest.import_, source.export_all())
+
 class Storage(object):
 	# ABC
 	@classmethod
