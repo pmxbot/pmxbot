@@ -7,7 +7,8 @@ import pytz
 
 from . import storage
 
-class Logger(storage.SelectableStorage): pass
+class Logger(storage.SelectableStorage):
+	"Base Logger class"
 
 init_logger = Logger.from_URI
 
@@ -272,6 +273,14 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 	def all_messages(self):
 		return self.db.find()
 
+	@staticmethod
+	def extract_legacy_id(oid):
+		"""
+		Given a special OID which includes the legacy sqlite ID, extract
+		the sqlite ID.
+		"""
+		return struct.unpack('L', oid.binary[-4:])[0]
+
 	def import_(self, message):
 		# construct a unique objectid with the correct datetime.
 		dt = message['datetime']
@@ -281,6 +290,8 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		orig_id_packed = struct.pack('L', orig_id)
 		oid_new = str(oid_time)[:4] + '\x00'*4 + orig_id_packed
 		oid = storage.pymongo.objectid.ObjectId(oid_new)
+		if not hasattr(Logger, 'log_id_map'): Logger.log_id_map = dict()
+		Logger.log_id_map[orig_id] = oid
 		message['_id'] = oid
 		message['datetime'] = self._fmt_date(dt)
 		self.db.insert(message)

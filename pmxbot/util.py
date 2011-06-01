@@ -569,6 +569,11 @@ class SQLiteQuotes(Quotes, storage.SQLiteStorage):
 		query = "SELECT quote FROM quotes WHERE library = ?"
 		return self.db.execute(query, [self.lib])
 
+	def export_all(self):
+		query = "SELECT quote, library, logid from quotes inner join quote_log on quotes.quoteid = quote_log.quoteid"
+		fields = 'quote', 'library', 'log_id'
+		return (dict(zip(fields, res)) for res in self.db.execute(query))
+
 class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 	collection_name = 'quotes'
 
@@ -619,6 +624,25 @@ class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 
 	def __iter__(self):
 		return self.db.find(library=self.lib)
+
+	def _build_log_id_map(self):
+		from . import logging
+		if not hasattr(logging.Logger, 'log_id_map'):
+			log_db = self.db.database.logs
+			logging.Logger.log_id_map = dict(
+				(logging.MongoDBLogger.extract_legacy_id(rec['_id']), rec['_id'])
+				for rec in log_db.find(fields=[])
+			)
+		return logging.Logger.log_id_map
+		
+
+	def import_(self, quote):
+		log_id_map = self._build_log_id_map()
+		try:
+			quote['log_id'] = log_id_map[quote['log_id']]
+		except KeyError:
+			pass
+		self.db.insert(quote)
 
 def get_html(url):
 	h = httplib2.Http()

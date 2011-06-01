@@ -8,7 +8,7 @@ other_channels:
 inane_channel: "#pmxbot"
 # database should be something like a MongoDB URI (mongodb://localhost)
 #  or sqlite URI (sqlite:path/filename)
-database: sqlite:bot_database/pmxbot.sqlite
+database: sqlite:pmxbot.sqlite
 places: ["Palo Alto, CA", "Canton, OH", "Washington, DC", "London, England"]
 lunch_choices:
     PA: ["Pasta?", "Thaiphoon", "Pluto's", "Penninsula Creamery", "Kan Zeman"]
