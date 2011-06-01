@@ -89,8 +89,10 @@ class FeedparserSupport(object):
 			print datetime.datetime.now(), "Oh crap, couldn't add_feed_entries"
 			print e
 
+class FeedparserDB(storage.SelectableStorage):
+	pass
 
-class FeedparserDB(storage.SQLiteStorage):
+class SQLiteFeedparserDB(FeedparserDB, storage.SQLiteStorage):
 	def init_tables(self):
 		self.db.execute("CREATE TABLE IF NOT EXISTS feed_seen (key varchar)")
 		self.db.execute('CREATE INDEX IF NOT EXISTS ix_feed_seen_key ON feed_seen (key)')
@@ -103,7 +105,9 @@ class FeedparserDB(storage.SQLiteStorage):
 		self.db.executemany('INSERT INTO feed_seen (key) values (?)', [(x,) for x in entries])
 		self.db.commit()
 
-class MongoDBFeedparserDB(storage.MongoDBStorage):
+	export_all = get_seen_feeds
+
+class MongoDBFeedparserDB(FeedparserDB, storage.MongoDBStorage):
 	collection_name = 'feed history'
 	def get_seen_feeds(self):
 		return [row['key'] for row in self.db.find()]
@@ -112,6 +116,8 @@ class MongoDBFeedparserDB(storage.MongoDBStorage):
 		for entry in entries:
 			self.db.insert(dict(key=entry))
 
+	def import_(self, item):
+		self.add_entries([item])
+
 def init_feedparser_db(uri):
-	class_ = MongoDBFeedparserDB if uri.startswith('mongodb://') else FeedparserDB
-	return class_(uri)
+	return FeedparserDB.from_URI(uri)
