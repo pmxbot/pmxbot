@@ -108,7 +108,7 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
 			next_q = prev_q.replace('<', '>').replace('desc', 'asc')
 			next2 = self.db.execute(next_q, [channel, dt])
 			lines = prev2.fetchall() + [line] + next2.fetchall()
-			marker = self.make_anchor(line)
+			marker = self.make_anchor(line[:2])
 			matches.append((channel, date, marker, lines))
 			alllines.extend(lines)
 		return matches
@@ -250,7 +250,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 				)).sort('_id', storage.pymongo.ASCENDING).limit(2)
 			next2 = map(to_line, prev2)
 			context = prev2 + [line] + next2
-			marker = self.make_anchor(line)
+			marker = self.make_anchor(line[:2])
 			matches.append((channel, date, marker, context))
 			alllines.extend(context)
 		return matches
