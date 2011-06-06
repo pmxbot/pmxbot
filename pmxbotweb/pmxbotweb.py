@@ -54,6 +54,8 @@ def run(configFile=None, configDict=None, start=True):
 		'global': {
 			'server.socket_port': config.web_port,
 			'server.socket_host': config.web_host,
+			#'tools.encode.on': True,
+			'tools.encode.encoding': 'utf-8',
 		},
 		'/pmxbot.png' : {
 			'tools.staticfile.on' : True,
