@@ -1,15 +1,6 @@
 import py.test
 from pmxbot.util import *
 
-def pytest_funcarg__mongodb_uri(request):
-	test_host = 'mongodb://localhost'
-	try:
-		import pymongo
-		conn = pymongo.Connection(test_host)
-	except Exception:
-		py.test.skip("No local mongodb found")
-	return test_host
-
 def test_MongoDBKarma(mongodb_uri):
 	k = Karma.from_URI(mongodb_uri)
 	k.db = k.db.database.connection[k.db.database.name+'_test'][k.db.name]
