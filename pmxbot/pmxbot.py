@@ -828,23 +828,23 @@ def run(configFile=None, configDict=None, configInput=None, start=True):
 	class O(object): 
 		def __init__(self, d):
 			for k, v in d.iteritems():
-			    setattr(self, k, v)
+				setattr(self, k, v)
 
 	_setup_logging()
 
 	if configInput:
 		config = configInput
 	elif configDict:
-        config = O(configDict)
+		config = O(configDict)
 	else:
-	    if configFile:
-    	    config_file = configFile
-        else:
-    	    if len(sys.argv) < 2:
-        		sys.stderr.write("error: need config file as first argument")
-        		raise SystemExit(1)
-        	config_file = sys.argv[1]
-	    config = O(yaml.load(open(config_file)))
+		if configFile:
+			config_file = configFile
+		else:
+			if len(sys.argv) < 2:
+				sys.stderr.write("error: need config file as first argument")
+				raise SystemExit(1)
+			config_file = sys.argv[1]
+		config = O(yaml.load(open(config_file)))
 	try:
 		config.librarypaste
 	except AttributeError:
