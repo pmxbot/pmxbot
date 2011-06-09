@@ -459,18 +459,16 @@ class TestCommands(object):
 		Test the wikipedia dictionary with the word keyboard.
 		"""
 		res = pmxbot.defit(c, e, "#test", "testrunner", "keyboard")
-		print res
 		assert isinstance(res, unicode)
-		assert res.startswith("Wikipedia says: In computing, a keyboard is an input device, partially modeled after the typewriter keyboard,")
+		assert res == "Wikipedia says: Enter (data) by means of a keyboard."
 
 	def test_define_irc(self):
 		"""
 		Test the wikipedia dictionary with the word IRC.
 		"""
 		res = pmxbot.defit(c, e, "#test", "testrunner", "irc")
-		print res
 		assert isinstance(res, unicode)
-		assert res.startswith("Wikipedia says: Internet Relay Chat (IRC) is a form of real-time Internet text messaging (chat) or synchronous conferencing")
+		assert res == ("Wikipedia says: Internet Relay Chat (IRC) is a form of real-time Internet text messaging (chat) or synchronous conferencing. ....  ")
 
 	def test_urb_irc(self):
 		"""

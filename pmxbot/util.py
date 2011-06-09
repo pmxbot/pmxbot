@@ -3,6 +3,8 @@ import os
 import random
 import re
 import urllib
+import itertools
+
 import httplib2
 
 from . import storage
@@ -651,24 +653,36 @@ def get_html(url):
 	assert 200 <= resp.status < 300
 	return html
 
-wiki_exp = re.compile(r"(.*?)en\.wikipedia\.org\/wiki\/", re.MULTILINE | re.DOTALL)
-def_exp = re.compile(r"<li>([^<]+)", re.MULTILINE)
+def_exp1 = re.compile(r"<div><span class=f>.*?</span>(.+?)</div>", re.MULTILINE)
+def_exp2 = re.compile(r"Definition for.*<div class=s><div>(.+?)<", re.MULTILINE)
 urbd_exp = re.compile(r"""<td class=['"]word['"]>(.+?)^</td>$(?:.+?)<div class=['"]definition['"]>(.+?)</div>""", re.MULTILINE | re.DOTALL )
+
+def strip_tags(string):
+	"""
+	Remove HTML tags from a string.
+	
+	>>> strip_tags('<div>foo and <b>bar</b></div>')
+	'foo and bar'
+	"""
+	return re.sub('<.*?>', '', string).replace('&nbsp;', ' ')
 
 def lookup(word):
 	'''Gets a wikipedia summary for a word.
 	'''
+	# consider http://en.wiktionary.org/w/api.php?format=jsonfm&action=parse&page=keyboard
 	word = urllib.quote_plus(word)
 	html = get_html('http://www.google.com/search?hl=en&'
 		'client=firefox-a&q=define:%s' % word)
 	html = html.decode('utf-8')
-	mo = wiki_exp.search(html)
-	if not mo:
+	all_defs = itertools.chain(
+		def_exp1.finditer(html),
+		def_exp2.finditer(html),
+	)
+	try:
+		show_def = next(all_defs).group(1)
+	except StopIteration:
 		return None
-	defs_sec = mo.group(1)
-	all_defs = list(def_exp.finditer(defs_sec))
-	show_def = all_defs[-1].group(1)
-	return show_def.strip()
+	return strip_tags(show_def.strip())
 
 def urbanlookup(word):
 	'''Gets a Urban Dictionary summary for a word.
