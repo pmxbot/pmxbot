@@ -8,7 +8,6 @@ import time
 import random
 
 import ircbot
-from py25compat import next
 
 from . import util
 from .logging import init_logger
