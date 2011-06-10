@@ -4,6 +4,8 @@ import os
 import uuid
 import datetime
 
+import pytest
+
 from pmxbot import pmxbot
 from pmxbot import botbase
 
@@ -35,7 +37,7 @@ class TestCommands(object):
 		configfile = os.path.join(path, 'testconf.yaml')
 		pmxbot.run(configFile=configfile, start=False)
 		pmxbot.botbase.logger.message("logged", "testrunner", "some text")
-		
+
 	@classmethod
 	def teardown_class(self):
 		del botbase.logger
@@ -44,14 +46,16 @@ class TestCommands(object):
 		path = os.path.dirname(os.path.abspath(__file__))
 		os.remove(os.path.join(path, 'pmxbot.sqlite'))
 
+	@pytest.has_internet
 	def test_google(self):
 		"""
 		Basic google search for "pmxbot". Result must contain a link.
 		"""
 		res = pmxbot.google(c, e, "#test", "testrunner", "pmxbot")
 		print res
-		assert "http" in res 
+		assert "http" in res
 
+	@pytest.has_internet
 	def test_googlecalc_simple(self):
 		"""
 		Basic google calculator command - 1+1 must include 2 in results
@@ -60,6 +64,7 @@ class TestCommands(object):
 		print res
 		assert "2" in res
 
+	@pytest.has_internet
 	def test_googlecalc_complicated(self):
 		"""
 		More complicated google calculator command - 40 gallons in liters must
@@ -69,6 +74,7 @@ class TestCommands(object):
 		print res
 		assert "151.4" in res
 
+	@pytest.has_internet
 	def test_googlecalc_supercomplicated(self):
 		"""
 		Supercomplicated google calculator command - 502 hogsheads per mile in litres per km
@@ -80,23 +86,25 @@ class TestCommands(object):
 		pickle.dump(res, open('bleh.cp', 'wb'))
 		assert "388.9641" in res and "74" in res
 
+	@pytest.has_internet
 	def test_googlecalc_currency_usd_gbp(self):
 		"""
 		Test that google calculator for a currency conversion: 1 USD in GBP
 		"""
 		res = pmxbot.googlecalc(c, e, "#test", "testrunner", "1 USD in GBP")
 		print res
-		assert re.match(r"""1 (?:US|U\.S\.) dollars? = \d\.\d+ British pounds?(?: sterling)?""", res) 
-		
+		assert re.match(r"""1 (?:US|U\.S\.) dollars? = \d\.\d+ British pounds?(?: sterling)?""", res)
 
+	@pytest.has_internet
 	def test_googlecalc_currency_czk_euro(self):
 		"""
 		Test that google calculator for a currency conversion: 12 CZK in euros
 		"""
 		res = pmxbot.googlecalc(c, e, "#test", "testrunner", "12 CZK in euros")
 		print res
-		assert re.match(r"""12 Czech(?: Republic)? [Kk]orun(?:a|y)s? = \d\.\d+ [Ee]uros?""", res) 
-		
+		assert re.match(r"""12 Czech(?: Republic)? [Kk]orun(?:a|y)s? = \d\.\d+ [Ee]uros?""", res)
+
+	@pytest.has_internet
 	def test_time_one(self):
 		"""
 		Check the time in Washington, DC. Must include something that looks like a time XX:XX(AM/PM)
@@ -110,6 +118,7 @@ class TestCommands(object):
 			assert re.match(r"""^[0-9]{1,2}:[0-9]{2}(?:am|pm) """, line)
 		assert i == 1
 
+	@pytest.has_internet
 	def test_time_three(self):
 		"""
 		Check the time in three cities. Must include something that looks like
@@ -123,7 +132,8 @@ class TestCommands(object):
 			i += 1
 			assert re.match(r"""^[0-9]{1,2}:[0-9]{2}(?:am|pm) """, line)
 		assert i == 3
-	
+
+	@pytest.has_internet
 	def test_time_all(self):
 		"""
 		Check the time in "all" cities. Must include something that looks like
@@ -137,7 +147,7 @@ class TestCommands(object):
 			i += 1
 			assert re.match(r"""^[0-9]{1,2}:[0-9]{2}(?:am|pm) """, line)
 		assert i == 4
-			
+
 	def test_weather_one(self):
 		"""
 		Check the weather in Washington, DC. Must include something that looks like a weather XX:XX(AM/PM)
@@ -166,7 +176,7 @@ class TestCommands(object):
 		for line in res:
 			print line
 			assert re.match(r""".+\. Currently: (?:-)?[0-9]{1,3}F/(?:-)?[0-9]{1,2}C, .+\.\W+[A-z]{3}: (?:-)?[0-9]{1,3}F/(?:-)?[0-9]{1,2}C, """, line)
-			
+
 	def test_boo(self):
 		"""
 		Test "boo foo"
@@ -188,7 +198,7 @@ class TestCommands(object):
 		assert res == "/me slaps %s around a bit with a large trout" % subject
 		post = pmxbot.util.karma.lookup(subject)
 		assert post == pre - 1
-		
+
 	def test_keelhaul(self):
 		"""
 		Test "keelhaul foo"
@@ -199,7 +209,7 @@ class TestCommands(object):
 		assert res == "/me straps %s to a dirty rope, tosses 'em overboard and pulls with great speed. Yarrr!" % subject
 		post = pmxbot.util.karma.lookup(subject)
 		assert post == pre - 1
-		
+
 	def test_motivate(self):
 		"""
 		Test that motivate actually works.
@@ -210,8 +220,8 @@ class TestCommands(object):
 		assert res == "you're doing good work, %s!" % subject
 		post = pmxbot.util.karma.lookup(subject)
 		assert post == pre + 1
-		
-		
+
+
 	def test_motivate_with_spaces(self):
 		"""
 		Test that motivate strips beginning and ending whitespace
@@ -244,7 +254,7 @@ class TestCommands(object):
 		assert res == """you're "doing" "good" "work", %s!""" % subject
 		post = pmxbot.util.karma.lookup(subject)
 		assert post == pre - 1
-		
+
 	def test_add_quote(self):
 		"""
 		Try adding a quote
@@ -269,10 +279,10 @@ class TestCommands(object):
 		cursor.execute("select count(*) from quotes where library = 'pmx' and quote = ?", (quote,))
 		numquotes = cursor.fetchone()[0]
 		assert numquotes == 1
-		
+
 		res = pmxbot.quote(c, e, "#test", "testrunner", id)
 		assert res == "(1/1): %s" % quote
-		
+
 	def test_roll(self):
 		"""
 		Roll a die, both with no arguments and with some numbers
@@ -280,30 +290,33 @@ class TestCommands(object):
 		res = int(pmxbot.roll(c, e, "#test", "testrunner", "").split()[-1])
 		assert res >= 0 and res <= 100
 		n = 6668
-		
+
 		res = int(pmxbot.roll(c, e, "#test", "testrunner", "%s" % n).split()[-1])
 		assert res >= 0 and res <= n
-		
+
+	@pytest.has_internet
 	def test_ticker_goog(self):
 		"""
 		Get the current stock price of Google.
-		
+
 		GOOG at 4:00pm (ET): 484.81 (1.5%)
 		"""
 		res = pmxbot.ticker(c, e, "#test", "testrunner", "goog")
 		print res
 		assert re.match(r"""^GOOG at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{2,4}.\d{1,4} \(\-?\d{1,3}.\d%\)$""", res), res
-		
+
+	@pytest.has_internet
 	def test_ticker_yougov(self):
 		"""
 		Get the current stock price of YouGov.
-		
+
 		YOU.L at 10:37am (ET): 39.40 (0.4%)
 		"""
 		res = pmxbot.ticker(c, e, "#test", "testrunner", "you.l")
 		print res
 		assert re.match(r"""^YOU.L at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{1,4}.\d{2,3} \(\-?\d{1,3}.\d%\)$""", res), res
-		
+
+	@pytest.has_internet
 	def test_ticker_nasdaq(self):
 		"""
 		Get the current stock price of the NASDAQ.
@@ -313,7 +326,7 @@ class TestCommands(object):
 		res = pmxbot.ticker(c, e, "#test", "testrunner", "^ixic")
 		print res
 		assert re.match(r"""^\^IXIC at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{4,5}.\d{2} \(\-?\d{1,3}.\d%\)$""", res), res
-		
+
 	def test_pick_or(self):
 		"""
 		Test the pick command with a simple or expression
@@ -321,7 +334,7 @@ class TestCommands(object):
 		res = pmxbot.pick(c, e, "#test", "testrunner", "fire or acid")
 		assert logical_xor("fire" in res, "acid" in res)
 		assert " or " not in res
-		
+
 	def test_pick_or_intro(self):
 		"""
 		Test the pick command with an intro and a simple "or" expression
@@ -336,7 +349,7 @@ class TestCommands(object):
 		"""
 		res = pmxbot.pick(c, e, "#test", "testrunner", "fire, acid")
 		assert logical_xor("fire" in res, "acid" in res)
-		
+
 	def test_pick_comma_intro(self):
 		"""
 		Test the pick command with an intro followed by two options separted by commas
@@ -344,7 +357,7 @@ class TestCommands(object):
 		res = pmxbot.pick(c, e, "#test", "testrunner", "how would you like to die, pmxbot: fire, acid")
 		assert logical_xor("fire" in res, "acid" in res)
 		assert "die" not in res and "pmxbot" not in res
-		
+
 	def test_pick_comma_or_intro(self):
 		"""
 		Test the pick command with an intro followed by options with commands and ors
@@ -359,7 +372,7 @@ class TestCommands(object):
 		"""
 		res = pmxbot.lunch(c, e, "#test", "testrunner", "PA")
 		assert res in ["Pasta?", "Thaiphoon", "Pluto's", "Penninsula Creamery", "Kan Zeman"]
-	
+
 	def test_karma_check_self_blank(self):
 		"""
 		Determine your own, blank, karma.
@@ -367,7 +380,7 @@ class TestCommands(object):
 		id = str(uuid.uuid4())[:15]
 		res = pmxbot.karma(c, e, "#test", id, "")
 		assert re.match(r"^%s has 0 karmas$" % id, res)
-	
+
 	def test_karma_check_other_blank(self):
 		"""
 		Determine some else's blank/new karma.
@@ -375,7 +388,7 @@ class TestCommands(object):
 		id = str(uuid.uuid4())
 		res = pmxbot.karma(c, e, "#test", "testrunner", id)
 		assert re.match("^%s has 0 karmas$" % id, res)
-	
+
 	def test_karma_set_and_check(self):
 		"""
 		Take a new entity, give it some karma, check that it has more
@@ -389,8 +402,8 @@ class TestCommands(object):
 		res = pmxbot.karma(c, e, "#test", "testrunner", "%s--" %id)
 		res = pmxbot.karma(c, e, "#test", "testrunner", id)
 		assert re.match(r"^%s has 2 karmas$" % id, res)
-		
-		
+
+
 	def test_karma_set_and_check_with_space(self):
 		"""
 		Take a new entity that has a space in it's name, give it some karma, check that it has more
@@ -404,7 +417,7 @@ class TestCommands(object):
 		res = pmxbot.karma(c, e, "#test", "testrunner", "%s--" %id)
 		res = pmxbot.karma(c, e, "#test", "testrunner", id)
 		assert re.match(r"^%s has 2 karmas$" % id, res)
-	
+
 	def test_karma_randomchange(self):
 		"""
 		Take a new entity that has a space in it's name, give it some karma, check that it has more
@@ -444,7 +457,7 @@ class TestCommands(object):
 		res = pmxbot.calc(c, e, "#test", "testrunner", "2+2")
 		print res
 		assert res == "4"
-		
+
 	def test_calc_complex(self):
 		"""
 		Test the built-in python calculator with a more complicated formula
@@ -453,7 +466,8 @@ class TestCommands(object):
 		res = pmxbot.calc(c, e, "#test", "testrunner", "((((781**2)*5)/92835.3)+4)**0.5")
 		print res
 		assert res.startswith("6.070566")
-		
+
+	@pytest.has_internet
 	def test_define_keyboard(self):
 		"""
 		Test the wikipedia dictionary with the word keyboard.
@@ -462,6 +476,7 @@ class TestCommands(object):
 		assert isinstance(res, unicode)
 		assert res == "Wikipedia says: Enter (data) by means of a keyboard."
 
+	@pytest.has_internet
 	def test_define_irc(self):
 		"""
 		Test the wikipedia dictionary with the word IRC.
@@ -470,6 +485,7 @@ class TestCommands(object):
 		assert isinstance(res, unicode)
 		assert res == ("Wikipedia says: Internet Relay Chat (IRC) is a form of real-time Internet text messaging (chat) or synchronous conferencing. ....  ")
 
+	@pytest.has_internet
 	def test_urb_irc(self):
 		"""
 		Test the urban dictionary with the word IRC.
@@ -477,6 +493,7 @@ class TestCommands(object):
 		res = pmxbot.urbandefit(c, e, "#test", "testrunner", "irc")
 		assert res == "Urban Dictionary says IRC: Abbreviation for Internet Relay Chat. A multiplayer notepad."
 
+	@pytest.has_internet
 	def test_acronym_irc(self):
 		"""
 		Test acronym finder with the word IRC.
@@ -484,7 +501,7 @@ class TestCommands(object):
 		res = pmxbot.acit(c, e, "#test", "testrunner", "irc")
 		assert "Internet Relay Chat" in res
 		assert "|" in res
-		
+
 	def test_progress(self):
 		"""
 		Test the progress bar
@@ -501,6 +518,7 @@ class TestCommands(object):
 		print res
 		assert res != ""
 
+	@pytest.has_internet
 	def test_paste_newuser(self):
 		"""
 		Test the pastebin with an unknown user
@@ -510,11 +528,12 @@ class TestCommands(object):
 		print res
 		assert res == "hmm.. I didn't find a recent paste of yours, %s. Checkout http://a.libpa.st/" % person
 
+	@pytest.has_internet
 	def test_paste_real_user(self):
 		"""
 		Test the pastebin with a valid user with an existing paste
 		"""
-		person = 'vbSptH3ByfQQ6h' 
+		person = 'vbSptH3ByfQQ6h'
 		res = pmxbot.paste(c, e, '#test', person, '')
 		assert res == "http://a.libpa.st/40a4345a-4e4b-40d8-ad06-c0a22a26b282"
 
@@ -535,6 +554,7 @@ class TestCommands(object):
 		print res
 		assert res == "Quiet bitching is useless, foo'. Do something about it."
 
+	@pytest.has_internet
 	def test_translate(self):
 		"""
 		The translate function should be able to translate a simple string.
@@ -547,5 +567,6 @@ class TestCommands(object):
 		invalid_query = 'sp|en que no desea la nueva pregunta'
 		res = pmxbot.translate(c, e, '#test', 'testrunner', query)
 
+	@pytest.has_internet
 	def test_excuse(self):
 		pmxbot.excuse(c, e, '#test', 'testrunner', '')
