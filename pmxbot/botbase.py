@@ -16,8 +16,8 @@ from .rss import FeedparserSupport
 LOGWARN_EVERY = 60 # seconds
 LOGWARN_MESSAGE = \
 '''PRIVACY INFORMATION: LOGGING IS ENABLED!!
-  
-The following channels are logged are being logged to provide a 
+
+The following channels are logged are being logged to provide a
 convenient, searchable archive of conversation histories:
 %s
 '''
@@ -94,7 +94,7 @@ class LoggingCommandBot(FeedparserSupport, ircbot.SingleServerIRCBot):
 			msg = LOGWARN_MESSAGE % (', '.join([chan for chan in sorted(self._channels) if chan not in self._nolog]))
 			for line in msg.splitlines():
 				c.notice(nick, line)
-	
+
 	def on_pubmsg(self, c, e):
 		msg = (''.join(e.arguments())).decode('utf8', 'ignore')
 		nick = e.source().split('!', 1)[0]
@@ -103,8 +103,8 @@ class LoggingCommandBot(FeedparserSupport, ircbot.SingleServerIRCBot):
 			if channel not in self._nolog:
 				logger.message(channel, nick, msg)
 			self.handle_action(c, e, channel, nick, msg)
-			
-	
+
+
 	def on_privmsg(self, c, e):
 		msg = (''.join(e.arguments())).decode('utf8', 'ignore')
 		nick = e.source().split('!', 1)[0]
@@ -123,7 +123,7 @@ class LoggingCommandBot(FeedparserSupport, ircbot.SingleServerIRCBot):
 		c.join(channel)
 		time.sleep(1)
 		c.privmsg(channel, "You summoned me, master %s?" % nick)
-		
+
 	def background_runner(self, c, channel, func, args, howlong, when, repeat):
 		"""
 		Wrapper to run scheduled type tasks cleanly.
@@ -156,10 +156,8 @@ class LoggingCommandBot(FeedparserSupport, ircbot.SingleServerIRCBot):
 		secret = False
 		for typ, name, f, doc, channels, exclude, rate, priority in _handler_registry:
 			if typ in ('command', 'alias') and lc_cmd == '!%s' % name:
-				if ' ' in msg:
-					msg = msg.split(' ', 1)[-1].lstrip()
-				else:
-					msg = ''
+				# grab everything after the command
+				msg = msg.partition(' ')[2].lstrip()
 				try:
 					res = f(c, e, channel, nick, msg)
 				except Exception, e:
@@ -221,14 +219,14 @@ def command(name, aliases=[], doc=None):
 		_handler_registry.sort(key=lambda x: (_handler_sort_order[x[0]], 0-x[7], 0-len(x[1])))
 		return func
 	return deco
-	
+
 def execdelay(name, channel, howlong, args=[], doc=None, repeat=False):
 	def deco(func):
 		_delay_registry.append((name.lower(), channel, howlong, func, args, doc, repeat))
 		return func
 	return deco
-	
-	
+
+
 def execat(name, channel, when, args=[], doc=None):
 	def deco(func):
 		if type(when) not in (datetime.date, datetime.datetime, datetime.time):
