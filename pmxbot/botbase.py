@@ -175,9 +175,11 @@ class LoggingCommandBot(FeedparserSupport, ircbot.SingleServerIRCBot):
 				msg = msg.partition(' ')[2].lstrip()
 				try:
 					res = f(c, e, channel, nick, msg)
-				except Exception, e:
-					res = "DO NOT TRY TO BREAK PMXBOT!!!"
-					res += '\n%s' % e
+				except Exception, exc:
+					explitives = ['Yikes!', 'Zoiks!', 'Ouch!']
+					explitive = random.choice(explitives)
+					res = ["{explitive} An error occurred: {exc}".format(**vars())]
+					res.append('!{name} {doc}'.format(**vars()))
 					print datetime.datetime.now(), "Error with command %s" % name
 					traceback.print_exc()
 				break
