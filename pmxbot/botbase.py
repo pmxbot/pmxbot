@@ -6,6 +6,7 @@ import os
 import traceback
 import time
 import random
+import StringIO
 
 import ircbot
 
@@ -24,7 +25,22 @@ convenient, searchable archive of conversation histories:
 warn_history = {}
 logger = None
 
-class NoLog(object): pass
+class NoLog(object):
+	@classmethod
+	def secret_items(cls, items):
+		"""
+		Iterate over the items, and yield each item with an indicator of
+		whether it should be secret or not.
+
+		>>> tuple(NoLog.secret_items(['a', 'b', NoLog, 'c']))
+		((False, 'a'), (False, 'b'), (True, 'c'))
+		"""
+		secret = False
+		for item in items:
+			if item is cls:
+				secret = True
+				continue
+			yield secret, item
 
 class LoggingCommandBot(FeedparserSupport, ircbot.SingleServerIRCBot):
 	def __init__(self, db_uri, server, port, nickname, channels, nolog_channels=None, feed_interval=60, feeds=[]):
@@ -153,7 +169,6 @@ class LoggingCommandBot(FeedparserSupport, ircbot.SingleServerIRCBot):
 		lc_msg = msg.lower()
 		lc_cmd = msg.split()[0]
 		res = None
-		secret = False
 		for typ, name, f, doc, channels, exclude, rate, priority in _handler_registry:
 			if typ in ('command', 'alias') and lc_cmd == '!%s' % name:
 				# grab everything after the command
@@ -181,15 +196,15 @@ class LoggingCommandBot(FeedparserSupport, ircbot.SingleServerIRCBot):
 							print datetime.datetime.now(), "Error with contains  %s" % name
 							traceback.print_exc()
 						break
-		if res:
-			if isinstance(res, basestring):
-				self.out(channel, res)
-			else:
-				for item in res:
-					if item == NoLog:
-						secret = True
-					else:
-						self.out(channel, item, not secret)
+		if not res:
+			return
+
+		if isinstance(res, basestring):
+			# turn the string into an iterable of lines
+			res = StringIO.StringIO(res)
+
+		for secret, item in NoLog.secret_items(res):
+			self.out(channel, item, not secret)
 
 
 _handler_registry = []
