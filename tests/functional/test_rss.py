@@ -16,3 +16,4 @@ class TestPmxbotLog(PmxbotHarness):
 		"""
 		time.sleep(99)
 		assert self.bot.poll() is None, "Bot is no longer running"
+		# TODO: check DB to see it has some entries
