@@ -43,7 +43,7 @@ class PmxbotHarness(object):
 			#  the console entry point, which can't be properly
 			#  .terminate()d on Windows.
 			cls.bot = subprocess.Popen([sys.executable, '-c',
-				'from pmxbot.pmxbot import run; run()', configfile])
+				'from pmxbot.pmxbot import run; run()', configfile],)
 		except OSError:
 			py.test.skip("Unable to launch pmxbot (pmxbot must be installed)")
 		time.sleep(2)
@@ -71,7 +71,7 @@ class PmxbotHarness(object):
 		if hasattr(cls, 'bot'):
 			cls.bot.terminate()
 			cls.bot.wait()
-		if hasattr(cls, 'server'):
+		if hasattr(cls, 'server') and cls.server.poll() == None:
 			cls.server.terminate()
 			cls.server.wait()
 		if hasattr(cls, 'db'):
