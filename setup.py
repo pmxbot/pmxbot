@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
 	name="pmxbot",
-	version="1005",
+	version="1100b1",
 	packages=["pmxbot", "pmxbotweb", "pmxbot.popquotes"],
 	package_data={
 		'pmxbot' : ["popquotes.sqlite",],
