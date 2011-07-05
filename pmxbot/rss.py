@@ -84,7 +84,7 @@ class FeedparserSupport(object):
 		issues with accessing sqlite from multiple threads
 		"""
 		try:
-			db = init_feedparser_db(self._repo)
+			db = init_feedparser_db(self.db_uri)
 			db.add_entries(entries)
 		except Exception, e:
 			print datetime.datetime.now(), "Oh crap, couldn't add_feed_entries"
