@@ -58,7 +58,7 @@ def googletime(client, event, channel, nick, rest):
 			query = 'time ' + place
 		else:
 			query = place
-		timere = re.compile('<td style="font-size:medium"><b>(.+?)</b></table>')
+		timere = re.compile(r'<b>\s*(\d+:\d{2}.+?)\s*</b>')
 		html = get_html('http://www.google.com/search?%s' % urllib.urlencode({'q' : query.encode('utf-8')}))
 		try:
 			t = plaintext(timere.search(html).group(1))
@@ -120,7 +120,7 @@ def boo(client, event, channel, nick, rest):
 	slapee = rest
 	util.karma.change(slapee, -1)
 	return "/me BOOO %s!!! BOOO!!!" % slapee
-		
+
 @command("troutslap", aliases=("slap", "ts"), doc="Slap some(one|thing) with a fish")
 def troutslap(client, event, channel, nick, rest):
 	slapee = rest
@@ -170,7 +170,7 @@ def panic(client, event, channel, nick, rest):
 	yield 'O-<-<'
 	yield 'O->-<'
 	yield 'AAAAAAAHHHH!!!  HEAD FOR THE HILLS!'
-	
+
 @command("duck", aliases=("ducky",), doc="Display a helpful duck")
 def duck(client, event, channel, nick, rest):
 	yield '__("<'
@@ -229,7 +229,7 @@ def hire(client, event, channel, nick, rest):
 @command('strategy', doc='Social Media Strategy, courtsey of http://whatthefuckismysocialmediastrategy.com/')
 def strategy(client, event, channel, nick, rest):
 	return random.choice(socialstrategies)
-	
+
 
 @command('oregontrail', aliases=('otrail',), doc='It\'s edutainment!')
 def oregontrail(client, event, channel, nick, rest):
@@ -285,7 +285,7 @@ def imotivate(client, event, channel, nick, rest):
 	else:
 		r = channel
 	return '''you're "doing" "good" "work", %s!''' % r
-	
+
 @command("nailedit", aliases=("nail", "n"), doc="Nail that interview")
 def nailedit(client, event, channel, nick, rest):
 	random.shuffle(interview_excuses)
@@ -319,7 +319,7 @@ def roll(client, event, channel, nick, rest):
 		die = 100
 	myroll = random.randint(1, die)
 	return "%s rolls %s" % (nick, myroll)
-		
+
 @command("flip", aliases=(), doc="Flip a coin")
 def flip(client, event, channel, nick, rest):
 	myflip = random.choice(('Heads', 'Tails'))
@@ -335,12 +335,12 @@ def ticker(client, event, channel, nick, rest):
 	ticker = rest.upper()
 	# let's use Yahoo's nifty csv facility, and pull last time/price both
 	stockInfo = csv.reader(urllib.urlopen('http://finance.yahoo.com/d/quotes.csv?s=%s&f=sl' % ticker))
-	lastTrade = stockInfo.next() 
+	lastTrade = stockInfo.next()
 	if lastTrade[2] == 'N/A':
 		return "d'oh... could not find information for symbol %s" % ticker
 	else:
 		change = str(round((float(lastTrade[4]) / (float(lastTrade[1]) - float(lastTrade[4]))) * 100, 1))
-		return '%s at %s (ET): %s (%s%%)' % (ticker, lastTrade[3], lastTrade[1], change) 
+		return '%s at %s (ET): %s (%s%%)' % (ticker, lastTrade[3], lastTrade[1], change)
 
 @command("pick", aliases=("p", 'p:', "pick:"), doc="Pick between a few options")
 def pick(client, event, channel, nick, rest):
@@ -407,14 +407,14 @@ def compliment(client, event, channel, nick, rest):
 			compliment = re.compile(r'\b(you are)\b', re.IGNORECASE).sub('%s is' % complimentee, compliment)
 			compliment = re.compile(r'\b(you have)\b', re.IGNORECASE).sub('%s has' % complimentee, compliment)
 		return compliment
- 
+
 
 @command("karma", aliases=("k",), doc="Return or change the karma value for some(one|thing)")
 def karma(client, event, channel, nick, rest):
 	karmee = rest.strip('++').strip('--').strip('~~')
-	if '++' in rest: 
+	if '++' in rest:
 		util.karma.change(karmee, 1)
-	elif '--' in rest: 
+	elif '--' in rest:
 		util.karma.change(karmee, -1)
 	elif '~~' in rest:
 		change = random.choice([-1, 0, 1])
@@ -466,7 +466,7 @@ def excuse(client, event, channel, nick, rest):
 		url = 'http://www.dowski.com/excuses/new'
 	excuse = get_html(url)
 	return excuse
-	
+
 @command("gettowork", aliases=("gtw",), doc="You really ought to, ya know...")
 def gettowork(client, event, channel, nick, rest):
 	suggestions = [u"Um, might I suggest working now",
@@ -585,7 +585,7 @@ def blame(client, event, channel, nick, rest):
 	else:
 		yield "I blame %s for everything!  it's your fault!  it's all your fault!!" % blamee
 		yield "/me cries and weeps in despair"
-		
+
 @command("paste", aliases=(), doc="Drop a link to your latest paste")
 def paste(client, event, channel, nick, rest):
 	req = urllib.urlopen("%slast/%s" % (config.librarypaste, nick))
@@ -598,7 +598,7 @@ def paste(client, event, channel, nick, rest):
 def rand_bot(client, event, channel, nick, rest):
 	normal_functions = [featurecreep, insult, motivate, compliment, cheer,
 		golfclap, excuse, nastygram, curse, bless, job, hire, oregontrail,
-		chain, tinytear, blame, panic, rubberstamp, dance, annoy, klingon, 
+		chain, tinytear, blame, panic, rubberstamp, dance, annoy, klingon,
 		storytime, murphy]
 	quote_functions = [quote, zoidberg, simpsons, bender, hal, grail, R, anchorman, hangover]
 	ftype = random.choice('n'*len(normal_functions) + 'q'*len(quote_functions))
@@ -609,7 +609,7 @@ def rand_bot(client, event, channel, nick, rest):
 		func = random.choice(quote_functions)
 		res = func(client, event, channel, 'pmxbot', '')
 	return res
-		
+
 @contains("sqlonrails")
 def yay_sor(client, event, channel, nick, rest):
 	util.karma.change('sql on rails', 1)
@@ -688,7 +688,7 @@ def progress(client, event, channel, nick, rest):
 		left, right, amount = [piece.strip() for piece in rest.split('|')]
 		ticks = min(int(round(float(amount) / 10)), 10)
 		bar = "=" * ticks
-		return "%s [%-10s] %s" % (left, bar, right) 
+		return "%s [%-10s] %s" % (left, bar, right)
 
 @command("nastygram", aliases=('nerf', 'passive', 'bcc'), doc="A random passive-agressive comment, optionally directed toward some(one|thing).")
 def nastygram(client, event, channel, nick, rest):
@@ -825,7 +825,7 @@ global config
 def run(configFile=None, configDict=None, configInput=None, start=True):
 	global config
 	import sys, yaml
-	class O(object): 
+	class O(object):
 		def __init__(self, d):
 			for k, v in d.iteritems():
 				setattr(self, k, v)
@@ -859,7 +859,7 @@ def run(configFile=None, configDict=None, configInput=None, start=True):
 
 	_load_library_extensions()
 
-	bot = LoggingCommandBot(config.database, config.server_host, config.server_port, 
+	bot = LoggingCommandBot(config.database, config.server_host, config.server_port,
 		config.bot_nickname, config.log_channels, config.other_channels,
 		config.feed_interval*60, config.feeds)
 	if start:

@@ -104,6 +104,8 @@ class TestCommands(object):
 		print res
 		assert re.match(r"""12 Czech(?: Republic)? [Kk]orun(?:a|y)s? = \d\.\d+ [Ee]uros?""", res)
 
+	time_pattern = re.compile(r'^[0-9]{1,2}:[0-9]{2}(?:am|pm)')
+
 	@pytest.has_internet
 	def test_time_one(self):
 		"""
@@ -115,7 +117,7 @@ class TestCommands(object):
 		for line in res:
 			print line
 			i += 1
-			assert re.match(r"""^[0-9]{1,2}:[0-9]{2}(?:am|pm) """, line)
+			assert self.time_pattern.match(line)
 		assert i == 1
 
 	@pytest.has_internet
@@ -130,7 +132,7 @@ class TestCommands(object):
 		for line in res:
 			print line
 			i += 1
-			assert re.match(r"""^[0-9]{1,2}:[0-9]{2}(?:am|pm) """, line)
+			assert self.time_pattern.match(line)
 		assert i == 3
 
 	@pytest.has_internet
@@ -145,7 +147,7 @@ class TestCommands(object):
 		for line in res:
 			print line
 			i += 1
-			assert re.match(r"""^[0-9]{1,2}:[0-9]{2}(?:am|pm) """, line)
+			assert self.time_pattern.match(line)
 		assert i == 4
 
 	def test_weather_one(self):
