@@ -1,7 +1,7 @@
 server_host: "localhost"
 server_port: 6668
 bot_nickname: integrationbot
-log_channels: 
+log_channels:
     - "#logged"
 other_channels:
     - "#inane"
@@ -15,5 +15,5 @@ feeds:
     - name    : "pmxbot bitbucket"
       channel : "#inane"
       linkurl : "http://bitbucket.org/yougov/pmxbot"
-      url     : "http://bitbucket.org/yougov/pmxbot"
+      url     : "https://bitbucket.org/yougov/pmxbot/rss?token=bf235a4ede35fcd8af179bdeb511ff0a"
 local_extensions: []
