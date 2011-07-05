@@ -140,22 +140,23 @@ class LoggingCommandBot(FeedparserSupport, ircbot.SingleServerIRCBot):
 		time.sleep(1)
 		c.privmsg(channel, "You summoned me, master %s?" % nick)
 
+	def _handle_output(self, channel, output):
+		if not output:
+			return
+
+		if isinstance(output, basestring):
+			# turn the string into an iterable of lines
+			output = StringIO.StringIO(output)
+
+		for secret, item in NoLog.secret_items(output):
+			self.out(channel, item, not secret)
+
 	def background_runner(self, c, channel, func, args, howlong, when, repeat):
 		"""
 		Wrapper to run scheduled type tasks cleanly.
 		"""
 		try:
-			secret = False
-			res = func(c, None, *args)
-			if res:
-				if isinstance(res, basestring):
-					self.out(channel, res)
-				else:
-					for item in res:
-						if item == NoLog:
-							secret = True
-						else:
-							self.out(channel, item, not secret)
+			self._handle_output(channel, func(c, None, *args))
 		except:
 			print datetime.datetime.now(), "Error in bacakground runner for ", func
 			traceback.print_exc()
@@ -198,15 +199,7 @@ class LoggingCommandBot(FeedparserSupport, ircbot.SingleServerIRCBot):
 							print datetime.datetime.now(), "Error with contains  %s" % name
 							traceback.print_exc()
 						break
-		if not res:
-			return
-
-		if isinstance(res, basestring):
-			# turn the string into an iterable of lines
-			res = StringIO.StringIO(res)
-
-		for secret, item in NoLog.secret_items(res):
-			self.out(channel, item, not secret)
+		self._handle_output(channel, res)
 
 
 _handler_registry = []
