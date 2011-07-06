@@ -9,7 +9,7 @@ import httplib2
 
 from . import storage
 
-ball8_opts = { 
+ball8_opts = {
 "Signs point to yes." : 21,
 "Yes." : 21,
 "Most likely." : 21,
@@ -93,7 +93,7 @@ weapon_opts = [
 'pipe',
 'bat',
 'stickbat',
-'wooden pallet', 
+'wooden pallet',
 ]
 
 weapon_adjs = [
@@ -308,11 +308,11 @@ def splitem(s):
 		question, choices = s.rsplit(':', 1)
 	else:
 		choices = s
-	
+
 	c = choices.split(',')
 	if ' or ' in c[-1]:
 		c = c[:-1] + c[-1].split(' or ')
-	
+
 	c = [x.strip() for x in c]
 	c = filter(None, c)
 	return c
@@ -340,7 +340,7 @@ class SQLiteKarma(Karma, storage.SQLiteStorage):
 		thing = thing.strip().lower()
 		LOOKUP_SQL = 'SELECT karmavalue from karma_keys k join karma_values v on k.karmaid = v.karmaid where k.karmakey = ?'
 		try:
-			karma = self.db.execute(LOOKUP_SQL, [thing]).fetchone()[0] 
+			karma = self.db.execute(LOOKUP_SQL, [thing]).fetchone()[0]
 		except:
 			karma = 0
 		if karma == None:
@@ -498,7 +498,7 @@ def init_karma(uri):
 	)
 
 # for backward compatibility:
-def karmaChange(*args, **kwargs):
+def karmaChange(db, *args, **kwargs):
 	return karma.change(*args, **kwargs)
 
 def init_quotes(uri):
@@ -636,7 +636,7 @@ class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 				for rec in log_db.find(fields=[])
 			)
 		return logging.Logger.log_id_map
-		
+
 
 	def import_(self, quote):
 		log_id_map = self._build_log_id_map()
@@ -660,7 +660,7 @@ urbd_exp = re.compile(r"""<td class=['"]word['"]>(.+?)^</td>$(?:.+?)<div class=[
 def strip_tags(string):
 	"""
 	Remove HTML tags from a string.
-	
+
 	>>> strip_tags('<div>foo and <b>bar</b></div>')
 	'foo and bar'
 	"""
@@ -714,7 +714,7 @@ def lookup_acronym(acronym):
 		ans = html[idx+4:edx]
 		ans = html_strip.sub('', ans)
 		all.append(ans)
-		
+
 	return all
 
 # passive-aggresive statement generator
