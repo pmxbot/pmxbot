@@ -12,6 +12,7 @@ from jinja2 import Environment, FileSystemLoader
 from cgi import escape
 
 from pmxbot.logging import init_logger
+import pmxbot.util
 
 BASE = os.path.abspath(os.path.dirname(__file__))
 jenv = Environment(loader=FileSystemLoader(os.path.join(BASE, 'templates'), encoding='utf-8'))
@@ -52,7 +53,7 @@ def pmon(month):
 
 def pday(dayfmt):
 	year, month, day = map(int, dayfmt.split('-'))
-	return '%s the %s' % (calendar.day_name[calendar.weekday(year, month, day)], 
+	return '%s the %s' % (calendar.day_name[calendar.weekday(year, month, day)],
 	th_it(day))
 
 rev_month = {}
@@ -70,7 +71,7 @@ def log_db():
 class ChannelPage(object):
 	def default(self, channel):
 		page = jenv.get_template('channel.html')
-		
+
 		db = log_db()
 		context = get_context()
 		contents = db.get_channel_days(channel)
@@ -111,6 +112,8 @@ class DayPage(object):
 
 def karma_comma(karma_results):
 	"""
+	(say that 5 times fast)
+
 	Take the results of a karma query (keys, value) and return the same
 	result with the keys joined by commas.
 	"""
@@ -123,7 +126,7 @@ class KarmaPage(object):
 	def default(self, term=""):
 		page = jenv.get_template('karma.html')
 		context = get_context()
-		karma = util.get_karma_from_uri(
+		karma = pmxbot.util.Karma.from_URI(
 			cherrypy.request.app.config['botconf']['config'].database
 		)
 		term = term.strip()
@@ -147,7 +150,7 @@ class SearchPage(object):
 		# a hack to enable the database to create anchors when building search
 		#  results
 		db.make_anchor = make_anchor
-	
+
 		if not term:
 			raise cherrypy.HTTPRedirect(cherrypy.request.base)
 		terms = term.strip().split()
@@ -157,12 +160,12 @@ class SearchPage(object):
 		context['term'] = term
 		return page.render(**context).encode('utf-8')
 	default.exposed = True
-		
-	
+
+
 class HelpPage(object):
 	def __init__(self):
 		self.run = False
-		
+
 	def default(self):
 		page = jenv.get_template('help.html')
 		context = get_context()
@@ -182,7 +185,7 @@ class HelpPage(object):
 		context['contains'] = self.contains
 		return page.render(**context).encode('utf-8')
 	default.exposed = True
-	
+
 
 class PmxbotPages(object):
 	channel = ChannelPage()
@@ -190,7 +193,7 @@ class PmxbotPages(object):
 	karma = KarmaPage()
 	search = SearchPage()
 	help = HelpPage()
-	
+
 	def default(self):
 		page = jenv.get_template('index.html')
 		db = log_db()
