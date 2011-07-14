@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import time
 import uuid
@@ -36,6 +37,15 @@ class TestPmxbotLog(PmxbotHarness):
 		msg = 'Logged msg number 2 from test_logged_channel_again. %s' % id
 		self.client.send_message('#logged', msg)
 		assert self.check_logs(channel="#logged", message=msg)
+
+	def test_logged_channel_international(self):
+		"""
+		Test that international characters get logged properly.
+		"""
+		id = str(uuid.uuid4())
+		msg = 'Я предпочитаю круассаны с рыбой. %(id)s' % vars()
+		self.client.send_message('#logged', msg)
+		assert self.check_logs(channel='#logged', message=msg)
 
 	def test_strike_1(self):
 		"""
