@@ -26,3 +26,8 @@ def pytest_namespace():
 def pytest_configure(config):
 	open_google = functools.partial(urllib2.urlopen, 'http://www.google.com')
 	config.has_internet = not throws_exception(open_google, [Exception, urllib2.URLError])
+	# we need to test httplib2 also, because pmxbot uses httplib2 and
+	#  httplib2 doesn't handle proxies well.
+	http = httplib2.Http(timeout=2)
+	open_google = functools.partial(http.request, 'http://www.google.com')
+	config.has_internet &= not throws_exception(open_google, [Exception])
