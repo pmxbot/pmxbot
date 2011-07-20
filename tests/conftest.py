@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import urllib2
+import httplib2
 import functools
 
 import pytest
