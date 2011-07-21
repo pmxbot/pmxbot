@@ -44,8 +44,7 @@ class TestPmxbotLog(PmxbotHarness):
 		"""
 		id = str(uuid.uuid4())
 		msg = u'Я предпочитаю круассаны с рыбой. %(id)s' % vars()
-		msg = msg.encode('utf-8')
-		self.client.send_message('#logged', msg)
+		self.client.send_message('#logged', msg.encode('utf-8'))
 		assert self.check_logs(channel='#logged', message=msg)
 
 	def test_strike_1(self):
