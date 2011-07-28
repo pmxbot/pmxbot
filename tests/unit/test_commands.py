@@ -572,3 +572,7 @@ class TestCommands(object):
 	@pytest.has_internet
 	def test_excuse(self):
 		pmxbot.excuse(c, e, '#test', 'testrunner', '')
+
+	def test_popquotes(self):
+		res = pmxbot.popquotes.bender(c, e, '#test', 'testrunner', '')
+		assert len(res) > 5
