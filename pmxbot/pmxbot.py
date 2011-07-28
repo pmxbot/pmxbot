@@ -600,15 +600,11 @@ def rand_bot(client, event, channel, nick, rest):
 		golfclap, excuse, nastygram, curse, bless, job, hire, oregontrail,
 		chain, tinytear, blame, panic, rubberstamp, dance, annoy, klingon,
 		storytime, murphy]
-	quote_functions = [quote, zoidberg, simpsons, bender, hal, grail, R, anchorman, hangover]
-	ftype = random.choice('n'*len(normal_functions) + 'q'*len(quote_functions))
-	if ftype == 'n':
-		func = random.choice(normal_functions)
-		res = func(client, event, channel, 'pmxbot', nick)
-	elif ftype == 'q':
-		func = random.choice(quote_functions)
-		res = func(client, event, channel, 'pmxbot', '')
-	return res
+	quote_functions = [quote, zoidberg, simpsons, bender, hal, grail, R,
+		anchorman, hangover]
+	func = random.choice(normal_functions + quote_functions)
+	nick = nick if func in normal_functions else ''
+	return func(client, event, channel, 'pmxbot', nick)
 
 @contains("sqlonrails")
 def yay_sor(client, event, channel, nick, rest):
