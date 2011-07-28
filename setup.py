@@ -1,13 +1,10 @@
-from setuptools import setup
+from setuptools import find_packages
 
-setup(
+setup_params = dict(
 	name="pmxbot",
 	version="1100b6",
-	packages=["pmxbot", "pmxbotweb", "pmxbot.popquotes"],
-	package_data={
-		'pmxbot' : ["popquotes.sqlite",],
-		'pmxbotweb' : ["templates/*.html", "templates/pmxbot.png",],
-	},
+	packages=find_packages(),
+	include_package_data=True,
 	entry_points=dict(
 		console_scripts = [
 			'pmxbot=pmxbot.pmxbot:run',
@@ -43,4 +40,11 @@ setup(
 		'Topic :: Internet :: WWW/HTTP :: WSGI :: Application',
 	],
 	long_description = open('README').read(),
+	setup_requires=[
+		'hgtools',
+	],
 )
+
+if __name__ == '__main__':
+	from setuptools import setup
+	setup(**setup_params)
