@@ -3,23 +3,29 @@
 # c-basic-indent: 4; tab-width: 4; indent-tabs-mode: true;
 from __future__ import absolute_import
 
-from .botbase import command, contains, execdelay, execat, _handler_registry, NoLog, LoggingCommandBot
-from . import botbase
 import time
-import sys, re, urllib, random,  csv
+import sys
+import re
+import urllib
+import random
+import csv
 import logging
 from datetime import date, timedelta
-from .util import *
-from . import util
 from cStringIO import StringIO
 try:
-	import simplejson as json
+	import json
 except ImportError:
-	import json # one last try-- python 2.6+
+	import simplejson as json
+from xml.etree import ElementTree
+
+from .botbase import (command, contains, execdelay, execat,
+	_handler_registry, NoLog, LoggingCommandBot)
+from . import botbase
+from .util import *
+from . import util
 from . import saysomething as saysomethinglib
 from .cleanhtml import plaintext
 from . import popquotes
-from xml.etree import ElementTree
 
 log = logging.getLogger(__name__)
 
