@@ -2,7 +2,7 @@ from setuptools import find_packages
 
 setup_params = dict(
 	name="pmxbot",
-	version="1100b6",
+	version="1100b7",
 	packages=find_packages(),
 	include_package_data=True,
 	entry_points=dict(
