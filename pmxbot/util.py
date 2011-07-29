@@ -798,6 +798,9 @@ interview_excuses = [
 	'my VPN connectiond dropped, so I took the opportunity to grab some food.',
 	'sorry, I ran over a beer bottle on the way in and flatted',
 	'I exceeded my internet quota, so I needed to find another connection',
+	'I took the wrong bus this morning. Again.',
+	'I was held up by CalTrain delays',
+	'CalTrain decided to help our overpopulation problem this morning',
 ]
 
 def passagg(recipient='', sender=''):
