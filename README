@@ -1,4 +1,4 @@
--*- restructuredtext -*-
+.. -*- restructuredtext -*-
 
 ======
 pmxbot
@@ -13,7 +13,7 @@ https://bitbucket.org/yougov/pmxbot/wiki/Home
 Commands
 ========
 pmxbot listens to commands prefixed by a '!'
-If it's a command it knows it will reply, take an action, etc. 
+If it's a command it knows it will reply, take an action, etc.
 It can search the web, quote you, track karma, make decisions,
 and do just about anything else you could want. It logs text in a sqlite3
 database, and eventually we'll write a web interface to it.
@@ -55,7 +55,7 @@ Usage
 =====
 Once you've setup a config file, you just need to call ``pmxbot config.yaml``
 and it will join and connect. We recommend running pmxbot under djb's
-daemontools to make it automatically restart if it crashes. 
+daemontools to make it automatically restart if it crashes.
 
 
 Custom Features
