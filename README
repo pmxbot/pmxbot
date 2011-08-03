@@ -25,7 +25,8 @@ been told to recognize. For example, mention sql on rails.
 
 Requirements
 ============
-pmxbot requires python, of course. Probably 2.5+. It also requires a few python
+
+`pmxbot` requires Python 2.6 or 2.7. It also requires a few python
 packages:
 
 * python-irclib
@@ -33,18 +34,25 @@ packages:
 * json (standard library for 2.6+) or simplejson
 * feedparser
 * httplib2
-* sqlite3
 
 The web interface requires cherrypy and jinja2.
+
+If using the MongoDB backend, it requires pymongo (otherwise, sqlite will
+be used).
 
 Optionally nosetests for the test suite.
 
 Testing
 =======
-We have a basic nose test suite that does some functional tests with an
-included TCL IRC daemon, and some basic unit tests as well. Just run them from
-the pmxbot root directory with "nosetests" and it should do it all for you.
-You'll need TCL and nosetests to do it though.
+
+`pmxbot` includes a basic nose test suite that does some functional tests
+with an
+included TCL IRC daemon, and some basic unit tests as well. Just run them
+from
+the pmxbot root directory with "nosetests" (requires nose) or "py.test"
+(requires pytest) and it should do it all for you.
+
+You'll need TCL for the functional tests not to be skipped.
 
 Configuration
 =============
