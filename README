@@ -31,9 +31,9 @@ packages:
 
 * python-irclib
 * pyyaml
-* json (standard library for 2.6+) or simplejson
 * feedparser
 * httplib2
+* pytz
 
 The web interface requires cherrypy and jinja2.
 
