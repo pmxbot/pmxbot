@@ -13,7 +13,7 @@ setup_params = dict(
 	),
 	install_requires=[
 		"pyyaml",
-		"python-irclib",
+		"python-irclib>=0.4.8",
 		"httplib2",
 		"feedparser",
 		"pytz",

@@ -861,9 +861,13 @@ def run(configFile=None, configDict=None, configInput=None, start=True):
 
 	_load_library_extensions()
 
+	use_ssl = getattr(config, 'use_ssl', False)
+	password = getattr(config, 'password', None)
+
 	bot = LoggingCommandBot(config.database, config.server_host, config.server_port,
 		config.bot_nickname, config.log_channels, config.other_channels,
-		config.feed_interval*60, config.feeds)
+		config.feed_interval*60, config.feeds, use_ssl=use_ssl,
+		password=password)
 	if start:
 		bot.start()
 

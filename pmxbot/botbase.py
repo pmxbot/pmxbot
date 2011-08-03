@@ -43,8 +43,9 @@ class NoLog(object):
 			yield secret, item
 
 class LoggingCommandBot(FeedparserSupport, ircbot.SingleServerIRCBot):
-	def __init__(self, db_uri, server, port, nickname, channels, nolog_channels=None, feed_interval=60, feeds=[]):
-		ircbot.SingleServerIRCBot.__init__(self, [(server, port)], nickname, nickname)
+	def __init__(self, db_uri, server, port, nickname, channels, nolog_channels=None, feed_interval=60, feeds=[], use_ssl=False, password=None):
+		server_list = [(server, port, password)]
+		ircbot.SingleServerIRCBot.__init__(self, server_list, nickname, nickname)
 		FeedparserSupport.__init__(self, feed_interval, feeds)
 		nolog_channels = nolog_channels or []
 		self.nickname = nickname
@@ -59,6 +60,11 @@ class LoggingCommandBot(FeedparserSupport, ircbot.SingleServerIRCBot):
 		util.init_karma(db_uri)
 		util.init_quotes(db_uri)
 		self._nickname = nickname
+		self.__use_ssl = use_ssl
+
+	def connect(self, *args, **kwargs):
+		kwargs['ssl'] = self.__use_ssl
+		return ircbot.SingleServerIRCBot.connect(self, *args, **kwargs)
 
 	def out(self, channel, s, log=True):
 		if s.startswith('/me '):
