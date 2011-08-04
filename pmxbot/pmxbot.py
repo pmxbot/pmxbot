@@ -72,6 +72,12 @@ def googletime(client, event, channel, nick, rest):
 		except AttributeError:
 			continue
 
+def to_snowman(condition):
+	"""
+	Replace 'Snow' and 'Snow Showers' with a snowman (☃).
+	"""
+	return condition.replace('Snow Showers', u'☃').replace('Snow', u'☃')
+
 @command('weather', aliases=('w'), doc='Get weather for a place. All offices with "all", or a list of places separated by pipes.')
 def weather(client, event, channel, nick, rest):
 	rest = rest.strip()
@@ -90,13 +96,13 @@ def weather(client, event, channel, nick, rest):
 			tempf = wdata.find('weather/current_conditions/temp_f').get('data')
 			tempc = wdata.find('weather/current_conditions/temp_c').get('data')
 			conds = wdata.find('weather/current_conditions/condition').get('data')
-			conds = conds.replace('Snow Showers', u'\u2603').replace('Snow', u'\u2603')
+			conds = to_snowman(conds)
 			future_day = wdata.find('weather/forecast_conditions/day_of_week').get('data')
 			future_highf = wdata.find('weather/forecast_conditions/high').get('data')
 			future_highc = int((int(future_highf) - 32) / 1.8)
 			future_conds = wdata.find('weather/forecast_conditions/condition').get('data')
-			future_conds = future_conds.replace('Snow Showers', u'\u2603').replace('Snow', u'\u2603')
-			weather = u"%s. Currently: %sF/%sC, %s.    %s: %sF/%sC, %s" % (city, tempf, tempc, conds, future_day, future_highf, future_highc, future_conds)
+			future_conds = to_snowman(future_conds)
+			weather = u"%(city)s. Currently: %(tempf)sF/%(tempc)sC, %(conds)s.    %(future_day)s: %(future_highf)sF/%(future_highc)sC, %(future_conds)s" % vars()
 			yield weather
 		except IOError:
 			pass
