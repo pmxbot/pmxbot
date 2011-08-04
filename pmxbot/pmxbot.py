@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim:ts=4:sw=4:noexpandtab
 # c-basic-indent: 4; tab-width: 4; indent-tabs-mode: true;
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import time
 import sys
@@ -10,6 +10,7 @@ import urllib
 import random
 import csv
 import logging
+import functools
 from datetime import date, timedelta
 from cStringIO import StringIO
 try:
@@ -78,7 +79,46 @@ def to_snowman(condition):
 	"""
 	return condition.replace('Snow Showers', u'☃').replace('Snow', u'☃')
 
-@command('weather', aliases=('w'), doc='Get weather for a place. All offices with "all", or a list of places separated by pipes.')
+def weather_for(place):
+	"Retrieve the weather for a specific place using the iGoogle API"
+	url = "http://www.google.com/ig/api?" + urllib.urlencode({'weather' : place.encode('utf-8')})
+	parser = ElementTree.XMLParser()
+	wdata = ElementTree.parse(urllib.urlopen(url), parser=parser)
+	city = wdata.find('weather/forecast_information/city').get('data')
+	tempf = wdata.find('weather/current_conditions/temp_f').get('data')
+	tempc = wdata.find('weather/current_conditions/temp_c').get('data')
+	conds = wdata.find('weather/current_conditions/condition').get('data')
+	conds = to_snowman(conds)
+	future_day = wdata.find('weather/forecast_conditions/day_of_week').get('data')
+	future_highf = wdata.find('weather/forecast_conditions/high').get('data')
+	future_highc = int((int(future_highf) - 32) / 1.8)
+	future_conds = wdata.find('weather/forecast_conditions/condition').get('data')
+	future_conds = to_snowman(future_conds)
+	fmt = '    '.join((
+		u"%(city)s. Currently: %(tempf)sF/%(tempc)sC, %(conds)s.",
+		u"%(future_day)s: %(future_highf)sF/%(future_highc)sC, %(future_conds)s",
+	))
+	weather = fmt % vars()
+	return weather
+
+def suppress_exceptions(callables, exceptions=Exception):
+	"""
+	Suppress supplied exceptions (tuple or single exception)
+	encountered when a callable is invoked.
+	>>> five_over_n = lambda n: 5//n
+	>>> callables = (functools.partial(five_over_n, n) for n in xrange(-3,3))
+	>>> safe_results = suppress_exceptions(callables, ZeroDivisionError)
+	>>> tuple(safe_results)
+	(-2, -3, -5, 5, 2)
+	"""
+	for callable in callables:
+		try:
+			yield callable()
+		except exceptions:
+			pass
+
+@command('weather', aliases=('w'), doc='Get weather for a place. All '
+	'offices with "all", or a list of places separated by pipes.')
 def weather(client, event, channel, nick, rest):
 	rest = rest.strip()
 	if rest == 'all':
@@ -87,28 +127,13 @@ def weather(client, event, channel, nick, rest):
 		places = [x.strip() for x in rest.split('|')]
 	else:
 		places = [rest]
-	for place in places:
-		try:
-			url = "http://www.google.com/ig/api?" + urllib.urlencode({'weather' : place.encode('utf-8')})
-			parser = ElementTree.XMLParser()
-			wdata = ElementTree.parse(urllib.urlopen(url), parser=parser)
-			city = wdata.find('weather/forecast_information/city').get('data')
-			tempf = wdata.find('weather/current_conditions/temp_f').get('data')
-			tempc = wdata.find('weather/current_conditions/temp_c').get('data')
-			conds = wdata.find('weather/current_conditions/condition').get('data')
-			conds = to_snowman(conds)
-			future_day = wdata.find('weather/forecast_conditions/day_of_week').get('data')
-			future_highf = wdata.find('weather/forecast_conditions/high').get('data')
-			future_highc = int((int(future_highf) - 32) / 1.8)
-			future_conds = wdata.find('weather/forecast_conditions/condition').get('data')
-			future_conds = to_snowman(future_conds)
-			weather = u"%(city)s. Currently: %(tempf)sF/%(tempc)sC, %(conds)s.    %(future_day)s: %(future_highf)sF/%(future_highc)sC, %(future_conds)s" % vars()
-			yield weather
-		except IOError:
-			pass
-		except AttributeError:
-			# sometimes wdata.find returns None which has no .get
-			pass
+	weather_callables = (functools.partial(weather_for, place) for place in places)
+	suppressed_errors = (
+		IOError,
+		# sometimes, wdata.find returns None which has no .get
+		AttributeError,
+	)
+	return suppress_exceptions(weather_callables, suppressed_errors)
 
 @command("translate", aliases=('trans', 'googletrans', 'googletranslate'), doc="Translate a phrase using Google Translate. First argument should be the language[s]. It is a 2 letter abbreviation. It will auto detect the orig lang if you only give one; or two languages joined by a |, for example 'en|de' to trans from English to German. Follow this by the phrase you want to translate.")
 def translate(client, event, channel, nick, rest):
