@@ -371,13 +371,17 @@ def deal(client, event, channel, nick, rest):
 def ticker(client, event, channel, nick, rest):
 	ticker = rest.upper()
 	# let's use Yahoo's nifty csv facility, and pull last time/price both
-	stockInfo = csv.reader(urllib.urlopen('http://finance.yahoo.com/d/quotes.csv?s=%s&f=sl' % ticker))
-	lastTrade = stockInfo.next()
-	if lastTrade[2] == 'N/A':
+	symbol = 's'
+	last_trade = 'l'
+	format = ''.join((symbol, last_trade))
+	url = 'http://finance.yahoo.com/d/quotes.csv?s=%(ticker)s&f=%(format)s' % vars()
+	stockInfo = csv.reader(urllib.urlopen(url))
+	lastTrade = next(stockInfo)
+	ticker_given, price, date, time, diff = lastTrade[:5]
+	if date == 'N/A':
 		return "d'oh... could not find information for symbol %s" % ticker
-	else:
-		change = str(round((float(lastTrade[4]) / (float(lastTrade[1]) - float(lastTrade[4]))) * 100, 1))
-		return '%s at %s (ET): %s (%s%%)' % (ticker, lastTrade[3], lastTrade[1], change)
+	change = str(round((float(diff) / (float(price) - float(diff))) * 100, 1))
+	return '%(ticker)s at %(time)s (ET): %(price)s (%(change)s%%)' % vars()
 
 @command("pick", aliases=("p", 'p:', "pick:"), doc="Pick between a few options")
 def pick(client, event, channel, nick, rest):
