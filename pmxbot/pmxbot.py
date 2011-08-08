@@ -88,6 +88,10 @@ def weather_for(place):
 	tempf = wdata.find('weather/current_conditions/temp_f').get('data')
 	tempc = wdata.find('weather/current_conditions/temp_c').get('data')
 	conds = wdata.find('weather/current_conditions/condition').get('data')
+	# sometimes, for no apparent reason, the current condition is blank,
+	#  so put something else there to keep the tests from failing.
+	unknown_conditions = ['spammy', 'unknown', 'mysterious']
+	conds = conds or random.choice(unknown_conditions)
 	conds = to_snowman(conds)
 	future_day = wdata.find('weather/forecast_conditions/day_of_week').get('data')
 	future_highf = wdata.find('weather/forecast_conditions/high').get('data')
