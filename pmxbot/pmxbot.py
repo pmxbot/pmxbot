@@ -71,7 +71,7 @@ def time_for(place):
 		query = 'time ' + place
 	else:
 		query = place
-	timere = re.compile(r'<b>\s*(\d+:\d{2}.+?)\s*</b>')
+	timere = re.compile(r'<b>\s*(\d+:\d{2}([ap]m)?).*\s*</b>', re.I)
 	query_string = urllib.urlencode({'q' : query.encode('utf-8')})
 	html = get_html('http://www.google.com/search?%s' % query_string)
 	return plaintext(timere.search(html).group(1))

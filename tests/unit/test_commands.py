@@ -104,12 +104,14 @@ class TestCommands(object):
 		print res
 		assert re.match(r"""12 Czech(?: Republic)? [Kk]orun(?:a|y)s? = \d\.\d+ [Ee]uros?""", res)
 
-	time_pattern = re.compile(r'^[0-9]{1,2}:[0-9]{2}(?:am|pm)')
+	# time patterns come as 4:20pm when queried from the U.S. and 16:20
+	#  when queried from (at least some) other locales.
+	time_pattern = re.compile(r'^[0-9]{1,2}:[0-9]{2}(?:am|pm)?')
 
 	@pytest.has_internet
 	def test_time_one(self):
 		"""
-		Check the time in Washington, DC. Must include something that looks like a time XX:XX(AM/PM)
+		Check the time in Washington, DC. Must match time_pattern.
 		"""
 		res = pmxbot.googletime(c, e, "#test", "testrunner", "Washington, DC")
 		assert res
@@ -123,10 +125,11 @@ class TestCommands(object):
 	@pytest.has_internet
 	def test_time_three(self):
 		"""
-		Check the time in three cities. Must include something that looks like
-		a time XX:XX(AM/PM) on each line
+		Check the time in three cities. Must include something that
+		matches the time pattern on each line
 		"""
-		res = pmxbot.googletime(c, e, "#test", "testrunner", "Washington, DC | Palo Alto, CA | London")
+		res = pmxbot.googletime(c, e, "#test", "testrunner",
+			"Washington, DC | Palo Alto, CA | London")
 		assert res
 		i = 0
 		for line in res:
@@ -138,8 +141,8 @@ class TestCommands(object):
 	@pytest.has_internet
 	def test_time_all(self):
 		"""
-		Check the time in "all" cities. Must include something that looks like
-		a time XX:XX(AM/PM) on each line
+		Check the time in "all" cities. Must include something that
+		matches the time pattern on each line
 		"""
 		res = pmxbot.googletime(c, e, "#test", "testrunner", "all")
 		assert res
