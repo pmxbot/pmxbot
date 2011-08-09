@@ -60,18 +60,21 @@ def googletime(client, event, channel, nick, rest):
 		places = [x.strip() for x in rest.split('|')]
 	else:
 		places = [rest]
-	for place in places:
-		if not place.startswith('time'):
-			query = 'time ' + place
-		else:
-			query = place
-		timere = re.compile(r'<b>\s*(\d+:\d{2}.+?)\s*</b>')
-		html = get_html('http://www.google.com/search?%s' % urllib.urlencode({'q' : query.encode('utf-8')}))
-		try:
-			t = plaintext(timere.search(html).group(1))
-			yield t
-		except AttributeError:
-			continue
+	time_callables = (functools.partial(time_for, place) for place in places)
+	return suppress_exceptions(time_callables, AttributeError)
+
+def time_for(place):
+	"""
+	Retrieve the time for a specific place
+	"""
+	if not place.startswith('time'):
+		query = 'time ' + place
+	else:
+		query = place
+	timere = re.compile(r'<b>\s*(\d+:\d{2}.+?)\s*</b>')
+	query_string = urllib.urlencode({'q' : query.encode('utf-8')})
+	html = get_html('http://www.google.com/search?%s' % query_string)
+	return plaintext(timere.search(html).group(1))
 
 def to_snowman(condition):
 	"""
