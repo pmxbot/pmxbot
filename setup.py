@@ -21,6 +21,7 @@ setup_params = dict(
 		"jinja2",
 		"cherrypy",
 	],
+	dependency_links=['https://bitbucket.org/jaraco/httplib2/downloads'],
 	description="IRC bot - full featured, yet extensible and customizable",
 	license = 'MIT',
 	author="You Gov, Plc. (jamwt, mrshoe, cperry, chmullig, and others)",
