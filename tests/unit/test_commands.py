@@ -77,13 +77,11 @@ class TestCommands(object):
 	@pytest.has_internet
 	def test_googlecalc_supercomplicated(self):
 		"""
-		Supercomplicated google calculator command - 502 hogsheads per mile in litres per km
-		include 74 388.9641 in results
+		Supercomplicated google calculator command - 502 hogsheads per mile in
+		litres per km includes 74 and 388.9641 in results
 		"""
-		res = pmxbot.googlecalc(c, e, "#test", "testrunner", "502 hogsheads per mile in litres per km")
-		print res
-		import pickle
-		pickle.dump(res, open('bleh.cp', 'wb'))
+		res = pmxbot.googlecalc(c, e, "#test", "testrunner",
+			"502 hogsheads per mile in litres per km")
 		assert "388.9641" in res and "74" in res
 
 	@pytest.has_internet
