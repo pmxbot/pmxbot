@@ -1,0 +1,5 @@
+virtualenv --no-site-packages env
+
+env/bin/python setup.py develop -f http://cheese.yougov.net/simple/python-irclib
+env/bin/easy_install pytest pymongo
+env/bin/py.test --verbose --ignore env --junitxml="test results.xml"
