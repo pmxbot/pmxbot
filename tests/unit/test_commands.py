@@ -317,7 +317,7 @@ class TestCommands(object):
 		"""
 		res = pmxbot.ticker(c, e, "#test", "testrunner", "you.l")
 		print res
-		assert re.match(r"""^YOU.L at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{1,4}.\d{2,3} \(\-?\d{1,3}.\d%\)$""", res), res
+		assert re.match(r"""^YOU.L at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{1,4}.\d{2,4} \(\-?\d{1,3}.\d%\)$""", res), res
 
 	@pytest.has_internet
 	def test_ticker_nasdaq(self):
