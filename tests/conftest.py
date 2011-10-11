@@ -32,3 +32,11 @@ def pytest_configure(config):
 	http = httplib2.Http(timeout=2)
 	open_google = functools.partial(http.request, 'http://www.google.com')
 	config.has_internet &= not throws_exception(open_google, [Exception])
+
+def pytest_addoption(parser):
+	parser.addoption("--runslow", action="store_true",
+		help="run slow tests")
+
+def pytest_runtest_setup(item):
+	if 'slow' in item.keywords and not item.config.getvalue("runslow"):
+		pytest.skip("need --runslow option to run")

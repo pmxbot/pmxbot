@@ -1,5 +1,7 @@
 import time
 
+import pytest
+
 from tests.functional import PmxbotHarness
 
 class TestPmxbotLog(PmxbotHarness):
@@ -8,6 +10,7 @@ class TestPmxbotLog(PmxbotHarness):
 		Test that the harness is working.
 		"""
 
+	@pytest.mark.slow
 	def test_bot_running_after_feeds_parsed(self):
 		"""
 		The RSS feed parser attempts to fetch feeds after 30 seconds and save
