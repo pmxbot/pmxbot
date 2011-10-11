@@ -678,7 +678,7 @@ def calc(client, event, channel, nick, rest):
 @command("define", aliases=("def",), doc="Define a word")
 def defit(client, event, channel, nick, rest):
 	word = rest.strip()
-	res = lookup(word)
+	res = util.lookup(word)
 	if res is None:
 		return u"Arg!  I didn't find a definition for that."
 	else:

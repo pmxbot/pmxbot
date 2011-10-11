@@ -1,8 +1,9 @@
-import py.test
-from pmxbot.util import *
+import pytest
+
+from pmxbot import util
 
 def test_MongoDBKarma(mongodb_uri):
-	k = Karma.from_URI(mongodb_uri)
+	k = util.Karma.from_URI(mongodb_uri)
 	k.db = k.db.database.connection[k.db.database.name+'_test'][k.db.name]
 	k.db.drop()
 	try:
@@ -18,7 +19,7 @@ def test_MongoDBKarma(mongodb_uri):
 		k.db.drop()
 
 def test_MongoDBQuotes(mongodb_uri):
-	q = Quotes.from_URI(mongodb_uri)
+	q = util.Quotes.from_URI(mongodb_uri)
 	q.lib = 'test'
 	clean = lambda: q.db.remove({'library': 'test'})
 	clean()
@@ -30,3 +31,7 @@ def test_MongoDBQuotes(mongodb_uri):
 		q.quoteLookup('nonexistent')
 	finally:
 		clean()
+
+@pytest.has_internet
+def test_lookup():
+	assert util.lookup('dachshund') is not None
