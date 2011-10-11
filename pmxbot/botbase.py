@@ -7,6 +7,7 @@ import traceback
 import time
 import random
 import StringIO
+import collections
 
 import ircbot
 
@@ -209,10 +210,23 @@ class LoggingCommandBot(FeedparserSupport, ircbot.SingleServerIRCBot):
 
 
 _handler_registry = []
-_handler_sort_order = {'command' : 1, 'alias' : 2, 'contains' : 4}
 _delay_registry = []
 _at_registry = []
 
+class Handler(collections.namedtuple('HandlerTuple',
+	'type_ name func doc channels exclude rate priority')):
+	sort_order = dict(
+		# command processed before alias before contains
+		command = 1,
+		alias = 2,
+		contains = 4,
+	)
+	@property
+	def sort_key(self):
+		return self.sort_order[self.type_], -self.priority, -len(self.name)
+
+	def __gt__(self, other):
+		return self.sort_key > other.sort_key
 
 def contains(name, channels=None, exclude=None, rate=1.0, priority=1, doc=None):
 	def deco(func):
@@ -222,17 +236,20 @@ def contains(name, channels=None, exclude=None, rate=1.0, priority=1, doc=None):
 			priority=1
 		if name == '#':
 			priority += 1
-		_handler_registry.append(('contains', name.lower(), func, doc, channels, exclude, rate, priority))
-		_handler_registry.sort(key=lambda x: (_handler_sort_order[x[0]], 0-x[7], 0-len(x[1])))
+		_handler_registry.append(Handler('contains', name.lower(), func,
+			doc, channels, exclude, rate, priority))
+		_handler_registry.sort()
 		return func
 	return deco
 
 def command(name, aliases=[], doc=None):
 	def deco(func):
-		_handler_registry.append(('command', name.lower(), func, doc, None, None, None, 5))
+		_handler_registry.append(Handler('command', name.lower(), func,
+			doc, None, None, None, 5))
 		for a in aliases:
-			_handler_registry.append(('alias', a, func, doc, None, None, None, 4))
-		_handler_registry.sort(key=lambda x: (_handler_sort_order[x[0]], 0-x[7], 0-len(x[1])))
+			_handler_registry.append(Handler('alias', a, func, doc, None,
+				None, None, 4))
+		_handler_registry.sort()
 		return func
 	return deco
 
