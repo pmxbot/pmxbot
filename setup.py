@@ -17,6 +17,7 @@ setup_params = dict(
 		"httplib2",
 		"feedparser",
 		"pytz",
+		"wordnik",
 		#for viewer
 		"jinja2",
 		"cherrypy",

@@ -473,20 +473,30 @@ class TestCommands(object):
 	@pytest.has_internet
 	def test_define_keyboard(self):
 		"""
-		Test the wikipedia dictionary with the word keyboard.
+		Test the dictionary with the word keyboard.
 		"""
 		res = pmxbot.defit(c, e, "#test", "testrunner", "keyboard")
 		assert isinstance(res, unicode)
-		assert res == "Wikipedia says: Enter (data) by means of a keyboard."
+		assert res == ("Wordnik says: A set of keys, as on a computer "
+			"terminal, word processor, typewriter, or piano.")
 
 	@pytest.has_internet
 	def test_define_irc(self):
 		"""
-		Test the wikipedia dictionary with the word IRC.
+		Test the dictionary with the word IRC.
 		"""
-		res = pmxbot.defit(c, e, "#test", "testrunner", "irc")
+		res = pmxbot.defit(c, e, "#test", "testrunner", "  IRC \t")
 		assert isinstance(res, unicode)
-		assert res == ("Wikipedia says: Internet Relay Chat (IRC) is a form of real-time Internet text messaging (chat) or synchronous conferencing. ....  ")
+		assert res == "Wordnik says: An international computer network of Internet servers, using its own protocol through which individual users can hold real-time online conversations."
+
+	@pytest.has_internet
+	def test_define_notaword(self):
+		"""
+		Test the dictionary with a nonsense word.
+		"""
+		res = pmxbot.defit(c, e, "#test", "testrunner", "notaword")
+		assert isinstance(res, unicode)
+		assert res == "Wordnik does not have a definition for that."
 
 	@pytest.has_internet
 	def test_urb_irc(self):

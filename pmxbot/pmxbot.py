@@ -679,21 +679,20 @@ def calc(client, event, channel, nick, rest):
 def defit(client, event, channel, nick, rest):
 	word = rest.strip()
 	res = util.lookup(word)
-	if res is None:
-		return u"Arg!  I didn't find a definition for that."
-	else:
-		return 'Wikipedia says: ' + res
+	fmt = (u'{lookup.provider} says: {res}' if res else
+		u"{lookup.provider} does not have a definition for that.")
+	return fmt.format(**dict(vars(), lookup=util.lookup))
 
 @command("urbandict", aliases=("urb", 'ud', 'urbandictionary', 'urbandefine', 'urbandef', 'urbdef'), doc="Define a word with Urban Dictionary")
 def urbandefit(client, event, channel, nick, rest):
-        word = rest.strip()
-        newword, res = urbanlookup(word)
-        if res is None:
-                return "Arg!  I didn't find a definition for that."
-        else:
-                newword = plaintext(newword)
-                res = plaintext(res)
-                return 'Urban Dictionary says %s: %s' % (newword, res)
+		word = rest.strip()
+		newword, res = urbanlookup(word)
+		if res is None:
+			return "Arg!  I didn't find a definition for that."
+		else:
+			newword = plaintext(newword)
+			res = plaintext(res)
+			return 'Urban Dictionary says %s: %s' % (newword, res)
 
 
 @command("acronym", aliases=("ac",), doc="Look up an acronym")

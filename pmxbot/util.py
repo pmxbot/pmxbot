@@ -6,6 +6,7 @@ import urllib
 import itertools
 
 import httplib2
+import wordnik
 
 from . import storage
 
@@ -667,22 +668,16 @@ def strip_tags(string):
 	return re.sub('<.*?>', '', string).replace('&nbsp;', ' ')
 
 def lookup(word):
-	'''Gets a wikipedia summary for a word.
 	'''
-	# consider http://en.wiktionary.org/w/api.php?format=jsonfm&action=parse&page=keyboard
-	word = urllib.quote_plus(word)
-	html = get_html('http://www.google.com/search?hl=en&'
-		'client=firefox-a&q=define:%s' % word)
-	html = html.decode('utf-8')
-	all_defs = itertools.chain(
-		def_exp1.finditer(html),
-		def_exp2.finditer(html),
-	)
-	try:
-		show_def = next(all_defs).group(1)
-	except StopIteration:
-		return None
-	return strip_tags(show_def.strip())
+	Get a definition for a word (uses Wordnik)
+	'''
+	# Jason's key - do not abuse
+	key = 'edc4b9b94b341eeae350e087c2e05d2f5a2a9e0478cefc6dc'
+	w = wordnik.Wordnik(key)
+	definitions = w.word_get_definitions(word)
+	if definitions:
+		return unicode(definitions[0]['text'])
+lookup.provider = 'Wordnik'
 
 def urbanlookup(word):
 	'''Gets a Urban Dictionary summary for a word.
@@ -691,11 +686,10 @@ def urbanlookup(word):
 	html = get_html('http://urbandictionary.com/define.php?term=%s' % word)
 	match = urbd_exp.search(html)
 	if not match:
-			return None, None
+		return None, None
 	word, definition = match.groups()
 	definition = ' '.join(definition.replace('<br/>', '').splitlines())
 	return word.strip(), definition.strip()
-
 
 html_strip = re.compile(r'<[^>]+?>')
 NUM_ACS = 3
