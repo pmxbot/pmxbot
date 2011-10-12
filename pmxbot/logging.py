@@ -30,7 +30,7 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
 		self.db.execute(INDEX_DTC_CREATE_SQL)
 		self.db.execute(INDEX_DT_CREATE_SQL)
 		self.db.commit()
-		
+
 	def message(self, channel, nick, msg):
 		INSERT_LOG_SQL = 'INSERT INTO logs (datetime, channel, nick, message) VALUES (?, ?, ?, ?)'
 		now = datetime.datetime.now()
@@ -54,7 +54,7 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
 		LAST_N_IDS_SQL = '''select channel, nick, id from logs where channel = ? and nick = ? and date(datetime) = date('now','localtime') order by datetime desc limit ?'''
 		DELETE_LINE_SQL = '''delete from logs where channel = ? and nick = ? and id = ?'''
 		channel = channel.replace('#', '')
-		
+
 		ids_to_delete = self.db.execute(LAST_N_IDS_SQL, [channel.lower(), nick, count]).fetchall()
 		if ids_to_delete:
 			deleted = self.db.executemany(DELETE_LINE_SQL, ids_to_delete)
@@ -168,7 +168,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 	collection_name = 'logs'
 
 	def message(self, channel, nick, msg):
-		self.db.ensure_index(['datetime.d'])
+		self.db.ensure_index('datetime.d')
 		channel = channel.replace('#', '')
 		now = datetime.datetime.utcnow()
 		self.db.insert(dict(channel=channel, nick=nick, message=msg,
@@ -285,7 +285,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		# construct a unique objectid with the correct datetime.
 		dt = message['datetime']
 		oid_time = storage.pymongo.objectid.ObjectId.from_datetime(dt)
-		# store the original sqlite object ID in the 
+		# store the original sqlite object ID in the
 		orig_id = message.pop('id')
 		orig_id_packed = struct.pack('L', orig_id)
 		oid_new = str(oid_time)[:4] + '\x00'*4 + orig_id_packed
