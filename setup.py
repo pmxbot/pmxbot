@@ -17,12 +17,15 @@ setup_params = dict(
 		"httplib2",
 		"feedparser",
 		"pytz",
-		"wordnik",
+		"wordnik==1.2dev-r2b12657",
 		#for viewer
 		"jinja2",
 		"cherrypy",
 	],
-	dependency_links=['https://bitbucket.org/jaraco/httplib2/downloads'],
+	dependency_links=[
+		'https://bitbucket.org/jaraco/httplib2/downloads',
+		'https://github.com/jaraco/wordnik-python/downloads',
+	],
 	description="IRC bot - full featured, yet extensible and customizable",
 	license = 'MIT',
 	author="You Gov, Plc. (jamwt, mrshoe, cperry, chmullig, and others)",
