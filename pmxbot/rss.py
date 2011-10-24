@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+# vim:ts=4:sw=4:noexpandtab
+# c-basic-indent: 4; tab-width: 4; indent-tabs-mode: true;
 from __future__ import absolute_import
 
 import socket
@@ -18,8 +21,10 @@ class FeedparserSupport(object):
 		self._feeds = feeds
 
 	def on_welcome(self, c, e):
-		c.execute_delayed(30, self.feed_parse,
-			arguments=(c, e, self._feed_interval, self._feeds))
+		if self._feeds:
+			# Feeds configured, check them periodically
+			c.execute_delayed(30, self.feed_parse,
+				arguments=(c, e, self._feed_interval, self._feeds))
 
 	def feed_parse(self, c, e, interval, feeds):
 		"""
