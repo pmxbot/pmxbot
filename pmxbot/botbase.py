@@ -1,6 +1,5 @@
 # vim:ts=4:sw=4:noexpandtab
 
-import sys
 import datetime
 import os
 import traceback
@@ -80,6 +79,7 @@ class LoggingCommandBot(FeedparserSupport, ircbot.SingleServerIRCBot):
 			difference = when - datetime.datetime.now()
 			repeat=False
 		elif type(when) == datetime.date:
+			tomorrow = datetime.date.today() + datetime.timedelta(days=1)
 			whendt = datetime.datetime.fromordinal(tomorrow.toordinal())
 			difference = whendt - datetime.datetime.now()
 			repeat=False
@@ -174,13 +174,14 @@ class LoggingCommandBot(FeedparserSupport, ircbot.SingleServerIRCBot):
 
 
 	def handle_action(self, c, e, channel, nick, msg):
+		"""Core message parser and dispatcher"""
 		lc_msg = msg.lower()
-		lc_cmd = msg.split()[0]
+		lc_cmd = msg.split(' ', 1)[0]
 		res = None
 		for typ, name, f, doc, channels, exclude, rate, priority in _handler_registry:
 			if typ in ('command', 'alias') and lc_cmd == '!%s' % name:
 				# grab everything after the command
-				msg = msg.partition(' ')[2].lstrip()
+				msg = msg.partition(' ')[2].strip()
 				try:
 					res = f(c, e, channel, nick, msg)
 				except Exception, exc:
@@ -191,7 +192,7 @@ class LoggingCommandBot(FeedparserSupport, ircbot.SingleServerIRCBot):
 					print datetime.datetime.now(), "Error with command %s" % name
 					traceback.print_exc()
 				break
-			elif typ in('contains', '#') and name in lc_msg:
+			elif typ in ('contains', '#') and name in lc_msg:
 				if (not channels and not exclude) \
 				or channel in channels \
 				or (exclude and channel not in exclude) \
