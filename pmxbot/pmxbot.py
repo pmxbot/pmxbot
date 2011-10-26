@@ -26,7 +26,6 @@ from .util import *
 from . import util
 from . import saysomething as saysomethinglib
 from .cleanhtml import plaintext
-from . import popquotes
 
 log = logging.getLogger(__name__)
 

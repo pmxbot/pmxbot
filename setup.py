@@ -15,6 +15,7 @@ setup_params = dict(
 		],
 	),
 	install_requires=[
+		"popquotes>=1.0",
 		"pyyaml",
 		"python-irclib>=0.4.8",
 		"httplib2",

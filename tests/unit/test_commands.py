@@ -5,6 +5,7 @@ import uuid
 import datetime
 
 import pytest
+import popquotes.pmxbot
 
 from pmxbot import pmxbot
 from pmxbot import botbase
@@ -585,5 +586,6 @@ class TestCommands(object):
 		pmxbot.excuse(c, e, '#test', 'testrunner', '')
 
 	def test_popquotes(self):
-		res = pmxbot.popquotes.bender(c, e, '#test', 'testrunner', '')
+		popquotes.pmxbot.install_commands()
+		res = popquotes.pmxbot.bender(c, e, '#test', 'testrunner', '')
 		assert len(res) > 5
