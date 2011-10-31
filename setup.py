@@ -32,10 +32,10 @@ setup_params = dict(
 	],
 	description="IRC bot - full featured, yet extensible and customizable",
 	license = 'MIT',
-	author="You Gov, Plc. (jamwt, mrshoe, cperry, chmullig, and others)",
+	author="YouGov, Plc.",
 	author_email="open.source@yougov.com",
-	maintainer = 'chmullig',
-	maintainer_email = 'chmullig@gmail.com',
+	maintainer = 'Jason R. Coombs',
+	maintainer_email = 'Jason.Coombs@YouGov.com',
 	url = 'http://bitbucket.org/yougov/pmxbot',
 	classifiers=[
 		'Development Status :: 5 - Production/Stable',

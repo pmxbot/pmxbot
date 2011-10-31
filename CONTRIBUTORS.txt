@@ -1,0 +1,16 @@
+ Contributors
+ ============
+
+ pmxbot was originally conceived and written by Jamie Turner (jamwt).
+
+ The web interface and substantial improvements were made by Chris
+ Mulligan (chmullig).
+
+ Other substantial contributors include:
+
+ - Shoemaker (mrshoe)
+ - Chris Perry (cperry)
+ - Jason R. Coombs <Jason.Coombs@YouGov.net>
+
+If you believe your name belongs here, but you don't see it, please don't
+hesitate to contact the maintainer.
