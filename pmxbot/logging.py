@@ -287,8 +287,8 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		oid_time = storage.pymongo.objectid.ObjectId.from_datetime(dt)
 		# store the original sqlite object ID in the
 		orig_id = message.pop('id')
-		orig_id_packed = struct.pack('L', orig_id)
-		oid_new = oid_time.binary[:4] + '\x00'*4 + orig_id_packed
+		orig_id_packed = struct.pack('>Q', orig_id)
+		oid_new = oid_time.binary[:4] + orig_id_packed
 		oid = storage.pymongo.objectid.ObjectId(oid_new)
 		if not hasattr(Logger, 'log_id_map'): Logger.log_id_map = dict()
 		Logger.log_id_map[orig_id] = oid
