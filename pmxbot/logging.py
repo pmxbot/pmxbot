@@ -251,7 +251,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 			next2 = map(to_line, next2)
 			context = prev2 + [line] + next2
 			marker = self.make_anchor(line[:2])
-			matches.append((channel, row_date, marker, context))
+			matches.append((channel, row_date(line), marker, context))
 			alllines.extend(context)
 		return matches
 
