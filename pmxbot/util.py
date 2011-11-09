@@ -623,7 +623,8 @@ class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 		newest_first = [('_id', storage.pymongo.DESCENDING)]
 		last_message = self.db.database.logs.find_one(sort=newest_first)
 		if last_message and quote in last_message['message']:
-			self.db.update(quote_id, {'$set': dict(log_id=last_message['_id'])})
+			self.db.update({'_id': quote_id},
+				{'$set': dict(log_id=last_message['_id'])})
 
 	def __iter__(self):
 		return self.db.find(library=self.lib)
