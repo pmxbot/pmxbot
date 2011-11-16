@@ -19,6 +19,8 @@ except ImportError:
 	import simplejson as json
 from xml.etree import ElementTree
 
+import popquotes.pmxbot as pq
+
 from .botbase import (command, contains, execdelay, execat,
 	_handler_registry, NoLog, LoggingCommandBot)
 from . import botbase
@@ -647,8 +649,8 @@ def rand_bot(client, event, channel, nick, rest):
 		golfclap, excuse, nastygram, curse, bless, job, hire, oregontrail,
 		chain, tinytear, blame, panic, rubberstamp, dance, annoy, klingon,
 		storytime, murphy]
-	quote_functions = [quote, zoidberg, simpsons, bender, hal, grail, R,
-		anchorman, hangover]
+	quote_functions = [quote, pq.zoidberg, pq.simpsons, pq.bender,
+		pq.hal, pq.grail, pq.R, pq.anchorman, pq.hangover]
 	func = random.choice(normal_functions + quote_functions)
 	nick = nick if func in normal_functions else ''
 	return func(client, event, channel, 'pmxbot', nick)

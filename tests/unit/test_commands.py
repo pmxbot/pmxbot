@@ -589,3 +589,7 @@ class TestCommands(object):
 		popquotes.pmxbot.install_commands()
 		res = popquotes.pmxbot.bender(c, e, '#test', 'testrunner', '')
 		assert len(res) > 5
+
+	def test_rand_bot(self):
+		res = pmxbot.rand_bot(c, e, '#test', 'testrunner', '')
+		assert len(res) > 5
