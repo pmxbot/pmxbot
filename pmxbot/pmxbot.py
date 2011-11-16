@@ -300,10 +300,9 @@ def quote(client, event, channel, nick, rest):
 		util.quotes.quoteAdd(quoteToAdd)
 		qt = False
 		return 'Quote added!'
-	else:
-		qt, i, n = util.quotes.quoteLookupWNum(rest)
-		if qt:
-			return '(%s/%s): %s' % (i, n, qt)
+	qt, i, n = util.quotes.quoteLookupWNum(rest)
+	if not qt: return
+	return '(%s/%s): %s' % (i, n, qt)
 
 @command('zinger', aliases=('zing',), doc='ZING!')
 def zinger(client, event, channel, nick, rest):
@@ -653,6 +652,8 @@ def rand_bot(client, event, channel, nick, rest):
 		pq.hal, pq.grail, pq.R, pq.anchorman, pq.hangover]
 	func = random.choice(normal_functions + quote_functions)
 	nick = nick if func in normal_functions else ''
+	# save the func for troubleshooting
+	rand_bot.last_func = func
 	return func(client, event, channel, 'pmxbot', nick)
 
 @contains("sqlonrails")

@@ -10,6 +10,12 @@ import popquotes.pmxbot
 from pmxbot import pmxbot
 from pmxbot import botbase
 
+def pytest_generate_tests(metafunc):
+	# any test that takes the iter_ parameter should be executed 100 times
+	if "iter_" in metafunc.funcargnames:
+		for i in range(100):
+			metafunc.addcall(funcargs=dict(iter_=i))
+
 class Empty(object):
 	"""
 	Passed in to the individual commands instead of a client/event because
@@ -590,6 +596,9 @@ class TestCommands(object):
 		res = popquotes.pmxbot.bender(c, e, '#test', 'testrunner', '')
 		assert len(res) > 5
 
-	def test_rand_bot(self):
+	def test_rand_bot(self, iter_):
 		res = pmxbot.rand_bot(c, e, '#test', 'testrunner', '')
-		assert len(res) > 5
+		if res is None: return
+		if not isinstance(res, basestring):
+			res = u''.join(res)
+		assert len(res)
