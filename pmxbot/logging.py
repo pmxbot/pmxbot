@@ -169,6 +169,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 
 	def message(self, channel, nick, msg):
 		self.db.ensure_index('datetime.d')
+		self.db.ensure_index('channel')
 		channel = channel.replace('#', '')
 		now = datetime.datetime.utcnow()
 		self.db.insert(dict(channel=channel, nick=nick, message=msg,
