@@ -216,7 +216,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		return self.db.find(fields=['datetime.d']).distinct('datetime.d')
 
 	def get_day_logs(self, channel, day):
-		query = {'datetime.d': day}
+		query = {'channel': channel, 'datetime.d': day}
 		cur = self.db.find(query).sort('_id')
 		return (
 			(rec['datetime']['t'], rec['nick'], rec['message'])
