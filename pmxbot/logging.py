@@ -220,7 +220,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		query = {'channel': channel, 'datetime.d': day}
 		cur = self.db.find(query).sort('_id')
 		return (
-			(rec['datetime']['t'], rec['nick'], rec['message'])
+			(rec['datetime']['t'].replace(microsecond=0), rec['nick'], rec['message'])
 			for rec in cur
 		)
 
