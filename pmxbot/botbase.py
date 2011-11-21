@@ -67,12 +67,15 @@ class LoggingCommandBot(FeedparserSupport, ircbot.SingleServerIRCBot):
 		return ircbot.SingleServerIRCBot.connect(self, *args, **kwargs)
 
 	def out(self, channel, s, log=True):
-		if s.startswith('/me '):
-			self.c.action(channel, s.encode('utf-8').split(' ', 1)[-1].lstrip())
-		else:
-			self.c.privmsg(channel, s.encode('utf-8'))
-			if channel in self._channels and channel not in self._nolog and log:
-				logger.message(channel, self._nickname, s)
+		func = self.c.privmsg
+		s = s.encode(u'utf-8')
+		if s.startswith(u'/me '):
+			func = self.c.action
+			s = s.split(' ', 1)[-1].lstrip()
+			log = False
+		func(channel, s)
+		if channel in self._channels and channel not in self._nolog and log:
+			logger.message(channel, self._nickname, s)
 
 	def _schedule_at(self, name, channel, when, func, args, doc):
 		if type(when) == datetime.datetime:
