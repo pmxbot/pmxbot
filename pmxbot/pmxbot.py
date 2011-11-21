@@ -22,7 +22,7 @@ from xml.etree import ElementTree
 import popquotes.pmxbot as pq
 
 from .botbase import (command, contains, execdelay, execat,
-	_handler_registry, NoLog, LoggingCommandBot)
+	_handler_registry, NoLog)
 from . import botbase
 from .util import *
 from . import util
@@ -907,7 +907,11 @@ def run(configFile=None, configDict=None, configInput=None, start=True):
 	use_ssl = getattr(config, 'use_ssl', False)
 	password = getattr(config, 'password', None)
 
-	bot = LoggingCommandBot(config.database, config.server_host, config.server_port,
+	silent_bot = getattr(config, 'silent', False)
+
+	class_ = botbase.LoggingCommandBot if not silent_bot else botbase.SilentCommandBot
+
+	bot = class_(config.database, config.server_host, config.server_port,
 		config.bot_nickname, config.log_channels, config.other_channels,
 		config.feed_interval*60, config.feeds, use_ssl=use_ssl,
 		password=password)

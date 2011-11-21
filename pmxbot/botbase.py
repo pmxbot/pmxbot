@@ -213,6 +213,15 @@ class LoggingCommandBot(FeedparserSupport, ircbot.SingleServerIRCBot):
 		self._handle_output(channel, res)
 
 
+class SilentCommandBot(LoggingCommandBot):
+	"""
+	A version of the bot that doesn't say anything (just logs and
+	processes commands).
+	"""
+	def out(self, *args, **kwargs):
+		"Do nothing"
+
+
 _handler_registry = []
 _delay_registry = []
 _at_registry = []
