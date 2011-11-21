@@ -574,7 +574,7 @@ class SQLiteQuotes(Quotes, storage.SQLiteStorage):
 
 	def export_all(self):
 		query = "SELECT quote, library, logid from quotes inner join quote_log on quotes.quoteid = quote_log.quoteid"
-		fields = 'quote', 'library', 'log_id'
+		fields = 'text', 'library', 'log_id'
 		return (dict(zip(fields, res)) for res in self.db.execute(query))
 
 class MongoDBQuotes(Quotes, storage.MongoDBStorage):
