@@ -7,9 +7,13 @@ import string
 from random import shuffle
 import cherrypy
 import calendar
-from jinja2 import Environment, FileSystemLoader
-
+import datetime
+import urlparse
+import textwrap
 from cgi import escape
+
+from jinja2 import Environment, FileSystemLoader
+import pytz
 
 from pmxbot.logging import init_logger
 import pmxbot.util
@@ -187,12 +191,61 @@ class HelpPage(object):
 	default.exposed = True
 
 
+class LegacyPage():
+	"""
+	Forwards legacy /day/{channel}/{date}#{time}.{nick} in local time to
+	the proper page at /day (in UTC).
+	"""
+	timezone = pytz.timezone('US/Pacific')
+
+	@cherrypy.expose
+	def default(self, channel, date_s):
+		"""
+		Return a web page that will get the fragment out and pass it to
+		us so we can parse it.
+		"""
+		return textwrap.dedent("""
+			<html>
+			<head>
+			<script type="text/javascript">
+				window.onload = function() {
+					fragment = parent.location.hash;
+					window.location.pathname=window.location.pathname.replace(
+						'legacy', 'legacy/forward') + "/" + window.location.hash.slice(1);
+				};
+			</script>
+			</head>
+			<body></body>
+			</html>
+		""").lstrip()
+
+	@cherrypy.expose
+	def forward(self, channel, date_s, fragment):
+		"""
+		Given an HREF in the legacy timezone, redirect to an href for UTC.
+		"""
+		time_s, sep, nick = fragment.rpartition('.')
+		time = datetime.datetime.strptime(time_s, '%H.%M.%S')
+		date = datetime.datetime.strptime(date_s, '%Y-%m-%d')
+		dt = datetime.datetime.combine(date, time.time())
+		loc_dt = self.timezone.localize(dt)
+		utc_dt = loc_dt.astimezone(pytz.utc)
+		target_date = utc_dt.date().isoformat()
+		target_time = utc_dt.time().strftime('%H.%M.%S')
+		url_fmt = '/day/{channel}/{target_date}#{target_time}.{nick}'
+		raise cherrypy.HTTPRedirect(
+			url_fmt.format(**vars()),
+			301,
+		)
+
+
 class PmxbotPages(object):
 	channel = ChannelPage()
 	day = DayPage()
 	karma = KarmaPage()
 	search = SearchPage()
 	help = HelpPage()
+	legacy = LegacyPage()
 
 	def default(self):
 		page = jenv.get_template('index.html')
