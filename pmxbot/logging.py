@@ -186,7 +186,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		cursor = self.db.find(query, fields=fields)
 		cursor = cursor.sort('_id', storage.pymongo.DESCENDING)
 		res = first(cursor)
-		return res and [res['_id'].generation_time(), res['channel']]
+		return res and [res['_id'].generation_time, res['channel']]
 
 	def strike(self, channel, nick, count):
 		channel = channel.replace('#', '')
