@@ -214,7 +214,8 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		return (item['message'] for item in random.sample(cur, limit))
 
 	def get_channel_days(self, channel):
-		return self.db.find(fields=['datetime.d']).distinct('datetime.d')
+		query = dict(channel=channel)
+		return self.db.find(query, fields=['datetime.d']).distinct('datetime.d')
 
 	def get_day_logs(self, channel, day):
 		query = {'channel': channel, 'datetime.d': day}
