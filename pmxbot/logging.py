@@ -186,9 +186,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		cursor = self.db.find(query, fields=fields)
 		cursor = cursor.sort('_id', storage.pymongo.DESCENDING)
 		res = first(cursor)
-		if not res:
-			return None
-		return [res['_id'].generation_time, res['channel']]
+		return res and [res['_id'].generation_time(), res['channel']]
 
 	def strike(self, channel, nick, count):
 		channel = channel.replace('#', '')
@@ -300,3 +298,13 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		message['_id'] = oid
 		message['datetime'] = self._fmt_date(dt)
 		self.db.insert(message)
+
+def first(iterable):
+	"""
+	Return the first element from the iterable or None if no element is
+	found.
+	"""
+	try:
+		return next(iterable)
+	except StopIteration:
+		pass
