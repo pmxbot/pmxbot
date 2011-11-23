@@ -503,18 +503,6 @@ def bottom10(client, event, channel, nick, rest):
 	res = ' '.join('(%s: %s)' % (', '.join(n), k) for n, k in selection)
 	return res
 
-
-@command("excuse", aliases=("e ",), doc="Provide a convenient excuse")
-def excuse(client, event, channel, nick, rest):
-	args = "/".join(rest.split(' ')[:2])
-	if args:
-		args = "/" + args
-		url = 'http://www.dowski.com/excuses/new%s' % args
-	else:
-		url = 'http://www.dowski.com/excuses/new'
-	excuse = get_html(url)
-	return excuse
-
 @command("gettowork", aliases=("gtw",), doc="You really ought to, ya know...")
 def gettowork(client, event, channel, nick, rest):
 	suggestions = [u"Um, might I suggest working now",
@@ -645,7 +633,7 @@ def paste(client, event, channel, nick, rest):
 @contains('pmxbot', channels='unlogged', rate=.3)
 def rand_bot(client, event, channel, nick, rest):
 	normal_functions = [featurecreep, insult, motivate, compliment, cheer,
-		golfclap, excuse, nastygram, curse, bless, job, hire, oregontrail,
+		golfclap, nastygram, curse, bless, job, hire, oregontrail,
 		chain, tinytear, blame, panic, rubberstamp, dance, annoy, klingon,
 		storytime, murphy]
 	quote_functions = [quote, pq.zoidberg, pq.simpsons, pq.bender,
