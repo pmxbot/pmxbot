@@ -7,6 +7,7 @@ import time
 import random
 import StringIO
 import collections
+import textwrap
 
 import ircbot
 
@@ -14,15 +15,26 @@ from . import util
 from .logging import init_logger
 from .rss import FeedparserSupport
 
-LOGWARN_EVERY = 60 # seconds
-LOGWARN_MESSAGE = \
-'''PRIVACY INFORMATION: LOGGING IS ENABLED!!
+class WarnHistory(dict):
+	warn_every = datetime.timedelta(seconds=60)
+	warn_message = textwrap.dedent("""
+		PRIVACY INFORMATION: LOGGING IS ENABLED!!
 
-The following channels are logged are being logged to provide a
-convenient, searchable archive of conversation histories:
-%s
-'''
-warn_history = {}
+		The following channels are logged are being logged to provide a
+		convenient, searchable archive of conversation histories:
+		{logged_channels_string}
+		""").lstrip()
+
+	def needs_warning(self, key):
+		now = datetime.datetime.utcnow()
+		if not key in self or self._expired(self[key], now):
+			self[key] = now
+			return True
+		return False
+
+	def _expired(self, last, now):
+		return now - last > self.warn_every
+
 logger = None
 
 class NoLog(object):
@@ -61,6 +73,7 @@ class LoggingCommandBot(FeedparserSupport, ircbot.SingleServerIRCBot):
 		util.init_quotes(db_uri)
 		self._nickname = nickname
 		self.__use_ssl = use_ssl
+		self.warn_history = WarnHistory()
 
 	def connect(self, *args, **kwargs):
 		kwargs['ssl'] = self.__use_ssl
@@ -115,11 +128,13 @@ class LoggingCommandBot(FeedparserSupport, ircbot.SingleServerIRCBot):
 		channel = e.target()
 		if channel in self._nolog or nick == self._nickname:
 			return
-		if time.time() - warn_history.get(nick, 0) > LOGWARN_EVERY:
-			warn_history[nick] = time.time()
-			msg = LOGWARN_MESSAGE % (', '.join([chan for chan in sorted(self._channels) if chan not in self._nolog]))
-			for line in msg.splitlines():
-				c.notice(nick, line)
+		if not self.warn_history.needs_warning(nick):
+			return
+		logged_channels = sorted(set(self._channels) - set(self._nolog))
+		logged_channels_string = ', '.join(logged_channels)
+		msg = self.warn_history.warn_message.format(**vars())
+		for line in msg.splitlines():
+			c.notice(nick, line)
 
 	def on_pubmsg(self, c, e):
 		msg = (''.join(e.arguments())).decode('utf8', 'ignore')
@@ -219,6 +234,9 @@ class SilentCommandBot(LoggingCommandBot):
 	processes commands).
 	"""
 	def out(self, *args, **kwargs):
+		"Do nothing"
+
+	def on_join(self, *args, **kwargs):
 		"Do nothing"
 
 
