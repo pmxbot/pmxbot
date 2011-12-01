@@ -11,6 +11,7 @@ import random
 import csv
 import logging
 import functools
+import traceback
 from datetime import date, timedelta
 from cStringIO import StringIO
 try:
@@ -838,7 +839,8 @@ def strike(client, event, channel, nick, rest):
 		struck = botbase.logger.strike(channel, nick, count)
 		yield ("Isn't undo great?  Last %d statement%s by %s were stricken from the record." %
 		(struck, 's' if struck > 1 else '', nick))
-	except:
+	except Exception, e:
+		traceback.print_exc()
 		yield "Hmm.. I didn't find anything of yours to strike!"
 
 @command("where", aliases=('last', 'seen', 'lastseen'), doc="When did pmxbot last see <nick> speak?")
