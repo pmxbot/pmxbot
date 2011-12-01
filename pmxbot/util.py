@@ -573,7 +573,7 @@ class SQLiteQuotes(Quotes, storage.SQLiteStorage):
 		return self.db.execute(query, [self.lib])
 
 	def export_all(self):
-		query = "SELECT quote, library, logid from quotes inner join quote_log on quotes.quoteid = quote_log.quoteid"
+		query = "SELECT quote, library, logid from quotes left outer join quote_log on quotes.quoteid = quote_log.quoteid"
 		fields = 'text', 'library', 'log_id'
 		return (dict(zip(fields, res)) for res in self.db.execute(query))
 
@@ -639,13 +639,12 @@ class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 			)
 		return logging.Logger.log_id_map
 
-
 	def import_(self, quote):
 		log_id_map = self._build_log_id_map()
-		try:
-			quote['log_id'] = log_id_map[quote['log_id']]
-		except KeyError:
-			pass
+		log_id = quote.pop('log_id', None)
+		log_id = log_id_map.get(log_id, log_id)
+		if log_id is not None:
+			quote['log_id'] = log_id
 		self.db.insert(quote)
 
 def get_html(url):
