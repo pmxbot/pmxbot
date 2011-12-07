@@ -695,7 +695,7 @@ def acit(client, event, channel, nick, rest):
 	else:
 		return ' | '.join(res)
 
-@command("fight", doc="Pit two sworn enemies against each other")
+@command("fight", doc="Pit two sworn enemies against each other (separate with 'vs.')")
 def fight(client, event, channel, nick, rest):
 	if rest:
 		vtype = random.choice(fight_victories)
