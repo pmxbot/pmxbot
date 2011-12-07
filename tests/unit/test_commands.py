@@ -587,6 +587,11 @@ class TestCommands(object):
 		invalid_query = 'sp|en que no desea la nueva pregunta'
 		res = pmxbot.translate(c, e, '#test', 'testrunner', query)
 
+	def test_excuse(self):
+		import excuses
+		gen = excuses.RandomExcuseGenerator.create_local()
+		gen.pmxbot_excuse(c, e, '#test', 'testrunner', '')
+
 	def test_popquotes(self):
 		popquotes.pmxbot.install_commands()
 		res = popquotes.pmxbot.bender(c, e, '#test', 'testrunner', '')
