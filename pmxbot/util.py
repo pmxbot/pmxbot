@@ -441,16 +441,16 @@ class MongoDBKarma(Karma, storage.MongoDBStorage):
 	def set(self, thing, value):
 		thing = thing.strip().lower()
 		value = int(value)
-		res = self.db.update({'names': thing}, {'$set': {'value': value}}, safe=True)
-		if not res['n']:
-			self.db.insert({'names': [thing], 'value': value})
+		query = {'names': {'$in': [thing]}}
+		oper = {'$set': {'value': value}, '$addToSet': {'names': thing}}
+		self.db.update(query, oper, upsert=True)
 
 	def change(self, thing, change):
 		thing = thing.strip().lower()
 		change = int(change)
-		res = self.db.update({'names': thing}, {'$inc': {'value': change}}, safe=True)
-		if not res['n']:
-			self.db.insert({'names': [thing], 'value': change})
+		query = {'names': {'$in': [thing]}}
+		oper = {'$inc': {'value': change}, '$addToSet': {'names': thing}}
+		self.db.update(query, oper, upsert=True)
 
 	def list(self, select=0):
 		res = list(self.db.find().sort('value', storage.pymongo.DESCENDING))
