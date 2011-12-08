@@ -15,6 +15,8 @@ def test_MongoDBKarma(mongodb_uri):
 		assert k.lookup('foo') == 2
 		k.link('foo', 'baz')
 		assert k.lookup('baz') == k.lookup('foo') == 4
+		k.change('foo', 1)
+		assert k.lookup('foo') == k.lookup('bar') == 5
 	finally:
 		k.db.drop()
 
