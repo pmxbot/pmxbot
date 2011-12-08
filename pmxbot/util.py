@@ -497,6 +497,30 @@ class MongoDBKarma(Karma, storage.MongoDBStorage):
 			value = value,
 			))
 
+	def _all_names(self):
+		return set(itertools.chain.from_iterable(
+			names
+			for names, value in self.search('')
+		))
+
+	def repair_duplicate_names(self):
+		"""
+		Prior to 1101.1.1, pmxbot would incorrectly create new karma records
+		for individuals with multiple names.
+		This routine corrects those records.
+		"""
+		for name in self._all_names():
+			cur = self.db.find({'names': name})
+			main_doc = next(cur)
+			for duplicate in cur:
+				query = {'_id': main_doc['_id']}
+				update = {
+					'$inc': {'value': duplicate['value']},
+					'$pushAll': {'names': duplicate['names']},
+				}
+				self.db.update(query, update, safe=True)
+				self.db.remove(duplicate)
+
 def init_karma(uri):
 	globals().update(
 		karma = Karma.from_URI(uri)
