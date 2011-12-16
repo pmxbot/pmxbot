@@ -626,6 +626,7 @@ class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 		num = int(num)
 		words = thing.split()
 		def matches(quote):
+			quote = quote.lower()
 			return all(word in quote for word in words)
 		results = [
 			row['text'] for row in
