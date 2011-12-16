@@ -4,6 +4,7 @@ import random
 import re
 import urllib
 import itertools
+import functools
 
 import httplib2
 import wordnik
@@ -625,13 +626,13 @@ class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 		thing = thing.strip().lower()
 		num = int(num)
 		words = thing.split()
-		def matches(quote):
-			quote = quote.lower()
-			return all(word in quote for word in words)
+		case_insensitive_pattern = functools.partial(re.compile, flags=re.IGNORECASE)
+		patterns = map(case_insensitive_pattern, words)
+		queries = [dict(text=pattern) for pattern in patterns]
+		query = {'library': self.lib, '$and': queries}
 		results = [
 			row['text'] for row in
-			self.db.find(dict(library=self.lib)).sort('_id')
-			if matches(row['text'])
+			self.db.find(query).sort('_id')
 		]
 		n = len(results)
 		if n > 0:
