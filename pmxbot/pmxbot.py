@@ -45,12 +45,11 @@ def googlecalc(client, event, channel, nick, rest):
 	query = rest
 	html = get_html('http://www.google.com/search?%s' %
 		urllib.urlencode(dict(q=query.encode('utf-8'))))
+	gcre = re.compile('<h[23] class=r[^>]*><b>(.+?)</b>')
 	try:
-		gcre = re.compile('<h2 class=r style="font-size:138%"><b>(.+?)</b>')
 		res = gcre.search(html).group(1)
 	except AttributeError:
-		gcre = re.compile('<h3 class=r><b>(.+?)</b>')
-		res = gcre.search(html).group(1)
+		raise RuntimeError("Couldn't parse result from Google's result")
 	return plaintext(res.decode('utf-8'))
 
 @command("time", doc="What time is it in.... Similar to !weather")
