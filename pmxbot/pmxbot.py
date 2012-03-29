@@ -12,7 +12,7 @@ import csv
 import logging
 import functools
 import traceback
-from datetime import date, timedelta
+import yaml
 from cStringIO import StringIO
 try:
 	import json
@@ -22,8 +22,7 @@ from xml.etree import ElementTree
 
 import popquotes.pmxbot as pq
 
-from .botbase import (command, contains, execdelay, execat,
-	_handler_registry, NoLog)
+from .botbase import (command, contains, _handler_registry, NoLog)
 from . import botbase
 from .util import *
 from . import util
@@ -35,7 +34,7 @@ log = logging.getLogger(__name__)
 @command("google", aliases=('g',), doc="Look a phrase up on google")
 def google(client, event, channel, nick, rest):
 	BASE_URL = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&'
-	url = BASE_URL + urllib.urlencode({'q' : rest.encode('utf-8').strip()})
+	url = BASE_URL + urllib.urlencode({'q': rest.encode('utf-8').strip()})
 	raw_res = urllib.urlopen(url).read()
 	results = json.loads(raw_res)
 	hit1 = results['responseData']['results'][0]
@@ -44,7 +43,8 @@ def google(client, event, channel, nick, rest):
 @command("googlecalc", aliases=('gc',), doc="Calculate something using google")
 def googlecalc(client, event, channel, nick, rest):
 	query = rest
-	html = get_html('http://www.google.com/search?%s' % urllib.urlencode({'q' : query.encode('utf-8')}))
+	html = get_html('http://www.google.com/search?%s' %
+		urllib.urlencode(dict(q=query.encode('utf-8'))))
 	try:
 		gcre = re.compile('<h2 class=r style="font-size:138%"><b>(.+?)</b>')
 		res = gcre.search(html).group(1)
@@ -74,7 +74,7 @@ def time_for(place):
 	else:
 		query = place
 	timere = re.compile(r'<b>\s*(\d+:\d{2}([ap]m)?).*\s*</b>', re.I)
-	query_string = urllib.urlencode({'q' : query.encode('utf-8')})
+	query_string = urllib.urlencode(dict(q = query.encode('utf-8')))
 	html = get_html('http://www.google.com/search?%s' % query_string)
 	return plaintext(timere.search(html).group(1))
 
@@ -86,7 +86,8 @@ def to_snowman(condition):
 
 def weather_for(place):
 	"Retrieve the weather for a specific place using the iGoogle API"
-	url = "http://www.google.com/ig/api?" + urllib.urlencode({'weather' : place.encode('utf-8')})
+	url = "http://www.google.com/ig/api?" + urllib.urlencode(dict(
+		weather= place.encode('utf-8')))
 	parser = ElementTree.XMLParser()
 	wdata = ElementTree.parse(urllib.urlopen(url), parser=parser)
 	city = wdata.find('weather/forecast_information/city').get('data')
@@ -151,7 +152,9 @@ def translate(client, event, channel, nick, rest):
 	if '|' not in langpair:
 		langpair = '|' + langpair
 	BASE_URL = 'http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&format=text&'
-	url = BASE_URL + urllib.urlencode({'q' : rest.encode('utf-8'), 'langpair' : langpair})
+	url = BASE_URL + urllib.urlencode(dict(
+		q = rest.encode('utf-8'),
+		langpair = langpair))
 	raw_res = urllib.urlopen(url).read()
 	results = json.loads(raw_res)
 	response = results['responseData']
@@ -799,7 +802,7 @@ def help(client, event, channel, nick, rest):
 			for typ, name, f, doc, junk1, junk2, junk3, priority in sorted(_handler_registry, key=lambda x: x[1]):
 				if typ == 'command':
 					aliases = sorted([x[1] for x in _handler_registry if x[0] == 'alias' and x[2] == f])
-					res =  "!%s" % name
+					res = "!%s" % name
 					if aliases:
 						res += " (%s)" % ', '.join(aliases)
 					yield res
@@ -839,7 +842,7 @@ def strike(client, event, channel, nick, rest):
 		struck = botbase.logger.strike(channel, nick, count)
 		yield ("Isn't undo great?  Last %d statement%s by %s were stricken from the record." %
 		(struck, 's' if struck > 1 else '', nick))
-	except Exception, e:
+	except Exception:
 		traceback.print_exc()
 		yield "Hmm.. I didn't find anything of yours to strike!"
 
@@ -859,7 +862,6 @@ global config
 
 def run(configFile=None, configDict=None, configInput=None, start=True):
 	global config
-	import sys, yaml
 	class O(object):
 		def __init__(self, d):
 			for k, v in d.iteritems():
