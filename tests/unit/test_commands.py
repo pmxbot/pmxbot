@@ -511,7 +511,8 @@ class TestCommands(object):
 		Test the urban dictionary with the word IRC.
 		"""
 		res = pmxbot.urbandefit(c, e, "#test", "testrunner", "irc")
-		assert res == "Urban Dictionary says IRC: Abbreviation for Internet Relay Chat. A multiplayer notepad."
+		assert "Internet Relay Chat" in res
+		assert "protocol" in res.lower()
 
 	@pytest.has_internet
 	def test_acronym_irc(self):
