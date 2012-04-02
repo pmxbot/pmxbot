@@ -942,6 +942,7 @@ def _load_library_extensions():
 		try:
 			log.info('Loading %s', ep.name)
 			init_func = ep.load()
-			init_func()
+			if callable(init_func):
+				init_func()
 		except Exception:
 			log.exception("Error initializing plugin %s." % ep)

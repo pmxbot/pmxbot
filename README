@@ -71,17 +71,21 @@ something similar to the following in the package's setup.py::
 
     entry_points = {
         'pmxbot_handlers': [
-            'plugin_name = mylib.mymodule:initialize_func',
+            'plugin name = mylib.mymodule',
         ],
     },
 
 During startup (and after loading the traditional script-based plugins),
-pmxbot will load `mylib.mymodule` and call `initialize_func` from that
-module (with no parameters).
-`plugin_name` can be anything, but should be a name suitable to
-identify the plugin. It is not necessary that initialize_func do
-anything at all, but it must be present, and will be called during
-startup.
+pmxbot will load `mylib.mymodule`. `plugin name` can be anything, but should
+be a name suitable to identify the plugin (and it will be displayed during
+pmxbot startup).
+
+If your plugin requires any initialization, specify an initialization function
+(or class method) in the entry point. For example::
+
+    'plugin name = mylib.mymodule:initialize_func'
+
+On startup, pmxbot will call `initialize_func` with no parameters.
 
 Within the script you'll want to import the decorates you need to use with:
 `from pmxbot.botbase import command, contains, execdelay, execat`. You'll then
