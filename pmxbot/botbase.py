@@ -9,7 +9,7 @@ import StringIO
 import collections
 import textwrap
 
-import ircbot
+import irc.bot
 
 from . import util
 from .logging import init_logger
@@ -54,10 +54,10 @@ class NoLog(object):
 				continue
 			yield secret, item
 
-class LoggingCommandBot(FeedparserSupport, ircbot.SingleServerIRCBot):
+class LoggingCommandBot(FeedparserSupport, irc.bot.SingleServerIRCBot):
 	def __init__(self, db_uri, server, port, nickname, channels, nolog_channels=None, feed_interval=60, feeds=[], use_ssl=False, password=None):
 		server_list = [(server, port, password)]
-		ircbot.SingleServerIRCBot.__init__(self, server_list, nickname, nickname)
+		irc.bot.SingleServerIRCBot.__init__(self, server_list, nickname, nickname)
 		FeedparserSupport.__init__(self, feed_interval, feeds)
 		nolog_channels = nolog_channels or []
 		self.nickname = nickname
@@ -77,7 +77,7 @@ class LoggingCommandBot(FeedparserSupport, ircbot.SingleServerIRCBot):
 
 	def connect(self, *args, **kwargs):
 		kwargs['ssl'] = self.__use_ssl
-		return ircbot.SingleServerIRCBot.connect(self, *args, **kwargs)
+		return irc.bot.SingleServerIRCBot.connect(self, *args, **kwargs)
 
 	def out(self, channel, s, log=True):
 		func = self.c.privmsg

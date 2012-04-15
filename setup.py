@@ -18,7 +18,7 @@ setup_params = dict(
 		"popquotes>=1.0.1",
 		"excuses>=1.1.2",
 		"pyyaml",
-		"python-irclib>=0.4.8",
+		"irc>=0.7b1,<2.0dev",
 		"httplib2",
 		"feedparser",
 		"pytz",

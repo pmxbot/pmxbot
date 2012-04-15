@@ -5,14 +5,14 @@ import time
 import sqlite3
 import urlparse
 
-import irclib
+import irc.client
 import yaml
 
 import py.test
 
 class TestingClient(object):
 	def __init__(self, server, port, nickname):
-		self.irc = irclib.IRC()
+		self.irc = irc.client.IRC()
 		self.c = self.irc.server()
 		self.c.connect(server, port, nickname)
 		self.irc.process_once(0.1)
