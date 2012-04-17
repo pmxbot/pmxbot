@@ -28,6 +28,13 @@ class TestMongoDBKarma(object):
 		k.change('foo', 1)
 		assert k.lookup('foo') == k.lookup('bar') == 5
 
+	def test_linking_same_does_nothing(self, mongodb_uri):
+		self.setup_karma(mongodb_uri)
+		k = self.karma
+		k.set('foo', 99)
+		k.link('foo', 'foo')
+		assert k.lookup('foo') == 99
+
 
 def test_MongoDBQuotes(mongodb_uri):
 	q = util.Quotes.from_URI(mongodb_uri)
