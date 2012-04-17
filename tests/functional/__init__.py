@@ -61,7 +61,11 @@ class PmxbotHarness(object):
 			query += " and nick = :nick"
 		if message:
 			query += " and message = :message"
-		cursor.execute(query, {'channel' : channel, 'nick' : nick, 'message' : message})
+		cursor.execute(query, dict(
+			channel = channel,
+			nick = nick,
+			message = message,
+			))
 		res = cursor.fetchall()
 		print res
 		return len(res) >= 1
@@ -89,4 +93,3 @@ class PmxbotHarness(object):
 				time.sleep(.1)
 		else:
 			raise RuntimeError('Could not remove log db', cls.dbfile)
-
