@@ -1,5 +1,4 @@
 # vim:ts=4:sw=4:noexpandtab
-import os
 import random
 import re
 import urllib
@@ -419,7 +418,7 @@ class SQLiteKarma(Karma, storage.SQLiteStorage):
 		KEYS_SQL = "SELECT karmakey from karma_keys where karmaid = ?"
 		value = db.execute(VALUE_SQL, [id]).fetchall()[0][0]
 		keys_cur = db.execute(KEYS_SQL, [id]).fetchall()
-		keys = sorted(x[0] for x in key_cur)
+		keys = sorted(x[0] for x in keys_cur)
 		return keys, value
 
 	def search(self, term):
@@ -678,14 +677,16 @@ class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 
 def get_html(url):
 	h = httplib2.Http()
-	resp, html = h.request(url,
-	headers={'User-Agent' : 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2b1) Gecko/20091014 Firefox/3.6b1 GTB5'})
+	resp, html = h.request(url, headers={
+		'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; '
+			'rv:1.9.2b1) Gecko/20091014 Firefox/3.6b1 GTB5',
+	})
 	assert 200 <= resp.status < 300
 	return html
 
 def_exp1 = re.compile(r"<div><span class=f>.*?</span>(.+?)</div>", re.MULTILINE)
 def_exp2 = re.compile(r"Definition for.*<div class=s><div>(.+?)<", re.MULTILINE)
-urbd_exp = re.compile(r"""<td class=['"]word['"]>(.+?)^</td>$(?:.+?)<div class=['"]definition['"]>(.+?)</div>""", re.MULTILINE | re.DOTALL )
+urbd_exp = re.compile(r"""<td class=['"]word['"]>(.+?)^</td>$(?:.+?)<div class=['"]definition['"]>(.+?)</div>""", re.MULTILINE | re.DOTALL)
 
 def strip_tags(string):
 	"""
