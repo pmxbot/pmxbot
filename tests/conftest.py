@@ -15,14 +15,14 @@ def throws_exception(call, exceptions=[Exception]):
 		call()
 	except tuple(exceptions):
 		return True
-	except Exception, e:
+	except Exception:
 		pass
-		#print("Unexpected exception", e)
 	return False
 
 def pytest_namespace():
-	has_internet = pytest.mark.skipif('not pytest.config.has_internet')
-	return vars()
+	return dict(
+		has_internet = pytest.mark.skipif('not pytest.config.has_internet')
+	)
 
 def pytest_configure(config):
 	open_google = functools.partial(urllib2.urlopen, 'http://www.google.com')
