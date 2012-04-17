@@ -2,11 +2,21 @@ import pytest
 
 from pmxbot import util
 
-def test_MongoDBKarma(mongodb_uri):
-	k = util.Karma.from_URI(mongodb_uri)
-	k.db = k.db.database.connection[k.db.database.name+'_test'][k.db.name]
-	k.db.drop()
-	try:
+class TestMongoDBKarma(object):
+	def setup_karma(self, mongodb_uri):
+		k = util.Karma.from_URI(mongodb_uri)
+		k.db = k.db.database.connection[
+			k.db.database.name+'_test'
+			][k.db.name]
+		self.karma = k
+
+	def teardown_method(self, method):
+		if hasattr(self, 'karma'):
+			self.karma.db.drop()
+
+	def test_basic_usage(self, mongodb_uri):
+		self.setup_karma(mongodb_uri)
+		k = self.karma
 		k.change('foo', 1)
 		k.change('bar', 1)
 		k.set('baz', 3)
@@ -17,8 +27,7 @@ def test_MongoDBKarma(mongodb_uri):
 		assert k.lookup('baz') == k.lookup('foo') == 4
 		k.change('foo', 1)
 		assert k.lookup('foo') == k.lookup('bar') == 5
-	finally:
-		k.db.drop()
+
 
 def test_MongoDBQuotes(mongodb_uri):
 	q = util.Quotes.from_URI(mongodb_uri)
