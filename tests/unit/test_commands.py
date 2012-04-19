@@ -582,11 +582,20 @@ class TestCommands(object):
 		"""
 		query = '|en que no desea la nueva pregunta'
 		res = pmxbot.translate(c, e, '#test', 'testrunner', query)
+		assert 'new question' in res.lower()
 		query = 'es|en que no desea la nueva pregunta'
 		res = pmxbot.translate(c, e, '#test', 'testrunner', query)
+		assert 'new question' in res.lower()
+
+	@pytest.has_internet
+	def test_translate_invalid_lang(self):
+		"""
+		An invalid language should give a nice error message.
+		"""
 		# sp is not a language
 		invalid_query = 'sp|en que no desea la nueva pregunta'
-		res = pmxbot.translate(c, e, '#test', 'testrunner', query)
+		res = pmxbot.translate(c, e, '#test', 'testrunner', invalid_query)
+		assert 'are you sure' in res.lower()
 
 	def test_excuse(self):
 		import excuses
