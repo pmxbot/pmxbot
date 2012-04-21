@@ -1,3 +1,7 @@
+import os
+import tempfile
+import functools
+
 from pmxbot import karma
 
 class TestMongoDBKarma(object):
@@ -29,6 +33,23 @@ class TestMongoDBKarma(object):
 	def test_linking_same_does_nothing(self, mongodb_uri):
 		self.setup_karma(mongodb_uri)
 		k = self.karma
+		k.set('foo', 99)
+		k.link('foo', 'foo')
+		assert k.lookup('foo') == 99
+
+class TestSQLiteKarma(object):
+	finalizers = []
+
+	@classmethod
+	def teardown_class(cls):
+		for finalizer in cls.finalizers:
+			finalizer()
+
+	def test_linking_same_does_nothing(self):
+		tf = tempfile.NamedTemporaryFile(delete=False)
+		tf.close()
+		self.finalizers.append(functools.partial(os.remove, tf.name))
+		k = karma.Karma.from_URI('sqlite://{tf.name}'.format(**vars()))
 		k.set('foo', 99)
 		k.link('foo', 'foo')
 		assert k.lookup('foo') == 99
