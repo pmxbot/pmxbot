@@ -2,15 +2,12 @@
 import re
 import os
 import uuid
-import datetime
 
 import pytest
 import popquotes.pmxbot
 
 from pmxbot import pmxbot
 from pmxbot import karma
-from pmxbot import quotes
-from pmxbot import botbase
 
 def pytest_generate_tests(metafunc):
 	# any test that takes the iter_ parameter should be executed 100 times
@@ -572,28 +569,6 @@ class TestCommands(object):
 		res = pmxbot.bitchingisuseless(c, e, '#test', 'testrunner', '')
 		print res
 		assert res == "Quiet bitching is useless, foo'. Do something about it."
-
-	@pytest.has_internet
-	def test_translate(self):
-		"""
-		The translate function should be able to translate a simple string.
-		"""
-		query = '|en que no desea la nueva pregunta'
-		res = pmxbot.translate(c, e, '#test', 'testrunner', query)
-		assert 'new question' in res.lower()
-		query = 'es|en que no desea la nueva pregunta'
-		res = pmxbot.translate(c, e, '#test', 'testrunner', query)
-		assert 'new question' in res.lower()
-
-	@pytest.has_internet
-	def test_translate_invalid_lang(self):
-		"""
-		An invalid language should give a nice error message.
-		"""
-		# sp is not a language
-		invalid_query = 'sp|en que no desea la nueva pregunta'
-		res = pmxbot.translate(c, e, '#test', 'testrunner', invalid_query)
-		assert 'are you sure' in res.lower()
 
 	def test_excuse(self):
 		import excuses

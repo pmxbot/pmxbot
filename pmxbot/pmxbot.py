@@ -146,25 +146,6 @@ def weather(client, event, channel, nick, rest):
 	)
 	return suppress_exceptions(weather_callables, suppressed_errors)
 
-@command("translate", aliases=('trans', 'googletrans', 'googletranslate'), doc="Translate a phrase using Google Translate. First argument should be the language[s]. It is a 2 letter abbreviation. It will auto detect the orig lang if you only give one; or two languages joined by a |, for example 'en|de' to trans from English to German. Follow this by the phrase you want to translate.")
-def translate(client, event, channel, nick, rest):
-	rest = rest.strip()
-	langpair, meh, rest = rest.partition(' ')
-	if '|' not in langpair:
-		langpair = '|' + langpair
-	BASE_URL = 'http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&format=text&'
-	url = BASE_URL + urllib.urlencode(dict(
-		q = rest.encode('utf-8'),
-		langpair = langpair))
-	raw_res = urllib.urlopen(url).read()
-	results = json.loads(raw_res)
-	response = results['responseData']
-	if not response:
-		return "I couldn't find a translation. Are you sure %(langpair)s is a valid language?" % vars()
-	translation = response['translatedText']
-	return translation
-
-
 @command("boo", doc="Boo someone")
 def boo(client, event, channel, nick, rest):
 	slapee = rest
