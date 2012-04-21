@@ -8,6 +8,8 @@ import pytest
 import popquotes.pmxbot
 
 from pmxbot import pmxbot
+from pmxbot import karma
+from pmxbot import quotes
 from pmxbot import botbase
 
 def pytest_generate_tests(metafunc):
@@ -47,9 +49,7 @@ class TestCommands(object):
 
 	@classmethod
 	def teardown_class(self):
-		del botbase.logger
-		del pmxbot.util.karma
-		del pmxbot.util.quotes
+		pmxbot._cleanup()
 		path = os.path.dirname(os.path.abspath(__file__))
 		os.remove(os.path.join(path, 'pmxbot.sqlite'))
 
@@ -192,10 +192,10 @@ class TestCommands(object):
 		Test "boo foo"
 		"""
 		subject = "foo"
-		pre = pmxbot.util.karma.lookup(subject)
+		pre = karma.Karma.store.lookup(subject)
 		res = pmxbot.boo(c, e, "#test", "testrunner", subject)
 		assert res == "/me BOOO %s!!! BOOO!!!" % subject
-		post = pmxbot.util.karma.lookup(subject)
+		post = karma.Karma.store.lookup(subject)
 		assert post == pre - 1
 
 	def test_troutslap(self):
@@ -203,10 +203,10 @@ class TestCommands(object):
 		Test "troutslap foo"
 		"""
 		subject = "foo"
-		pre = pmxbot.util.karma.lookup(subject)
+		pre = karma.Karma.store.lookup(subject)
 		res = pmxbot.troutslap(c, e, "#test", "testrunner", subject)
 		assert res == "/me slaps %s around a bit with a large trout" % subject
-		post = pmxbot.util.karma.lookup(subject)
+		post = karma.Karma.store.lookup(subject)
 		assert post == pre - 1
 
 	def test_keelhaul(self):
@@ -214,10 +214,10 @@ class TestCommands(object):
 		Test "keelhaul foo"
 		"""
 		subject = "foo"
-		pre = pmxbot.util.karma.lookup(subject)
+		pre = karma.Karma.store.lookup(subject)
 		res = pmxbot.keelhaul(c, e, "#test", "testrunner", subject)
 		assert res == "/me straps %s to a dirty rope, tosses 'em overboard and pulls with great speed. Yarrr!" % subject
-		post = pmxbot.util.karma.lookup(subject)
+		post = karma.Karma.store.lookup(subject)
 		assert post == pre - 1
 
 	def test_motivate(self):
@@ -225,22 +225,21 @@ class TestCommands(object):
 		Test that motivate actually works.
 		"""
 		subject = "foo"
-		pre = pmxbot.util.karma.lookup(subject)
+		pre = karma.Karma.store.lookup(subject)
 		res = pmxbot.motivate(c, e, "#test", "testrunner", subject)
 		assert res == "you're doing good work, %s!" % subject
-		post = pmxbot.util.karma.lookup(subject)
+		post = karma.Karma.store.lookup(subject)
 		assert post == pre + 1
-
 
 	def test_motivate_with_spaces(self):
 		"""
 		Test that motivate strips beginning and ending whitespace
 		"""
 		subject = "foo"
-		pre = pmxbot.util.karma.lookup(subject)
+		pre = karma.Karma.store.lookup(subject)
 		res = pmxbot.motivate(c, e, "#test", "testrunner", "   %s 	  " % subject)
 		assert res == "you're doing good work, %s!" % subject
-		post = pmxbot.util.karma.lookup(subject)
+		post = karma.Karma.store.lookup(subject)
 		assert post == pre + 1
 
 	def test_demotivate(self):
@@ -248,10 +247,10 @@ class TestCommands(object):
 		Test that demotivate actually works.
 		"""
 		subject = "foo"
-		pre = pmxbot.util.karma.lookup(subject)
+		pre = karma.Karma.store.lookup(subject)
 		res = pmxbot.demotivate(c, e, "#test", "testrunner", subject)
 		assert res == "you're doing horrible work, %s!" % subject
-		post = pmxbot.util.karma.lookup(subject)
+		post = karma.Karma.store.lookup(subject)
 		assert post == pre - 1
 
 	def test_imotivate(self):
@@ -259,10 +258,10 @@ class TestCommands(object):
 		Test that ironic/sarcastic motivate actually works.
 		"""
 		subject = "foo"
-		pre = pmxbot.util.karma.lookup(subject)
+		pre = karma.Karma.store.lookup(subject)
 		res = pmxbot.imotivate(c, e, "#test", "testrunner", subject)
 		assert res == """you're "doing" "good" "work", %s!""" % subject
-		post = pmxbot.util.karma.lookup(subject)
+		post = karma.Karma.store.lookup(subject)
 		assert post == pre - 1
 
 	def test_add_quote(self):
@@ -412,7 +411,6 @@ class TestCommands(object):
 		res = pmxbot.karma(c, e, "#test", "testrunner", "%s--" %id)
 		res = pmxbot.karma(c, e, "#test", "testrunner", id)
 		assert re.match(r"^%s has 2 karmas$" % id, res)
-
 
 	def test_karma_set_and_check_with_space(self):
 		"""

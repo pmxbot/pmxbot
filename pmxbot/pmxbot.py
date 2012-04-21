@@ -903,6 +903,18 @@ def run(configFile=None, configDict=None, configInput=None, start=True):
 	if start:
 		bot.start()
 
+def _cleanup():
+	"Delete the various persistence objects"
+	del botbase.logger
+	del karma_mod.Karma.store
+	del quotes.Quotes.store
+	# delete the backward-compatibility references as well
+	del util.karma
+	del karma_mod.karma
+	del util.quotes
+	del quotes.quotes
+
+
 def _setup_logging():
 	logging.basicConfig(level=logging.INFO, format="%(message)s")
 
