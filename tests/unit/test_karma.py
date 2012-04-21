@@ -40,6 +40,18 @@ class TestMongoDBKarma(object):
 			k.link('foo', 'foo')
 		assert k.lookup('foo') == 99
 
+	def test_linking_similar(self, mongodb_uri):
+		self.setup_karma(mongodb_uri)
+		k = self.karma
+		k.set('foo', 99)
+		k.set('foo|away', 1)
+		k.link('foo', 'foo|away')
+		assert k.lookup('foo') == 100
+		with pytest.raises(karma.AlreadyLinked):
+			k.link('foo', 'foo|away')
+		with pytest.raises(karma.AlreadyLinked):
+			k.link('foo|away', 'foo')
+
 	def test_already_linked_raises_error(self, mongodb_uri):
 		self.setup_karma(mongodb_uri)
 		k = self.karma
