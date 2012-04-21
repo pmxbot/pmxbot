@@ -157,7 +157,11 @@ class MongoDBKarma(Karma, storage.MongoDBStorage):
 	def link(self, thing1, thing2):
 		thing1 = thing1.strip().lower()
 		thing2 = thing2.strip().lower()
+		if thing1 == thing2:
+			raise ValueError("Attempted to link two of the same")
 		rec = self.db.find_one({'names': thing2})
+		if thing1 in rec['names']:
+			raise ValueError("Those two are already linked")
 		if not rec: raise KeyError(thing2)
 		try:
 			query = {'names': thing1}

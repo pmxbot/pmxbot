@@ -2,6 +2,8 @@ import os
 import tempfile
 import functools
 
+import pytest
+
 from pmxbot import karma
 
 class TestMongoDBKarma(object):
@@ -34,8 +36,22 @@ class TestMongoDBKarma(object):
 		self.setup_karma(mongodb_uri)
 		k = self.karma
 		k.set('foo', 99)
-		k.link('foo', 'foo')
+		with pytest.raises(ValueError):
+			k.link('foo', 'foo')
 		assert k.lookup('foo') == 99
+
+	def test_already_linked_raises_error(self, mongodb_uri):
+		self.setup_karma(mongodb_uri)
+		k = self.karma
+		k.set('foo', 50)
+		k.set('bar', 50)
+		k.link('foo', 'bar')
+		assert k.lookup('foo') == k.lookup('bar') == 100
+		with pytest.raises(ValueError):
+			k.link('foo', 'bar')
+		with pytest.raises(ValueError):
+			k.link('bar', 'foo')
+		assert k.lookup('foo') == k.lookup('bar') == 100
 
 class TestSQLiteKarma(object):
 	finalizers = []
