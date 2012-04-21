@@ -5,6 +5,9 @@ import re
 
 from . import storage
 
+class SameName(ValueError): pass
+class AlreadyLinked(ValueError): pass
+
 class Karma(storage.SelectableStorage):
 	pass
 
@@ -158,10 +161,10 @@ class MongoDBKarma(Karma, storage.MongoDBStorage):
 		thing1 = thing1.strip().lower()
 		thing2 = thing2.strip().lower()
 		if thing1 == thing2:
-			raise ValueError("Attempted to link two of the same")
+			raise SameName("Attempted to link two of the same name")
 		rec = self.db.find_one({'names': thing2})
 		if thing1 in rec['names']:
-			raise ValueError("Those two are already linked")
+			raise AlreadyLinked("Those two are already linked")
 		if not rec: raise KeyError(thing2)
 		try:
 			query = {'names': thing1}

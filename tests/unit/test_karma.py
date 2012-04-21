@@ -36,7 +36,7 @@ class TestMongoDBKarma(object):
 		self.setup_karma(mongodb_uri)
 		k = self.karma
 		k.set('foo', 99)
-		with pytest.raises(ValueError):
+		with pytest.raises(karma.SameName):
 			k.link('foo', 'foo')
 		assert k.lookup('foo') == 99
 
@@ -47,9 +47,9 @@ class TestMongoDBKarma(object):
 		k.set('bar', 50)
 		k.link('foo', 'bar')
 		assert k.lookup('foo') == k.lookup('bar') == 100
-		with pytest.raises(ValueError):
+		with pytest.raises(karma.AlreadyLinked):
 			k.link('foo', 'bar')
-		with pytest.raises(ValueError):
+		with pytest.raises(karma.AlreadyLinked):
 			k.link('bar', 'foo')
 		assert k.lookup('foo') == k.lookup('bar') == 100
 

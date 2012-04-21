@@ -461,7 +461,13 @@ def karma(client, event, channel, nick, rest):
 			return "%s karma--" % karmee
 	elif '==' in rest:
 		t1, t2 = rest.split('==')
-		karma_mod.karma.link(t1, t2)
+		try:
+			karma_mod.karma.link(t1, t2)
+		except karma_mod.SameName:
+			karma_mod.karma.change(nick, -1)
+			return "Don't try to link a name to itself!"
+		except karma_mod.AlreadyLinked:
+			return "Those names were previously linked."
 		score = karma_mod.karma.lookup(t1)
 		return "%s and %s are now linked and have a score of %s" % (t1, t2, score)
 	else:
