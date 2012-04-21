@@ -104,8 +104,8 @@ class SQLiteKarma(Karma, storage.SQLiteStorage):
 		"""
 		VALUE_SQL = "SELECT karmavalue from karma_values where karmaid = ?"
 		KEYS_SQL = "SELECT karmakey from karma_keys where karmaid = ?"
-		value = db.execute(VALUE_SQL, [id]).fetchall()[0][0]
-		keys_cur = db.execute(KEYS_SQL, [id]).fetchall()
+		value = self.db.execute(VALUE_SQL, [id]).fetchall()[0][0]
+		keys_cur = self.db.execute(KEYS_SQL, [id]).fetchall()
 		keys = sorted(x[0] for x in keys_cur)
 		return keys, value
 
