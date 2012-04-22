@@ -96,9 +96,14 @@ class SQLiteKarma(Karma, storage.SQLiteStorage):
 		t2value = self.lookup(t2)
 
 		newvalue = t1value + t2value
-		self.db.execute('UPDATE karma_keys SET karmaid = ? where karmaid = ?', (t1id, t2id)) #update the keys so t2 points to t1s value
-		self.db.execute('DELETE FROM karma_values WHERE karmaid = ?', (t2id,)) #drop the old value row for neatness
-		self.db.execute('UPDATE karma_values SET karmavalue = ? where karmaid = ?', (newvalue, t1id)) #set the new combined value
+		# update the keys so t2 points to t1s value
+		self.db.execute('UPDATE karma_keys SET karmaid = ? where karmaid = ?',
+			(t1id, t2id))
+		# drop the old value row for neatness
+		self.db.execute('DELETE FROM karma_values WHERE karmaid = ?', (t2id,))
+		# set the new combined value
+		self.db.execute('UPDATE karma_values SET karmavalue = ? where karmaid = ?',
+			(newvalue, t1id))
 		self.db.commit()
 
 	def _get(self, id):
