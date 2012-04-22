@@ -73,11 +73,38 @@ class TestSQLiteKarma(object):
 		for finalizer in cls.finalizers:
 			finalizer()
 
-	def test_linking_same_does_nothing(self):
+	def setup_karma(self):
 		tf = tempfile.NamedTemporaryFile(delete=False)
 		tf.close()
 		self.finalizers.append(functools.partial(os.remove, tf.name))
-		k = karma.Karma.from_URI('sqlite://{tf.name}'.format(**vars()))
+		return karma.Karma.from_URI('sqlite://{tf.name}'.format(**vars()))
+
+	def test_linking_same_does_nothing(self):
+		k = self.setup_karma()
 		k.set('foo', 99)
-		k.link('foo', 'foo')
+		with pytest.raises(karma.SameName):
+			k.link('foo', 'foo')
 		assert k.lookup('foo') == 99
+
+	def test_linking_similar(self):
+		k = self.setup_karma()
+		k.set('foo', 99)
+		k.set('foo|away', 1)
+		k.link('foo', 'foo|away')
+		assert k.lookup('foo') == 100
+		with pytest.raises(karma.AlreadyLinked):
+			k.link('foo', 'foo|away')
+		with pytest.raises(karma.AlreadyLinked):
+			k.link('foo|away', 'foo')
+
+	def test_already_linked_raises_error(self):
+		k = self.setup_karma()
+		k.set('foo', 50)
+		k.set('bar', 50)
+		k.link('foo', 'bar')
+		assert k.lookup('foo') == k.lookup('bar') == 100
+		with pytest.raises(karma.AlreadyLinked):
+			k.link('foo', 'bar')
+		with pytest.raises(karma.AlreadyLinked):
+			k.link('bar', 'foo')
+		assert k.lookup('foo') == k.lookup('bar') == 100

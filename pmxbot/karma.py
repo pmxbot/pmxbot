@@ -81,19 +81,21 @@ class SQLiteKarma(Karma, storage.SQLiteStorage):
 		return keysandkarma
 
 	def link(self, thing1, thing2):
-		t1 = thing1.strip().lower()
-		t2 = thing2.strip().lower()
+		if thing1 == thing2:
+			raise SameName("Attempted to link two of the same name")
 		GET_KARMAID_SQL = 'SELECT karmaid FROM karma_keys WHERE karmakey = ?'
 		try:
-			t1id = self.db.execute(GET_KARMAID_SQL, [t1]).fetchone()[0]
+			t1id = self.db.execute(GET_KARMAID_SQL, [thing1]).fetchone()[0]
 		except TypeError:
-			raise KeyError
-		t1value = self.lookup(t1)
+			raise KeyError(thing1)
+		t1value = self.lookup(thing1)
 		try:
-			t2id = self.db.execute(GET_KARMAID_SQL, [t2]).fetchone()[0]
+			t2id = self.db.execute(GET_KARMAID_SQL, [thing2]).fetchone()[0]
 		except TypeError:
-			raise KeyError
-		t2value = self.lookup(t2)
+			raise KeyError(thing2)
+		if t1id == t2id:
+			raise AlreadyLinked("Those two are already linked")
+		t2value = self.lookup(thing2)
 
 		newvalue = t1value + t2value
 		# update the keys so t2 points to t1s value
