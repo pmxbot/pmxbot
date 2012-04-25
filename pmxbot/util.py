@@ -6,7 +6,9 @@ import re
 import urllib
 
 import httplib2
-import wordnik
+import wordnik.api.APIClient
+import wordnik.api.WordAPI
+import wordnik.model
 
 # for backward compatibility
 from pmxbot.phrases import *
@@ -62,10 +64,16 @@ def lookup(word):
 	'''
 	# Jason's key - do not abuse
 	key = 'edc4b9b94b341eeae350e087c2e05d2f5a2a9e0478cefc6dc'
-	w = wordnik.Wordnik(key)
-	definitions = w.word_get_definitions(word)
-	if definitions:
-		return unicode(definitions[0]['text'])
+	client = wordnik.api.APIClient.APIClient(key, 'http://api.wordnik.com/v4')
+	words = wordnik.api.WordAPI.WordAPI(client)
+	input = wordnik.model.WordDefinitionsInput.WordDefinitionsInput()
+	input.word = word
+	input.limit = 1
+	definitions = words.getDefinitions(input)
+	if not definitions:
+		return
+	definition = definitions[0]
+	return unicode(definition.text)
 lookup.provider = 'Wordnik'
 
 def urbanlookup(word):

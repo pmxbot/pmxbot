@@ -22,7 +22,7 @@ setup_params = dict(
 		"httplib2",
 		"feedparser",
 		"pytz",
-		"wordnik==1.2dev-r2b12657",
+		"wordnik==2.0dev-rb0221ccc",
 		#for viewer
 		"jinja2",
 		"cherrypy",
