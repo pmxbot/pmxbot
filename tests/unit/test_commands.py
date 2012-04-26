@@ -108,7 +108,9 @@ class TestCommands(object):
 
 	# time patterns come as 4:20pm when queried from the U.S. and 16:20
 	#  when queried from (at least some) other locales.
-	time_pattern = re.compile(r'^[0-9]{1,2}:[0-9]{2}(?:am|pm)?')
+	time_pattern = r'[0-9]{1,2}:[0-9]{2}(?:am|pm)?'
+	single_time_pattern = re.compile(time_pattern)
+	multi_time_pattern = re.compile(time_pattern + r'\s+\(.*\)')
 
 	@pytest.has_internet
 	def test_time_one(self):
@@ -116,13 +118,11 @@ class TestCommands(object):
 		Check the time in Washington, DC. Must match time_pattern.
 		"""
 		res = pmxbot.googletime(c, e, "#test", "testrunner", "Washington, DC")
+		res = list(res)
 		assert res
-		i = 0
 		for line in res:
-			print line
-			i += 1
-			assert self.time_pattern.match(line)
-		assert i == 1
+			assert self.single_time_pattern.match(line)
+		assert len(res) == 1
 
 	@pytest.has_internet
 	def test_time_three(self):
@@ -132,13 +132,11 @@ class TestCommands(object):
 		"""
 		res = pmxbot.googletime(c, e, "#test", "testrunner",
 			"Washington, DC | Palo Alto, CA | London")
+		res = list(res)
 		assert res
-		i = 0
 		for line in res:
-			print line
-			i += 1
-			assert self.time_pattern.match(line)
-		assert i == 3
+			assert self.multi_time_pattern.match(line)
+		assert len(res) == 3
 
 	@pytest.has_internet
 	def test_time_all(self):
@@ -147,13 +145,11 @@ class TestCommands(object):
 		matches the time pattern on each line
 		"""
 		res = pmxbot.googletime(c, e, "#test", "testrunner", "all")
+		res = list(res)
 		assert res
-		i = 0
 		for line in res:
-			print line
-			i += 1
-			assert self.time_pattern.match(line)
-		assert i == 4
+			assert self.multi_time_pattern.match(line)
+		assert len(res) == 4
 
 	def test_weather_one(self):
 		"""
