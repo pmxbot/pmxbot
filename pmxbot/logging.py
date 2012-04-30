@@ -100,7 +100,7 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
 				SELECT time(datetime), nick, message
 				from logs
 				where channel = ?
-				  and datetime < ?
+					and datetime < ?
 				order by datetime desc
 				limit 2
 				"""

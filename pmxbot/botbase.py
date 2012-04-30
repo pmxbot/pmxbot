@@ -13,6 +13,7 @@ import irc.bot
 
 from . import karma
 from . import quotes
+from . import notify
 from .logging import init_logger
 from .rss import FeedparserSupport
 
@@ -72,6 +73,7 @@ class LoggingCommandBot(FeedparserSupport, irc.bot.SingleServerIRCBot):
 		globals().update(logger=init_logger(db_uri))
 		karma.init_karma(db_uri)
 		quotes.init_quotes(db_uri)
+		notify.init_notify(db_uri)
 		self._nickname = nickname
 		self.__use_ssl = use_ssl
 		self.warn_history = WarnHistory()
@@ -127,6 +129,8 @@ class LoggingCommandBot(FeedparserSupport, irc.bot.SingleServerIRCBot):
 	def on_join(self, c, e):
 		nick = e.source().split('!', 1)[0]
 		channel = e.target()
+		for msg in notify.notify.lookup(nick):
+			c.notice(nick, '%s wanted to say %s' % (msg['fromnick'], msg['message']))
 		if channel in self._nolog or nick == self._nickname:
 			return
 		if not self.warn_history.needs_warning(nick):

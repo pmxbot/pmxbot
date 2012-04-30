@@ -8,6 +8,7 @@ from . import storage
 class SameName(ValueError): pass
 class AlreadyLinked(ValueError): pass
 
+
 class Karma(storage.SelectableStorage):
 	pass
 

@@ -27,6 +27,7 @@ from . import botbase
 from . import karma as karma_mod
 from . import quotes
 from . import phrases
+from . import notify as notify_mod
 from . import util
 from . import saysomething as saysomethinglib
 from .cleanhtml import plaintext
@@ -841,6 +842,13 @@ def where(client, event, channel, nick, rest):
 		onick, tm, chan)
 	else:
 		return "Sorry!  I don't have any record of %s speaking" % onick
+
+@command("notify", doc="notify <nick> <message>")
+def donotify(client, event, channel, nick, rest):
+	opts = rest.split(' ')
+	to = opts[0]
+	notify_mod.notify.notify(nick, to, ' '.join(opts[1:]))
+	return "Will do!"
 
 config = None
 
