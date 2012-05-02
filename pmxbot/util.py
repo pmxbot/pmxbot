@@ -11,7 +11,6 @@ import wordnik.api.WordAPI
 import wordnik.model
 
 # for backward compatibility
-from pmxbot.notify import *
 from pmxbot.phrases import *
 from pmxbot.karma import *
 from pmxbot.quotes import *

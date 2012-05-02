@@ -73,7 +73,7 @@ class LoggingCommandBot(FeedparserSupport, irc.bot.SingleServerIRCBot):
 		globals().update(logger=init_logger(db_uri))
 		karma.init_karma(db_uri)
 		quotes.init_quotes(db_uri)
-		notify.init_notify(db_uri)
+		notify.Notify.init(db_uri)
 		self._nickname = nickname
 		self.__use_ssl = use_ssl
 		self.warn_history = WarnHistory()

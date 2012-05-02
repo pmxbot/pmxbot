@@ -1,16 +1,13 @@
 # vim:ts=4:sw=4:noexpandtab
 
-import itertools
-import re
 import time
 
 from . import storage
 
-class SameName(ValueError): pass
-class AlreadyLinked(ValueError): pass
-
 class Notify(storage.SelectableStorage):
-    pass
+    @classmethod
+    def init(cls, uri):
+        cls.store = cls.from_URI(uri)
 
 class SQLiteNotify(Notify, storage.SQLiteStorage):
     def init_tables(self):
@@ -24,7 +21,6 @@ class SQLiteNotify(Notify, storage.SQLiteStorage):
     def lookup(self, nick):
         query = """SELECT fromnick, message, notifytime, notifyid
                     FROM notify WHERE tonick = ?"""
-        orig_row = self.db.row_factory
         ''' Ugly, but will work with sqlite3 or pysqlite2 '''
         messages = [{'fromnick':x[0],
                     'message':x[1],
@@ -33,7 +29,7 @@ class SQLiteNotify(Notify, storage.SQLiteStorage):
         ids = [x['notifyid'] for x in messages]
         query = "DELETE FROM notify WHERE notifyid IN (%s)" % ','.join('?' for x in ids)
         self.db.execute(query, ids)
-        
+
         return messages
 
     def notify(self, fromnick, tonick, message):
@@ -63,8 +59,3 @@ class MongoDBNotify(Notify, storage.MongoDBStorage):
         query = notification
         oper = {'$set': {'value': notification}, '$addToSet': notification}
         self.db.insert(query, oper)
-
-def init_notify(uri):
-    Notify.store = Notify.from_URI(uri)
-    globals().update(notify=Notify.store)
-    __import__('pmxbot.util').util.notify = Notify.store
