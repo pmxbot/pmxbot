@@ -150,7 +150,6 @@ class LoggingCommandBot(FeedparserSupport, irc.bot.SingleServerIRCBot):
 				logger.message(channel, nick, msg)
 			self.handle_action(c, e, channel, nick, msg)
 
-
 	def on_privmsg(self, c, e):
 		msg = (''.join(e.arguments())).decode('utf8', 'ignore')
 		nick = e.source().split('!', 1)[0]
@@ -195,7 +194,6 @@ class LoggingCommandBot(FeedparserSupport, irc.bot.SingleServerIRCBot):
 		elif repeat and when:
 			self._schedule_at('rescheduled task', channel, when, func, args, '')
 
-
 	def handle_action(self, c, e, channel, nick, msg):
 		"""Core message parser and dispatcher"""
 		lc_msg = msg.lower()
@@ -207,7 +205,7 @@ class LoggingCommandBot(FeedparserSupport, irc.bot.SingleServerIRCBot):
 				msg = msg.partition(' ')[2].strip()
 				try:
 					res = f(c, e, channel, nick, msg)
-				except Exception, exc:
+				except Exception as exc:
 					explitives = ['Yikes!', 'Zoiks!', 'Ouch!']
 					explitive = random.choice(explitives)
 					res = ["{explitive} An error occurred: {exc}".format(**vars())]
