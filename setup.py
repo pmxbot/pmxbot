@@ -13,6 +13,9 @@ setup_params = dict(
 			'pmxbot=pmxbot.pmxbot:run',
 			'pmxbotweb=pmxbotweb.pmxbotweb:run',
 		],
+		pmxbot_handlers = [
+			'pmxbot notifier = pmxbot.notify:Notify.init'
+		],
 	),
 	install_requires=[
 		"popquotes>=1.1",

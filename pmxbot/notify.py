@@ -3,12 +3,13 @@
 import time
 
 from . import storage
+from . import pmxbot
 from .botbase import command, on_join
 
 class Notify(storage.SelectableStorage):
     @classmethod
-    def init(cls, uri):
-        cls.store = cls.from_URI(uri)
+    def init(cls):
+        cls.store = cls.from_URI(pmxbot.config.database)
 
 class SQLiteNotify(Notify, storage.SQLiteStorage):
     def init_tables(self):
