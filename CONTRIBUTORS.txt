@@ -10,7 +10,8 @@
 
  - Shoemaker (mrshoe)
  - Chris Perry (cperry)
- - Jason R. Coombs <Jason.Coombs@YouGov.net>
+ - Jason R. Coombs <Jason.Coombs@YouGov.com>
+ - Ryan Day <ryanday2@gmail.com>
 
 If you believe your name belongs here, but you don't see it, please don't
 hesitate to contact the maintainer.

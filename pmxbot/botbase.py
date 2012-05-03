@@ -129,8 +129,8 @@ class LoggingCommandBot(FeedparserSupport, irc.bot.SingleServerIRCBot):
 	def on_join(self, c, e):
 		nick = e.source().split('!', 1)[0]
 		channel = e.target()
-		for msg in notify.Notify.store.lookup(nick):
-			c.notice(nick, '%s wanted to say %s' % (msg['fromnick'], msg['message']))
+		for func in _join_registry:
+			func(client=c, event=e, nick=nick, channel=channel)
 		if channel in self._nolog or nick == self._nickname:
 			return
 		if not self.warn_history.needs_warning(nick):
@@ -246,6 +246,7 @@ class SilentCommandBot(LoggingCommandBot):
 _handler_registry = []
 _delay_registry = []
 _at_registry = []
+_join_registry = []
 
 class Handler(collections.namedtuple('HandlerTuple',
 	'type_ name func doc channels exclude rate priority')):
@@ -299,5 +300,11 @@ def execat(name, channel, when, args=[], doc=None):
 		if type(when) not in (datetime.date, datetime.datetime, datetime.time):
 			raise TypeError
 		_at_registry.append((name.lower(), channel, when, func, args, doc))
+		return func
+	return deco
+
+def on_join(doc=None):
+	def deco(func):
+		_join_registry.append(func)
 		return func
 	return deco

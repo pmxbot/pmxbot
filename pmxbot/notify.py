@@ -3,6 +3,7 @@
 import time
 
 from . import storage
+from .botbase import command, on_join
 
 class Notify(storage.SelectableStorage):
     @classmethod
@@ -59,3 +60,15 @@ class MongoDBNotify(Notify, storage.MongoDBStorage):
         query = notification
         oper = {'$set': {'value': notification}, '$addToSet': notification}
         self.db.insert(query, oper)
+
+@command("notify", doc="notify <nick> <message>")
+def donotify(client, event, channel, nick, rest):
+    opts = rest.split(' ')
+    to = opts[0]
+    Notify.store.notify(nick, to, ' '.join(opts[1:]))
+    return "Will do!"
+
+@on_join()
+def notifier(client, nick, **kwargs):
+    for msg in Notify.store.lookup(nick):
+        client.notice(nick, '%s wanted to say %s' % (msg['fromnick'], msg['message']))
