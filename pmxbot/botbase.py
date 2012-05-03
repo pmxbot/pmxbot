@@ -1,5 +1,6 @@
 # vim:ts=4:sw=4:noexpandtab
 
+import sys
 import datetime
 import os
 import traceback
@@ -128,7 +129,12 @@ class LoggingCommandBot(FeedparserSupport, irc.bot.SingleServerIRCBot):
 		nick = e.source().split('!', 1)[0]
 		channel = e.target()
 		for func in _join_registry:
-			func(client=c, event=e, nick=nick, channel=channel)
+			try:
+				func(client=c, event=e, nick=nick, channel=channel)
+			except Exception:
+				print >> sys.stderr, datetime.datetime.now(), "Error in on_join handler %s" % func
+				traceback.print_exc()
+
 		if channel in self._nolog or nick == self._nickname:
 			return
 		if not self.warn_history.needs_warning(nick):
@@ -185,7 +191,7 @@ class LoggingCommandBot(FeedparserSupport, irc.bot.SingleServerIRCBot):
 		try:
 			self._handle_output(channel, func(c, None, *args))
 		except:
-			print datetime.datetime.now(), "Error in bacakground runner for ", func
+			print datetime.datetime.now(), "Error in background runner for ", func
 			traceback.print_exc()
 		if repeat and howlong:
 			self.c.execute_delayed(howlong, self.background_runner, arguments=(self.c, channel, func, args, howlong, None, repeat))
