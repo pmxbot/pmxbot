@@ -129,7 +129,7 @@ class LoggingCommandBot(FeedparserSupport, irc.bot.SingleServerIRCBot):
 	def on_join(self, c, e):
 		nick = e.source().split('!', 1)[0]
 		channel = e.target()
-		for msg in notify.notify.lookup(nick):
+		for msg in notify.Notify.store.lookup(nick):
 			c.notice(nick, '%s wanted to say %s' % (msg['fromnick'], msg['message']))
 		if channel in self._nolog or nick == self._nickname:
 			return
