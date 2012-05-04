@@ -842,6 +842,13 @@ def where(client, event, channel, nick, rest):
 	else:
 		return "Sorry!  I don't have any record of %s speaking" % onick
 
+asciilogo = open('asciilogo.txt', 'rb').read()
+@command("logo", doc="The pmxbot logo in ascii art.  Fixed-width font recommended!")
+def logo(client, event, channel, nick, rest):
+	for line in asciilogo.split('\n'):
+		yield line
+
+
 config = None
 
 def run(configFile=None, configDict=None, configInput=None, start=True):
