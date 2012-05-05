@@ -582,3 +582,7 @@ class TestCommands(object):
 		if not isinstance(res, basestring):
 			res = u''.join(res)
 		assert len(res)
+
+	def test_logo(self):
+		lines = list(pmxbot.logo(c, e, '#test', 'testrunner', ''))
+		assert len(lines)

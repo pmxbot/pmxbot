@@ -21,6 +21,7 @@ except ImportError:
 from xml.etree import ElementTree
 
 import popquotes.pmxbot as pq
+import pkg_resources
 
 from .botbase import (command, contains, _handler_registry, NoLog)
 from . import botbase
@@ -842,10 +843,10 @@ def where(client, event, channel, nick, rest):
 	else:
 		return "Sorry!  I don't have any record of %s speaking" % onick
 
-asciilogo = open('asciilogo.txt', 'rb').read()
 @command("logo", doc="The pmxbot logo in ascii art.  Fixed-width font recommended!")
 def logo(client, event, channel, nick, rest):
-	for line in asciilogo.split('\n'):
+	logo_txt = pkg_resources.resource_stream('pmxbot', 'asciilogo.txt')
+	for line in logo_txt:
 		yield line
 
 
