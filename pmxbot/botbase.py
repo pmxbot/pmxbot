@@ -93,25 +93,21 @@ class LoggingCommandBot(FeedparserSupport, irc.bot.SingleServerIRCBot):
 			logger.message(channel, self._nickname, s)
 
 	def _schedule_at(self, name, channel, when, func, args, doc):
-		if type(when) == datetime.datetime:
-			difference = when - datetime.datetime.now()
-			repeat=False
-		elif type(when) == datetime.date:
-			tomorrow = datetime.date.today() + datetime.timedelta(days=1)
-			whendt = datetime.datetime.fromordinal(tomorrow.toordinal())
-			difference = whendt - datetime.datetime.now()
-			repeat=False
-		elif type(when) == datetime.time:
-			if when > datetime.datetime.now().time():
-				nextday = datetime.date.today()
-			else:
-				nextday = datetime.date.today() + datetime.timedelta(days=1)
-			whendt = datetime.datetime.combine(nextday, when)
-			difference = whendt - datetime.datetime.now()
-			repeat=True
-		howlong = (difference.days * 86400) + difference.seconds
-		if howlong > 0:
-			self.c.execute_delayed(howlong, self.background_runner, arguments=(self.c, channel, func, args, None, when, repeat))
+		arguments = self.c, channel, func, args
+		if isinstance(when, datetime.date):
+			midnight = datetime.time(0,0)
+			when = datetime.datetime.combine(when, midnight)
+		if isinstance(when, datetime.datetime):
+			cmd = irc.client.DelayedCommand.at_time(
+				when, self.background_runner, arguments)
+			self.c._schedule_command(cmd)
+			return
+		if not isinstance(when, datetime.time):
+			raise ValueError("when must be datetime, date, or time")
+		daily = datetime.timedelta(days=1)
+		cmd = irc.client.PeriodicCommandFixedDelay.at_time(
+			when, daily, self.background_runner, arguments)
+		self.c._schedule_command(cmd)
 
 	def on_welcome(self, c, e):
 		self.c = c
@@ -120,7 +116,9 @@ class LoggingCommandBot(FeedparserSupport, irc.bot.SingleServerIRCBot):
 				channel = '#' + channel
 			c.join(channel)
 		for name, channel, howlong, func, args, doc, repeat in _delay_registry:
-			self.c.execute_delayed(howlong, self.background_runner, arguments=(self.c, channel, func, args, howlong, None, repeat))
+			arguments = self.c, channel, func, args
+			executor = self.c.execute_every if repeat else self.c.execute_delayed
+			executor(howlong, self.background_runner, arguments)
 		for action in _at_registry:
 			self._schedule_at(*action)
 		FeedparserSupport.on_welcome(self, c, e)
@@ -184,7 +182,7 @@ class LoggingCommandBot(FeedparserSupport, irc.bot.SingleServerIRCBot):
 		for secret, item in NoLog.secret_items(output):
 			self.out(channel, item, not secret)
 
-	def background_runner(self, c, channel, func, args, howlong, when, repeat):
+	def background_runner(self, c, channel, func, args):
 		"""
 		Wrapper to run scheduled type tasks cleanly.
 		"""
@@ -193,10 +191,6 @@ class LoggingCommandBot(FeedparserSupport, irc.bot.SingleServerIRCBot):
 		except:
 			print datetime.datetime.now(), "Error in background runner for ", func
 			traceback.print_exc()
-		if repeat and howlong:
-			self.c.execute_delayed(howlong, self.background_runner, arguments=(self.c, channel, func, args, howlong, None, repeat))
-		elif repeat and when:
-			self._schedule_at('rescheduled task', channel, when, func, args, '')
 
 	def handle_action(self, c, e, channel, nick, msg):
 		"""Core message parser and dispatcher"""
@@ -294,10 +288,10 @@ def command(name, aliases=[], doc=None):
 
 def execdelay(name, channel, howlong, args=[], doc=None, repeat=False):
 	def deco(func):
-		_delay_registry.append((name.lower(), channel, howlong, func, args, doc, repeat))
+		_delay_registry.append((name.lower(), channel, howlong, func, args,
+			doc, repeat))
 		return func
 	return deco
-
 
 def execat(name, channel, when, args=[], doc=None):
 	def deco(func):
