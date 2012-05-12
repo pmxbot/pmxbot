@@ -72,7 +72,7 @@ class PmxbotHarness(object):
 
 	@classmethod
 	def teardown_class(cls):
-		if hasattr(cls, 'bot'):
+		if hasattr(cls, 'bot') and not cls.bot.poll():
 			cls.bot.terminate()
 			cls.bot.wait()
 		if hasattr(cls, 'server') and cls.server.poll() == None:
