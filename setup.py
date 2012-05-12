@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 # vim:ts=4:sw=4:noexpandtab
 # c-basic-indent: 4; tab-width: 4; indent-tabs-mode: true;
-from setuptools import find_packages
+import sys
+
+import setuptools
+
+py26reqs = ['importlib'] if sys.version_info < (2, 7) else []
 
 setup_params = dict(
 	name="pmxbot",
 	use_hg_version=True,
-	packages=find_packages(),
+	packages=setuptools.find_packages(),
 	include_package_data=True,
 	entry_points=dict(
 		console_scripts = [
@@ -29,7 +33,7 @@ setup_params = dict(
 		#for viewer
 		"jinja2",
 		"cherrypy",
-	],
+	] + py26reqs,
 	dependency_links=[
 		'https://bitbucket.org/jaraco/httplib2/downloads',
 		'https://github.com/jaraco/wordnik-python/downloads',
@@ -59,5 +63,4 @@ setup_params = dict(
 )
 
 if __name__ == '__main__':
-	from setuptools import setup
-	setup(**setup_params)
+	setuptools.setup(**setup_params)

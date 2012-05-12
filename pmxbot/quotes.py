@@ -1,13 +1,15 @@
 # vim:ts=4:sw=4:noexpandtab
 
 import random
+import importlib
+
 from . import storage
 
 def init_quotes(uri):
 	Quotes.store = Quotes.from_URI(uri)
 	# for backward compatibility
 	globals().update(quotes = Quotes.store)
-	__import__('pmxbot.util').util.quotes = Quotes.store
+	importlib.import_module('pmxbot.util').quotes = Quotes.store
 
 class Quotes(storage.SelectableStorage):
 	lib = 'pmx'

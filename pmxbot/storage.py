@@ -1,6 +1,7 @@
 import os
 import itertools
 import urlparse
+import importlib
 
 from .classutil import itersubclasses
 
@@ -35,7 +36,7 @@ class Storage(object):
 
 class SQLiteStorage(Storage):
 	scheme = 'sqlite'
-	
+
 	@classmethod
 	def uri_matches(cls, uri):
 		return uri.endswith('.sqlite')
@@ -58,15 +59,18 @@ class SQLiteStorage(Storage):
 
 class MongoDBStorage(Storage):
 	scheme = 'mongodb'
-	
+
 	@classmethod
 	def uri_matches(cls, uri):
 		return uri.startswith('mongodb:')
 
 	def __init__(self, host_uri):
-		# for now do a delayed import to avoid interfering with
-		# canonical logging module.
-		globals().update(pymongo=__import__('pymongo.objectid'))
+		pymongo = importlib.import_module('pymongo')
+		bson = importlib.import_module('bson')
+		globals().update(
+			pymongo=pymongo,
+			bson=bson,
+		)
 		self.db = pymongo.Connection(host_uri).pmxbot[self.collection_name]
 
 def migrate_all(source, dest):
