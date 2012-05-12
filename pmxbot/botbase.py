@@ -195,9 +195,9 @@ class LoggingCommandBot(FeedparserSupport, irc.bot.SingleServerIRCBot):
 		explitive = random.choice(explitives)
 		res = ["{explitive} An error occurred: {exception}"
 			.format(**vars())]
-		res.append('!{name} {doc}'.format(**vars()))
+		res.append('!{name} {doc}'.format(**kwargs))
 		print datetime.datetime.now(), ("Error with command {type}"
-			.format(**vars()))
+			.format(**kwargs))
 		traceback.print_exc()
 		return res
 
