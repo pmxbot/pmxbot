@@ -1,4 +1,5 @@
-import os
+from __future__ import absolute_import
+
 import itertools
 import urlparse
 
@@ -35,7 +36,7 @@ class Storage(object):
 
 class SQLiteStorage(Storage):
 	scheme = 'sqlite'
-	
+
 	@classmethod
 	def uri_matches(cls, uri):
 		return uri.endswith('.sqlite')
@@ -58,7 +59,7 @@ class SQLiteStorage(Storage):
 
 class MongoDBStorage(Storage):
 	scheme = 'mongodb'
-	
+
 	@classmethod
 	def uri_matches(cls, uri):
 		return uri.startswith('mongodb:')

@@ -1,17 +1,20 @@
 # vim:ts=4:sw=4:noexpandtab
 
+from __future__ import absolute_import
+
 import sys
 import datetime
 import os
 import traceback
 import time
 import random
-import StringIO
 import collections
 import textwrap
+import functools
 
 import irc.bot
 
+import pmxbot.itertools
 from . import karma
 from . import quotes
 from .logging import init_logger
@@ -172,13 +175,6 @@ class LoggingCommandBot(FeedparserSupport, irc.bot.SingleServerIRCBot):
 		c.privmsg(channel, "You summoned me, master %s?" % nick)
 
 	def _handle_output(self, channel, output):
-		if not output:
-			return
-
-		if isinstance(output, basestring):
-			# turn the string into an iterable of lines
-			output = StringIO.StringIO(output)
-
 		for secret, item in NoLog.secret_items(output):
 			self.out(channel, item, not secret)
 
@@ -186,32 +182,47 @@ class LoggingCommandBot(FeedparserSupport, irc.bot.SingleServerIRCBot):
 		"""
 		Wrapper to run scheduled type tasks cleanly.
 		"""
-		try:
-			self._handle_output(channel, func(c, None, *args))
-		except:
+		def on_error(exception):
 			print datetime.datetime.now(), "Error in background runner for ", func
 			traceback.print_exc()
+		func = functools.partial(func, c, None, *args)
+		self._handle_output(channel, pmxbot.itertools.trap_exceptions(
+			pmxbot.itertools.generate_results(func),
+			on_error))
+
+	def _handle_exception(self, exception, **kwargs):
+		explitives = ['Yikes!', 'Zoiks!', 'Ouch!']
+		explitive = random.choice(explitives)
+		res = ["{explitive} An error occurred: {exception}"
+			.format(**vars())]
+		res.append('!{name} {doc}'.format(**vars()))
+		print datetime.datetime.now(), ("Error with command {type}"
+			.format(**vars()))
+		traceback.print_exc()
+		return res
 
 	def handle_action(self, c, e, channel, nick, msg):
 		"""Core message parser and dispatcher"""
 		lc_msg = msg.lower()
-		lc_cmd = msg.split(' ', 1)[0]
+		cmd, _, cmd_args = msg.partition(' ')
+
 		res = None
 		for typ, name, f, doc, channels, exclude, rate, priority in _handler_registry:
-			if typ in ('command', 'alias') and lc_cmd == '!%s' % name:
-				# grab everything after the command
-				msg = msg.partition(' ')[2].strip()
-				try:
-					res = f(c, e, channel, nick, msg)
-				except Exception as exc:
-					explitives = ['Yikes!', 'Zoiks!', 'Ouch!']
-					explitive = random.choice(explitives)
-					res = ["{explitive} An error occurred: {exc}".format(**vars())]
-					res.append('!{name} {doc}'.format(**vars()))
-					print datetime.datetime.now(), "Error with command %s" % name
-					traceback.print_exc()
+			exception_handler = functools.partial(
+				self._handle_command_exception,
+				type = typ,
+				name = name,
+				doc = doc,
+				)
+			if typ in ('command', 'alias') and cmd.lower() == '!%s' % name:
+				f = functools.partial(f, c, e, channel, nick, cmd_args)
+				res = pmxbot.itertools.trap_exceptions(
+					pmxbot.itertools.generate_results(f),
+					exception_handler
+				)
 				break
 			elif typ in ('contains', '#') and name in lc_msg:
+				f = functools.partial(f, c, e, channel, nick, msg)
 				if (not channels and not exclude) \
 				or channel in channels \
 				or (exclude and channel not in exclude) \
@@ -219,13 +230,13 @@ class LoggingCommandBot(FeedparserSupport, irc.bot.SingleServerIRCBot):
 				or (channels == "unlogged" and channel in self._nolog) \
 				or (exclude == "logged" and channel in self._nolog) \
 				or (exclude == "unlogged" and channel in self._channels and channel not in self._nolog):
-					if random.random() <= rate:
-						try:
-							res = f(c, e, channel, nick, msg)
-						except Exception, e:
-							print datetime.datetime.now(), "Error with contains  %s" % name
-							traceback.print_exc()
-						break
+					if random.random() > rate:
+						continue
+					res = pmxbot.itertools.trap_exceptions(
+						pmxbot.itertools.generate_results(f),
+						exception_handler
+					)
+					break
 		self._handle_output(channel, res)
 
 

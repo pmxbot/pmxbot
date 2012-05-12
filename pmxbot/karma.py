@@ -1,5 +1,7 @@
 # vim:ts=4:sw=4:noexpandtab
 
+from __future__ import print_function
+
 import itertools
 import re
 
