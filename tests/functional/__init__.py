@@ -38,12 +38,17 @@ class PmxbotHarness(object):
 		except OSError:
 			py.test.skip("Unable to launch irc server (tclsh must be in the path)")
 		time.sleep(0.5)
+		# add './plugins' to the path so we get some pmxbot commands specific
+		#  for testing.
+		env = os.environ.copy()
+		env['PYTHONPATH'] = os.path.join(path, 'plugins')
 		try:
 			# Launch pmxbot using Python directly (rather than through
 			#  the console entry point, which can't be properly
 			#  .terminate()d on Windows.
 			cls.bot = subprocess.Popen([sys.executable, '-c',
-				'from pmxbot.pmxbot import run; run()', configfile],)
+				'from pmxbot.pmxbot import run; run()', configfile],
+				env=env)
 		except OSError:
 			py.test.skip("Unable to launch pmxbot (pmxbot must be installed)")
 		time.sleep(5)

@@ -1,0 +1,2 @@
+[pmxbot_handlers]
+pmxbot functional test commands = pmxbot_test_commands
