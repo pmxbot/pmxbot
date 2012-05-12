@@ -4,6 +4,7 @@ from __future__ import absolute_import
 import random
 import re
 import urllib
+import urllib2
 
 import wordnik.api.APIClient
 import wordnik.api.WordAPI
@@ -36,7 +37,10 @@ def splitem(s):
 	return c
 
 def get_html(url):
-	return urllib2.urlopen(url).read()
+	headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) '
+		'Gecko/20100101 Firefox/12.0'}
+	req = urllib2.Request(url, headers=headers)
+	return urllib2.urlopen(req).read()
 
 def_exp1 = re.compile(r"<div><span class=f>.*?</span>(.+?)</div>", re.MULTILINE)
 def_exp2 = re.compile(r"Definition for.*<div class=s><div>(.+?)<", re.MULTILINE)
