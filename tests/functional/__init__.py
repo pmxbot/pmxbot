@@ -36,7 +36,8 @@ class PmxbotHarness(object):
 				'tclircd/ircd.tcl')], stdout=open(os.path.devnull, 'w'),
 				stderr=open(os.path.devnull, 'w'))
 		except OSError:
-			py.test.skip("Unable to launch irc server (tclsh must be in the path)")
+			py.test.skip("Unable to launch irc server (tclsh must be in the "
+				"path)")
 		time.sleep(0.5)
 		# add './plugins' to the path so we get some pmxbot commands specific
 		#  for testing.
