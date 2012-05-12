@@ -535,6 +535,7 @@ class TestCommands(object):
 		"""
 		Test the pastebin with an unknown user
 		"""
+		pytest.xfail("a.libpa.st is down")
 		person = str(uuid.uuid4())[:9]
 		res = pmxbot.paste(c, e, '#test', person, '')
 		print res
@@ -545,6 +546,7 @@ class TestCommands(object):
 		"""
 		Test the pastebin with a valid user with an existing paste
 		"""
+		pytest.xfail("a.libpa.st is down")
 		person = 'vbSptH3ByfQQ6h'
 		res = pmxbot.paste(c, e, '#test', person, '')
 		assert res == "http://a.libpa.st/40a4345a-4e4b-40d8-ad06-c0a22a26b282"
