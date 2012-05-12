@@ -37,7 +37,7 @@ def always_iterable(item):
 
 	return item
 
-def generate_results(self, function):
+def generate_results(function):
 	"""
 	Take a function, which may return an iterator or a static result
 	and convert it to a late-dispatched generator.
@@ -45,7 +45,7 @@ def generate_results(self, function):
 	for item in always_iterable(function()):
 		yield item
 
-def trap_exceptions(self, results, handler, exceptions=Exception):
+def trap_exceptions(results, handler, exceptions=Exception):
 	"""
 	Iterate through the results, but if an exception occurs, stop
 	processing the results and instead replace

@@ -206,17 +206,17 @@ class LoggingCommandBot(FeedparserSupport, irc.bot.SingleServerIRCBot):
 		lc_msg = msg.lower()
 		cmd, _, cmd_args = msg.partition(' ')
 
-		res = None
+		messages = ()
 		for typ, name, f, doc, channels, exclude, rate, priority in _handler_registry:
 			exception_handler = functools.partial(
-				self._handle_command_exception,
+				self._handle_exception,
 				type = typ,
 				name = name,
 				doc = doc,
 				)
 			if typ in ('command', 'alias') and cmd.lower() == '!%s' % name:
 				f = functools.partial(f, c, e, channel, nick, cmd_args)
-				res = pmxbot.itertools.trap_exceptions(
+				messages = pmxbot.itertools.trap_exceptions(
 					pmxbot.itertools.generate_results(f),
 					exception_handler
 				)
@@ -232,12 +232,12 @@ class LoggingCommandBot(FeedparserSupport, irc.bot.SingleServerIRCBot):
 				or (exclude == "unlogged" and channel in self._channels and channel not in self._nolog):
 					if random.random() > rate:
 						continue
-					res = pmxbot.itertools.trap_exceptions(
+					messages = pmxbot.itertools.trap_exceptions(
 						pmxbot.itertools.generate_results(f),
 						exception_handler
 					)
 					break
-		self._handle_output(channel, res)
+		self._handle_output(channel, messages)
 
 
 class SilentCommandBot(LoggingCommandBot):
