@@ -5,7 +5,6 @@ import random
 import re
 import urllib
 
-import httplib2
 import wordnik.api.APIClient
 import wordnik.api.WordAPI
 import wordnik.model
@@ -37,13 +36,7 @@ def splitem(s):
 	return c
 
 def get_html(url):
-	h = httplib2.Http()
-	resp, html = h.request(url, headers={
-		'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; '
-			'rv:1.9.2b1) Gecko/20091014 Firefox/3.6b1 GTB5',
-	})
-	assert 200 <= resp.status < 300
-	return html
+	return urllib2.urlopen(url).read()
 
 def_exp1 = re.compile(r"<div><span class=f>.*?</span>(.+?)</div>", re.MULTILINE)
 def_exp2 = re.compile(r"Definition for.*<div class=s><div>(.+?)<", re.MULTILINE)

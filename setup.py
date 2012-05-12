@@ -26,7 +26,6 @@ setup_params = dict(
 		"excuses>=1.1.2",
 		"pyyaml",
 		"irc>=1.1,<2.0dev",
-		"httplib2",
 		"feedparser",
 		"pytz",
 		"wordnik==2.0dev-rb0221ccc",
@@ -35,7 +34,6 @@ setup_params = dict(
 		"cherrypy",
 	] + py26reqs,
 	dependency_links=[
-		'https://bitbucket.org/jaraco/httplib2/downloads',
 		'https://github.com/jaraco/wordnik-python/downloads',
 	],
 	description="IRC bot - full featured, yet extensible and customizable",
