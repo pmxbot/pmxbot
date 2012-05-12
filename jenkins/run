@@ -2,4 +2,4 @@ virtualenv --no-site-packages env
 
 env/bin/python setup.py develop
 env/bin/easy_install pytest pymongo
-env/bin/py.test --verbose --ignore env --junitxml="test results.xml"
+env/bin/py.test --junitxml="test results.xml"
