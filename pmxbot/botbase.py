@@ -79,6 +79,10 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		self.__use_ssl = use_ssl
 		self.warn_history = WarnHistory()
 
+	@staticmethod
+	def _finalize_logger():
+		globals().update(logger=None)
+
 	def connect(self, *args, **kwargs):
 		kwargs['ssl'] = self.__use_ssl
 		return irc.bot.SingleServerIRCBot.connect(self, *args, **kwargs)

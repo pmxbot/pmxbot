@@ -902,17 +902,19 @@ def run(configFile=None, configDict=None, configInput=None, start=True):
 		bot.start()
 
 
+_finalizers = [
+	botbase.LoggingCommandBot._finalize_logger,
+	karma_mod.Karma.finalize,
+	quotes.Quotes.finalize,
+]
+
 def _cleanup():
 	"Delete the various persistence objects"
-	del botbase.logger
-	del karma_mod.Karma.store
-	del quotes.Quotes.store
-	# delete the backward-compatibility references as well
-	del util.karma
-	del karma_mod.karma
-	del util.quotes
-	del quotes.quotes
-
+	for finalizer in _finalizers:
+		try:
+			finalizer()
+		except Exception:
+			log.exception("Error in finalizer %s", finalizer)
 
 def _setup_logging():
 	logging.basicConfig(level=logging.INFO, format="%(message)s")

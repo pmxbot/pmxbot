@@ -14,6 +14,12 @@ def init_quotes(uri):
 class Quotes(storage.SelectableStorage):
 	lib = 'pmx'
 
+	@classmethod
+	def finalize(cls):
+		del cls.store
+		del globals()['quotes']
+		del importlib.import_module('pmxbot.util').quotes
+
 class SQLiteQuotes(Quotes, storage.SQLiteStorage):
 	def init_tables(self):
 		CREATE_QUOTES_TABLE = '''

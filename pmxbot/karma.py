@@ -13,7 +13,11 @@ class AlreadyLinked(ValueError): pass
 
 
 class Karma(storage.SelectableStorage):
-	pass
+	@classmethod
+	def finalize(cls):
+		del cls.store
+		del globals()['karma']
+		del importlib.import_module('pmxbot.util').karma
 
 class SQLiteKarma(Karma, storage.SQLiteStorage):
 	def init_tables(self):
