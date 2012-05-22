@@ -33,6 +33,11 @@ class RSSFeeds(object):
 				args = [feed],
 				)(self.parse_feed)
 		self.seen_feeds = self.store.get_seen_feeds()
+		pmxbot._finalizers.append(self.finalize)
+
+	@classmethod
+	def finalize(cls):
+		del cls.store
 
 	def on_welcome(self, c, e):
 		if self._feeds:
