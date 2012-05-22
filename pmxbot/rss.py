@@ -6,19 +6,33 @@ from __future__ import absolute_import, print_function
 import socket
 import re
 import datetime
+import logging
 
 import feedparser
 
+from . import botbase
+from . import pmxbot
 from . import storage
 
-class FeedparserSupport(object):
+log = logging.getLogger(__name__)
+
+class RSSFeeds(object):
 	"""
-	Mix-in for a bot class to give feedparser support.
+	Plugin for feedparser support.
 	"""
 
-	def __init__(self, feed_interval=60, feeds=[]):
-		self._feed_interval = feed_interval
-		self._feeds = feeds
+	def __init__(self):
+		self.feed_interval = pmxbot.config.feed_interval
+		self.feeds = pmxbot.config.feeds
+		self.store = FeedparserDB.from_URI(pmxbot.config.database)
+		for feed in self.feeds:
+			botbase.execute_delayed(
+				name = 'feedparser',
+				channel = feed['channel'],
+				howlong = datetime.timedelta(minutes=self.feed_interval),
+				args = [feed],
+				)(self.parse_feed)
+		self.seen_feeds = self.store.get_seen_feeds()
 
 	def on_welcome(self, c, e):
 		if self._feeds:
@@ -26,81 +40,70 @@ class FeedparserSupport(object):
 			c.execute_delayed(30, self.feed_parse,
 				arguments=(c, e, self._feed_interval, self._feeds))
 
-	def feed_parse(self, c, e, interval, feeds):
+	def parse_feed(self, client, event, feed):
 		"""
 		Parse RSS feeds and spit out new articles at
 		regular intervals in the relevant channels.
 		"""
-		def check_single_feed(this_feed):
-			"""
-			Check (potentially slow) RSS feed
-			"""
-			socket.setdefaulttimeout(20)
-			outputs = []
-			NEWLY_SEEN = []
-			try:
-				feed = feedparser.parse(this_feed['url'])
-			except:
-				pass
-			for entry in feed['entries']:
-				if 'id' in entry:
-					id = entry['id']
-				elif 'link' in entry:
-					id = entry['link']
-				elif 'title' in entry:
-					id = entry['title']
-				else:
-					continue #this is bad...
-				#If this is google let's overwrite
-				if 'google.com' in this_feed['url'].lower():
-					GNEWS_RE = re.compile(r'[?&]url=(.+?)[&$]', re.IGNORECASE)
-					try:
-						id = GNEWS_RE.findall(entry['link'])[0]
-					except:
-						pass
-				if id in FEED_SEEN:
-					continue
-				FEED_SEEN.append(id)
-				NEWLY_SEEN.append(id)
-				if ' by ' in entry['title']:
-					# We don't need to add the author
-					out = '%s' % entry['title']
-				else:
-					try:
-						out = '%s by %s' % (entry['title'], entry['author'])
-					except KeyError:
-						out = '%s' % entry['title']
-				outputs.append(out)
-			if outputs:
-				c.execute_delayed(60, self.add_feed_entries,
-					arguments=(NEWLY_SEEN,))
-				txt = 'News from %s %s : %s' % (this_feed['name'],
-					this_feed['linkurl'], ' || '.join(outputs[:10]))
-				txt = txt.encode('utf-8')
-				c.privmsg(this_feed['channel'], txt)
-		#end of check_single_feed
-		db = init_feedparser_db(self.db_uri)
-		FEED_SEEN = db.get_seen_feeds()
-		for feed in feeds:
-			check_single_feed(feed)
-		c.execute_delayed(interval, self.feed_parse,
-			arguments=(c, e, interval, feeds))
-
-	def add_feed_entries(self, entries):
-		"""
-		Update the database with the new entries.
-
-		This method is intended to be used as a callback to ensure that the
-		update is always invoked in the main pmxbot thread to avoid any
-		issues with accessing sqlite from multiple threads.
-		"""
+		socket.setdefaulttimeout(20)
+		outputs = []
 		try:
-			db = init_feedparser_db(self.db_uri)
-			db.add_entries(entries)
-		except Exception, e:
-			print(datetime.datetime.now(),
-				"Oh crap, couldn't add_feed_entries")
-			print(e)
+			resp = feedparser.parse(feed['url'])
+		except:
+			log.exception("Error retrieving feed %s", feed['url'])
+		for entry in resp['entries']:
+			if 'id' in entry:
+				id = entry['id']
+			elif 'link' in entry:
+				id = entry['link']
+			elif 'title' in entry:
+				id = entry['title']
+			else:
+				log.warning("Unrecognized entry in feed from %s: %s",
+					feed['url'],
+					entry)
+				continue
+			#If this is google let's overwrite
+			if 'google.com' in feed['url'].lower():
+				GNEWS_RE = re.compile(r'[?&]url=(.+?)[&$]', re.IGNORECASE)
+				try:
+					id = GNEWS_RE.findall(entry['link'])[0]
+				except:
+					pass
+			if not self.add_seen_feed(id):
+				continue
+
+			if ' by ' in entry['title']:
+				# We don't need to add the author
+				out = '%s' % entry['title']
+			else:
+				try:
+					out = '%s by %s' % (entry['title'], entry['author'])
+				except KeyError:
+					out = '%s' % entry['title']
+			outputs.append(out)
+
+		if not outputs:
+			return
+
+		txt = 'News from %s %s : %s' % (feed['name'],
+			feed['linkurl'], ' || '.join(outputs[:10]))
+		txt = txt.encode('utf-8')
+		return txt
+
+	def add_seen_feed(self, entry):
+		"""
+		Update the database with the new entry.
+		Return True if it was a new feed and was added.
+		"""
+		if entry in self.seen_feeds:
+			return False
+		try:
+			self.store.add_entries([entry])
+		except Exception:
+			log.exception("Unable to add seen feed")
+			return False
+		return True
 
 class FeedparserDB(storage.SelectableStorage):
 	pass
@@ -134,6 +137,3 @@ class MongoDBFeedparserDB(FeedparserDB, storage.MongoDBStorage):
 
 	def import_(self, item):
 		self.add_entries([item])
-
-def init_feedparser_db(uri):
-	return FeedparserDB.from_URI(uri)

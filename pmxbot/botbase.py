@@ -18,7 +18,6 @@ import pmxbot.itertools
 from . import karma
 from . import quotes
 from .logging import init_logger
-from .rss import FeedparserSupport
 
 class WarnHistory(dict):
 	warn_every = datetime.timedelta(seconds=60)
@@ -59,11 +58,11 @@ class NoLog(object):
 				continue
 			yield secret, item
 
-class LoggingCommandBot(FeedparserSupport, irc.bot.SingleServerIRCBot):
-	def __init__(self, db_uri, server, port, nickname, channels, nolog_channels=None, feed_interval=60, feeds=[], use_ssl=False, password=None):
+class LoggingCommandBot(irc.bot.SingleServerIRCBot):
+	def __init__(self, db_uri, server, port, nickname, channels,
+			nolog_channels=None, use_ssl=False, password=None):
 		server_list = [(server, port, password)]
 		irc.bot.SingleServerIRCBot.__init__(self, server_list, nickname, nickname)
-		FeedparserSupport.__init__(self, feed_interval, feeds)
 		nolog_channels = nolog_channels or []
 		self.nickname = nickname
 		self._channels = channels + nolog_channels
@@ -124,7 +123,6 @@ class LoggingCommandBot(FeedparserSupport, irc.bot.SingleServerIRCBot):
 			executor(howlong, self.background_runner, arguments)
 		for action in _at_registry:
 			self._schedule_at(*action)
-		FeedparserSupport.on_welcome(self, c, e)
 
 	def on_join(self, c, e):
 		nick = e.source().split('!', 1)[0]
