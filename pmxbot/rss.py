@@ -13,6 +13,7 @@ import feedparser
 from . import botbase
 from . import pmxbot
 from . import storage
+from . import timing
 
 log = logging.getLogger(__name__)
 
@@ -33,7 +34,9 @@ class RSSFeeds(object):
 				args = [feed],
 				repeat = True,
 				)(self.parse_feed)
+		timer = timing.Stopwatch()
 		self.seen_feeds = self.store.get_seen_feeds()
+		log.info("Loaded feed history in %s", timer.split())
 		pmxbot._finalizers.append(self.finalize)
 
 	@classmethod
