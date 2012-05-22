@@ -28,13 +28,12 @@ class FeedparserSupport(object):
 
 	def feed_parse(self, c, e, interval, feeds):
 		"""
-		This is used to parse RSS feeds and spit out new articles at
+		Parse RSS feeds and spit out new articles at
 		regular intervals in the relevant channels.
 		"""
 		def check_single_feed(this_feed):
 			"""
-			This function is run in a new thread for each feed, so we don't
-			lock up the main thread while checking (potentially slow) RSS feeds
+			Check (potentially slow) RSS feed
 			"""
 			socket.setdefaulttimeout(20)
 			outputs = []
@@ -44,11 +43,11 @@ class FeedparserSupport(object):
 			except:
 				pass
 			for entry in feed['entries']:
-				if entry.has_key('id'):
+				if 'id' in entry:
 					id = entry['id']
-				elif entry.has_key('link'):
+				elif 'link' in entry:
 					id = entry['link']
-				elif entry.has_key('title'):
+				elif 'title' in entry:
 					id = entry['title']
 				else:
 					continue #this is bad...
@@ -63,7 +62,8 @@ class FeedparserSupport(object):
 					continue
 				FEED_SEEN.append(id)
 				NEWLY_SEEN.append(id)
-				if ' by ' in entry['title']: #We don't need to add the author
+				if ' by ' in entry['title']:
+					# We don't need to add the author
 					out = '%s' % entry['title']
 				else:
 					try:
@@ -72,8 +72,10 @@ class FeedparserSupport(object):
 						out = '%s' % entry['title']
 				outputs.append(out)
 			if outputs:
-				c.execute_delayed(60, self.add_feed_entries, arguments=(NEWLY_SEEN,))
-				txt = 'News from %s %s : %s' % (this_feed['name'], this_feed['linkurl'], ' || '.join(outputs[:10]))
+				c.execute_delayed(60, self.add_feed_entries,
+					arguments=(NEWLY_SEEN,))
+				txt = 'News from %s %s : %s' % (this_feed['name'],
+					this_feed['linkurl'], ' || '.join(outputs[:10]))
 				txt = txt.encode('utf-8')
 				c.privmsg(this_feed['channel'], txt)
 		#end of check_single_feed
@@ -81,7 +83,8 @@ class FeedparserSupport(object):
 		FEED_SEEN = db.get_seen_feeds()
 		for feed in feeds:
 			check_single_feed(feed)
-		c.execute_delayed(interval, self.feed_parse, arguments=(c, e, interval, feeds))
+		c.execute_delayed(interval, self.feed_parse,
+			arguments=(c, e, interval, feeds))
 
 	def add_feed_entries(self, entries):
 		"""
@@ -92,7 +95,8 @@ class FeedparserSupport(object):
 			db = init_feedparser_db(self.db_uri)
 			db.add_entries(entries)
 		except Exception, e:
-			print datetime.datetime.now(), "Oh crap, couldn't add_feed_entries"
+			print datetime.datetime.now(), \
+				"Oh crap, couldn't add_feed_entries"
 			print e
 
 class FeedparserDB(storage.SelectableStorage):
@@ -101,14 +105,17 @@ class FeedparserDB(storage.SelectableStorage):
 class SQLiteFeedparserDB(FeedparserDB, storage.SQLiteStorage):
 	def init_tables(self):
 		self.db.execute("CREATE TABLE IF NOT EXISTS feed_seen (key varchar)")
-		self.db.execute('CREATE INDEX IF NOT EXISTS ix_feed_seen_key ON feed_seen (key)')
+		self.db.execute('CREATE INDEX IF NOT EXISTS ix_feed_seen_key ON '
+			'feed_seen (key)')
 		self.db.commit()
 
 	def get_seen_feeds(self):
-		return [row[0] for row in self.db.execute('select key from feed_seen')]
+		return [row[0]
+			for row in self.db.execute('select key from feed_seen')]
 
 	def add_entries(self, entries):
-		self.db.executemany('INSERT INTO feed_seen (key) values (?)', [(x,) for x in entries])
+		self.db.executemany('INSERT INTO feed_seen (key) values (?)',
+			[(x,) for x in entries])
 		self.db.commit()
 
 	export_all = get_seen_feeds
