@@ -1,6 +1,6 @@
 # vim:ts=4:sw=4:noexpandtab
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import sys
 import datetime
@@ -133,7 +133,9 @@ class LoggingCommandBot(FeedparserSupport, irc.bot.SingleServerIRCBot):
 			try:
 				func(client=c, event=e, nick=nick, channel=channel)
 			except Exception:
-				print >> sys.stderr, datetime.datetime.now(), "Error in on_join handler %s" % func
+				print(datetime.datetime.now(),
+					"Error in on_join handler %s" % func,
+					file=sys.stderr)
 				traceback.print_exc()
 
 		if channel in self._nolog or nick == self._nickname:
@@ -183,7 +185,8 @@ class LoggingCommandBot(FeedparserSupport, irc.bot.SingleServerIRCBot):
 		Wrapper to run scheduled type tasks cleanly.
 		"""
 		def on_error(exception):
-			print datetime.datetime.now(), "Error in background runner for ", func
+			print(datetime.datetime.now(), "Error in background runner for ",
+				func)
 			traceback.print_exc()
 		func = functools.partial(func, c, None, *args)
 		self._handle_output(channel, pmxbot.itertools.trap_exceptions(
@@ -191,12 +194,12 @@ class LoggingCommandBot(FeedparserSupport, irc.bot.SingleServerIRCBot):
 			on_error))
 
 	def _handle_exception(self, exception, **kwargs):
-		explitives = ['Yikes!', 'Zoiks!', 'Ouch!']
-		explitive = random.choice(explitives)
-		res = ["{explitive} An error occurred: {exception}"
+		expletives = ['Yikes!', 'Zoiks!', 'Ouch!']
+		expletive = random.choice(expletives)
+		res = ["{expletive} An error occurred: {exception}"
 			.format(**vars())]
 		res.append('!{name} {doc}'.format(**kwargs))
-		print datetime.datetime.now(), ("Error with command {type}"
+		print(datetime.datetime.now(), "Error with command {type}"
 			.format(**kwargs))
 		traceback.print_exc()
 		return res

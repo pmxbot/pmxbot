@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import subprocess
 import os
 import sys
@@ -73,7 +75,7 @@ class PmxbotHarness(object):
 			message = message,
 			))
 		res = cursor.fetchall()
-		print res
+		print(res)
 		return len(res) >= 1
 
 	@classmethod

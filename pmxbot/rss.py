@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim:ts=4:sw=4:noexpandtab
 # c-basic-indent: 4; tab-width: 4; indent-tabs-mode: true;
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import socket
 import re
@@ -98,9 +98,9 @@ class FeedparserSupport(object):
 			db = init_feedparser_db(self.db_uri)
 			db.add_entries(entries)
 		except Exception, e:
-			print datetime.datetime.now(), \
-				"Oh crap, couldn't add_feed_entries"
-			print e
+			print(datetime.datetime.now(),
+				"Oh crap, couldn't add_feed_entries")
+			print(e)
 
 class FeedparserDB(storage.SelectableStorage):
 	pass

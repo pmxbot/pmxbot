@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+
 import re
 import os
 import uuid
@@ -56,7 +58,7 @@ class TestCommands(object):
 		Basic google search for "pmxbot". Result must contain a link.
 		"""
 		res = pmxbot.google(c, e, "#test", "testrunner", "pmxbot")
-		print res
+		print(res)
 		assert "http" in res
 
 	@pytest.has_internet
@@ -65,7 +67,7 @@ class TestCommands(object):
 		Basic google calculator command - 1+1 must include 2 in results
 		"""
 		res = pmxbot.googlecalc(c, e, "#test", "testrunner", "1+1")
-		print res
+		print(res)
 		assert "2" in res
 
 	@pytest.has_internet
@@ -75,7 +77,7 @@ class TestCommands(object):
 		include 151.4 in results
 		"""
 		res = pmxbot.googlecalc(c, e, "#test", "testrunner", "40 gallons in liters")
-		print res
+		print(res)
 		assert "151.4" in res
 
 	@pytest.has_internet
@@ -94,7 +96,7 @@ class TestCommands(object):
 		Test that google calculator for a currency conversion: 1 USD in GBP
 		"""
 		res = pmxbot.googlecalc(c, e, "#test", "testrunner", "1 USD in GBP")
-		print res
+		print(res)
 		assert re.match(r"""1 (?:US|U\.S\.) dollars? = \d\.\d+ British pounds?(?: sterling)?""", res)
 
 	@pytest.has_internet
@@ -103,7 +105,7 @@ class TestCommands(object):
 		Test that google calculator for a currency conversion: 12 CZK in euros
 		"""
 		res = pmxbot.googlecalc(c, e, "#test", "testrunner", "12 CZK in euros")
-		print res
+		print(res)
 		assert re.match(r"""12 Czech(?: Republic)? [Kk]orun(?:a|y)s? = \d\.\d+ [Ee]uros?""", res)
 
 	# time patterns come as 4:20pm when queried from the U.S. and 16:20
@@ -157,7 +159,7 @@ class TestCommands(object):
 		"""
 		res = pmxbot.weather(c, e, "#test", "testrunner", "Washington, DC")
 		for line in res:
-			print line
+			print(line)
 			assert re.match(r""".+\. Currently: (?:-)?[0-9]{1,3}F/(?:-)?[0-9]{1,2}C, .+\.\W+[A-z]{3}: (?:-)?[0-9]{1,3}F/(?:-)?[0-9]{1,2}C, """, line)
 
 	def test_weather_three(self):
@@ -167,7 +169,7 @@ class TestCommands(object):
 		"""
 		res = pmxbot.weather(c, e, "#test", "testrunner", "Washington, DC | Palo Alto, CA | London")
 		for line in res:
-			print line
+			print(line)
 			assert re.match(r""".+\. Currently: (?:-)?[0-9]{1,3}F/(?:-)?[0-9]{1,2}C, .+\.\W+[A-z]{3}: (?:-)?[0-9]{1,3}F/(?:-)?[0-9]{1,2}C, """, line)
 
 	def test_weather_all(self):
@@ -177,7 +179,7 @@ class TestCommands(object):
 		"""
 		res = pmxbot.weather(c, e, "#test", "testrunner", "all")
 		for line in res:
-			print line
+			print(line)
 			assert re.match(r""".+\. Currently: (?:-)?[0-9]{1,3}F/(?:-)?[0-9]{1,2}C, .+\.\W+[A-z]{3}: (?:-)?[0-9]{1,3}F/(?:-)?[0-9]{1,2}C, """, line)
 
 	def test_boo(self):
@@ -304,7 +306,7 @@ class TestCommands(object):
 		GOOG at 4:00pm (ET): 484.81 (1.5%)
 		"""
 		res = pmxbot.ticker(c, e, "#test", "testrunner", "goog")
-		print res
+		print(res)
 		assert re.match(r"""^GOOG at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{2,4}.\d{1,4} \(\-?\d{1,3}.\d%\)$""", res), res
 
 	@pytest.has_internet
@@ -315,7 +317,7 @@ class TestCommands(object):
 		YOU.L at 10:37am (ET): 39.40 (0.4%)
 		"""
 		res = pmxbot.ticker(c, e, "#test", "testrunner", "you.l")
-		print res
+		print(res)
 		assert re.match(r"""^YOU.L at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{1,4}.\d{2,4} \(\-?\d{1,3}.\d%\)$""", res), res
 
 	@pytest.has_internet
@@ -326,7 +328,7 @@ class TestCommands(object):
 		^IXIC at 10:37am (ET): 2490.40 (0.4%)
 		"""
 		res = pmxbot.ticker(c, e, "#test", "testrunner", "^ixic")
-		print res
+		print(res)
 		assert re.match(r"""^\^IXIC at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{4,5}.\d{2} \(\-?\d{1,3}.\d%\)$""", res), res
 
 	def test_pick_or(self):
@@ -456,7 +458,7 @@ class TestCommands(object):
 		Test the built-in python calculator with a simple expression - 2+2
 		"""
 		res = pmxbot.calc(c, e, "#test", "testrunner", "2+2")
-		print res
+		print(res)
 		assert res == "4"
 
 	def test_calc_complex(self):
@@ -465,7 +467,7 @@ class TestCommands(object):
 		((((781**2)*5)/92835.3)+4)**0.5
 		"""
 		res = pmxbot.calc(c, e, "#test", "testrunner", "((((781**2)*5)/92835.3)+4)**0.5")
-		print res
+		print(res)
 		assert res.startswith("6.070566")
 
 	@pytest.has_internet
@@ -519,7 +521,7 @@ class TestCommands(object):
 		Test the progress bar
 		"""
 		res = pmxbot.progress(c, e, "#test", "testrunner", "1|98123|30")
-		print res
+		print(res)
 		assert res == "1 [===       ] 98123"
 
 	def test_strategy(self):
@@ -527,7 +529,7 @@ class TestCommands(object):
 		Test the social strategy thingie
 		"""
 		res = pmxbot.strategy(c, e, "#test", "testrunner", "")
-		print res
+		print(res)
 		assert res != ""
 
 	@pytest.has_internet
@@ -538,7 +540,7 @@ class TestCommands(object):
 		pytest.xfail("a.libpa.st is down")
 		person = str(uuid.uuid4())[:9]
 		res = pmxbot.paste(c, e, '#test', person, '')
-		print res
+		print(res)
 		assert res == "hmm.. I didn't find a recent paste of yours, %s. Checkout http://a.libpa.st/" % person
 
 	@pytest.has_internet
@@ -557,7 +559,7 @@ class TestCommands(object):
 		"""
 		bitcher = "all y'all"
 		res = pmxbot.bitchingisuseless(c, e, '#test', 'testrunner', bitcher)
-		print res
+		print(res)
 		assert res == "Quiet bitching is useless, all y'all. Do something about it."
 
 	def test_qbiu_blank(self):
@@ -565,7 +567,7 @@ class TestCommands(object):
 		Test the qbiu function with a specified person.
 		"""
 		res = pmxbot.bitchingisuseless(c, e, '#test', 'testrunner', '')
-		print res
+		print(res)
 		assert res == "Quiet bitching is useless, foo'. Do something about it."
 
 	def test_excuse(self):
