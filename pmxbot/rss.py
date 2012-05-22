@@ -88,8 +88,11 @@ class FeedparserSupport(object):
 
 	def add_feed_entries(self, entries):
 		"""
-		A callback to let the main pmxbot thread update the database and avoid
-		issues with accessing sqlite from multiple threads
+		Update the database with the new entries.
+
+		This method is intended to be used as a callback to ensure that the
+		update is always invoked in the main pmxbot thread to avoid any
+		issues with accessing sqlite from multiple threads.
 		"""
 		try:
 			db = init_feedparser_db(self.db_uri)
