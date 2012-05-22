@@ -26,11 +26,12 @@ class RSSFeeds(object):
 		self.feeds = pmxbot.config.feeds
 		self.store = FeedparserDB.from_URI(pmxbot.config.database)
 		for feed in self.feeds:
-			botbase.execute_delayed(
+			botbase.execdelay(
 				name = 'feedparser',
 				channel = feed['channel'],
 				howlong = datetime.timedelta(minutes=self.feed_interval),
 				args = [feed],
+				repeat = True,
 				)(self.parse_feed)
 		self.seen_feeds = self.store.get_seen_feeds()
 		pmxbot._finalizers.append(self.finalize)
@@ -93,7 +94,6 @@ class RSSFeeds(object):
 
 		txt = 'News from %s %s : %s' % (feed['name'],
 			feed['linkurl'], ' || '.join(outputs[:10]))
-		txt = txt.encode('utf-8')
 		return txt
 
 	def add_seen_feed(self, entry):
