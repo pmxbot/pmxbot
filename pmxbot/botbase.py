@@ -111,6 +111,10 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		if not isinstance(when, datetime.time):
 			raise ValueError("when must be datetime, date, or time")
 		daily = datetime.timedelta(days=1)
+		# convert when to the next datetime matching this time
+		when = datetime.datetime.combine(datetime.date.today(), when)
+		if when < datetime.datetime.now():
+			when += daily
 		cmd = irc.client.PeriodicCommandFixedDelay.at_time(
 			when, daily, self.background_runner, arguments)
 		self.c._schedule_command(cmd)
