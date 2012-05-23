@@ -106,7 +106,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		if isinstance(when, datetime.datetime):
 			cmd = irc.client.DelayedCommand.at_time(
 				when, self.background_runner, arguments)
-			self.c._schedule_command(cmd)
+			self.c.irclibobj._schedule_command(cmd)
 			return
 		if not isinstance(when, datetime.time):
 			raise ValueError("when must be datetime, date, or time")
@@ -117,7 +117,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			when += daily
 		cmd = irc.client.PeriodicCommandFixedDelay.at_time(
 			when, daily, self.background_runner, arguments)
-		self.c._schedule_command(cmd)
+		self.c.irclibobj._schedule_command(cmd)
 
 	def on_welcome(self, c, e):
 		self.c = c
