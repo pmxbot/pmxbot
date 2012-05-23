@@ -23,10 +23,10 @@ setup_params = dict(
 		],
 	),
 	install_requires=[
+		"irc>=2.0,<3.0dev",
 		"popquotes>=1.1",
 		"excuses>=1.1.2",
 		"pyyaml",
-		"irc>=1.1,<2.0dev",
 		"feedparser",
 		"pytz",
 		"wordnik==2.0dev-rb0221ccc",
