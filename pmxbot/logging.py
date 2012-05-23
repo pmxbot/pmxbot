@@ -199,7 +199,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		# get rid of 'the last !strike' too!
 		limit = count+1
 		# don't delete anything beyond the past 18 hours
-		date_limit = storage.pymongo.objectid.ObjectId.from_datetime(
+		date_limit = storage.bson.objectid.ObjectId.from_datetime(
 			datetime.datetime.utcnow() - datetime.timedelta(hours=18)
 		)
 		query = dict(channel=channel, nick=nick, _id={'$gt': date_limit})
@@ -292,12 +292,12 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 	def import_(self, message):
 		# construct a unique objectid with the correct datetime.
 		dt = message['datetime']
-		oid_time = storage.pymongo.objectid.ObjectId.from_datetime(dt)
+		oid_time = storage.bson.objectid.ObjectId.from_datetime(dt)
 		# store the original sqlite object ID in the
 		orig_id = message.pop('id')
 		orig_id_packed = struct.pack('>Q', orig_id)
 		oid_new = oid_time.binary[:4] + orig_id_packed
-		oid = storage.pymongo.objectid.ObjectId(oid_new)
+		oid = storage.bson.objectid.ObjectId(oid_new)
 		if not hasattr(Logger, 'log_id_map'): Logger.log_id_map = dict()
 		Logger.log_id_map[orig_id] = oid
 		message['_id'] = oid
