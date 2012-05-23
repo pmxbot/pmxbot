@@ -35,7 +35,7 @@ class RSSFeeds(object):
 				repeat = True,
 				)(self.parse_feed)
 		timer = timing.Stopwatch()
-		self.seen_feeds = self.store.get_seen_feeds()
+		self.seen_feeds = set(self.store.get_seen_feeds())
 		log.info("Loaded feed history in %s", timer.split())
 		pmxbot._finalizers.append(self.finalize)
 
@@ -106,6 +106,7 @@ class RSSFeeds(object):
 		"""
 		if entry in self.seen_feeds:
 			return False
+		self.seen_feeds.add(entry)
 		try:
 			self.store.add_entries([entry])
 		except Exception:
