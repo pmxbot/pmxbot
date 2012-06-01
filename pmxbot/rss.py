@@ -97,7 +97,8 @@ class RSSFeeds(object):
 
 		txt = 'News from %s %s : %s' % (feed['name'],
 			feed['linkurl'], ' || '.join(outputs[:10]))
-		return txt
+		yield botbase.NoLog
+		yield txt
 
 	def add_seen_feed(self, entry):
 		"""
