@@ -71,6 +71,7 @@ class TestCommands(object):
 		assert "2" in res
 
 	@pytest.has_internet
+	@pytest.mark.xfail(reason="No longer able to parse the result")
 	def test_googlecalc_complicated(self):
 		"""
 		More complicated google calculator command - 40 gallons in liters must
