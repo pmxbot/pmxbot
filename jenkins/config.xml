@@ -1,16 +1,23 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<project>
+<project xmlns:py="http://genshi.edgewall.org/">
   <actions/>
   <description></description>
+  <logRotator>
+    <daysToKeep>30</daysToKeep>
+    <numToKeep>7</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
   <keepDependencies>false</keepDependencies>
   <properties/>
   <scm class="hudson.plugins.mercurial.MercurialSCM">
-    <source>https://bitbucket.org/yougov/pmxbot</source>
+    <source py:content="repo_url" />
     <modules></modules>
+    <branch py:if="branch" py:content="branch" />
     <clean>false</clean>
     <forest>false</forest>
-    <browser class="hudson.plugins.mercurial.browser.BitBucket">
-      <url>https://bitbucket.org/yougov/pmxbot/</url>
+    <browser class="hudson.plugins.mercurial.browser.$browser_plugin">
+      <url py:content="browser_url" />
     </browser>
   </scm>
   <canRoam>true</canRoam>
@@ -34,7 +41,7 @@
   <publishers>
     <hudson.tasks.junit.JUnitResultArchiver>
       <testResults>test results.xml</testResults>
-      <keepLongStdio>true</keepLongStdio>
+      <keepLongStdio>false</keepLongStdio>
       <testDataPublishers/>
     </hudson.tasks.junit.JUnitResultArchiver>
   </publishers>

@@ -1,5 +1,5 @@
-virtualenv --no-site-packages env
+#!/bin/bash -e
 
-env/bin/python setup.py develop
-env/bin/easy_install pytest pymongo
-env/bin/py.test --junitxml="test results.xml"
+# force YG cheeseshop (for now)
+python2.7 -c "import setuptools; setuptools.setup()" setopt -c easy_install -o index-url -s http://cheese.yougov.net
+python2.7 setup.py ptr --junitxml="test results.xml"
