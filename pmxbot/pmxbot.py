@@ -46,14 +46,19 @@ def google(client, event, channel, nick, rest):
 @command("googlecalc", aliases=('gc',), doc="Calculate something using google")
 def googlecalc(client, event, channel, nick, rest):
 	query = rest
-	html = util.get_html('http://www.google.com/search?%s' %
-		urllib.urlencode(dict(q=query.encode('utf-8'))))
-	gcre = re.compile('<h[23] class=r[^>]*><b>(.+?)</b>')
+	json_raw = util.get_html('http://www.google.com/ig/calculator?%s' %
+		urllib.urlencode(dict(hl='en', q=query.encode('utf-8'))))
 	try:
-		res = gcre.search(html).group(1)
-	except AttributeError:
-		raise RuntimeError("Couldn't parse result from Google's result")
-	return plaintext(res.decode('utf-8'))
+		res = json.loads(json_raw)
+	except ValueError:
+		# google returns invalid JSON
+		# !dm google
+		karma_mod.karma.change(u'google', -1)
+		json_fixed = re.sub(r'(\w+):', r'"\1":', json_raw)
+		res = json.loads(json_fixed)
+	if res[u'error']:
+		raise RuntimeError(res[u'error'])
+	return u"{lhs} = {rhs}".format(**res)
 
 @command("time", doc="What time is it in.... Similar to !weather")
 def googletime(client, event, channel, nick, rest):
