@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
-# force YG cheeseshop (for now)
-python2.7 -c "import setuptools; setuptools.setup()" setopt -c easy_install -o index-url -s http://cheese.yougov.net
-python2.7 setup.py ptr --junitxml="test results.xml"
+virtualenv env
+# it's necessary to set up a virtual environment for the tests because the
+#  functional tests need to launch pmxbot (as a subprocess).
+env/bin/python setup.py develop
+env/bin/python setup.py ptr --junitxml="test results.xml"
