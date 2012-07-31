@@ -1,5 +1,8 @@
 #!/bin/bash -e
 
+export http_proxy=http://proxy.yg.jaraco.com:8080
+export https_proxy=https://proxy.yg.jaraco.com:8080
+
 virtualenv env
 # it's necessary to set up a virtual environment for the tests because the
 #  functional tests need to launch pmxbot (as a subprocess).
