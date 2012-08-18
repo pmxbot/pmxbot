@@ -36,11 +36,14 @@ def splitem(s):
 	c = filter(None, c)
 	return c
 
-def get_html(url):
+def open_url(url):
 	headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) '
 		'Gecko/20100101 Firefox/12.0'}
 	req = urllib2.Request(url, headers=headers)
-	return urllib2.urlopen(req).read()
+	return urllib2.urlopen(req)
+
+def get_html(url):
+	return open_url(url).read()
 
 def_exp1 = re.compile(r"<div><span class=f>.*?</span>(.+?)</div>", re.MULTILINE)
 def_exp2 = re.compile(r"Definition for.*<div class=s><div>(.+?)<", re.MULTILINE)
