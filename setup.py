@@ -34,9 +34,6 @@ setup_params = dict(
 		"jinja2",
 		"cherrypy",
 	] + py26reqs,
-	dependency_links=[
-		'https://github.com/jaraco/wordnik-python/downloads',
-	],
 	description="IRC bot - full featured, yet extensible and customizable",
 	license = 'MIT',
 	author="YouGov, Plc.",
