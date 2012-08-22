@@ -14,6 +14,10 @@ from . import storage
 class Logger(storage.SelectableStorage):
 	"Base Logger class"
 
+	def message(self, channel, nick, msg):
+		channel = channel.replace('#', '').lower()
+		self._message(channel, nick, msg)
+
 init_logger = Logger.from_URI
 
 class SQLiteLogger(Logger, storage.SQLiteStorage):
@@ -35,11 +39,10 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
 		self.db.execute(INDEX_DT_CREATE_SQL)
 		self.db.commit()
 
-	def message(self, channel, nick, msg):
+	def _message(self, channel, nick, msg):
 		INSERT_LOG_SQL = 'INSERT INTO logs (datetime, channel, nick, message) VALUES (?, ?, ?, ?)'
 		now = datetime.datetime.now()
-		channel = channel.replace('#', '')
-		self.db.execute(INSERT_LOG_SQL, [now, channel.lower(), nick, msg])
+		self.db.execute(INSERT_LOG_SQL, [now, nick, msg])
 		self.db.commit()
 
 	def last_seen(self, nick):
@@ -171,10 +174,9 @@ def parse_date(record):
 class MongoDBLogger(Logger, storage.MongoDBStorage):
 	collection_name = 'logs'
 
-	def message(self, channel, nick, msg):
+	def _message(self, channel, nick, msg):
 		self.db.ensure_index('datetime.d')
 		self.db.ensure_index('channel')
-		channel = channel.replace('#', '')
 		now = datetime.datetime.utcnow()
 		self.db.insert(dict(channel=channel, nick=nick, message=msg,
 			datetime=self._fmt_date(now),
