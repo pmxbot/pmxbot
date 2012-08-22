@@ -1,14 +1,10 @@
-#!/usr/bin/env python
-# encoding: utf-8
 # -*- coding: utf-8 -*-
 import os
 import cherrypy
 import string
 from random import shuffle
-import cherrypy
 import calendar
 import datetime
-import urlparse
 import textwrap
 from cgi import escape
 
@@ -23,13 +19,12 @@ jenv = Environment(loader=FileSystemLoader(os.path.join(BASE, 'templates'), enco
 TIMEOUT=10.0
 
 
-
 colors = ["06F", "900", "093", "F0C", "C30", "0C9", "666", "C90", "C36", "F60", "639", "630", "966", "69C", "039", '7e1e9c', '15b01a', '0343df', 'ff81c0', '653700', 'e50000', '029386', 'f97306', 'c20078', '75bbfd']
 shuffle(colors)
 
 def get_context():
 	c = cherrypy.request.app.config['botconf']['config']
-	d = {'request': cherrypy.request, 'name' : c.bot_nickname, 'config' : c, 'base' : c.web_base, }
+	d = {'request': cherrypy.request, 'name': c.bot_nickname, 'config': c, 'base': c.web_base, }
 	try:
 		d['logo'] = c.logo
 	except AttributeError:
@@ -41,7 +36,7 @@ def make_anchor(line):
 	return "%s.%s" % (str(time).replace(':', '.'), nick)
 
 
-th_map = {1 : 'st', 2 : 'nd', 3 : 'rd'}
+th_map = {1: 'st', 2: 'nd', 3: 'rd'}
 def th_it(num):
 	if num in range(11, 14):
 		end = 'th'
