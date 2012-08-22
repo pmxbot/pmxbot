@@ -29,7 +29,7 @@ setup_params = dict(
 		"pyyaml",
 		"feedparser",
 		"pytz",
-		"wordnik==2.0dev-rb0221ccc",
+		"wordnik>=2.0,<3.0",
 		#for viewer
 		"jinja2",
 		"cherrypy",
