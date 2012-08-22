@@ -100,7 +100,11 @@ def weather_for(place):
 	url = "http://www.google.com/ig/api?" + urllib.urlencode(dict(
 		weather= place.encode('utf-8')))
 	parser = ElementTree.XMLParser()
-	wdata = ElementTree.parse(util.open_url(url), parser=parser)
+	try:
+		wdata = ElementTree.parse(util.open_url(url), parser=parser)
+	except ElementTree.ParseError:
+		raise RuntimeError("No weather for {place}; Google weather APIs "
+			"disabled".format(**vars()))
 	city = wdata.find('weather/forecast_information/city').get('data')
 	tempf = wdata.find('weather/current_conditions/temp_f').get('data')
 	tempc = wdata.find('weather/current_conditions/temp_c').get('data')
