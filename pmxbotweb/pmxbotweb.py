@@ -13,7 +13,7 @@ from viewer import PmxbotPages
 
 def run(configFile=None, configDict=None, start=True):
 	global config
-	class O(object): 
+	class O(object):
 		def __init__(self, d):
 			for k, v in d.iteritems():
 				setattr(self, k, v)
@@ -57,11 +57,11 @@ def run(configFile=None, configDict=None, start=True):
 			#'tools.encode.on': True,
 			'tools.encode.encoding': 'utf-8',
 		},
-		'/pmxbot.png' : {
-			'tools.staticfile.on' : True,
-			'tools.staticfile.filename' : os.path.join(os.path.dirname(__file__), 'templates/pmxbot.png'),
+		'/pmxbot.png': {
+			'tools.staticfile.on': True,
+			'tools.staticfile.filename': os.path.join(os.path.dirname(__file__), 'templates/pmxbot.png'),
 		},
-		'botconf' : {'config' : config},
+		'botconf': {'config': config},
 	}
 
 	cherrypy.quickstart(PmxbotPages(), config.web_base, config=app_conf)
