@@ -6,6 +6,7 @@ import random
 import datetime
 import itertools
 import struct
+import threading
 
 import pytz
 
@@ -17,6 +18,17 @@ class Logger(storage.SelectableStorage):
 	def message(self, channel, nick, msg):
 		channel = channel.replace('#', '').lower()
 		self._message(channel, nick, msg)
+
+	def list_channels(self):
+		# channel listing can be expensive, so returned a cached result and
+		#  refresh the cache in the background.
+		def update_cache():
+			self._channel_cache = self._list_channels()
+		if not '_channel_cache' in vars(self):
+			update_cache()
+		else:
+			threading.Thread(target = update_cache).start()
+		return self._channel_cache
 
 init_logger = Logger.from_URI
 
@@ -120,7 +132,7 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
 			alllines.extend(lines)
 		return matches
 
-	def list_channels(self):
+	def _list_channels(self):
 		query = "SELECT distinct channel from logs"
 		return (chan[0] for chan in self.db.execute(query).fetchall())
 
@@ -265,7 +277,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 			alllines.extend(context)
 		return matches
 
-	def list_channels(self):
+	def _list_channels(self):
 		return self.db.distinct('channel')
 
 	def last_message(self, channel):
