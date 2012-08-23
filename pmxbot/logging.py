@@ -54,7 +54,7 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
 	def _message(self, channel, nick, msg):
 		INSERT_LOG_SQL = 'INSERT INTO logs (datetime, channel, nick, message) VALUES (?, ?, ?, ?)'
 		now = datetime.datetime.now()
-		self.db.execute(INSERT_LOG_SQL, [now, nick, msg])
+		self.db.execute(INSERT_LOG_SQL, [now, channel, nick, msg])
 		self.db.commit()
 
 	def last_seen(self, nick):
