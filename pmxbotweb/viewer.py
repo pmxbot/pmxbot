@@ -15,16 +15,24 @@ from pmxbot.logging import init_logger
 import pmxbot.util
 
 BASE = os.path.abspath(os.path.dirname(__file__))
-jenv = Environment(loader=FileSystemLoader(os.path.join(BASE, 'templates'), encoding='utf-8'))
+jenv = Environment(loader=FileSystemLoader(os.path.join(BASE, 'templates'),
+	encoding='utf-8'))
 TIMEOUT=10.0
 
 
-colors = ["06F", "900", "093", "F0C", "C30", "0C9", "666", "C90", "C36", "F60", "639", "630", "966", "69C", "039", '7e1e9c', '15b01a', '0343df', 'ff81c0', '653700', 'e50000', '029386', 'f97306', 'c20078', '75bbfd']
+colors = ["06F", "900", "093", "F0C", "C30", "0C9", "666", "C90", "C36",
+	"F60", "639", "630", "966", "69C", "039", '7e1e9c', '15b01a', '0343df',
+	'ff81c0', '653700', 'e50000', '029386', 'f97306', 'c20078', '75bbfd']
 shuffle(colors)
 
 def get_context():
 	c = cherrypy.request.app.config['botconf']['config']
-	d = {'request': cherrypy.request, 'name': c.bot_nickname, 'config': c, 'base': c.web_base, }
+	d = dict(
+		request = cherrypy.request,
+		name = c.bot_nickname,
+		config = c,
+		base = c.web_base,
+	)
 	try:
 		d['logo'] = c.logo
 	except AttributeError:
@@ -52,8 +60,10 @@ def pmon(month):
 
 def pday(dayfmt):
 	year, month, day = map(int, dayfmt.split('-'))
-	return '%s the %s' % (calendar.day_name[calendar.weekday(year, month, day)],
-	th_it(day))
+	return '{day} the {number}'.format(
+		day = calendar.day_name[calendar.weekday(year, month, day)],
+		name = th_it(day),
+	)
 
 rev_month = {}
 for x in xrange(1, 13):
@@ -65,7 +75,8 @@ def sort_month_key(m):
 	return parts[1], parts[0]
 
 def log_db():
-	return init_logger(cherrypy.request.app.config['botconf']['config'].database)
+	return init_logger(
+		cherrypy.request.app.config['botconf']['config'].database)
 
 class ChannelPage(object):
 	def default(self, channel):
@@ -90,7 +101,8 @@ class DayPage(object):
 		db = log_db()
 		context = get_context()
 		day_logs = db.get_day_logs(channel, day)
-		data = [(t, n, make_anchor((t, n)), escape(m)) for (t,n,m) in day_logs]
+		data = [(t, n, make_anchor((t, n)), escape(m))
+			for (t,n,m) in day_logs]
 		usernames = [x[1] for x in data]
 		color_map = {}
 		clrs = colors[:]
@@ -104,7 +116,10 @@ class DayPage(object):
 		context['color_map'] = color_map
 		context['history'] = data
 		context['channel'] = channel
-		context['pdate'] = "%s of %s" % (pday(day), pmon(day.rsplit('-', 1)[0]))
+		context['pdate'] = "{pday} of {days}".format(
+			pday = pday(day),
+			days = pmon(day.rsplit('-', 1)[0]),
+		)
 		return page.render(**context).encode('utf-8')
 	default.exposed = True
 
@@ -173,9 +188,12 @@ class HelpPage(object):
 			self.contains = []
 			import pmxbot.pmxbot as p
 			p.run(configInput = context['config'], start=False)
-			for typ, name, f, doc, channels, exclude, rate, priority in sorted(p._handler_registry, key=lambda x: x[1]):
+			for typ, name, f, doc, channels, exclude, rate, priority in \
+					sorted(p._handler_registry, key=lambda x: x[1]):
 				if typ == 'command':
-					aliases = sorted([x[1] for x in p._handler_registry if x[0] == 'alias' and x[2] == f])
+					aliases = sorted([x[1]
+						for x in p._handler_registry
+						if x[0] == 'alias' and x[2] == f])
 					self.commands.append((name, doc, aliases))
 				elif typ == 'contains':
 					self.contains.append((name, doc))
@@ -225,11 +243,13 @@ class LegacyPage():
 		dt = datetime.datetime.combine(date, time.time())
 		loc_dt = self.timezone.localize(dt)
 		utc_dt = loc_dt.astimezone(pytz.utc)
-		target_date = utc_dt.date().isoformat()
-		target_time = utc_dt.time().strftime('%H.%M.%S')
 		url_fmt = '/day/{channel}/{target_date}#{target_time}.{nick}'
 		raise cherrypy.HTTPRedirect(
-			url_fmt.format(**vars()),
+			url_fmt.format(
+				target_date = utc_dt.date().isoformat(),
+				target_time = utc_dt.time().strftime('%H.%M.%S'),
+				**vars()
+				),
 			301,
 		)
 
