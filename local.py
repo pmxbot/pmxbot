@@ -26,7 +26,7 @@ def lunch(client, event, channel, nick, rest):
     res = srch.parse_results()
     limit = min(250, res.totalResultsAvailable)
     num = random.randint(1, limit) - 1
-    if num < 19:
+    if num < 20:
         selection = res.results[num]
     else:
         srch = LocalSearch(app_id=yahooid, category=96926236, results=20,
