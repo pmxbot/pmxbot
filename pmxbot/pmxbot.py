@@ -884,11 +884,6 @@ def run(configFile=None, configDict=None, configInput=None, start=True):
 			config_file = sys.argv[1]
 		config = O(yaml.load(open(config_file)))
 
-	if config.bot_nickname != 'pmxbot':
-		@contains(config.bot_nickname, channels='unlogged', rate=.3)
-		def rand_bot2(*args):
-			return rand_bot(*args)
-
 	_load_library_extensions()
 
 	use_ssl = getattr(config, 'use_ssl', False)
