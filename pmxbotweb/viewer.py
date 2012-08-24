@@ -55,14 +55,30 @@ def th_it(num):
 	return '%s%s' % (num, end)
 
 def pmon(month):
+	"""
+	P the month
+
+	>>> pmon('2012-08')
+	'August, 2012'
+	"""
 	year, month = month.split('-')
-	return '%s, %s' % (calendar.month_name[int(month)], year)
+	return '{month_name}, {year}'.format(
+		month_name = calendar.month_name[int(month)],
+		year = year,
+	)
 
 def pday(dayfmt):
+	"""
+	P the day
+
+	>>> pday('2012-08-24')
+	'Friday the 24th'
+	"""
+
 	year, month, day = map(int, dayfmt.split('-'))
 	return '{day} the {number}'.format(
 		day = calendar.day_name[calendar.weekday(year, month, day)],
-		name = th_it(day),
+		number = th_it(day),
 	)
 
 rev_month = {}
