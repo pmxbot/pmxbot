@@ -4,7 +4,7 @@ import itertools
 import urlparse
 import importlib
 
-from .classutil import itersubclasses
+from jaraco.util.classutil import itersubclasses
 
 class SelectableStorage(object):
 	"""
