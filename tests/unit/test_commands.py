@@ -40,14 +40,15 @@ def onetrue(*args):
 
 class TestCommands(object):
 	@classmethod
-	def setup_class(self):
+	def setup_class(cls):
 		path = os.path.dirname(os.path.abspath(__file__))
 		configfile = os.path.join(path, 'testconf.yaml')
-		pmxbot.run(configFile=configfile, start=False)
+		config = pmxbot.dictlib.ConfigDict.from_yaml(configfile)
+		cls.bot = pmxbot.initialize(config)
 		pmxbot.botbase.logger.message("logged", "testrunner", "some text")
 
 	@classmethod
-	def teardown_class(self):
+	def teardown_class(cls):
 		pmxbot._cleanup()
 		path = os.path.dirname(os.path.abspath(__file__))
 		os.remove(os.path.join(path, 'pmxbot.sqlite'))
