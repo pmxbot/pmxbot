@@ -3,6 +3,7 @@
 # c-basic-indent: 4; tab-width: 4; indent-tabs-mode: true;
 from __future__ import absolute_import, division
 
+import argparse
 import time
 import sys
 import re
@@ -12,7 +13,6 @@ import csv
 import logging
 import functools
 import traceback
-import yaml
 from cStringIO import StringIO
 try:
 	import json
@@ -24,6 +24,7 @@ import popquotes.pmxbot as pq
 import pkg_resources
 
 from .botbase import (command, contains, _handler_registry, NoLog)
+from . import dictlib
 from . import botbase
 from . import karma as karma_mod
 from . import quotes
@@ -861,29 +862,23 @@ def logo(client, event, channel, nick, rest):
 
 config = None
 
-def run(configFile=None, configDict=None, configInput=None, start=True):
-	global config
-	class O(object):
-		def __init__(self, d):
-			for k, v in d.iteritems():
-				setattr(self, k, v)
+def get_args():
+	parser = argparse.ArgumentParser()
+	parser.add_argument('config_file', type=dictlib.ConfigDict.from_yaml,
+		dest='config')
+	return parser.parse_args()
+
+def run():
+	initialize(get_args().config).start()
+
+def initialize(config):
+	"""
+	Initialize the bot with a pmxbot.dictlib.ConfigDict
+	"""
+	assert isinstance(config, dictlib.ConfigDict)
+	globals().update(config=config)
 
 	_setup_logging()
-
-	if configInput:
-		config = configInput
-	elif configDict:
-		config = O(configDict)
-	else:
-		if configFile:
-			config_file = configFile
-		else:
-			if len(sys.argv) < 2:
-				sys.stderr.write("error: need config file as first argument")
-				raise SystemExit(1)
-			config_file = sys.argv[1]
-		config = O(yaml.load(open(config_file)))
-
 	_load_library_extensions()
 
 	use_ssl = getattr(config, 'use_ssl', False)
@@ -891,13 +886,12 @@ def run(configFile=None, configDict=None, configInput=None, start=True):
 
 	silent_bot = getattr(config, 'silent', False)
 
-	class_ = botbase.LoggingCommandBot if not silent_bot else botbase.SilentCommandBot
+	class_ = (botbase.LoggingCommandBot
+		if not silent_bot else botbase.SilentCommandBot)
 
-	bot = class_(config.database, config.server_host, config.server_port,
+	return class_(config.database, config.server_host, config.server_port,
 		config.bot_nickname, config.log_channels, config.other_channels,
 		use_ssl=use_ssl, password=password)
-	if start:
-		bot.start()
 
 
 _finalizers = [
