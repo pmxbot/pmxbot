@@ -864,8 +864,7 @@ config = None
 
 def get_args():
 	parser = argparse.ArgumentParser()
-	parser.add_argument('config_file', type=dictlib.ConfigDict.from_yaml,
-		dest='config')
+	parser.add_argument('config', type=dictlib.ConfigDict.from_yaml)
 	return parser.parse_args()
 
 def run():
