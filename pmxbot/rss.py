@@ -39,9 +39,8 @@ class RSSFeeds(object):
 		log.info("Loaded feed history in %s", timer.split())
 		pmxbot._finalizers.append(self.finalize)
 
-	@classmethod
-	def finalize(cls):
-		del cls.store
+	def finalize(self):
+		del self.store
 
 	def on_welcome(self, c, e):
 		if self._feeds:
