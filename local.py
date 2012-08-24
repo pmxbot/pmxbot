@@ -5,7 +5,7 @@ Local pmxbot extensions, incude the path to this file in your config.yaml.
 import random
 import urllib
 
-from pmxbot import command, execdelay
+from pmxbot.botbase import command, execdelay
 
 @command("yahoolunch", doc="Find a random neary restaurant for lunch using "
     "Yahoo Local. Defaults to 1 mile radius, but append Xmi to the end to "
