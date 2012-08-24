@@ -1,10 +1,19 @@
 import py.test
+from jaraco.test import services
 
-def pytest_funcarg__mongodb_uri(request):
-	test_host = 'mongodb://localhost'
+def mongodb_instance():
 	try:
 		import pymongo
-		pymongo.Connection(test_host)
+		instance = services.MongoDBInstance()
+		instance.start()
+		pymongo.Connection(instance.get_connect_hosts())
 	except Exception:
-		py.test.skip("No local mongodb found")
-	return test_host
+		return None
+	return instance
+
+def pytest_funcarg__mongodb_uri(request):
+	instance = request.cached_setup(setup=mongodb_instance, scope='session',
+		teardown=lambda instance: instance.stop())
+	if not instance:
+		py.test.skip("MongoDB not available")
+	return 'mongodb://' + ','.join(instance.get_connect_hosts())
