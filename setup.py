@@ -30,6 +30,7 @@ setup_params = dict(
 		"feedparser",
 		"pytz",
 		"wordnik>=2.0,<3.0",
+		"jaraco.util",
 		#for viewer
 		"jinja2",
 		"cherrypy",

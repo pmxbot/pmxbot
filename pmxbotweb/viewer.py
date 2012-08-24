@@ -10,6 +10,7 @@ from cgi import escape
 
 from jinja2 import Environment, FileSystemLoader
 import pytz
+from jaraco.util.numbers import ordinalth as th_it
 
 from pmxbot.logging import init_logger
 import pmxbot.util
@@ -42,17 +43,6 @@ def get_context():
 def make_anchor(line):
 	time, nick = line
 	return "%s.%s" % (str(time).replace(':', '.'), nick)
-
-
-th_map = {1: 'st', 2: 'nd', 3: 'rd'}
-def th_it(num):
-	if num in range(11, 14):
-		end = 'th'
-	elif num % 10 in th_map:
-		end = th_map[num % 10]
-	else:
-		end = 'th'
-	return '%s%s' % (num, end)
 
 def pmon(month):
 	"""
