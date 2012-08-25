@@ -13,11 +13,8 @@ import csv
 import logging
 import functools
 import traceback
+import json
 from cStringIO import StringIO
-try:
-	import json
-except ImportError:
-	import simplejson as json
 from xml.etree import ElementTree
 
 import popquotes.pmxbot as pq
