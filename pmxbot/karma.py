@@ -5,14 +5,22 @@ from __future__ import print_function
 import itertools
 import re
 import importlib
+import random
 
 from . import storage
+from .botbase import command
 
 class SameName(ValueError): pass
 class AlreadyLinked(ValueError): pass
 
 
 class Karma(storage.SelectableStorage):
+	@classmethod
+	def initialize(cls):
+		pmxbot = importlib.import_module('pmxbot.pmxbot')
+		cls.store = cls.from_URI(pmxbot.config.database)
+		pmxbot._finalizers.append(cls.finalize)
+
 	@classmethod
 	def finalize(cls):
 		del cls.store
@@ -230,13 +238,59 @@ class MongoDBKarma(Karma, storage.MongoDBStorage):
 				self.db.update(query, update, safe=True)
 				self.db.remove(duplicate)
 
-def init_karma(uri):
-	Karma.store = Karma.from_URI(uri)
-	# for backward compatibility
-	globals().update(karma=Karma.store)
-	importlib.import_module('pmxbot.util').karma = Karma.store
+@command("karma", aliases=("k",), doc="Return or change the karma value for "
+	"some(one|thing)")
+def karma(client, event, channel, nick, rest):
+	karmee = rest.strip('++').strip('--').strip('~~')
+	if '++' in rest:
+		Karma.store.change(karmee, 1)
+	elif '--' in rest:
+		Karma.store.change(karmee, -1)
+	elif '~~' in rest:
+		change = random.choice([-1, 0, 1])
+		Karma.store.change(karmee, change)
+		if change == 1:
+			return "%s karma++" % karmee
+		elif change == 0:
+			return "%s karma shall remain the same" % karmee
+		elif change == -1:
+			return "%s karma--" % karmee
+	elif '==' in rest:
+		t1, t2 = rest.split('==')
+		try:
+			Karma.store.link(t1, t2)
+		except SameName:
+			Karma.store.change(nick, -1)
+			return "Don't try to link a name to itself!"
+		except AlreadyLinked:
+			return "Those names were previously linked."
+		score = Karma.store.lookup(t1)
+		return "%s and %s are now linked and have a score of %s" % (t1, t2, score)
+	else:
+		karmee = rest or nick
+		score = Karma.store.lookup(karmee)
+		return "%s has %s karmas" % (karmee, score)
 
+@command("top10", aliases=("top",), doc="Return the top n (default 10) "
+	"highest entities by Karmic value. Use negative numbers for the bottom "
+	"N.")
+def top10(client, event, channel, nick, rest):
+	if rest:
+		topn = int(rest)
+	else:
+		topn = 10
+	selection = Karma.store.list(topn)
+	res = ' '.join('(%s: %s)' % (', '.join(n), k) for n, k in selection)
+	return res
 
-# for backward compatibility:
-def karmaChange(db, *args, **kwargs):
-	return Karma.store.change(*args, **kwargs)
+@command("bottom10", aliases=("bottom",), doc="Return the bottom n (default "
+	"10) lowest entities by Karmic value. Use negative numbers for the "
+	"bottom N.")
+def bottom10(client, event, channel, nick, rest):
+	if rest:
+		topn = -int(rest)
+	else:
+		topn = -10
+	selection = Karma.store.list(topn)
+	res = ' '.join('(%s: %s)' % (', '.join(n), k) for n, k in selection)
+	return res

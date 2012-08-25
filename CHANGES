@@ -1,0 +1,9 @@
+1110
+====
+
+With version 1110, much of the backward compatibility around quotes and karma
+has been removed::
+
+ - The Karma store must now be referenced as `pmxbot.karma:Karma.store` (a
+   class attribute). It is no longer available as `pmxbot.pmxbot:karma` nor
+   `pmxbot.util:karma` nor `pmxbot.karma.karma`.

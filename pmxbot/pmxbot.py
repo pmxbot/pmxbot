@@ -26,7 +26,7 @@ import pkg_resources
 from .botbase import (command, contains, _handler_registry, NoLog)
 from . import dictlib
 from . import botbase
-from . import karma as karma_mod
+from . import karma
 from . import quotes
 from . import phrases
 from . import util
@@ -54,7 +54,7 @@ def googlecalc(client, event, channel, nick, rest):
 	except ValueError:
 		# google returns invalid JSON
 		# !dm google
-		karma_mod.karma.change(u'google', -1)
+		karma.Karma.store.change(u'google', -1)
 		json_fixed = re.sub(r'(\w+):', r'"\1":', json_raw)
 		res = json.loads(json_fixed)
 	if res[u'error']:
@@ -164,19 +164,19 @@ def weather(client, event, channel, nick, rest):
 @command("boo", doc="Boo someone")
 def boo(client, event, channel, nick, rest):
 	slapee = rest
-	karma_mod.karma.change(slapee, -1)
+	karma.Karma.store.change(slapee, -1)
 	return "/me BOOO %s!!! BOOO!!!" % slapee
 
 @command("troutslap", aliases=("slap", "ts"), doc="Slap some(one|thing) with a fish")
 def troutslap(client, event, channel, nick, rest):
 	slapee = rest
-	karma_mod.karma.change(slapee, -1)
+	karma.Karma.store.change(slapee, -1)
 	return "/me slaps %s around a bit with a large trout" % slapee
 
 @command("keelhaul", aliases=("kh",), doc="Inflict great pain and embarassment on some(one|thing)")
 def keelhaul(client, event, channel, nick, rest):
 	keelee = rest
-	karma_mod.karma.change(keelee, -1)
+	karma.Karma.store.change(keelee, -1)
 	return "/me straps %s to a dirty rope, tosses 'em overboard and pulls with great speed. Yarrr!" % keelee
 
 @command("annoy", aliases=("a", "bother",), doc="Annoy everyone with meaningless banter")
@@ -229,16 +229,16 @@ def rubberstamp(client, event, channel, nick, rest):
 	rest = rest.strip()
 	if rest:
 		parts.append("%s is" % rest)
-		karma_mod.karma.change(rest, 1)
+		karma.Karma.store.change(rest, 1)
 	parts.append("APPROVED!")
 	return " ".join(parts)
 
 @command("cheer", aliases=("c",), doc="Cheer for something")
 def cheer(client, event, channel, nick, rest):
 	if rest:
-		karma_mod.karma.change(rest, 1)
+		karma.Karma.store.change(rest, 1)
 		return "/me cheers for %s!" % rest
-	karma_mod.karma.change('the day', 1)
+	karma.Karma.store.change('the day', 1)
 	return "/me cheers!"
 
 @command("golfclap", aliases=("clap",), doc="Clap for something")
@@ -248,7 +248,7 @@ def golfclap(client, event, channel, nick, rest):
 	adj = random.choice(phrases.adjl)
 	if rest:
 		clapee = rest.strip()
-		karma_mod.karma.change(clapee, 1)
+		karma.Karma.store.change(clapee, 1)
 		return "/me claps %s for %s, %s %s." % (clapv, rest, adv, adj)
 	return "/me claps %s, %s %s." % (clapv, adv, adj)
 
@@ -310,7 +310,7 @@ def zinger(client, event, channel, nick, rest):
 	name = 'you'
 	if rest:
 		name = rest.strip()
-		karma_mod.karma.change(name, -1)
+		karma.Karma.store.change(name, -1)
 	return "OH MAN!!! %s TOTALLY GOT ZING'D!" % (name.upper())
 
 @command("motivate", aliases=("m", "appreciate", "thanks", "thank"), doc="Motivate someone")
@@ -319,14 +319,14 @@ def motivate(client, event, channel, nick, rest):
 		r = rest.strip()
 	else:
 		r = channel
-	karma_mod.karma.change(r, 1)
+	karma.Karma.store.change(r, 1)
 	return "you're doing good work, %s!" % r
 
 @command("imotivate", aliases=("im", 'ironicmotivate',), doc='''Ironically "Motivate" someone''')
 def imotivate(client, event, channel, nick, rest):
 	if rest:
 		r = rest.strip()
-		karma_mod.karma.change(r, -1)
+		karma.Karma.store.change(r, -1)
 	else:
 		r = channel
 	return '''you're "doing" "good" "work", %s!''' % r
@@ -344,7 +344,7 @@ def demotivate(client, event, channel, nick, rest):
 		r = rest.strip()
 	else:
 		r = channel
-	karma_mod.karma.change(r, -1)
+	karma.Karma.store.change(r, -1)
 	return "you're doing horrible work, %s!" % r
 
 @command("8ball", aliases=("8",), doc="Ask the magic 8ball a question")
@@ -430,7 +430,7 @@ def insult(client, event, channel, nick, rest):
 	if insult:
 		if rest:
 			insultee = rest.strip()
-			karma_mod.karma.change(insultee, -1)
+			karma.Karma.store.change(insultee, -1)
 			if instype in (0, 2):
 				cinsre = re.compile(r'\b(your)\b', re.IGNORECASE)
 				insult = cinsre.sub("%s's" % insultee, insult)
@@ -451,64 +451,11 @@ def compliment(client, event, channel, nick, rest):
 		compliment = re.compile(r'  ').sub('%s' % ' ', compliment)
 		if rest:
 			complimentee = rest.strip()
-			karma_mod.karma.change(complimentee, 1)
+			karma.Karma.store.change(complimentee, 1)
 			compliment = re.compile(r'\b(your)\b', re.IGNORECASE).sub('%s\'s' % complimentee, compliment)
 			compliment = re.compile(r'\b(you are)\b', re.IGNORECASE).sub('%s is' % complimentee, compliment)
 			compliment = re.compile(r'\b(you have)\b', re.IGNORECASE).sub('%s has' % complimentee, compliment)
 		return compliment
-
-
-@command("karma", aliases=("k",), doc="Return or change the karma value for some(one|thing)")
-def karma(client, event, channel, nick, rest):
-	karmee = rest.strip('++').strip('--').strip('~~')
-	if '++' in rest:
-		karma_mod.karma.change(karmee, 1)
-	elif '--' in rest:
-		karma_mod.karma.change(karmee, -1)
-	elif '~~' in rest:
-		change = random.choice([-1, 0, 1])
-		karma_mod.karma.change(karmee, change)
-		if change == 1:
-			return "%s karma++" % karmee
-		elif change == 0:
-			return "%s karma shall remain the same" % karmee
-		elif change == -1:
-			return "%s karma--" % karmee
-	elif '==' in rest:
-		t1, t2 = rest.split('==')
-		try:
-			karma_mod.karma.link(t1, t2)
-		except karma_mod.SameName:
-			karma_mod.karma.change(nick, -1)
-			return "Don't try to link a name to itself!"
-		except karma_mod.AlreadyLinked:
-			return "Those names were previously linked."
-		score = karma_mod.karma.lookup(t1)
-		return "%s and %s are now linked and have a score of %s" % (t1, t2, score)
-	else:
-		karmee = rest or nick
-		score = karma_mod.karma.lookup(karmee)
-		return "%s has %s karmas" % (karmee, score)
-
-@command("top10", aliases=("top",), doc="Return the top n (default 10) highest entities by Karmic value. Use negative numbers for the bottom N.")
-def top10(client, event, channel, nick, rest):
-	if rest:
-		topn = int(rest)
-	else:
-		topn = 10
-	selection = karma_mod.karma.list(topn)
-	res = ' '.join('(%s: %s)' % (', '.join(n), k) for n, k in selection)
-	return res
-
-@command("bottom10", aliases=("bottom",), doc="Return the bottom n (default 10) lowest entities by Karmic value. Use negative numbers for the bottom N.")
-def bottom10(client, event, channel, nick, rest):
-	if rest:
-		topn = -int(rest)
-	else:
-		topn = -10
-	selection = karma_mod.karma.list(topn)
-	res = ' '.join('(%s: %s)' % (', '.join(n), k) for n, k in selection)
-	return res
 
 @command("gettowork", aliases=("gtw",), doc="You really ought to, ya know...")
 def gettowork(client, event, channel, nick, rest):
@@ -521,20 +468,20 @@ def gettowork(client, event, channel, nick, rest):
 	suggestion = random.choice(suggestions)
 	rest = rest.strip()
 	if rest:
-		karma_mod.karma.change(rest, -1)
+		karma.Karma.store.change(rest, -1)
 		suggestion = suggestion + ', %s' % rest
 	else:
-		karma_mod.karma.change(channel, -1)
-	karma_mod.karma.change(nick, -1)
+		karma.Karma.store.change(channel, -1)
+	karma.Karma.store.change(nick, -1)
 	return suggestion
 
 @command("bitchingisuseless", aliases=("qbiu",), doc="It really is, ya know...")
 def bitchingisuseless(client, event, channel, nick, rest):
 	rest = rest.strip()
 	if rest:
-		karma_mod.karma.change(rest, -1)
+		karma.Karma.store.change(rest, -1)
 	else:
-		karma_mod.karma.change(channel, -1)
+		karma.Karma.store.change(channel, -1)
 		rest = "foo'"
 	advice = 'Quiet bitching is useless, %s. Do something about it.' % rest
 	return advice
@@ -545,7 +492,7 @@ def curse(client, event, channel, nick, rest):
 		cursee = rest
 	else:
 		cursee = 'the day'
-	karma_mod.karma.change(cursee, -1)
+	karma.Karma.store.change(cursee, -1)
 	return "/me curses %s!" % cursee
 
 @command("tinytear", aliases=('tt', 'tear', 'cry'), doc="I cry a tiny tear for you.")
@@ -562,23 +509,23 @@ def stab(client, event, channel, nick, rest):
 	else:
 		stabee = 'wildly at anything'
 	if random.random() < 0.9:
-		karma_mod.karma.change(stabee, -1)
+		karma.Karma.store.change(stabee, -1)
 		weapon = random.choice(phrases.weapon_opts)
 		weaponadj = random.choice(phrases.weapon_adjs)
 		violentact = random.choice(phrases.violent_acts)
 		return "/me grabs a %s %s and %s %s!" % (weaponadj, weapon, violentact, stabee)
 	elif random.random() < 0.6:
-		karma_mod.karma.change(stabee, -1)
+		karma.Karma.store.change(stabee, -1)
 		return "/me is going to become rich and famous after i invent a device that allows you to stab people in the face over the internet"
 	else:
-		karma_mod.karma.change(nick, -1)
+		karma.Karma.store.change(nick, -1)
 		return "/me turns on its master and shivs %s. This is reality man, and you never know what you're going to get!" % nick
 
 @command("disembowel", aliases=("dis", "eviscerate"),doc="Disembowel some(one|thing)!")
 def disembowel(client, event, channel, nick, rest):
 	if rest:
 		stabee = rest
-		karma_mod.karma.change(stabee, -1)
+		karma.Karma.store.change(stabee, -1)
 	else:
 		stabee = "someone nearby"
 	return "/me takes %s, brings them down to the basement, ties them to a leaky pipe, and once bored of playing with them mercifully ritually disembowels them..." % stabee
@@ -587,7 +534,7 @@ def disembowel(client, event, channel, nick, rest):
 def embowel(client, event, channel, nick, rest):
 	if rest:
 		stabee = rest
-		karma_mod.karma.change(stabee, 1)
+		karma.Karma.store.change(stabee, 1)
 	else:
 		stabee = "someone nearby"
 	return "/me (wearing a bright pink cape and yellow tights) swoops in through an open window, snatches %s, races out of the basement, takes them to the hospital with entrails on ice, and mercifully embowels them, saving the day..." % stabee
@@ -603,7 +550,7 @@ def chain(client, event, channel, nick, rest):
 	elif random.randint(1,10) != 1:
 		return "/me chains %s to the nearest desk.  you ain't going home, buddy." % chainee
 	else:
-		karma_mod.karma.change(nick, -1)
+		karma.Karma.store.change(nick, -1)
 		return "/me spins violently around and chains %s to the nearest desk.  your days of chaining people down and stomping on their dreams are over!  get a life, you miserable beast." % nick
 
 @command("bless", doc="Bless the day!")
@@ -612,7 +559,7 @@ def bless(client, event, channel, nick, rest):
 		blesse = rest
 	else:
 		blesse = 'the day'
-	karma_mod.karma.change(blesse, 1)
+	karma.Karma.store.change(blesse, 1)
 	return "/me blesses %s!" % blesse
 
 @command("blame", doc="Pass the buck!")
@@ -621,7 +568,7 @@ def blame(client, event, channel, nick, rest):
 		blamee = rest
 	else:
 		blamee = channel
-	karma_mod.karma.change(nick, -1)
+	karma.Karma.store.change(nick, -1)
 	if random.randint(1,10) == 1:
 		yield "/me jumps atop the chair and points back at %s." % nick
 		yield "stop blaming the world for your problems, you bitter, two-faced sissified monkey!"
@@ -653,7 +600,7 @@ def rand_bot(client, event, channel, nick, rest):
 
 @contains("sqlonrails")
 def yay_sor(client, event, channel, nick, rest):
-	karma_mod.karma.change('sql on rails', 1)
+	karma.Karma.store.change('sql on rails', 1)
 	return "Only 76,417 lines..."
 
 @contains("sql on rails")
@@ -713,13 +660,13 @@ def fight(client, event, channel, nick, rest):
 		if len(contenders) > 2:
 			bad_protocol = True
 		if bad_protocol:
-			karma_mod.karma.change(nick.lower(), -1)
+			karma.Karma.store.change(nick.lower(), -1)
 			args = (vtype, nick, fdesc)
 			return "/me %s %s in %s for bad protocol." % args
 		random.shuffle(contenders)
 		winner,loser = contenders
-		karma_mod.karma.change(winner, 1)
-		karma_mod.karma.change(loser, -1)
+		karma.Karma.store.change(winner, 1)
+		karma.Karma.store.change(loser, -1)
 		return "%s %s %s in %s." % (winner, vtype, loser, fdesc)
 
 @command("progress", doc="Display the progress of something: start|end|percent")
@@ -735,13 +682,13 @@ def nastygram(client, event, channel, nick, rest):
 	recipient = ""
 	if rest:
 		recipient = rest.strip()
-		karma_mod.karma.change(recipient, -1)
+		karma.Karma.store.change(recipient, -1)
 	return util.passagg(recipient, nick.lower())
 
 @command("therethere", aliases=('poor', 'comfort'), doc="Sympathy for you.")
 def therethere(client, event, channel, nick, rest):
 	if rest:
-		karma_mod.karma.change(rest, 1)
+		karma.Karma.store.change(rest, 1)
 		return "There there %s... There there." % rest
 	else:
 		return "/me shares its sympathy."
@@ -895,7 +842,6 @@ def initialize(config):
 
 _finalizers = [
 	botbase.LoggingCommandBot._finalize_logger,
-	karma_mod.Karma.finalize,
 	quotes.Quotes.finalize,
 ]
 

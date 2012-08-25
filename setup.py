@@ -18,6 +18,7 @@ setup_params = dict(
 			'pmxbotweb=pmxbotweb.pmxbotweb:run',
 		],
 		pmxbot_handlers = [
+			'pmxbot karma = pmxbot.karma:Karma.initialize',
 			'pmxbot notifier = pmxbot.notify:Notify.init',
 			'pmxbot feedparser = pmxbot.rss:RSSFeeds',
 		],

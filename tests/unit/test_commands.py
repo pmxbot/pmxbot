@@ -388,7 +388,7 @@ class TestCommands(object):
 		Determine your own, blank, karma.
 		"""
 		id = str(uuid.uuid4())[:15]
-		res = pmxbot.karma(c, e, "#test", id, "")
+		res = karma.karma(c, e, "#test", id, "")
 		assert re.match(r"^%s has 0 karmas$" % id, res)
 
 	def test_karma_check_other_blank(self):
@@ -396,7 +396,7 @@ class TestCommands(object):
 		Determine some else's blank/new karma.
 		"""
 		id = str(uuid.uuid4())
-		res = pmxbot.karma(c, e, "#test", "testrunner", id)
+		res = karma.karma(c, e, "#test", "testrunner", id)
 		assert re.match("^%s has 0 karmas$" % id, res)
 
 	def test_karma_set_and_check(self):
@@ -404,13 +404,13 @@ class TestCommands(object):
 		Take a new entity, give it some karma, check that it has more
 		"""
 		id = str(uuid.uuid4())
-		res = pmxbot.karma(c, e, "#test", "testrunner", id)
+		res = karma.karma(c, e, "#test", "testrunner", id)
 		assert re.match("^%s has 0 karmas$" % id, res)
-		res = pmxbot.karma(c, e, "#test", "testrunner", "%s++" %id)
-		res = pmxbot.karma(c, e, "#test", "testrunner", "%s++" %id)
-		res = pmxbot.karma(c, e, "#test", "testrunner", "%s++" %id)
-		res = pmxbot.karma(c, e, "#test", "testrunner", "%s--" %id)
-		res = pmxbot.karma(c, e, "#test", "testrunner", id)
+		res = karma.karma(c, e, "#test", "testrunner", "%s++" %id)
+		res = karma.karma(c, e, "#test", "testrunner", "%s++" %id)
+		res = karma.karma(c, e, "#test", "testrunner", "%s++" %id)
+		res = karma.karma(c, e, "#test", "testrunner", "%s--" %id)
+		res = karma.karma(c, e, "#test", "testrunner", id)
 		assert re.match(r"^%s has 2 karmas$" % id, res)
 
 	def test_karma_set_and_check_with_space(self):
@@ -418,13 +418,13 @@ class TestCommands(object):
 		Take a new entity that has a space in it's name, give it some karma, check that it has more
 		"""
 		id = str(uuid.uuid4()).replace("-", " ")
-		res = pmxbot.karma(c, e, "#test", "testrunner", id)
+		res = karma.karma(c, e, "#test", "testrunner", id)
 		assert re.match("^%s has 0 karmas$" % id, res)
-		res = pmxbot.karma(c, e, "#test", "testrunner", "%s++" %id)
-		res = pmxbot.karma(c, e, "#test", "testrunner", "%s++" %id)
-		res = pmxbot.karma(c, e, "#test", "testrunner", "%s++" %id)
-		res = pmxbot.karma(c, e, "#test", "testrunner", "%s--" %id)
-		res = pmxbot.karma(c, e, "#test", "testrunner", id)
+		res = karma.karma(c, e, "#test", "testrunner", "%s++" %id)
+		res = karma.karma(c, e, "#test", "testrunner", "%s++" %id)
+		res = karma.karma(c, e, "#test", "testrunner", "%s++" %id)
+		res = karma.karma(c, e, "#test", "testrunner", "%s--" %id)
+		res = karma.karma(c, e, "#test", "testrunner", id)
 		assert re.match(r"^%s has 2 karmas$" % id, res)
 
 	def test_karma_randomchange(self):
@@ -436,23 +436,23 @@ class TestCommands(object):
 		i = 0
 		karmafetch = re.compile(r"^%s has (\-?\d+) karmas$" % id)
 		while len(flags) < 3 and i <= 30:
-			res = pmxbot.karma(c, e, "#test", "testrunner", id)
+			res = karma.karma(c, e, "#test", "testrunner", id)
 			prekarma = int(karmafetch.findall(res)[0])
-			change = pmxbot.karma(c, e, "#test", "testrunner", "%s~~" % id)
+			change = karma.karma(c, e, "#test", "testrunner", "%s~~" % id)
 			assert change in ["%s karma++" % id, "%s karma--" % id, "%s karma shall remain the same" % id]
 			if change.endswith('karma++'):
 				flags['++'] = True
-				res = pmxbot.karma(c, e, "#test", "testrunner", id)
+				res = karma.karma(c, e, "#test", "testrunner", id)
 				postkarma = int(karmafetch.findall(res)[0])
 				assert postkarma == prekarma + 1
 			elif change.endswith('karma--'):
 				flags['--'] = True
-				res = pmxbot.karma(c, e, "#test", "testrunner", id)
+				res = karma.karma(c, e, "#test", "testrunner", id)
 				postkarma = int(karmafetch.findall(res)[0])
 				assert postkarma == prekarma - 1
 			elif change.endswith('karma shall remain the same'):
 				flags['same'] = True
-				res = pmxbot.karma(c, e, "#test", "testrunner", id)
+				res = karma.karma(c, e, "#test", "testrunner", id)
 				postkarma = int(karmafetch.findall(res)[0])
 				assert postkarma == prekarma
 			i+=1
