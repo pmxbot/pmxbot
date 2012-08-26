@@ -30,8 +30,6 @@ class Logger(storage.SelectableStorage):
 			threading.Thread(target = update_cache).start()
 		return self._channel_cache
 
-init_logger = Logger.from_URI
-
 class SQLiteLogger(Logger, storage.SQLiteStorage):
 
 	def init_tables(self):

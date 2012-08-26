@@ -15,7 +15,7 @@ import functools
 import irc.bot
 
 import pmxbot.itertools
-from .logging import init_logger
+from . import logging
 
 class WarnHistory(dict):
 	warn_every = datetime.timedelta(seconds=60)
@@ -70,7 +70,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		if os.path.isfile(os.path.join(db_uri, "pmxbot.sqlite")):
 			db_uri = os.path.join(db_uri, "pmxbot.sqlite")
 		self.db_uri = db_uri
-		globals().update(logger=init_logger(db_uri))
+		globals().update(logger=logging.Logger.from_URI(db_uri))
 		self._nickname = nickname
 		self.__use_ssl = use_ssl
 		self.warn_history = WarnHistory()

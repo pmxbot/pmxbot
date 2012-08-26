@@ -12,7 +12,7 @@ from jinja2 import Environment, FileSystemLoader
 import pytz
 from jaraco.util.numbers import ordinalth as th_it
 
-from pmxbot.logging import init_logger
+import pmxbot.logging
 import pmxbot.util
 
 BASE = os.path.abspath(os.path.dirname(__file__))
@@ -81,7 +81,7 @@ def sort_month_key(m):
 	return parts[1], parts[0]
 
 def log_db():
-	return init_logger(
+	return pmxbot.logging.Logger.from_URI(
 		cherrypy.request.app.config['botconf']['config'].database)
 
 class ChannelPage(object):
