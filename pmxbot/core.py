@@ -340,16 +340,6 @@ def initialize(config):
 		config.bot_nickname, config.log_channels, config.other_channels,
 		use_ssl=config.use_ssl, password=config.password)
 
-_finalizers = []
-
-def _cleanup():
-	"Delete the various persistence objects"
-	for finalizer in _finalizers:
-		try:
-			finalizer()
-		except Exception:
-			log.exception("Error in finalizer %s", finalizer)
-
 def _load_library_extensions():
 	"""
 	Locate all setuptools entry points by the name 'pmxbot_handlers'

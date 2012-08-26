@@ -1,16 +1,23 @@
 from __future__ import absolute_import
 
+import abc
 import itertools
 import urlparse
 import importlib
+import logging
 
 from jaraco.util.classutil import itersubclasses
+
+log = logging.getLogger(__name__)
 
 class SelectableStorage(object):
 	"""
 	A mix-in for storage classes which will construct a suitable subclass based
 	on the URI.
 	"""
+
+	_finalizers = []
+
 	@classmethod
 	def from_URI(cls, URI):
 		candidates = itersubclasses(cls)
@@ -30,10 +37,22 @@ class SelectableStorage(object):
 		dest = cls.from_URI(dest_uri)
 		map(dest.import_, source.export_all())
 
-class Storage(object):
-	# ABC
 	@classmethod
-	def uri_matches(cls, uri): return False
+	def finalize(cls):
+		"Delete the various persistence objects"
+		for finalizer in cls._finalizers:
+			try:
+				finalizer()
+			except Exception:
+				log.exception("Error in finalizer %s", finalizer)
+
+
+class Storage(object):
+	@classmethod
+	@abc.abstractmethod
+	def uri_matches(cls, uri):
+		return False
+
 
 class SQLiteStorage(Storage):
 	scheme = 'sqlite'

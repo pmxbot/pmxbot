@@ -9,6 +9,7 @@ import pytest
 import popquotes.pmxbot
 
 import pmxbot.dictlib
+import pmxbot.storage
 from pmxbot import core
 from pmxbot import logging
 from pmxbot import commands
@@ -53,7 +54,7 @@ class TestCommands(object):
 
 	@classmethod
 	def teardown_class(cls):
-		pmxbot.core._cleanup()
+		pmxbot.storage.SelectableStorage.finalize()
 		path = os.path.dirname(os.path.abspath(__file__))
 		os.remove(os.path.join(path, 'pmxbot.sqlite'))
 

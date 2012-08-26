@@ -4,7 +4,7 @@ from __future__ import absolute_import
 
 import random
 
-import pmxbot.core
+import pmxbot
 from . import storage
 from .core import command
 
@@ -14,7 +14,7 @@ class Quotes(storage.SelectableStorage):
 	@classmethod
 	def initialize(cls):
 		cls.store = cls.from_URI(pmxbot.config.database)
-		pmxbot.core._finalizers.append(cls.finalize)
+		cls._finalizers.append(cls.finalize)
 
 	@classmethod
 	def finalize(cls):
