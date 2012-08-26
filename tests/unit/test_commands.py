@@ -9,6 +9,7 @@ import pytest
 import popquotes.pmxbot
 
 from pmxbot import core
+from pmxbot import logging
 from pmxbot import pmxbot
 from pmxbot import commands
 from pmxbot import karma
@@ -48,7 +49,7 @@ class TestCommands(object):
 		configfile = os.path.join(path, 'testconf.yaml')
 		config = pmxbot.dictlib.ConfigDict.from_yaml(configfile)
 		cls.bot = pmxbot.initialize(config)
-		core.logger.message("logged", "testrunner", "some text")
+		logging.Logger.store.message("logged", "testrunner", "some text")
 
 	@classmethod
 	def teardown_class(cls):
@@ -275,7 +276,7 @@ class TestCommands(object):
 		quote = "And then she said %s" % str(uuid.uuid4())
 		res = quotes.quote(c, e, "#test", "testrunner", "add %s" % quote)
 		assert res == "Quote added!"
-		cursor = core.logger.db.cursor()
+		cursor = logging.Logger.store.db.cursor()
 		cursor.execute("select count(*) from quotes where library = 'pmx' "
 			"and quote = ?", (quote,))
 		numquotes = cursor.fetchone()[0]
@@ -289,7 +290,7 @@ class TestCommands(object):
 		quote = "So I says to Mabel, I says, %s" % id
 		res = quotes.quote(c, e, "#test", "testrunner", "add %s" % quote)
 		assert res == "Quote added!"
-		cursor = core.logger.db.cursor()
+		cursor = logging.Logger.store.db.cursor()
 		cursor.execute("select count(*) from quotes where library = 'pmx' "
 			"and quote = ?", (quote,))
 		numquotes = cursor.fetchone()[0]

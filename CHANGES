@@ -9,6 +9,8 @@ has been removed::
    `pmxbot.util:karma` nor `pmxbot.karma.karma`.
  - Similarly, the Quotes store must now be referenced as
    `pmxbot.quotes:Quotes.store` (a class attribute).
+ - Similarly, the Logger store must now be referenced as
+   `pmxbot.logging:Logger.store` instead of `pmxbot.botbase.logger`.
 
 Other backward-incompatible changes::
 

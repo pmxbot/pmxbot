@@ -4,7 +4,6 @@ from __future__ import absolute_import, print_function
 
 import sys
 import datetime
-import os
 import traceback
 import time
 import random
@@ -37,8 +36,6 @@ class WarnHistory(dict):
 	def _expired(self, last, now):
 		return now - last > self.warn_every
 
-logger = None
-
 class NoLog(object):
 	@classmethod
 	def secret_items(cls, items):
@@ -66,14 +63,9 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		self._channels = channels + nolog_channels
 		self._nolog = set(('#' + c if not c.startswith('#') else c) for c in nolog_channels)
 		self.db_uri = db_uri
-		globals().update(logger=logging.Logger.from_URI(db_uri))
 		self._nickname = nickname
 		self.__use_ssl = use_ssl
 		self.warn_history = WarnHistory()
-
-	@staticmethod
-	def _finalize_logger():
-		globals().update(logger=None)
 
 	def connect(self, *args, **kwargs):
 		kwargs['ssl'] = self.__use_ssl
@@ -88,7 +80,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			log = False
 		func(channel, s)
 		if channel in self._channels and channel not in self._nolog and log:
-			logger.message(channel, self._nickname, s)
+			logging.Logger.core.message(channel, self._nickname, s)
 
 	def _schedule_at(self, name, channel, when, func, args, doc):
 		arguments = self.c, channel, func, args
@@ -152,7 +144,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		channel = e.target()
 		if msg.strip() > '':
 			if channel not in self._nolog:
-				logger.message(channel, nick, msg)
+				logging.Logger.store.message(channel, nick, msg)
 			self.handle_action(c, e, channel, nick, msg)
 
 	def on_privmsg(self, c, e):

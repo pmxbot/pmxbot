@@ -15,6 +15,16 @@ from . import storage
 class Logger(storage.SelectableStorage):
 	"Base Logger class"
 
+	@classmethod
+	def initialize(cls):
+		import pmxbot.pmxbot
+		cls.store = cls.from_URI(pmxbot.config.database)
+		pmxbot.pmxbot._finalizers.append(cls.finalize)
+
+	@classmethod
+	def finalize(cls):
+		del cls.store
+
 	def message(self, channel, nick, msg):
 		channel = channel.replace('#', '').lower()
 		self._message(channel, nick, msg)

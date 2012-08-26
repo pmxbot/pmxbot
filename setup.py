@@ -18,6 +18,7 @@ setup_params = dict(
 			'pmxbotweb=pmxbotweb.pmxbotweb:run',
 		],
 		pmxbot_handlers = [
+			'pmxbot logging = pmxbot.logging:Logger.initialize',
 			'pmxbot karma = pmxbot.karma:Karma.initialize',
 			'pmxbot quotes = pmxbot.quotes:Quotes.initialize',
 			'pmxbot core commands = pmxbot.commands',

@@ -21,6 +21,7 @@ import pkg_resources
 import pmxbot
 from .core import command, contains, _handler_registry, NoLog
 from . import core
+from . import logging
 from . import util
 from . import karma
 from . import quotes
@@ -677,7 +678,7 @@ def therethere(client, event, channel, nick, rest):
 def saysomething(client, event, channel, nick, rest):
 	word_factory = functools.partial(
 		saysomethinglib.words_from_logger_and_quotes,
-		core.logger,
+		logging.Logger.store,
 		quotes.Quotes.store,
 	)
 	sayer = saysomethinglib.FastSayer(word_factory)
@@ -762,7 +763,7 @@ def strike(client, event, channel, nick, rest):
 			raise StopIteration
 		count = int(rest)
 	try:
-		struck = core.logger.strike(channel, nick, count)
+		struck = logging.Logger.store.strike(channel, nick, count)
 		yield ("Isn't undo great?  Last %d statement%s by %s were stricken from the record." %
 		(struck, 's' if struck > 1 else '', nick))
 	except Exception:
@@ -772,7 +773,7 @@ def strike(client, event, channel, nick, rest):
 @command("where", aliases=('last', 'seen', 'lastseen'), doc="When did pmxbot last see <nick> speak?")
 def where(client, event, channel, nick, rest):
 	onick = rest.strip()
-	last = core.logger.last_seen(onick)
+	last = logging.Logger.store.last_seen(onick)
 	if last:
 		tm, chan = last
 		return "I last saw %s speak at %s in channel #%s" % (

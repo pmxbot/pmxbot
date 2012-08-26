@@ -37,9 +37,7 @@ def initialize(config):
 		use_ssl=pmxbot.config.use_ssl, password=pmxbot.config.password)
 
 
-_finalizers = [
-	core.LoggingCommandBot._finalize_logger,
-]
+_finalizers = []
 
 def _cleanup():
 	"Delete the various persistence objects"
