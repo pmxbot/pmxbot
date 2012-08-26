@@ -1,10 +1,10 @@
-1110
+1102
 ====
 
-Build 1110 of `pmxbot` involves some major refactoring to normalize the
+Build 1102 of `pmxbot` involves some major refactoring to normalize the
 codebase and improve stability.
 
-With version 1110, much of the backward compatibility around quotes and karma
+With version 1102, much of the backward compatibility around quotes and karma
 has been removed::
 
  - The Karma store must now be referenced as `pmxbot.karma:Karma.store` (a
