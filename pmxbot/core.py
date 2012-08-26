@@ -62,11 +62,13 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 	def __init__(self, db_uri, server, port, nickname, channels,
 			nolog_channels=None, use_ssl=False, password=None):
 		server_list = [(server, port, password)]
-		irc.bot.SingleServerIRCBot.__init__(self, server_list, nickname, nickname)
+		irc.bot.SingleServerIRCBot.__init__(self, server_list, nickname,
+			nickname)
 		nolog_channels = nolog_channels or []
 		self.nickname = nickname
 		self._channels = channels + nolog_channels
-		self._nolog = set(('#' + c if not c.startswith('#') else c) for c in nolog_channels)
+		self._nolog = set(('#' + c if not c.startswith('#') else c)
+			for c in nolog_channels)
 		self.db_uri = db_uri
 		self._nickname = nickname
 		self.__use_ssl = use_ssl
@@ -116,7 +118,8 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			c.join(channel)
 		for name, channel, howlong, func, args, doc, repeat in _delay_registry:
 			arguments = self.c, channel, func, args
-			executor = self.c.execute_every if repeat else self.c.execute_delayed
+			executor = (
+				self.c.execute_every if repeat else self.c.execute_delayed)
 			executor(howlong, self.background_runner, arguments)
 		for action in _at_registry:
 			self._schedule_at(*action)
@@ -138,8 +141,8 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		if not self.warn_history.needs_warning(nick):
 			return
 		logged_channels = sorted(set(self._channels) - set(self._nolog))
-		logged_channels_string = ', '.join(logged_channels)
-		msg = self.warn_history.warn_message.format(**vars())
+		msg = self.warn_history.warn_message.format(
+			logged_channels_string = ', '.join(logged_channels))
 		for line in msg.splitlines():
 			c.notice(nick, line)
 
@@ -190,9 +193,11 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 
 	def _handle_exception(self, exception, **kwargs):
 		expletives = ['Yikes!', 'Zoiks!', 'Ouch!']
-		expletive = random.choice(expletives)
-		res = ["{expletive} An error occurred: {exception}"
-			.format(**vars())]
+		res = [
+			"{expletive} An error occurred: {exception}".format(
+				expletive=random.choice(expletives),
+				**vars())
+		]
 		res.append('!{name} {doc}'.format(**kwargs))
 		print(datetime.datetime.now(), "Error with command {type}"
 			.format(**kwargs))
@@ -205,7 +210,8 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		cmd, _, cmd_args = msg.partition(' ')
 
 		messages = ()
-		for typ, name, f, doc, channels, exclude, rate, priority in _handler_registry:
+		for handler in _handler_registry:
+			typ, name, f, doc, channels, exclude, rate, priority = handler
 			exception_handler = functools.partial(
 				self._handle_exception,
 				type = typ,
@@ -221,13 +227,17 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 				break
 			elif typ in ('contains', '#') and name in lc_msg:
 				f = functools.partial(f, c, e, channel, nick, msg)
-				if (not channels and not exclude) \
-				or channel in channels \
-				or (exclude and channel not in exclude) \
-				or (channels == 'logged' and channel in self._channels and channel not in self._nolog) \
-				or (channels == "unlogged" and channel in self._nolog) \
-				or (exclude == "logged" and channel in self._nolog) \
-				or (exclude == "unlogged" and channel in self._channels and channel not in self._nolog):
+				if (
+						not channels and not exclude
+						or channel in channels
+						or exclude and channel not in exclude
+						or channels == 'logged' and channel in self._channels
+							and channel not in self._nolog
+						or channels == "unlogged" and channel in self._nolog
+						or exclude == "logged" and channel in self._nolog
+						or exclude == "unlogged" and channel in self._channels
+							and channel not in self._nolog
+						):
 					if random.random() > rate:
 						continue
 					messages = pmxbot.itertools.trap_exceptions(
@@ -270,16 +280,12 @@ class Handler(collections.namedtuple('HandlerTuple',
 	def __gt__(self, other):
 		return self.sort_key > other.sort_key
 
-def contains(name, channels=None, exclude=None, rate=1.0, priority=1, doc=None):
+def contains(name, channels=None, exclude=None, rate=1.0, priority=1,
+		doc=None):
 	def deco(func):
-		try:
-			priority
-		except UnboundLocalError:
-			priority=1
-		if name == '#':
-			priority += 1
-		_handler_registry.append(Handler('contains', name.lower(), func,
-			doc, channels, exclude, rate, priority))
+		effective_priority = priority+1 if name == '#' else priority
+		_handler_registry.append(Handler('contains', name.lower(), func, doc,
+			channels, exclude, rate, effective_priority))
 		_handler_registry.sort()
 		return func
 	return deco
@@ -304,8 +310,9 @@ def execdelay(name, channel, howlong, args=[], doc=None, repeat=False):
 
 def execat(name, channel, when, args=[], doc=None):
 	def deco(func):
-		if type(when) not in (datetime.date, datetime.datetime, datetime.time):
-			raise TypeError
+		date_types = datetime.date, datetime.datetime, datetime.time
+		if not isinstance(when, date_types):
+			raise TypeError("when must be a date or time object")
 		_at_registry.append((name.lower(), channel, when, func, args, doc))
 		return func
 	return deco
