@@ -16,6 +16,8 @@ import irc.bot
 
 import pmxbot.itertools
 
+logging = None # pmxbot.logging module
+
 class WarnHistory(dict):
 	warn_every = datetime.timedelta(seconds=60)
 	warn_message = textwrap.dedent("""
