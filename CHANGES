@@ -1,6 +1,9 @@
 1110
 ====
 
+Build 1110 of `pmxbot` involves some major refactoring to normalize the
+codebase and improve stability.
+
 With version 1110, much of the backward compatibility around quotes and karma
 has been removed::
 
