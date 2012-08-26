@@ -3,7 +3,7 @@ pmxbot
 ======
 
 pmxbot is an IRC bot written in python. Originally built for internal use,
-it's been sanitized and set free upon the world. You can find out  more details
+it's been sanitized and set free upon the world. You can find out more details
 on the website, http://bitbucket.org/yougov/pmxbot, and especially the wiki
 https://bitbucket.org/yougov/pmxbot/wiki/Home
 
@@ -11,10 +11,10 @@ https://bitbucket.org/yougov/pmxbot/wiki/Home
 Commands
 ========
 pmxbot listens to commands prefixed by a '!'
-If it's a command it knows it will reply, take an action, etc.
-It can search the web, quote you, track karma, make decisions,
+If it's a command, it knows it will reply, take an action, etc.
+It can search the web, store quotes you, track karma, make decisions,
 and do just about anything else you could want. It stores logs and quotes
-and karma in a sqlite or MongoDB
+and karma in either a sqlite or MongoDB
 database, and there's a web interface for reviewing the logs and karma.
 
 Contains
@@ -34,11 +34,11 @@ be used).
 Testing
 =======
 
-`pmxbot` includes a basic nose test suite that does some functional tests
+`pmxbot` includes a test suite that does some functional tests
 with an
 included TCL IRC daemon, and some basic unit tests as well. Just run them
 from
-the pmxbot root directory with "nosetests" (requires nose) or "py.test"
+the pmxbot root directory using "py.test"
 (requires pytest) and it should do it all for you.
 
 You'll need TCL for the functional tests not to be skipped.
@@ -62,6 +62,9 @@ Custom Features
 
 Setuptools Entry Points Plugin
 ------------------------------
+
+`pmxbot` provides an extension mechanism for adding commands, and uses this
+mechanism even for its own built-in commands.
 
 To create a setuptools (or distribute or compatible packaging tool)
 entry point plugin, package your modules using
@@ -88,7 +91,7 @@ If your plugin requires any initialization, specify an initialization function
 On startup, pmxbot will call `initialize_func` with no parameters.
 
 Within the script you'll want to import the decorates you need to use with:
-`from pmxbot.botbase import command, contains, execdelay, execat`. You'll then
+`from pmxbot.core import command, contains, execdelay, execat`. You'll then
 decorate each function with the appropriate line so pmxbot registers it.
 
 A command (!g) gets the @command decorator::
@@ -107,9 +110,12 @@ A response (when someone says something) uses the @contains decorator::
   	karmaChange(botbase.logger.db, 'sql on rails', 1)
   	return "Only 76,417 lines..."
 
-For an example of how to implement a setuptools-based plugin, see
-the `wolframalpha plugin
-<http://bitbucket.org/yougov/pmxbot-wolframalpha>`_.
+For an example of how to implement a setuptools-based plugin, see one of the
+many examples in the pmxbot project itself or one of the popular third-party
+projects::
+ - `wolframalpha <http://bitbucket.org/yougov/pmxbot-wolframalpha>`_.
+ - `jaraco.translate <http://bitbucket.org/jaraco/jaraco.translate>`_.
+ - `excuses <http://bitbucket.org/yougov/excuses>`_.
 
 Web Interface
 =============
