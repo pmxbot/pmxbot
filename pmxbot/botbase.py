@@ -15,7 +15,6 @@ import functools
 import irc.bot
 
 import pmxbot.itertools
-from . import quotes
 from .logging import init_logger
 
 class WarnHistory(dict):
@@ -72,7 +71,6 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			db_uri = os.path.join(db_uri, "pmxbot.sqlite")
 		self.db_uri = db_uri
 		globals().update(logger=init_logger(db_uri))
-		quotes.init_quotes(db_uri)
 		self._nickname = nickname
 		self.__use_ssl = use_ssl
 		self.warn_history = WarnHistory()

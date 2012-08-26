@@ -289,19 +289,6 @@ def oregontrail(client, event, channel, nick, rest):
 		text = '%s %s' % (who, action)
 	return text
 
-#Added quotes
-@command('quote', aliases=('q',), doc='If passed with nothing then get a random quote. If passed with some string then search for that. If prepended with "add:" then add it to the db, eg "!quote add: drivers: I only work here because of pmxbot!"')
-def quote(client, event, channel, nick, rest):
-	rest = rest.strip()
-	if rest.startswith('add: ') or rest.startswith('add '):
-		quoteToAdd = rest.split(' ', 1)[1]
-		quotes.quotes.quoteAdd(quoteToAdd)
-		qt = False
-		return 'Quote added!'
-	qt, i, n = quotes.quotes.quoteLookupWNum(rest)
-	if not qt: return
-	return '(%s/%s): %s' % (i, n, qt)
-
 @command('zinger', aliases=('zing',), doc='ZING!')
 def zinger(client, event, channel, nick, rest):
 	name = 'you'
@@ -587,7 +574,7 @@ def rand_bot(client, event, channel, nick, rest):
 		golfclap, nastygram, curse, bless, job, hire, oregontrail,
 		chain, tinytear, blame, panic, rubberstamp, dance, annoy, klingon,
 		storytime, murphy]
-	quote_functions = [quote, pq.zoidberg, pq.simpsons, pq.bender,
+	quote_functions = [quotes.quote, pq.zoidberg, pq.simpsons, pq.bender,
 		pq.hal, pq.grail, pq.R, pq.anchorman, pq.hangover]
 	func = random.choice(normal_functions + quote_functions)
 	nick = nick if func in normal_functions else ''
@@ -695,7 +682,7 @@ def saysomething(client, event, channel, nick, rest):
 	word_factory = functools.partial(
 		saysomethinglib.words_from_logger_and_quotes,
 		botbase.logger,
-		quotes.quotes,
+		quotes.Quotes.store,
 	)
 	sayer = saysomethinglib.FastSayer(word_factory)
 	if rest:
@@ -839,7 +826,6 @@ def initialize(config):
 
 _finalizers = [
 	botbase.LoggingCommandBot._finalize_logger,
-	quotes.Quotes.finalize,
 ]
 
 def _cleanup():

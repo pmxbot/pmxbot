@@ -10,6 +10,7 @@ import popquotes.pmxbot
 
 from pmxbot import pmxbot
 from pmxbot import karma
+from pmxbot import quotes
 
 def pytest_generate_tests(metafunc):
 	# any test that takes the iter_ parameter should be executed 100 times
@@ -270,10 +271,11 @@ class TestCommands(object):
 		Try adding a quote
 		"""
 		quote = "And then she said %s" % str(uuid.uuid4())
-		res = pmxbot.quote(c, e, "#test", "testrunner", "add %s" % quote)
+		res = quotes.quote(c, e, "#test", "testrunner", "add %s" % quote)
 		assert res == "Quote added!"
 		cursor = pmxbot.botbase.logger.db.cursor()
-		cursor.execute("select count(*) from quotes where library = 'pmx' and quote = ?", (quote,))
+		cursor.execute("select count(*) from quotes where library = 'pmx' "
+			"and quote = ?", (quote,))
 		numquotes = cursor.fetchone()[0]
 		assert numquotes == 1
 
@@ -283,14 +285,15 @@ class TestCommands(object):
 		"""
 		id = str(uuid.uuid4())
 		quote = "So I says to Mabel, I says, %s" % id
-		res = pmxbot.quote(c, e, "#test", "testrunner", "add %s" % quote)
+		res = quotes.quote(c, e, "#test", "testrunner", "add %s" % quote)
 		assert res == "Quote added!"
 		cursor = pmxbot.botbase.logger.db.cursor()
-		cursor.execute("select count(*) from quotes where library = 'pmx' and quote = ?", (quote,))
+		cursor.execute("select count(*) from quotes where library = 'pmx' "
+			"and quote = ?", (quote,))
 		numquotes = cursor.fetchone()[0]
 		assert numquotes == 1
 
-		res = pmxbot.quote(c, e, "#test", "testrunner", id)
+		res = quotes.quote(c, e, "#test", "testrunner", id)
 		assert res == "(1/1): %s" % quote
 
 	def test_roll(self):

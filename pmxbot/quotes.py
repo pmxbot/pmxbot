@@ -4,21 +4,20 @@ import random
 import importlib
 
 from . import storage
-
-def init_quotes(uri):
-	Quotes.store = Quotes.from_URI(uri)
-	# for backward compatibility
-	globals().update(quotes = Quotes.store)
-	importlib.import_module('pmxbot.util').quotes = Quotes.store
+from .botbase import command
 
 class Quotes(storage.SelectableStorage):
 	lib = 'pmx'
 
 	@classmethod
+	def initialize(cls):
+		pmxbot = importlib.import_module('pmxbot.pmxbot')
+		cls.store = cls.from_URI(pmxbot.config.database)
+		pmxbot._finalizers.append(cls.finalize)
+
+	@classmethod
 	def finalize(cls):
 		del cls.store
-		del globals()['quotes']
-		del importlib.import_module('pmxbot.util').quotes
 
 class SQLiteQuotes(Quotes, storage.SQLiteStorage):
 	def init_tables(self):
@@ -159,3 +158,18 @@ class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 		if log_id is not None:
 			quote['log_id'] = log_id
 		self.db.insert(quote)
+
+@command('quote', aliases=('q',), doc='If passed with nothing then get a '
+	'random quote. If passed with some string then search for that. If '
+	'prepended with "add:" then add it to the db, eg "!quote add: drivers: I '
+	'only work here because of pmxbot!"')
+def quote(client, event, channel, nick, rest):
+	rest = rest.strip()
+	if rest.startswith('add: ') or rest.startswith('add '):
+		quoteToAdd = rest.split(' ', 1)[1]
+		Quotes.store.quoteAdd(quoteToAdd)
+		qt = False
+		return 'Quote added!'
+	qt, i, n = Quotes.store.quoteLookupWNum(rest)
+	if not qt: return
+	return '(%s/%s): %s' % (i, n, qt)
