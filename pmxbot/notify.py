@@ -1,16 +1,19 @@
 # vim:ts=4:sw=4:noexpandtab
 
+from __future__ import absolute_import
+
 import time
 
+import pmxbot
 from . import storage
-from . import pmxbot
 from .botbase import command, on_join
 
 class Notify(storage.SelectableStorage):
     @classmethod
     def init(cls):
+        import pmxbot.pmxbot
         cls.store = cls.from_URI(pmxbot.config.database)
-        pmxbot._finalizers.append(cls.finalize)
+        pmxbot.pmxbot._finalizers.append(cls.finalize)
 
     @classmethod
     def finalize(cls):

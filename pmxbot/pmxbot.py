@@ -6,11 +6,11 @@ from __future__ import absolute_import, division
 import argparse
 import logging
 
+import pmxbot
 from . import dictlib
 from . import botbase
 
 log = logging.getLogger(__name__)
-config = None
 
 def get_args():
 	parser = argparse.ArgumentParser()
@@ -22,25 +22,19 @@ def run():
 
 def initialize(config):
 	"""
-	Initialize the bot with a pmxbot.dictlib.ConfigDict
+	Initialize the bot with a dictionary of config items
 	"""
-	assert isinstance(config, dictlib.ConfigDict)
-	globals().update(config=config)
+	pmxbot.config.update(config)
 
 	_setup_logging()
 	_load_library_extensions()
 
-	use_ssl = getattr(config, 'use_ssl', False)
-	password = getattr(config, 'password', None)
-
-	silent_bot = getattr(config, 'silent', False)
-
 	class_ = (botbase.LoggingCommandBot
-		if not silent_bot else botbase.SilentCommandBot)
+		if not pmxbot.config.silent_bot else botbase.SilentCommandBot)
 
 	return class_(config.database, config.server_host, config.server_port,
 		config.bot_nickname, config.log_channels, config.other_channels,
-		use_ssl=use_ssl, password=password)
+		use_ssl=pmxbot.config.use_ssl, password=pmxbot.config.password)
 
 
 _finalizers = [

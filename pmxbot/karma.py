@@ -1,12 +1,12 @@
 # vim:ts=4:sw=4:noexpandtab
 
-from __future__ import print_function
+from __future__ import print_function, absolute_import
 
 import itertools
 import re
-import importlib
 import random
 
+import pmxbot
 from . import storage
 from .botbase import command
 
@@ -17,15 +17,13 @@ class AlreadyLinked(ValueError): pass
 class Karma(storage.SelectableStorage):
 	@classmethod
 	def initialize(cls):
-		pmxbot = importlib.import_module('pmxbot.pmxbot')
+		import pmxbot.pmxbot
 		cls.store = cls.from_URI(pmxbot.config.database)
-		pmxbot._finalizers.append(cls.finalize)
+		pmxbot.pmxbot._finalizers.append(cls.finalize)
 
 	@classmethod
 	def finalize(cls):
 		del cls.store
-		del globals()['karma']
-		del importlib.import_module('pmxbot.util').karma
 
 class SQLiteKarma(Karma, storage.SQLiteStorage):
 	def init_tables(self):

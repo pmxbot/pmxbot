@@ -1,8 +1,10 @@
 # vim:ts=4:sw=4:noexpandtab
 
-import random
-import importlib
+from __future__ import absolute_import
 
+import random
+
+import pmxbot
 from . import storage
 from .botbase import command
 
@@ -11,9 +13,9 @@ class Quotes(storage.SelectableStorage):
 
 	@classmethod
 	def initialize(cls):
-		pmxbot = importlib.import_module('pmxbot.pmxbot')
+		import pmxbot.pmxbot
 		cls.store = cls.from_URI(pmxbot.config.database)
-		pmxbot._finalizers.append(cls.finalize)
+		pmxbot.pmxbot._finalizers.append(cls.finalize)
 
 	@classmethod
 	def finalize(cls):

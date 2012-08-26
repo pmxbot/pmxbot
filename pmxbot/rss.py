@@ -10,8 +10,8 @@ import logging
 
 import feedparser
 
+import pmxbot
 from . import botbase
-from . import pmxbot
 from . import storage
 from . import timing
 
@@ -23,6 +23,7 @@ class RSSFeeds(object):
 	"""
 
 	def __init__(self):
+		import pmxbot.pmxbot
 		self.feed_interval = pmxbot.config.feed_interval
 		self.feeds = pmxbot.config.feeds
 		self.store = FeedparserDB.from_URI(pmxbot.config.database)
@@ -37,7 +38,7 @@ class RSSFeeds(object):
 		timer = timing.Stopwatch()
 		self.seen_feeds = set(self.store.get_seen_feeds())
 		log.info("Loaded feed history in %s", timer.split())
-		pmxbot._finalizers.append(self.finalize)
+		pmxbot.pmxbot._finalizers.append(self.finalize)
 
 	def finalize(self):
 		del self.store
