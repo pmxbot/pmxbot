@@ -10,10 +10,7 @@ import wordnik.api.APIClient
 import wordnik.api.WordAPI
 import wordnik.model
 
-# for backward compatibility
-from pmxbot.phrases import *
-from pmxbot.karma import *
-from pmxbot.quotes import *
+import pmxbot.phrases
 
 def wchoice(d):
 	l = []
@@ -109,17 +106,17 @@ def lookup_acronym(acronym):
 	return all
 
 def passagg(recipient='', sender=''):
-	adj = random.choice(adjs)
+	adj = random.choice(pmxbot.phrases.adjs)
 	if random.randint(0,1):
 		lead = ""
 		trail=recipient if not recipient else ", %s" % recipient
 	else:
 		lead=recipient if not recipient else "%s, " % recipient
 		trail=""
-	start = "%s%s%s." % (lead, random.choice(adj_intros) % adj, trail)
+	start = "%s%s%s." % (lead, random.choice(pmxbot.phrases.adj_intros) % adj, trail)
 	if not lead and not start[0].isupper():
 		start = "%s%s" % (start[0].upper(), start[1:])
-	end = random.choice(farewells)
+	end = random.choice(pmxbot.phrases.farewells)
 	if sender:
 		end = "%s, %s" % (end, sender)
 	end = "%s." % end

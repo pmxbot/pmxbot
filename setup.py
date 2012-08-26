@@ -20,6 +20,7 @@ setup_params = dict(
 		pmxbot_handlers = [
 			'pmxbot karma = pmxbot.karma:Karma.initialize',
 			'pmxbot quotes = pmxbot.quotes:Quotes.initialize',
+			'pmxbot core commands = pmxbot.commands',
 			'pmxbot notifier = pmxbot.notify:Notify.init',
 			'pmxbot feedparser = pmxbot.rss:RSSFeeds',
 		],

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
+from __future__ import print_function, absolute_import
 
 import re
 import os
@@ -8,7 +8,9 @@ import uuid
 import pytest
 import popquotes.pmxbot
 
+from pmxbot import botbase
 from pmxbot import pmxbot
+from pmxbot import commands
 from pmxbot import karma
 from pmxbot import quotes
 
@@ -46,7 +48,7 @@ class TestCommands(object):
 		configfile = os.path.join(path, 'testconf.yaml')
 		config = pmxbot.dictlib.ConfigDict.from_yaml(configfile)
 		cls.bot = pmxbot.initialize(config)
-		pmxbot.botbase.logger.message("logged", "testrunner", "some text")
+		botbase.logger.message("logged", "testrunner", "some text")
 
 	@classmethod
 	def teardown_class(cls):
@@ -59,7 +61,7 @@ class TestCommands(object):
 		"""
 		Basic google search for "pmxbot". Result must contain a link.
 		"""
-		res = pmxbot.google(c, e, "#test", "testrunner", "pmxbot")
+		res = commands.google(c, e, "#test", "testrunner", "pmxbot")
 		print(res)
 		assert "http" in res
 
@@ -68,7 +70,7 @@ class TestCommands(object):
 		"""
 		Basic google calculator command - 1+1 must include 2 in results
 		"""
-		res = pmxbot.googlecalc(c, e, "#test", "testrunner", "1+1")
+		res = commands.googlecalc(c, e, "#test", "testrunner", "1+1")
 		print(res)
 		assert "2" in res
 
@@ -78,7 +80,7 @@ class TestCommands(object):
 		More complicated google calculator command - 40 gallons in liters must
 		include 151.4 in results
 		"""
-		res = pmxbot.googlecalc(c, e, "#test", "testrunner", "40 gallons in liters")
+		res = commands.googlecalc(c, e, "#test", "testrunner", "40 gallons in liters")
 		print(res)
 		assert "151.4" in res
 
@@ -88,7 +90,7 @@ class TestCommands(object):
 		Supercomplicated google calculator command - 502 hogsheads per mile in
 		litres per km includes 74 and 388.9641 in results
 		"""
-		res = pmxbot.googlecalc(c, e, "#test", "testrunner",
+		res = commands.googlecalc(c, e, "#test", "testrunner",
 			"502 hogsheads per mile in litres per km")
 		assert "388.9641" in res and "74" in res
 
@@ -97,7 +99,7 @@ class TestCommands(object):
 		"""
 		Test that google calculator for a currency conversion: 1 USD in GBP
 		"""
-		res = pmxbot.googlecalc(c, e, "#test", "testrunner", "1 USD in GBP")
+		res = commands.googlecalc(c, e, "#test", "testrunner", "1 USD in GBP")
 		print(res)
 		assert re.match(r"""1 (?:US|U\.S\.) dollars? = \d\.\d+ British pounds?(?: sterling)?""", res)
 
@@ -106,7 +108,7 @@ class TestCommands(object):
 		"""
 		Test that google calculator for a currency conversion: 12 CZK in euros
 		"""
-		res = pmxbot.googlecalc(c, e, "#test", "testrunner", "12 CZK in euros")
+		res = commands.googlecalc(c, e, "#test", "testrunner", "12 CZK in euros")
 		print(res)
 		assert re.match(r"""12 Czech(?: Republic)? [Kk]orun(?:a|y)s? = \d\.\d+ [Ee]uros?""", res)
 
@@ -121,7 +123,7 @@ class TestCommands(object):
 		"""
 		Check the time in Washington, DC. Must match time_pattern.
 		"""
-		res = pmxbot.googletime(c, e, "#test", "testrunner", "Washington, DC")
+		res = commands.googletime(c, e, "#test", "testrunner", "Washington, DC")
 		res = list(res)
 		assert res
 		for line in res:
@@ -134,7 +136,7 @@ class TestCommands(object):
 		Check the time in three cities. Must include something that
 		matches the time pattern on each line
 		"""
-		res = pmxbot.googletime(c, e, "#test", "testrunner",
+		res = commands.googletime(c, e, "#test", "testrunner",
 			"Washington, DC | Palo Alto, CA | London")
 		res = list(res)
 		assert res
@@ -148,7 +150,7 @@ class TestCommands(object):
 		Check the time in "all" cities. Must include something that
 		matches the time pattern on each line
 		"""
-		res = pmxbot.googletime(c, e, "#test", "testrunner", "all")
+		res = commands.googletime(c, e, "#test", "testrunner", "all")
 		res = list(res)
 		assert res
 		for line in res:
@@ -160,7 +162,7 @@ class TestCommands(object):
 		"""
 		Check the weather in Washington, DC. Must include something that looks like a weather XX:XX(AM/PM)
 		"""
-		res = pmxbot.weather(c, e, "#test", "testrunner", "Washington, DC")
+		res = commands.weather(c, e, "#test", "testrunner", "Washington, DC")
 		for line in res:
 			print(line)
 			assert re.match(r""".+\. Currently: (?:-)?[0-9]{1,3}F/(?:-)?[0-9]{1,2}C, .+\.\W+[A-z]{3}: (?:-)?[0-9]{1,3}F/(?:-)?[0-9]{1,2}C, """, line)
@@ -173,7 +175,7 @@ class TestCommands(object):
 		"""
 		places = "Washington, DC", "Palo Alto, CA", "London"
 		places_spec = ' | '.join(places)
-		res = pmxbot.weather(c, e, "#test", "testrunner", places_spec)
+		res = commands.weather(c, e, "#test", "testrunner", places_spec)
 		for line in res:
 			print(line)
 			assert re.match(r""".+\. Currently: (?:-)?[0-9]{1,3}F/(?:-)?[0-9]{1,2}C, .+\.\W+[A-z]{3}: (?:-)?[0-9]{1,3}F/(?:-)?[0-9]{1,2}C, """, line)
@@ -184,7 +186,7 @@ class TestCommands(object):
 		Check the weather in "all" cities. Must include something that looks like
 		a weather XX:XX(AM/PM) on each line
 		"""
-		res = pmxbot.weather(c, e, "#test", "testrunner", "all")
+		res = commands.weather(c, e, "#test", "testrunner", "all")
 		for line in res:
 			print(line)
 			assert re.match(r""".+\. Currently: (?:-)?[0-9]{1,3}F/(?:-)?[0-9]{1,2}C, .+\.\W+[A-z]{3}: (?:-)?[0-9]{1,3}F/(?:-)?[0-9]{1,2}C, """, line)
@@ -195,7 +197,7 @@ class TestCommands(object):
 		"""
 		subject = "foo"
 		pre = karma.Karma.store.lookup(subject)
-		res = pmxbot.boo(c, e, "#test", "testrunner", subject)
+		res = commands.boo(c, e, "#test", "testrunner", subject)
 		assert res == "/me BOOO %s!!! BOOO!!!" % subject
 		post = karma.Karma.store.lookup(subject)
 		assert post == pre - 1
@@ -206,7 +208,7 @@ class TestCommands(object):
 		"""
 		subject = "foo"
 		pre = karma.Karma.store.lookup(subject)
-		res = pmxbot.troutslap(c, e, "#test", "testrunner", subject)
+		res = commands.troutslap(c, e, "#test", "testrunner", subject)
 		assert res == "/me slaps %s around a bit with a large trout" % subject
 		post = karma.Karma.store.lookup(subject)
 		assert post == pre - 1
@@ -217,7 +219,7 @@ class TestCommands(object):
 		"""
 		subject = "foo"
 		pre = karma.Karma.store.lookup(subject)
-		res = pmxbot.keelhaul(c, e, "#test", "testrunner", subject)
+		res = commands.keelhaul(c, e, "#test", "testrunner", subject)
 		assert res == "/me straps %s to a dirty rope, tosses 'em overboard and pulls with great speed. Yarrr!" % subject
 		post = karma.Karma.store.lookup(subject)
 		assert post == pre - 1
@@ -228,7 +230,7 @@ class TestCommands(object):
 		"""
 		subject = "foo"
 		pre = karma.Karma.store.lookup(subject)
-		res = pmxbot.motivate(c, e, "#test", "testrunner", subject)
+		res = commands.motivate(c, e, "#test", "testrunner", subject)
 		assert res == "you're doing good work, %s!" % subject
 		post = karma.Karma.store.lookup(subject)
 		assert post == pre + 1
@@ -239,7 +241,7 @@ class TestCommands(object):
 		"""
 		subject = "foo"
 		pre = karma.Karma.store.lookup(subject)
-		res = pmxbot.motivate(c, e, "#test", "testrunner", "   %s 	  " % subject)
+		res = commands.motivate(c, e, "#test", "testrunner", "   %s 	  " % subject)
 		assert res == "you're doing good work, %s!" % subject
 		post = karma.Karma.store.lookup(subject)
 		assert post == pre + 1
@@ -250,7 +252,7 @@ class TestCommands(object):
 		"""
 		subject = "foo"
 		pre = karma.Karma.store.lookup(subject)
-		res = pmxbot.demotivate(c, e, "#test", "testrunner", subject)
+		res = commands.demotivate(c, e, "#test", "testrunner", subject)
 		assert res == "you're doing horrible work, %s!" % subject
 		post = karma.Karma.store.lookup(subject)
 		assert post == pre - 1
@@ -261,7 +263,7 @@ class TestCommands(object):
 		"""
 		subject = "foo"
 		pre = karma.Karma.store.lookup(subject)
-		res = pmxbot.imotivate(c, e, "#test", "testrunner", subject)
+		res = commands.imotivate(c, e, "#test", "testrunner", subject)
 		assert res == """you're "doing" "good" "work", %s!""" % subject
 		post = karma.Karma.store.lookup(subject)
 		assert post == pre - 1
@@ -273,7 +275,7 @@ class TestCommands(object):
 		quote = "And then she said %s" % str(uuid.uuid4())
 		res = quotes.quote(c, e, "#test", "testrunner", "add %s" % quote)
 		assert res == "Quote added!"
-		cursor = pmxbot.botbase.logger.db.cursor()
+		cursor = botbase.logger.db.cursor()
 		cursor.execute("select count(*) from quotes where library = 'pmx' "
 			"and quote = ?", (quote,))
 		numquotes = cursor.fetchone()[0]
@@ -287,7 +289,7 @@ class TestCommands(object):
 		quote = "So I says to Mabel, I says, %s" % id
 		res = quotes.quote(c, e, "#test", "testrunner", "add %s" % quote)
 		assert res == "Quote added!"
-		cursor = pmxbot.botbase.logger.db.cursor()
+		cursor = botbase.logger.db.cursor()
 		cursor.execute("select count(*) from quotes where library = 'pmx' "
 			"and quote = ?", (quote,))
 		numquotes = cursor.fetchone()[0]
@@ -300,11 +302,11 @@ class TestCommands(object):
 		"""
 		Roll a die, both with no arguments and with some numbers
 		"""
-		res = int(pmxbot.roll(c, e, "#test", "testrunner", "").split()[-1])
+		res = int(commands.roll(c, e, "#test", "testrunner", "").split()[-1])
 		assert res >= 0 and res <= 100
 		n = 6668
 
-		res = int(pmxbot.roll(c, e, "#test", "testrunner", "%s" % n).split()[-1])
+		res = int(commands.roll(c, e, "#test", "testrunner", "%s" % n).split()[-1])
 		assert res >= 0 and res <= n
 
 	@pytest.has_internet
@@ -314,7 +316,7 @@ class TestCommands(object):
 
 		GOOG at 4:00pm (ET): 484.81 (1.5%)
 		"""
-		res = pmxbot.ticker(c, e, "#test", "testrunner", "goog")
+		res = commands.ticker(c, e, "#test", "testrunner", "goog")
 		print(res)
 		assert re.match(r"""^GOOG at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{2,4}.\d{1,4} \(\-?\d{1,3}.\d%\)$""", res), res
 
@@ -325,7 +327,7 @@ class TestCommands(object):
 
 		YOU.L at 10:37am (ET): 39.40 (0.4%)
 		"""
-		res = pmxbot.ticker(c, e, "#test", "testrunner", "you.l")
+		res = commands.ticker(c, e, "#test", "testrunner", "you.l")
 		print(res)
 		assert re.match(r"""^YOU.L at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{1,4}.\d{2,4} \(\-?\d{1,3}.\d%\)$""", res), res
 
@@ -336,7 +338,7 @@ class TestCommands(object):
 
 		^IXIC at 10:37am (ET): 2490.40 (0.4%)
 		"""
-		res = pmxbot.ticker(c, e, "#test", "testrunner", "^ixic")
+		res = commands.ticker(c, e, "#test", "testrunner", "^ixic")
 		print(res)
 		assert re.match(r"""^\^IXIC at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{4,5}.\d{2} \(\-?\d{1,3}.\d%\)$""", res), res
 
@@ -344,7 +346,7 @@ class TestCommands(object):
 		"""
 		Test the pick command with a simple or expression
 		"""
-		res = pmxbot.pick(c, e, "#test", "testrunner", "fire or acid")
+		res = commands.pick(c, e, "#test", "testrunner", "fire or acid")
 		assert logical_xor("fire" in res, "acid" in res)
 		assert " or " not in res
 
@@ -352,7 +354,7 @@ class TestCommands(object):
 		"""
 		Test the pick command with an intro and a simple "or" expression
 		"""
-		res = pmxbot.pick(c, e, "#test", "testrunner", "how would you like to die, pmxbot: fire or acid")
+		res = commands.pick(c, e, "#test", "testrunner", "how would you like to die, pmxbot: fire or acid")
 		assert logical_xor("fire" in res, "acid" in res)
 		assert "die" not in res and "pmxbot" not in res and " or " not in res
 
@@ -360,14 +362,14 @@ class TestCommands(object):
 		"""
 		Test the pick command with two options separated by commas
 		"""
-		res = pmxbot.pick(c, e, "#test", "testrunner", "fire, acid")
+		res = commands.pick(c, e, "#test", "testrunner", "fire, acid")
 		assert logical_xor("fire" in res, "acid" in res)
 
 	def test_pick_comma_intro(self):
 		"""
 		Test the pick command with an intro followed by two options separted by commas
 		"""
-		res = pmxbot.pick(c, e, "#test", "testrunner", "how would you like to die, pmxbot: fire, acid")
+		res = commands.pick(c, e, "#test", "testrunner", "how would you like to die, pmxbot: fire, acid")
 		assert logical_xor("fire" in res, "acid" in res)
 		assert "die" not in res and "pmxbot" not in res
 
@@ -375,7 +377,7 @@ class TestCommands(object):
 		"""
 		Test the pick command with an intro followed by options with commands and ors
 		"""
-		res = pmxbot.pick(c, e, "#test", "testrunner", "how would you like to die, pmxbot: gun, fire, acid or defenestration")
+		res = commands.pick(c, e, "#test", "testrunner", "how would you like to die, pmxbot: gun, fire, acid or defenestration")
 		assert onetrue("gun" in res, "fire" in res, "acid" in res, "defenestration" in res)
 		assert "die" not in res and "pmxbot" not in res and " or " not in res
 
@@ -383,7 +385,7 @@ class TestCommands(object):
 		"""
 		Test that the lunch command selects one of the list options
 		"""
-		res = pmxbot.lunch(c, e, "#test", "testrunner", "PA")
+		res = commands.lunch(c, e, "#test", "testrunner", "PA")
 		assert res in ["Pasta?", "Thaiphoon", "Pluto's", "Penninsula Creamery", "Kan Zeman"]
 
 	def test_karma_check_self_blank(self):
@@ -466,7 +468,7 @@ class TestCommands(object):
 		"""
 		Test the built-in python calculator with a simple expression - 2+2
 		"""
-		res = pmxbot.calc(c, e, "#test", "testrunner", "2+2")
+		res = commands.calc(c, e, "#test", "testrunner", "2+2")
 		print(res)
 		assert res == "4"
 
@@ -475,7 +477,7 @@ class TestCommands(object):
 		Test the built-in python calculator with a more complicated formula
 		((((781**2)*5)/92835.3)+4)**0.5
 		"""
-		res = pmxbot.calc(c, e, "#test", "testrunner", "((((781**2)*5)/92835.3)+4)**0.5")
+		res = commands.calc(c, e, "#test", "testrunner", "((((781**2)*5)/92835.3)+4)**0.5")
 		print(res)
 		assert res.startswith("6.070566")
 
@@ -484,7 +486,7 @@ class TestCommands(object):
 		"""
 		Test the dictionary with the word keyboard.
 		"""
-		res = pmxbot.defit(c, e, "#test", "testrunner", "keyboard")
+		res = commands.defit(c, e, "#test", "testrunner", "keyboard")
 		assert isinstance(res, unicode)
 		assert res == ("Wordnik says: A set of keys, as on a computer "
 			"terminal, word processor, typewriter, or piano.")
@@ -494,7 +496,7 @@ class TestCommands(object):
 		"""
 		Test the dictionary with the word IRC.
 		"""
-		res = pmxbot.defit(c, e, "#test", "testrunner", "  IRC \t")
+		res = commands.defit(c, e, "#test", "testrunner", "  IRC \t")
 		assert isinstance(res, unicode)
 		assert res == "Wordnik says: An international computer network of Internet servers, using its own protocol through which individual users can hold real-time online conversations."
 
@@ -503,7 +505,7 @@ class TestCommands(object):
 		"""
 		Test the dictionary with a nonsense word.
 		"""
-		res = pmxbot.defit(c, e, "#test", "testrunner", "notaword")
+		res = commands.defit(c, e, "#test", "testrunner", "notaword")
 		assert isinstance(res, unicode)
 		assert res == "Wordnik does not have a definition for that."
 
@@ -512,7 +514,7 @@ class TestCommands(object):
 		"""
 		Test the urban dictionary with the word IRC.
 		"""
-		res = pmxbot.urbandefit(c, e, "#test", "testrunner", "irc")
+		res = commands.urbandefit(c, e, "#test", "testrunner", "irc")
 		assert "Internet Relay Chat" in res
 		assert "protocol" in res.lower()
 
@@ -521,7 +523,7 @@ class TestCommands(object):
 		"""
 		Test acronym finder with the word IRC.
 		"""
-		res = pmxbot.acit(c, e, "#test", "testrunner", "irc")
+		res = commands.acit(c, e, "#test", "testrunner", "irc")
 		assert "Internet Relay Chat" in res
 		assert "|" in res
 
@@ -529,7 +531,7 @@ class TestCommands(object):
 		"""
 		Test the progress bar
 		"""
-		res = pmxbot.progress(c, e, "#test", "testrunner", "1|98123|30")
+		res = commands.progress(c, e, "#test", "testrunner", "1|98123|30")
 		print(res)
 		assert res == "1 [===       ] 98123"
 
@@ -537,7 +539,7 @@ class TestCommands(object):
 		"""
 		Test the social strategy thingie
 		"""
-		res = pmxbot.strategy(c, e, "#test", "testrunner", "")
+		res = commands.strategy(c, e, "#test", "testrunner", "")
 		print(res)
 		assert res != ""
 
@@ -548,7 +550,7 @@ class TestCommands(object):
 		"""
 		pytest.xfail("a.libpa.st is down")
 		person = str(uuid.uuid4())[:9]
-		res = pmxbot.paste(c, e, '#test', person, '')
+		res = commands.paste(c, e, '#test', person, '')
 		print(res)
 		assert res == "hmm.. I didn't find a recent paste of yours, %s. Checkout http://a.libpa.st/" % person
 
@@ -559,7 +561,7 @@ class TestCommands(object):
 		"""
 		pytest.xfail("a.libpa.st is down")
 		person = 'vbSptH3ByfQQ6h'
-		res = pmxbot.paste(c, e, '#test', person, '')
+		res = commands.paste(c, e, '#test', person, '')
 		assert res == "http://a.libpa.st/40a4345a-4e4b-40d8-ad06-c0a22a26b282"
 
 	def test_qbiu_person(self):
@@ -567,7 +569,7 @@ class TestCommands(object):
 		Test the qbiu function with a specified person.
 		"""
 		bitcher = "all y'all"
-		res = pmxbot.bitchingisuseless(c, e, '#test', 'testrunner', bitcher)
+		res = commands.bitchingisuseless(c, e, '#test', 'testrunner', bitcher)
 		print(res)
 		assert res == "Quiet bitching is useless, all y'all. Do something about it."
 
@@ -575,7 +577,7 @@ class TestCommands(object):
 		"""
 		Test the qbiu function with a specified person.
 		"""
-		res = pmxbot.bitchingisuseless(c, e, '#test', 'testrunner', '')
+		res = commands.bitchingisuseless(c, e, '#test', 'testrunner', '')
 		print(res)
 		assert res == "Quiet bitching is useless, foo'. Do something about it."
 
@@ -590,12 +592,12 @@ class TestCommands(object):
 		assert len(res) > 5
 
 	def test_rand_bot(self, iter_):
-		res = pmxbot.rand_bot(c, e, '#test', 'testrunner', '')
+		res = commands.rand_bot(c, e, '#test', 'testrunner', '')
 		if res is None: return
 		if not isinstance(res, basestring):
 			res = u''.join(res)
 		assert len(res)
 
 	def test_logo(self):
-		lines = list(pmxbot.logo(c, e, '#test', 'testrunner', ''))
+		lines = list(commands.logo(c, e, '#test', 'testrunner', ''))
 		assert len(lines)
