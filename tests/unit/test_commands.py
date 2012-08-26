@@ -82,7 +82,8 @@ class TestCommands(object):
 		More complicated google calculator command - 40 gallons in liters must
 		include 151.4 in results
 		"""
-		res = commands.googlecalc(c, e, "#test", "testrunner", "40 gallons in liters")
+		res = commands.googlecalc(c, e, "#test", "testrunner", "40 gallons "
+			"in liters")
 		print(res)
 		assert "151.4" in res
 
@@ -103,16 +104,19 @@ class TestCommands(object):
 		"""
 		res = commands.googlecalc(c, e, "#test", "testrunner", "1 USD in GBP")
 		print(res)
-		assert re.match(r"""1 (?:US|U\.S\.) dollars? = \d\.\d+ British pounds?(?: sterling)?""", res)
+		assert re.match(r"1 (?:US|U\.S\.) dollars? = \d\.\d+ British "
+			r"pounds?(?: sterling)?", res)
 
 	@pytest.has_internet
 	def test_googlecalc_currency_czk_euro(self):
 		"""
 		Test that google calculator for a currency conversion: 12 CZK in euros
 		"""
-		res = commands.googlecalc(c, e, "#test", "testrunner", "12 CZK in euros")
+		res = commands.googlecalc(c, e, "#test", "testrunner", "12 CZK in "
+			"euros")
 		print(res)
-		assert re.match(r"""12 Czech(?: Republic)? [Kk]orun(?:a|y)s? = \d\.\d+ [Ee]uros?""", res)
+		assert re.match(r"12 Czech(?: Republic)? [Kk]orun(?:a|y)s? = "
+			r"\d\.\d+ [Ee]uros?", res)
 
 	# time patterns come as 4:20pm when queried from the U.S. and 16:20
 	#  when queried from (at least some) other locales.
@@ -125,7 +129,8 @@ class TestCommands(object):
 		"""
 		Check the time in Washington, DC. Must match time_pattern.
 		"""
-		res = commands.googletime(c, e, "#test", "testrunner", "Washington, DC")
+		res = commands.googletime(c, e, "#test", "testrunner",
+			"Washington, DC")
 		res = list(res)
 		assert res
 		for line in res:
@@ -162,36 +167,44 @@ class TestCommands(object):
 	@pytest.mark.xfail(reason="Google APIs disabled")
 	def test_weather_one(self):
 		"""
-		Check the weather in Washington, DC. Must include something that looks like a weather XX:XX(AM/PM)
+		Check the weather in Washington, DC. Must include something that looks
+		like a weather XX:XX(AM/PM)
 		"""
 		res = commands.weather(c, e, "#test", "testrunner", "Washington, DC")
 		for line in res:
 			print(line)
-			assert re.match(r""".+\. Currently: (?:-)?[0-9]{1,3}F/(?:-)?[0-9]{1,2}C, .+\.\W+[A-z]{3}: (?:-)?[0-9]{1,3}F/(?:-)?[0-9]{1,2}C, """, line)
+			assert re.match(r".+\. Currently: (?:-)?[0-9]{1,3}F/(?:-)?"
+				r"[0-9]{1,2}C, .+\.\W+[A-z]{3}: (?:-)?[0-9]{1,3}F/(?:-)?"
+				r"[0-9]{1,2}C, ", line)
 
 	@pytest.mark.xfail(reason="Google APIs disabled")
 	def test_weather_three(self):
 		"""
-		Check the weather in three cities. Must include something that looks like
-		a weather XX:XX(AM/PM) on each line
+		Check the weather in three cities. Must include something that looks
+		like a weather XX:XX(AM/PM) on each line
 		"""
 		places = "Washington, DC", "Palo Alto, CA", "London"
 		places_spec = ' | '.join(places)
 		res = commands.weather(c, e, "#test", "testrunner", places_spec)
 		for line in res:
 			print(line)
-			assert re.match(r""".+\. Currently: (?:-)?[0-9]{1,3}F/(?:-)?[0-9]{1,2}C, .+\.\W+[A-z]{3}: (?:-)?[0-9]{1,3}F/(?:-)?[0-9]{1,2}C, """, line)
+			assert re.match(r".+\. Currently: (?:-)?[0-9]{1,3}F/(?:-)?"
+				r"[0-9]{1,2}C, .+\.\W+[A-z]{3}: (?:-)?[0-9]{1,3}F/(?:-)?"
+				r"[0-9]{1,2}C, ", line)
 
 	@pytest.mark.xfail(reason="Google APIs disabled")
 	def test_weather_all(self):
 		"""
-		Check the weather in "all" cities. Must include something that looks like
+		Check the weather in "all" cities. Must include something that looks
+		like
 		a weather XX:XX(AM/PM) on each line
 		"""
 		res = commands.weather(c, e, "#test", "testrunner", "all")
 		for line in res:
 			print(line)
-			assert re.match(r""".+\. Currently: (?:-)?[0-9]{1,3}F/(?:-)?[0-9]{1,2}C, .+\.\W+[A-z]{3}: (?:-)?[0-9]{1,3}F/(?:-)?[0-9]{1,2}C, """, line)
+			assert re.match(r".+\. Currently: (?:-)?[0-9]{1,3}F/(?:-)?"
+				r"[0-9]{1,2}C, .+\.\W+[A-z]{3}: (?:-)?[0-9]{1,3}F/(?:-)?"
+				r"[0-9]{1,2}C, ", line)
 
 	def test_boo(self):
 		"""
@@ -222,7 +235,8 @@ class TestCommands(object):
 		subject = "foo"
 		pre = karma.Karma.store.lookup(subject)
 		res = commands.keelhaul(c, e, "#test", "testrunner", subject)
-		assert res == "/me straps %s to a dirty rope, tosses 'em overboard and pulls with great speed. Yarrr!" % subject
+		assert res == ("/me straps %s to a dirty rope, tosses 'em overboard "
+			"and pulls with great speed. Yarrr!" % subject)
 		post = karma.Karma.store.lookup(subject)
 		assert post == pre - 1
 
@@ -243,7 +257,8 @@ class TestCommands(object):
 		"""
 		subject = "foo"
 		pre = karma.Karma.store.lookup(subject)
-		res = commands.motivate(c, e, "#test", "testrunner", "   %s 	  " % subject)
+		res = commands.motivate(c, e, "#test", "testrunner",
+			"   %s 	  " % subject)
 		assert res == "you're doing good work, %s!" % subject
 		post = karma.Karma.store.lookup(subject)
 		assert post == pre + 1
@@ -308,7 +323,8 @@ class TestCommands(object):
 		assert res >= 0 and res <= 100
 		n = 6668
 
-		res = int(commands.roll(c, e, "#test", "testrunner", "%s" % n).split()[-1])
+		res = commands.roll(c, e, "#test", "testrunner", "%s" % n).split()[-1]
+		res = int(res)
 		assert res >= 0 and res <= n
 
 	@pytest.has_internet
@@ -320,7 +336,8 @@ class TestCommands(object):
 		"""
 		res = commands.ticker(c, e, "#test", "testrunner", "goog")
 		print(res)
-		assert re.match(r"""^GOOG at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{2,4}.\d{1,4} \(\-?\d{1,3}.\d%\)$""", res), res
+		assert re.match(r"^GOOG at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): "
+			r"\d{2,4}.\d{1,4} \(\-?\d{1,3}.\d%\)$", res), res
 
 	@pytest.has_internet
 	def test_ticker_yougov(self):
@@ -331,7 +348,8 @@ class TestCommands(object):
 		"""
 		res = commands.ticker(c, e, "#test", "testrunner", "you.l")
 		print(res)
-		assert re.match(r"""^YOU.L at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{1,4}.\d{2,4} \(\-?\d{1,3}.\d%\)$""", res), res
+		assert re.match(r"^YOU.L at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): "
+			r"\d{1,4}.\d{2,4} \(\-?\d{1,3}.\d%\)$", res), res
 
 	@pytest.has_internet
 	def test_ticker_nasdaq(self):
@@ -342,7 +360,8 @@ class TestCommands(object):
 		"""
 		res = commands.ticker(c, e, "#test", "testrunner", "^ixic")
 		print(res)
-		assert re.match(r"""^\^IXIC at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): \d{4,5}.\d{2} \(\-?\d{1,3}.\d%\)$""", res), res
+		assert re.match(r"^\^IXIC at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): "
+			r"\d{4,5}.\d{2} \(\-?\d{1,3}.\d%\)$", res), res
 
 	def test_pick_or(self):
 		"""
@@ -356,7 +375,8 @@ class TestCommands(object):
 		"""
 		Test the pick command with an intro and a simple "or" expression
 		"""
-		res = commands.pick(c, e, "#test", "testrunner", "how would you like to die, pmxbot: fire or acid")
+		res = commands.pick(c, e, "#test", "testrunner",
+			"how would you like to die, pmxbot: fire or acid")
 		assert logical_xor("fire" in res, "acid" in res)
 		assert "die" not in res and "pmxbot" not in res and " or " not in res
 
@@ -369,18 +389,24 @@ class TestCommands(object):
 
 	def test_pick_comma_intro(self):
 		"""
-		Test the pick command with an intro followed by two options separted by commas
+		Test the pick command with an intro followed by two options separted
+		by commas
 		"""
-		res = commands.pick(c, e, "#test", "testrunner", "how would you like to die, pmxbot: fire, acid")
+		res = commands.pick(c, e, "#test", "testrunner",
+			"how would you like to die, pmxbot: fire, acid")
 		assert logical_xor("fire" in res, "acid" in res)
 		assert "die" not in res and "pmxbot" not in res
 
 	def test_pick_comma_or_intro(self):
 		"""
-		Test the pick command with an intro followed by options with commands and ors
+		Test the pick command with an intro followed by options with commands
+		and ors
 		"""
-		res = commands.pick(c, e, "#test", "testrunner", "how would you like to die, pmxbot: gun, fire, acid or defenestration")
-		assert onetrue("gun" in res, "fire" in res, "acid" in res, "defenestration" in res)
+		res = commands.pick(c, e, "#test", "testrunner",
+			"how would you like to die, pmxbot: gun, fire, acid or "
+			"defenestration")
+		assert onetrue("gun" in res, "fire" in res, "acid" in res,
+			"defenestration" in res)
 		assert "die" not in res and "pmxbot" not in res and " or " not in res
 
 	def test_lunch(self):
@@ -388,7 +414,8 @@ class TestCommands(object):
 		Test that the lunch command selects one of the list options
 		"""
 		res = commands.lunch(c, e, "#test", "testrunner", "PA")
-		assert res in ["Pasta?", "Thaiphoon", "Pluto's", "Penninsula Creamery", "Kan Zeman"]
+		assert res in ["Pasta?", "Thaiphoon", "Pluto's",
+		"Penninsula Creamery", "Kan Zeman"]
 
 	def test_karma_check_self_blank(self):
 		"""
@@ -422,7 +449,8 @@ class TestCommands(object):
 
 	def test_karma_set_and_check_with_space(self):
 		"""
-		Take a new entity that has a space in it's name, give it some karma, check that it has more
+		Take a new entity that has a space in it's name, give it some karma,
+		check that it has more
 		"""
 		id = str(uuid.uuid4()).replace("-", " ")
 		res = karma.karma(c, e, "#test", "testrunner", id)
@@ -436,7 +464,8 @@ class TestCommands(object):
 
 	def test_karma_randomchange(self):
 		"""
-		Take a new entity that has a space in it's name, give it some karma, check that it has more
+		Take a new entity that has a space in it's name, give it some karma,
+		check that it has more
 		"""
 		id = str(uuid.uuid4())
 		flags = {}
@@ -446,7 +475,8 @@ class TestCommands(object):
 			res = karma.karma(c, e, "#test", "testrunner", id)
 			prekarma = int(karmafetch.findall(res)[0])
 			change = karma.karma(c, e, "#test", "testrunner", "%s~~" % id)
-			assert change in ["%s karma++" % id, "%s karma--" % id, "%s karma shall remain the same" % id]
+			assert change in ["%s karma++" % id, "%s karma--" % id,
+				"%s karma shall remain the same" % id]
 			if change.endswith('karma++'):
 				flags['++'] = True
 				res = karma.karma(c, e, "#test", "testrunner", id)
@@ -479,7 +509,8 @@ class TestCommands(object):
 		Test the built-in python calculator with a more complicated formula
 		((((781**2)*5)/92835.3)+4)**0.5
 		"""
-		res = commands.calc(c, e, "#test", "testrunner", "((((781**2)*5)/92835.3)+4)**0.5")
+		res = commands.calc(c, e, "#test", "testrunner",
+			"((((781**2)*5)/92835.3)+4)**0.5")
 		print(res)
 		assert res.startswith("6.070566")
 
@@ -500,7 +531,9 @@ class TestCommands(object):
 		"""
 		res = commands.defit(c, e, "#test", "testrunner", "  IRC \t")
 		assert isinstance(res, unicode)
-		assert res == "Wordnik says: An international computer network of Internet servers, using its own protocol through which individual users can hold real-time online conversations."
+		assert res == ("Wordnik says: An international computer network of "
+			"Internet servers, using its own protocol through which "
+			"individual users can hold real-time online conversations.")
 
 	@pytest.has_internet
 	def test_define_notaword(self):
@@ -554,7 +587,8 @@ class TestCommands(object):
 		person = str(uuid.uuid4())[:9]
 		res = commands.paste(c, e, '#test', person, '')
 		print(res)
-		assert res == "hmm.. I didn't find a recent paste of yours, %s. Checkout http://a.libpa.st/" % person
+		assert res == ("hmm.. I didn't find a recent paste of yours, %s. "
+			"Checkout http://a.libpa.st/" % person)
 
 	@pytest.has_internet
 	def test_paste_real_user(self):
@@ -573,7 +607,8 @@ class TestCommands(object):
 		bitcher = "all y'all"
 		res = commands.bitchingisuseless(c, e, '#test', 'testrunner', bitcher)
 		print(res)
-		assert res == "Quiet bitching is useless, all y'all. Do something about it."
+		assert res == ("Quiet bitching is useless, all y'all. Do something "
+			"about it.")
 
 	def test_qbiu_blank(self):
 		"""
@@ -581,7 +616,8 @@ class TestCommands(object):
 		"""
 		res = commands.bitchingisuseless(c, e, '#test', 'testrunner', '')
 		print(res)
-		assert res == "Quiet bitching is useless, foo'. Do something about it."
+		assert res == ("Quiet bitching is useless, foo'. Do something about "
+			"it.")
 
 	def test_excuse(self):
 		import excuses
