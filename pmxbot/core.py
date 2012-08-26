@@ -10,9 +10,8 @@ import random
 import collections
 import textwrap
 import functools
-import importlib
 import argparse
-import logging as pylogging
+import logging
 
 import irc.bot
 import pkg_resources
@@ -20,9 +19,7 @@ import pkg_resources
 import pmxbot.itertools
 import pmxbot.dictlib
 
-logging = None # pmxbot.logging module
-
-log = pylogging.getLogger('pmxbot')
+log = logging.getLogger('pmxbot')
 
 class WarnHistory(dict):
 	warn_every = datetime.timedelta(seconds=60)
@@ -74,8 +71,6 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		self._nickname = nickname
 		self.__use_ssl = use_ssl
 		self.warn_history = WarnHistory()
-		# import late to avoid circular imports
-		globals().update(logging=importlib.import_module('pmxbot.logging'))
 
 	def connect(self, *args, **kwargs):
 		kwargs['ssl'] = self.__use_ssl
@@ -90,7 +85,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			log = False
 		func(channel, s)
 		if channel in self._channels and channel not in self._nolog and log:
-			logging.Logger.store.message(channel, self._nickname, s)
+			pmxbot.logging.Logger.store.message(channel, self._nickname, s)
 
 	def _schedule_at(self, name, channel, when, func, args, doc):
 		arguments = self.c, channel, func, args
@@ -154,7 +149,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		channel = e.target()
 		if msg.strip() > '':
 			if channel not in self._nolog:
-				logging.Logger.store.message(channel, nick, msg)
+				pmxbot.logging.Logger.store.message(channel, nick, msg)
 			self.handle_action(c, e, channel, nick, msg)
 
 	def on_privmsg(self, c, e):
@@ -336,7 +331,7 @@ def initialize(config):
 	pmxbot.config.update(config)
 	config = pmxbot.config
 
-	pylogging.basicConfig(level=pylogging.INFO, format="%(message)s")
+	logging.basicConfig(level=logging.INFO, format="%(message)s")
 	_load_library_extensions()
 
 	class_ = SilentCommandBot if config.silent_bot else LoggingCommandBot
