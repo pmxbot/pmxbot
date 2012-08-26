@@ -50,7 +50,7 @@ class PmxbotHarness(object):
 			#  the console entry point, which can't be properly
 			#  .terminate()d on Windows.
 			cls.bot = subprocess.Popen([sys.executable, '-c',
-				'from pmxbot.pmxbot import run; run()', configfile],
+				'from pmxbot.core import run; run()', configfile],
 				env=env)
 		except OSError:
 			py.test.skip("Unable to launch pmxbot (pmxbot must be installed)")

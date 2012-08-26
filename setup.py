@@ -14,7 +14,7 @@ setup_params = dict(
 	include_package_data=True,
 	entry_points=dict(
 		console_scripts = [
-			'pmxbot=pmxbot.pmxbot:run',
+			'pmxbot=pmxbot.core:run',
 			'pmxbotweb=pmxbotweb.pmxbotweb:run',
 		],
 		pmxbot_handlers = [

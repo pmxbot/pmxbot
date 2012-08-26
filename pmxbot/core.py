@@ -11,12 +11,18 @@ import collections
 import textwrap
 import functools
 import importlib
+import argparse
+import logging as pylogging
 
 import irc.bot
+import pkg_resources
 
 import pmxbot.itertools
+import pmxbot.dictlib
 
 logging = None # pmxbot.logging module
+
+log = pylogging.getLogger('pmxbot')
 
 class WarnHistory(dict):
 	warn_every = datetime.timedelta(seconds=60)
@@ -314,3 +320,64 @@ def on_join(doc=None):
 		_join_registry.append(func)
 		return func
 	return deco
+
+def get_args():
+	parser = argparse.ArgumentParser()
+	parser.add_argument('config', type=pmxbot.dictlib.ConfigDict.from_yaml)
+	return parser.parse_args()
+
+def run():
+	initialize(get_args().config).start()
+
+def initialize(config):
+	"""
+	Initialize the bot with a dictionary of config items
+	"""
+	pmxbot.config.update(config)
+	config = pmxbot.config
+
+	pylogging.basicConfig(level=pylogging.INFO, format="%(message)s")
+	_load_library_extensions()
+
+	class_ = SilentCommandBot if config.silent_bot else LoggingCommandBot
+
+	return class_(config.database, config.server_host, config.server_port,
+		config.bot_nickname, config.log_channels, config.other_channels,
+		use_ssl=config.use_ssl, password=config.password)
+
+_finalizers = []
+
+def _cleanup():
+	"Delete the various persistence objects"
+	for finalizer in _finalizers:
+		try:
+			finalizer()
+		except Exception:
+			log.exception("Error in finalizer %s", finalizer)
+
+def _load_library_extensions():
+	"""
+	Locate all setuptools entry points by the name 'pmxbot_handlers'
+	and initialize them.
+	Any third-party library may register an entry point by adding the
+	following to their setup.py::
+
+		entry_points = {
+			'pmxbot_handlers': [
+				'plugin_name = mylib.mymodule:initialize_func',
+			],
+		},
+
+	`plugin_name` can be anything, and is only used to display the name
+	of the plugin at initialization time.
+	"""
+	group = 'pmxbot_handlers'
+	entry_points = pkg_resources.iter_entry_points(group=group)
+	for ep in entry_points:
+		try:
+			log.info('Loading %s', ep.name)
+			init_func = ep.load()
+			if callable(init_func):
+				init_func()
+		except Exception:
+			log.exception("Error initializing plugin %s." % ep)

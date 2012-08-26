@@ -8,9 +8,9 @@ import uuid
 import pytest
 import popquotes.pmxbot
 
+import pmxbot.dictlib
 from pmxbot import core
 from pmxbot import logging
-from pmxbot import pmxbot
 from pmxbot import commands
 from pmxbot import karma
 from pmxbot import quotes
@@ -48,12 +48,12 @@ class TestCommands(object):
 		path = os.path.dirname(os.path.abspath(__file__))
 		configfile = os.path.join(path, 'testconf.yaml')
 		config = pmxbot.dictlib.ConfigDict.from_yaml(configfile)
-		cls.bot = pmxbot.initialize(config)
+		cls.bot = core.initialize(config)
 		logging.Logger.store.message("logged", "testrunner", "some text")
 
 	@classmethod
 	def teardown_class(cls):
-		pmxbot._cleanup()
+		pmxbot.core._cleanup()
 		path = os.path.dirname(os.path.abspath(__file__))
 		os.remove(os.path.join(path, 'pmxbot.sqlite'))
 

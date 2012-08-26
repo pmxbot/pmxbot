@@ -4,16 +4,15 @@ from __future__ import absolute_import
 
 import time
 
-import pmxbot
+import pmxbot.core
 from . import storage
 from .core import command, on_join
 
 class Notify(storage.SelectableStorage):
     @classmethod
     def init(cls):
-        import pmxbot.pmxbot
         cls.store = cls.from_URI(pmxbot.config.database)
-        pmxbot.pmxbot._finalizers.append(cls.finalize)
+        pmxbot.core._finalizers.append(cls.finalize)
 
     @classmethod
     def finalize(cls):

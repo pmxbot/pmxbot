@@ -12,6 +12,7 @@ from jinja2 import Environment, FileSystemLoader
 import pytz
 from jaraco.util.numbers import ordinalth as th_it
 
+import pmxbot.core
 import pmxbot.logging
 import pmxbot.util
 
@@ -192,10 +193,9 @@ class HelpPage(object):
 		if not self.run:
 			self.commands = []
 			self.contains = []
-			import pmxbot.pmxbot as p
-			p.run(configInput = context['config'], start=False)
+			pmxbot.core.initialize(context['config'])
 			for typ, name, f, doc, channels, exclude, rate, priority in \
-					sorted(p._handler_registry, key=lambda x: x[1]):
+					sorted(pmxbot.core._handler_registry, key=lambda x: x[1]):
 				if typ == 'command':
 					aliases = sorted([x[1]
 						for x in p._handler_registry
