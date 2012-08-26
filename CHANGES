@@ -13,6 +13,8 @@ has been removed::
 Other backward-incompatible changes::
 
  - The `config` object has been moved into the parent `pmxbot` package.
+ - A sqlite db URI must always specify the full path to the database file;
+   pmxbot will no longer accept just the directory name.
 
 Other changes::
 

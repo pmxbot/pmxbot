@@ -65,10 +65,6 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		self.nickname = nickname
 		self._channels = channels + nolog_channels
 		self._nolog = set(('#' + c if not c.startswith('#') else c) for c in nolog_channels)
-		# for backward compatibility, allow db_uri to specify the folder where
-		#  pmxbot.sqlite would reside
-		if os.path.isfile(os.path.join(db_uri, "pmxbot.sqlite")):
-			db_uri = os.path.join(db_uri, "pmxbot.sqlite")
 		self.db_uri = db_uri
 		globals().update(logger=logging.Logger.from_URI(db_uri))
 		self._nickname = nickname
