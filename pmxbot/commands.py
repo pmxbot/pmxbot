@@ -11,7 +11,6 @@ import time
 import sys
 import random
 import csv
-import traceback
 import io
 from xml.etree import ElementTree
 
@@ -19,8 +18,7 @@ import popquotes.pmxbot as pq
 import pkg_resources
 
 import pmxbot
-from .core import command, contains, _handler_registry, NoLog
-from . import core
+from .core import command, contains, _handler_registry
 from . import logging
 from . import util
 from . import karma
@@ -750,36 +748,6 @@ def ctlaltdel(client, event, channel, nick, rest):
 		sys.exit()
 	else:
 		return "Really?"
-
-@command("strike", aliases=(), doc="Strike last <n> statements from the record")
-def strike(client, event, channel, nick, rest):
-	yield NoLog
-	rest = rest.strip()
-	if not rest:
-		count = 1
-	else:
-		if not rest.isdigit():
-			yield "Strike how many?  Argument must be a positive integer."
-			raise StopIteration
-		count = int(rest)
-	try:
-		struck = logging.Logger.store.strike(channel, nick, count)
-		yield ("Isn't undo great?  Last %d statement%s by %s were stricken from the record." %
-		(struck, 's' if struck > 1 else '', nick))
-	except Exception:
-		traceback.print_exc()
-		yield "Hmm.. I didn't find anything of yours to strike!"
-
-@command("where", aliases=('last', 'seen', 'lastseen'), doc="When did pmxbot last see <nick> speak?")
-def where(client, event, channel, nick, rest):
-	onick = rest.strip()
-	last = logging.Logger.store.last_seen(onick)
-	if last:
-		tm, chan = last
-		return "I last saw %s speak at %s in channel #%s" % (
-		onick, tm, chan)
-	else:
-		return "Sorry!  I don't have any record of %s speaking" % onick
 
 @command("logo", doc="The pmxbot logo in ascii art.  Fixed-width font recommended!")
 def logo(client, event, channel, nick, rest):

@@ -10,11 +10,11 @@ import random
 import collections
 import textwrap
 import functools
+import importlib
 
 import irc.bot
 
 import pmxbot.itertools
-from . import logging
 
 class WarnHistory(dict):
 	warn_every = datetime.timedelta(seconds=60)
@@ -66,6 +66,8 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		self._nickname = nickname
 		self.__use_ssl = use_ssl
 		self.warn_history = WarnHistory()
+		# import late to avoid circular imports
+		globals().update(logging=importlib.import_module('pmxbot.logging'))
 
 	def connect(self, *args, **kwargs):
 		kwargs['ssl'] = self.__use_ssl
@@ -80,7 +82,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			log = False
 		func(channel, s)
 		if channel in self._channels and channel not in self._nolog and log:
-			logging.Logger.core.message(channel, self._nickname, s)
+			logging.Logger.store.message(channel, self._nickname, s)
 
 	def _schedule_at(self, name, channel, when, func, args, doc):
 		arguments = self.c, channel, func, args
