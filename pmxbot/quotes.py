@@ -6,7 +6,7 @@ import random
 
 import pmxbot
 from . import storage
-from .botbase import command
+from .core import command
 
 class Quotes(storage.SelectableStorage):
 	lib = 'pmx'

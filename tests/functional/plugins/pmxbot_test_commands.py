@@ -1,10 +1,10 @@
-from pmxbot import botbase
+from pmxbot import core
 
-@botbase.command("crashnow", doc="Crash now!")
+@core.command("crashnow", doc="Crash now!")
 def crash_immediately(client, event, channel, nick, rest):
 	raise TypeError("You should never call this!")
 
-@botbase.command("crashiter", doc="Crash in iterator!")
+@core.command("crashiter", doc="Crash in iterator!")
 def crash_in_iterator(client, event, channel, nick, rest):
 	raise TypeError("You should never call this!")
 	yield "You can't touch this"

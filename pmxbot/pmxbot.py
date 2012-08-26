@@ -8,7 +8,7 @@ import logging
 
 import pmxbot
 from . import dictlib
-from . import botbase
+from . import core
 
 log = logging.getLogger(__name__)
 
@@ -29,8 +29,8 @@ def initialize(config):
 	_setup_logging()
 	_load_library_extensions()
 
-	class_ = (botbase.LoggingCommandBot
-		if not pmxbot.config.silent_bot else botbase.SilentCommandBot)
+	class_ = (core.LoggingCommandBot
+		if not pmxbot.config.silent_bot else core.SilentCommandBot)
 
 	return class_(config.database, config.server_host, config.server_port,
 		config.bot_nickname, config.log_channels, config.other_channels,
@@ -38,7 +38,7 @@ def initialize(config):
 
 
 _finalizers = [
-	botbase.LoggingCommandBot._finalize_logger,
+	core.LoggingCommandBot._finalize_logger,
 ]
 
 def _cleanup():

@@ -6,7 +6,7 @@ import time
 
 import pmxbot
 from . import storage
-from .botbase import command, on_join
+from .core import command, on_join
 
 class Notify(storage.SelectableStorage):
     @classmethod

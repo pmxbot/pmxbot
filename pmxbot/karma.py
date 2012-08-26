@@ -8,7 +8,7 @@ import random
 
 import pmxbot
 from . import storage
-from .botbase import command
+from .core import command
 
 class SameName(ValueError): pass
 class AlreadyLinked(ValueError): pass

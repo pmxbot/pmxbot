@@ -13,3 +13,9 @@ has been removed::
 Other backward-incompatible changes::
 
  - The `config` object has been moved into the parent `pmxbot` package.
+
+Other changes::
+
+ - Renamed `pmxbot.botbase` to `pmxbot.core`. A backward-compatibility
+   `botbase` module is temporarily available to provide access to the public
+   `command`, `execdelay`, and similar decorators.

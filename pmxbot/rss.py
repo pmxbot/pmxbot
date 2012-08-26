@@ -11,7 +11,7 @@ import logging
 import feedparser
 
 import pmxbot
-from . import botbase
+from . import core
 from . import storage
 from . import timing
 
@@ -28,7 +28,7 @@ class RSSFeeds(object):
 		self.feeds = pmxbot.config.feeds
 		self.store = FeedparserDB.from_URI(pmxbot.config.database)
 		for feed in self.feeds:
-			botbase.execdelay(
+			core.execdelay(
 				name = 'feedparser',
 				channel = feed['channel'],
 				howlong = datetime.timedelta(minutes=self.feed_interval),
@@ -97,7 +97,7 @@ class RSSFeeds(object):
 
 		txt = 'News from %s %s : %s' % (feed['name'],
 			feed['linkurl'], ' || '.join(outputs[:10]))
-		yield botbase.NoLog
+		yield core.NoLog
 		yield txt
 
 	def add_seen_feed(self, entry):
