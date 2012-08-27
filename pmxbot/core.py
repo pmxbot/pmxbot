@@ -325,7 +325,8 @@ def on_join(doc=None):
 
 def get_args():
 	parser = argparse.ArgumentParser()
-	parser.add_argument('config', type=pmxbot.dictlib.ConfigDict.from_yaml)
+	parser.add_argument('config', type=pmxbot.dictlib.ConfigDict.from_yaml,
+		default={}, nargs='?')
 	return parser.parse_args()
 
 def run():
