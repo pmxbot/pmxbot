@@ -298,6 +298,7 @@ def startup(config):
 	patch_compat(config)
 
 	pmxbot.web.config.update(config)
+	config = pmxbot.web.config
 	if not config.web_base.startswith('/'):
 		config['web_base'] = '/' + config.web_base
 	if config.web_base.endswith('/'):
