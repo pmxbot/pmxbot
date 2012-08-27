@@ -70,9 +70,10 @@ def pday(dayfmt):
 		number = th_it(day),
 	)
 
-rev_month = {}
-for x in xrange(1, 13):
-	rev_month[calendar.month_name[x]] = x
+rev_month = dict(
+	(calendar.month_name[m_ord], m_ord)
+	for m_ord in xrange(1, 13)
+)
 
 def sort_month_key(m):
 	parts = m.split(',')
