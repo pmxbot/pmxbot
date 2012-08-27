@@ -373,3 +373,6 @@ def _load_library_extensions():
 				init_func()
 		except Exception:
 			log.exception("Error initializing plugin %s." % ep)
+
+if __name__ == '__main__':
+	run()
