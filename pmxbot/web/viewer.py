@@ -51,7 +51,7 @@ def pmon(month):
 	P the month
 
 	>>> pmon('2012-08')
-	'August, 2012'
+	u'August, 2012'
 	"""
 	year, month = month.split('-')
 	return '{month_name}, {year}'.format(
@@ -64,7 +64,7 @@ def pday(dayfmt):
 	P the day
 
 	>>> pday('2012-08-24')
-	'Friday the 24th'
+	u'Friday the 24th'
 	"""
 
 	year, month, day = map(int, dayfmt.split('-'))
@@ -73,21 +73,16 @@ def pday(dayfmt):
 		number = th_it(day),
 	)
 
-rev_month = dict(
-	(calendar.month_name[m_ord], m_ord)
-	for m_ord in xrange(1, 13)
-)
-
-def sort_month_key(m):
-	parts = m.split(',')
-	parts[0] = rev_month[parts[0]]
-	return parts[1], parts[0]
-
 def log_db():
 	return pmxbot.logging.Logger.from_URI(
 		cherrypy.request.app.config['botconf']['config'].database)
 
 class ChannelPage(object):
+	month_ordinal = dict(
+		(calendar.month_name[m_ord], m_ord)
+		for m_ord in xrange(1, 13)
+	)
+
 	@cherrypy.expose
 	def default(self, channel):
 		page = jenv.get_template('channel.html')
@@ -99,10 +94,22 @@ class ChannelPage(object):
 		for fn in sorted(contents, reverse=True):
 			mon_des, day = fn.rsplit('-', 1)
 			months.setdefault(pmon(mon_des), []).append((pday(fn), fn))
-		sort_key = lambda v: sort_month_key(v[0])
-		context['months'] = sorted(months.items(), key=sort_key, reverse=True)
+		context['months'] = sorted(months.items(), key=self.by_date,
+			reverse=True)
 		context['channel'] = channel
 		return page.render(**context).encode('utf-8')
+
+	@classmethod
+	def by_date(cls, month_string):
+		"""
+		Return a key suitable for sorting by month.
+
+		>>> ChannelPage.by_date('August, 2012')
+		(u' 2012', 8)
+		"""
+		month, year = month_string.split(',')
+		month_ord = cls.month_ordinal[month]
+		return year, month_ord
 
 class DayPage(object):
 	@cherrypy.expose
