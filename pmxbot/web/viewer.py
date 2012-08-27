@@ -325,7 +325,7 @@ def startup(config):
 	cherrypy.quickstart(PmxbotPages(), config.web_base, config=app_conf)
 
 def run():
-	startup(pmxbot.core.get_args())
+	startup(pmxbot.core.get_args().config)
 
 if __name__ == '__main__':
 	run()
