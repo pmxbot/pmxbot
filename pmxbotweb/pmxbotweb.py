@@ -1,15 +1,20 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # vim:ts=4:sw=4:noexpandtab
+
 """
 pmxbotweb.py
 """
 
+from __future__ import absolute_import
+
 import sys
 import os
+
 import yaml
 import cherrypy
-from viewer import PmxbotPages
+
+from .viewer import PmxbotPages
+from pmxbot.dictlib import ConfigDict
 
 def run(configFile=None, configDict=None, start=True):
 	global config
@@ -65,7 +70,3 @@ def run(configFile=None, configDict=None, start=True):
 	}
 
 	cherrypy.quickstart(PmxbotPages(), config.web_base, config=app_conf)
-
-if __name__ == '__main__':
-	'''Useful for development mode'''
-	run()
