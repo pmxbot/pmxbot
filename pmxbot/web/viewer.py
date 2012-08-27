@@ -2,15 +2,14 @@
 import cherrypy
 import string
 import posixpath
-from random import shuffle
+import random
 import calendar
 import datetime
 import textwrap
-from cgi import escape
+import cgi
 
 import pkg_resources
 import jinja2.loaders
-from jinja2 import Environment
 import pytz
 from jaraco.util.numbers import ordinalth as th_it
 
@@ -18,14 +17,14 @@ import pmxbot.core
 import pmxbot.logging
 import pmxbot.util
 
-jenv = Environment(loader=jinja2.loaders.PackageLoader('pmxbot.web'))
+jenv = jinja2.Environment(loader=jinja2.loaders.PackageLoader('pmxbot.web'))
 TIMEOUT=10.0
 
 
 colors = ["06F", "900", "093", "F0C", "C30", "0C9", "666", "C90", "C36",
 	"F60", "639", "630", "966", "69C", "039", '7e1e9c', '15b01a', '0343df',
 	'ff81c0', '653700', 'e50000', '029386', 'f97306', 'c20078', '75bbfd']
-shuffle(colors)
+random.shuffle(colors)
 
 def get_context():
 	c = cherrypy.request.app.config['botconf']['config']
@@ -105,7 +104,7 @@ class DayPage(object):
 		db = log_db()
 		context = get_context()
 		day_logs = db.get_day_logs(channel, day)
-		data = [(t, n, make_anchor((t, n)), escape(m))
+		data = [(t, n, make_anchor((t, n)), cgi.escape(m))
 			for (t,n,m) in day_logs]
 		usernames = [x[1] for x in data]
 		color_map = {}
@@ -278,7 +277,7 @@ class PmxbotPages(object):
 				last['datetime'].date(),
 				last['datetime'].time(),
 				last['nick'],
-				escape(last['message'][:75]),
+				cgi.escape(last['message'][:75]),
 				make_anchor([last['datetime'].time(), last['nick']]),
 			]
 			chans.append(summary)
