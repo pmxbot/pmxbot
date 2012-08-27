@@ -38,6 +38,7 @@ setup_params = dict(
 		#for viewer
 		"jinja2",
 		"cherrypy",
+		"jaraco.compat",
 	] + py26reqs,
 	description="IRC bot - full featured, yet extensible and customizable",
 	license = 'MIT',
