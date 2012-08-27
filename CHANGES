@@ -1,3 +1,17 @@
+1103
+====
+
+This release incorporates another substantial refactor. The `pmxbotweb`
+package is being removed in favor of the namespaced-package `pmxbot.web`.
+
+Additionally, config entries for the pmxbotweb command have been renamed::
+
+ - `web_host` is now simply `host`
+ - `web_port` is now simply `port`
+
+A backward-compatibility shim has been added to support the old config values
+until version 1104.
+
 1102
 ====
 
