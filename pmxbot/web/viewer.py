@@ -133,18 +133,6 @@ class DayPage(object):
 		return page.render(**context).encode('utf-8')
 
 
-def karma_comma(karma_results):
-	"""
-	(say that 5 times fast)
-
-	Take the results of a karma query (keys, value) and return the same
-	result with the keys joined by commas.
-	"""
-	return [
-		(', '.join(keys), value)
-		for keys, value in karma_results
-	]
-
 class KarmaPage(object):
 	@cherrypy.expose
 	def default(self, term=""):
@@ -156,12 +144,26 @@ class KarmaPage(object):
 		term = term.strip()
 		if term:
 			context['lookup'] = (
-				[karma_comma(res) for res in karma.search(term)]
+				[self.karma_comma(res) for res in karma.search(term)]
 				or [('NO RESULTS FOUND', '')]
 			)
-		context['top100'] = karma_comma(karma.list(select=100))
-		context['bottom100'] = karma_comma(karma.list(select=-100))
+		context['top100'] = self.karma_comma(karma.list(select=100))
+		context['bottom100'] = self.karma_comma(karma.list(select=-100))
 		return page.render(**context).encode('utf-8')
+
+	@staticmethod
+	def karma_comma(karma_results):
+		"""
+		(say that 5 times fast)
+
+		Take the results of a karma query (keys, value) and return the same
+		result with the keys joined by commas.
+		"""
+		return [
+			(', '.join(keys), value)
+			for keys, value in karma_results
+		]
+
 
 class SearchPage(object):
 	@cherrypy.expose
