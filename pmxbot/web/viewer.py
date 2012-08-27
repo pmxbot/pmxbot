@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+
+from __future__ import unicode_literals
+
 import string
 import posixpath
 import random
@@ -316,18 +319,18 @@ def startup(config):
 
 	# Cherrypy configuration here
 	app_conf = {
-		'global': {
+		b'global': {
 			'server.socket_port': config.port,
 			'server.socket_host': config.host,
 			#'tools.encode.on': True,
 			'tools.encode.encoding': 'utf-8',
 		},
-		'/pmxbot.png': {
+		b'/pmxbot.png': {
 			'tools.staticfile.on': True,
 			'tools.staticfile.filename': pkg_resources.resource_filename(
 				'pmxbot.web', 'templates/pmxbot.png'),
 		},
-		'botconf': {'config': config},
+		b'botconf': {'config': config},
 	}
 
 	cherrypy.quickstart(PmxbotPages(), config.web_base, config=app_conf)
