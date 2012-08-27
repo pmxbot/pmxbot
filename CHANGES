@@ -12,6 +12,8 @@ Additionally, config entries for the pmxbotweb command have been renamed::
 A backward-compatibility shim has been added to support the old config values
 until version 1104.
 
+The backward compatibile module `pmxbot.botbase` has been removed.
+
 1102
 ====
 
