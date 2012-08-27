@@ -28,7 +28,7 @@ setup_params = dict(
 	),
 	install_requires=[
 		"irc>=2.0,<3.0dev",
-		"popquotes>=1.1",
+		"popquotes>=1.3",
 		"excuses>=1.1.2",
 		"pyyaml",
 		"feedparser",
