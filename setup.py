@@ -15,7 +15,7 @@ setup_params = dict(
 	entry_points=dict(
 		console_scripts = [
 			'pmxbot=pmxbot.core:run',
-			'pmxbotweb=pmxbotweb.pmxbotweb:run',
+			'pmxbotweb=pmxbot.web.viewer:run',
 		],
 		pmxbot_handlers = [
 			'pmxbot logging = pmxbot.logging:Logger.initialize',

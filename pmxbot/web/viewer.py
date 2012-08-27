@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
-import os
 import cherrypy
 import string
+import posixpath
 from random import shuffle
 import calendar
 import datetime
 import textwrap
 from cgi import escape
 
-from jinja2 import Environment, FileSystemLoader
+import pkg_resources
+import jinja2.loaders
+from jinja2 import Environment
 import pytz
 from jaraco.util.numbers import ordinalth as th_it
 
@@ -16,9 +18,7 @@ import pmxbot.core
 import pmxbot.logging
 import pmxbot.util
 
-BASE = os.path.abspath(os.path.dirname(__file__))
-jenv = Environment(loader=FileSystemLoader(os.path.join(BASE, 'templates'),
-	encoding='utf-8'))
+jenv = Environment(loader=jinja2.loaders.PackageLoader('pmxbot.web'))
 TIMEOUT=10.0
 
 
@@ -34,11 +34,8 @@ def get_context():
 		name = c.bot_nickname,
 		config = c,
 		base = c.web_base,
+		logo = c.logo
 	)
-	try:
-		d['logo'] = c.logo
-	except AttributeError:
-		d['logo'] = ''
 	return d
 
 def make_anchor(line):
@@ -198,7 +195,7 @@ class HelpPage(object):
 					sorted(pmxbot.core._handler_registry, key=lambda x: x[1]):
 				if typ == 'command':
 					aliases = sorted([x[1]
-						for x in p._handler_registry
+						for x in pmxbot.core._handler_registry
 						if x[0] == 'alias' and x[2] == f])
 					self.commands.append((name, doc, aliases))
 				elif typ == 'contains':
@@ -288,3 +285,44 @@ class PmxbotPages(object):
 		context['chans'] = chans
 		return page.render(**context).encode('utf-8')
 	default.exposed = True
+
+def patch_compat(config):
+	"""
+	Support older config values.
+	"""
+	if 'web_host' in config:
+		config['host'] = config.pop('web_host')
+	if 'web_port' in config:
+		config['port'] = config.pop('web_port')
+
+def startup(config):
+	patch_compat(config)
+
+	pmxbot.web.config.update(config)
+	if not config.web_base.startswith('/'):
+		config['web_base'] = '/' + config.web_base
+	if config.web_base.endswith('/'):
+		config['web_base'] = config.web_base.rstrip('/')
+	if 'logo' not in config:
+		config['logo'] = posixpath.join(config.web_base, 'pmxbot.png')
+
+	# Cherrypy configuration here
+	app_conf = {
+		'global': {
+			'server.socket_port': config.port,
+			'server.socket_host': config.host,
+			#'tools.encode.on': True,
+			'tools.encode.encoding': 'utf-8',
+		},
+		'/pmxbot.png': {
+			'tools.staticfile.on': True,
+			'tools.staticfile.filename': pkg_resources.resource_filename(
+				'pmxbot.web', 'templates/pmxbot.png'),
+		},
+		'botconf': {'config': config},
+	}
+
+	cherrypy.quickstart(PmxbotPages(), config.web_base, config=app_conf)
+
+def run():
+	startup(pmxbot.core.get_args())
