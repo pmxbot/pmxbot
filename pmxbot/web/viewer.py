@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import cherrypy
 import string
 import posixpath
 import random
@@ -8,6 +7,9 @@ import datetime
 import textwrap
 import cgi
 
+from py31compat.functools import lru_cache
+
+import cherrypy
 import pkg_resources
 import jinja2.loaders
 import pytz
@@ -180,30 +182,32 @@ class SearchPage(object):
 
 
 class HelpPage(object):
-	def __init__(self):
-		self.run = False
 
+	@cherrypy.expose
 	def default(self):
 		page = jenv.get_template('help.html')
+		return page.render(**self.get_context()).encode('utf-8')
+
+	@staticmethod
+	@lru_cache()
+	def get_context():
 		context = get_context()
-		if not self.run:
-			self.commands = []
-			self.contains = []
-			pmxbot.core.initialize(context['config'])
-			for typ, name, f, doc, channels, exclude, rate, priority in \
-					sorted(pmxbot.core._handler_registry, key=lambda x: x[1]):
-				if typ == 'command':
-					aliases = sorted([x[1]
-						for x in pmxbot.core._handler_registry
-						if x[0] == 'alias' and x[2] == f])
-					self.commands.append((name, doc, aliases))
-				elif typ == 'contains':
-					self.contains.append((name, doc))
-			self.run = True
-		context['commands'] = self.commands
-		context['contains'] = self.contains
-		return page.render(**context).encode('utf-8')
-	default.exposed = True
+		commands = []
+		contains = []
+		by_name = lambda handler: handler.name
+		for handler in sorted(pmxbot.core._handler_registry, key=by_name):
+			if handler.type_ == 'command':
+				aliases = sorted(alias.name
+					for alias in pmxbot.core._handler_registry
+					if alias.type_ == 'alias'
+					and alias.func == handler.func
+				)
+				commands.append((handler.name, handler.doc, aliases))
+			elif handler.type_ == 'contains':
+				contains.append((handler.name, handler.doc))
+		context['commands'] = commands
+		context['contains'] = contains
+		return context
 
 
 class LegacyPage():
