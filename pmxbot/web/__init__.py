@@ -5,5 +5,5 @@ from pmxbot.dictlib import ConfigDict
 config = ConfigDict(
 	web_base = '',
 	host = '::0',
-	port = os.environ.get('PORT', 8080),
+	port = int(os.environ.get('PORT', 8080)),
 )
