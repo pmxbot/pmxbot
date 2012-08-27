@@ -299,6 +299,9 @@ def startup(config):
 
 	pmxbot.web.config.update(config)
 	config = pmxbot.web.config
+
+	pmxbot.core._load_library_extensions()
+
 	if not config.web_base.startswith('/'):
 		config['web_base'] = '/' + config.web_base
 	if config.web_base.endswith('/'):
