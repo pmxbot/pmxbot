@@ -84,6 +84,7 @@ def log_db():
 		cherrypy.request.app.config['botconf']['config'].database)
 
 class ChannelPage(object):
+	@cherrypy.expose
 	def default(self, channel):
 		page = jenv.get_template('channel.html')
 
@@ -98,9 +99,9 @@ class ChannelPage(object):
 		context['months'] = sorted(months.items(), key=sort_key, reverse=True)
 		context['channel'] = channel
 		return page.render(**context).encode('utf-8')
-	default.exposed = True
 
 class DayPage(object):
+	@cherrypy.expose
 	def default(self, channel, day):
 		page = jenv.get_template('day.html')
 		db = log_db()
@@ -126,7 +127,6 @@ class DayPage(object):
 			days = pmon(day.rsplit('-', 1)[0]),
 		)
 		return page.render(**context).encode('utf-8')
-	default.exposed = True
 
 
 def karma_comma(karma_results):
@@ -142,6 +142,7 @@ def karma_comma(karma_results):
 	]
 
 class KarmaPage(object):
+	@cherrypy.expose
 	def default(self, term=""):
 		page = jenv.get_template('karma.html')
 		context = get_context()
@@ -157,9 +158,9 @@ class KarmaPage(object):
 		context['top100'] = karma_comma(karma.list(select=100))
 		context['bottom100'] = karma_comma(karma.list(select=-100))
 		return page.render(**context).encode('utf-8')
-	default.exposed = True
 
 class SearchPage(object):
+	@cherrypy.expose
 	def default(self, term=''):
 		page = jenv.get_template('search.html')
 		context = get_context()
@@ -178,7 +179,6 @@ class SearchPage(object):
 		context['num_results'] = len(results)
 		context['term'] = term
 		return page.render(**context).encode('utf-8')
-	default.exposed = True
 
 
 class HelpPage(object):
@@ -268,6 +268,7 @@ class PmxbotPages(object):
 	help = HelpPage()
 	legacy = LegacyPage()
 
+	@cherrypy.expose
 	def default(self):
 		page = jenv.get_template('index.html')
 		db = log_db()
@@ -287,7 +288,6 @@ class PmxbotPages(object):
 			chans.append(summary)
 		context['chans'] = chans
 		return page.render(**context).encode('utf-8')
-	default.exposed = True
 
 def patch_compat(config):
 	"""
