@@ -32,7 +32,7 @@ colors = ["06F", "900", "093", "F0C", "C30", "0C9", "666", "C90", "C36",
 random.shuffle(colors)
 
 def get_context():
-	c = cherrypy.request.app.config['botconf']['config']
+	c = pmxbot.web.config
 	d = dict(
 		request = cherrypy.request,
 		name = c.bot_nickname,
@@ -73,10 +73,6 @@ def pday(dayfmt):
 		number = th_it(day),
 	)
 
-def log_db():
-	return pmxbot.logging.Logger.from_URI(
-		cherrypy.request.app.config['botconf']['config'].database)
-
 class ChannelPage(object):
 	month_ordinal = dict(
 		(calendar.month_name[m_ord], m_ord)
@@ -87,7 +83,7 @@ class ChannelPage(object):
 	def default(self, channel):
 		page = jenv.get_template('channel.html')
 
-		db = log_db()
+		db = pmxbot.logging.Logger.store
 		context = get_context()
 		contents = db.get_channel_days(channel)
 		months = {}
@@ -120,7 +116,7 @@ class DayPage(object):
 	@cherrypy.expose
 	def default(self, channel, day):
 		page = jenv.get_template('day.html')
-		db = log_db()
+		db = pmxbot.logging.Logger.store
 		context = get_context()
 		day_logs = db.get_day_logs(channel, day)
 		data = [(t, n, make_anchor((t, n)), cgi.escape(m))
@@ -150,9 +146,7 @@ class KarmaPage(object):
 	def default(self, term=""):
 		page = jenv.get_template('karma.html')
 		context = get_context()
-		karma = pmxbot.util.Karma.from_URI(
-			cherrypy.request.app.config['botconf']['config'].database
-		)
+		karma = pmxbot.karma.Karma.store
 		term = term.strip()
 		if term:
 			context['lookup'] = (
@@ -182,7 +176,7 @@ class SearchPage(object):
 	def default(self, term=''):
 		page = jenv.get_template('search.html')
 		context = get_context()
-		db = log_db()
+		db = pmxbot.logging.Logger.store
 		#db.text_factory = lambda x: unicode(x, "utf-8", "ignore")
 
 		# a hack to enable the database to create anchors when building search
@@ -289,7 +283,7 @@ class PmxbotPages(object):
 	@cherrypy.expose
 	def default(self):
 		page = jenv.get_template('index.html')
-		db = log_db()
+		db = pmxbot.logging.Logger.store
 		context = get_context()
 		chans = []
 		for chan in sorted(db.list_channels(), key = string.lower):
@@ -344,7 +338,6 @@ def startup(config):
 			'tools.staticfile.filename': pkg_resources.resource_filename(
 				'pmxbot.web', 'templates/pmxbot.png'),
 		},
-		b'botconf': {'config': config},
 	}
 
 	cherrypy.quickstart(PmxbotPages(), config.web_base, config=app_conf)
