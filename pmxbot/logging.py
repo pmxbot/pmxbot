@@ -32,15 +32,7 @@ class Logger(storage.SelectableStorage):
 		self._message(channel, nick, msg)
 
 	def list_channels(self):
-		# channel listing can be expensive, so returned a cached result and
-		#  refresh the cache in the background.
-		def update_cache():
-			self._channel_cache = self._list_channels()
-		if not '_channel_cache' in vars(self):
-			update_cache()
-		else:
-			threading.Thread(target = update_cache).start()
-		return self._channel_cache
+		return self._list_channels()
 
 class SQLiteLogger(Logger, storage.SQLiteStorage):
 
@@ -286,6 +278,17 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 			matches.append((channel, row_date(match), marker, context))
 			alllines.extend(context)
 		return matches
+
+	def list_channels(self):
+		# channel listing can be expensive, so returned a cached result and
+		#  refresh the cache in the background.
+		def update_cache():
+			self._channel_cache = self._list_channels()
+		if not '_channel_cache' in vars(self):
+			update_cache()
+		else:
+			threading.Thread(target = update_cache).start()
+		return self._channel_cache
 
 	def _list_channels(self):
 		return self.db.distinct('channel')
