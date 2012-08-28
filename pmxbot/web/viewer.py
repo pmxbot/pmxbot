@@ -100,7 +100,12 @@ class ChannelPage(object):
 		return page.render(**context).encode('utf-8')
 
 	@classmethod
-	def by_date(cls, month_string):
+	def by_date(cls, month_item):
+		month_string, days = month_item
+		return cls.date_key(month_string)
+
+	@classmethod
+	def date_key(cls, month_string):
 		"""
 		Return a key suitable for sorting by month.
 
