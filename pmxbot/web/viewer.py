@@ -313,6 +313,7 @@ def patch_compat(config):
 def startup(config):
 	patch_compat(config)
 
+	pmxbot.config.update(config)
 	pmxbot.web.config.update(config)
 	config = pmxbot.web.config
 
