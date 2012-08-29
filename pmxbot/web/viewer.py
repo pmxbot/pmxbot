@@ -105,7 +105,7 @@ class ChannelPage(object):
 		"""
 		Return a key suitable for sorting by month.
 
-		>>> ChannelPage.by_date('August, 2012')
+		>>> ChannelPage.date_key('August, 2012')
 		(u' 2012', 8)
 		"""
 		month, year = month_string.split(',')
