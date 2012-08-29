@@ -113,6 +113,7 @@ A response (when someone says something) uses the @contains decorator::
 For an example of how to implement a setuptools-based plugin, see one of the
 many examples in the pmxbot project itself or one of the popular third-party
 projects::
+
  - `wolframalpha <http://bitbucket.org/yougov/pmxbot-wolframalpha>`_.
  - `jaraco.translate <http://bitbucket.org/jaraco/jaraco.translate>`_.
  - `excuses <http://bitbucket.org/yougov/excuses>`_.
