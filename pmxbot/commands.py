@@ -813,7 +813,7 @@ def help(client, event, channel, nick, rest):
 					if aliases:
 						res += " (%s)" % ', '.join(aliases)
 					yield res
-		o = io.StringIO(" ".join(mk_entries()))
+		o = io.StringIO(u" ".join(mk_entries()))
 		more = o.read(160)
 		while more:
 			yield more

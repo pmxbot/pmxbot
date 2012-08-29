@@ -639,3 +639,8 @@ class TestCommands(object):
 	def test_logo(self):
 		lines = list(commands.logo(c, e, '#test', 'testrunner', ''))
 		assert len(lines)
+
+	def test_help(self):
+		help = commands.help(c, e, '#test', 'testrunner', '')
+		result = ''.join(help)
+		assert 'help' in result
