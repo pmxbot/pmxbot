@@ -3,4 +3,4 @@ python:
   - 2.6
   - 2.7
 # command to run tests
-script: sudo aptitude install -y tcl && python setup.py develop && python setup.py ptr
+script: sudo apt-get install -y tcl && python setup.py develop && python setup.py ptr
