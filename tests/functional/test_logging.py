@@ -42,9 +42,9 @@ class TestPmxbotLog(PmxbotHarness):
 		"""
 		Test that international characters get logged properly.
 		"""
-		id = str(uuid.uuid4())
-		msg = u'Я предпочитаю круассаны с рыбой. %(id)s' % vars()
-		self.client.send_message('#logged', msg.encode('utf-8'))
+		msg = u'Я предпочитаю круассаны с рыбой. {id}'.format(
+			id=str(uuid.uuid4()))
+		self.client.send_message('#logged', msg)
 		assert self.check_logs(channel='#logged', message=msg)
 
 	def test_strike_1(self):
