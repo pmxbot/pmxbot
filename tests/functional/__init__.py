@@ -8,12 +8,14 @@ import sqlite3
 import urlparse
 
 import irc.client
-import yaml
 import py.test
 
 import pmxbot.dictlib
 
 class TestingClient(object):
+	"""
+	A simple client simulating a user other than the pmxbot
+	"""
 	def __init__(self, server, port, nickname):
 		self.irc = irc.client.IRC()
 		self.c = self.irc.server()
