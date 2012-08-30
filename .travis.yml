@@ -2,5 +2,10 @@ language: python
 python:
   - 2.6
   - 2.7
+before_install:
+  - sudo apt-get install -qq tcl
+before_script:
+  - python setup.py develop
+  - easy_install pymongo pytest jaraco.test
 # command to run tests
-script: sudo apt-get install -y tcl && python setup.py develop && python setup.py ptr
+script: py.test -rs -s

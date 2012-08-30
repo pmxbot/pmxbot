@@ -65,6 +65,8 @@ class PmxbotHarness(object):
 		except OSError:
 			py.test.skip("Unable to launch pmxbot (pmxbot must be installed)")
 		time.sleep(5)
+		if cls.bot.poll() is not None:
+			py.test.skip("Bot did not start up properly")
 		cls.client = TestingClient('localhost', 6668, 'testingbot')
 
 	def check_logs(cls, channel='', nick='', message=''):
