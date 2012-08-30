@@ -8,3 +8,7 @@ def crash_immediately(client, event, channel, nick, rest):
 def crash_in_iterator(client, event, channel, nick, rest):
 	raise TypeError("You should never call this!")
 	yield "You can't touch this"
+
+@core.command("echo", doc="echo")
+def echo(client, event, channel, nick, rest):
+	return rest
