@@ -698,18 +698,16 @@ def fight(client, event, channel, nick, rest):
 	if rest:
 		vtype = random.choice(phrases.fight_victories)
 		fdesc = random.choice(phrases.fight_descriptions)
-		bad_protocol = False
-		if 'vs.' not in rest:
-			bad_protocol = True
-		contenders = [c.strip() for c in rest.split('vs.')]
-		if len(contenders) > 2:
-			bad_protocol = True
-		if bad_protocol:
+		# valid separators are vs., v., and vs
+		pattern = re.compile('(.*) (?:vs[.]?|v[.]) (.*)')
+		matcher = pattern.match(rest)
+		if not matcher:
 			karma.Karma.store.change(nick.lower(), -1)
 			args = (vtype, nick, fdesc)
 			return "/me %s %s in %s for bad protocol." % args
+		contenders = [c.strip() for c in matcher.groups()]
 		random.shuffle(contenders)
-		winner,loser = contenders
+		winner, loser = contenders
 		karma.Karma.store.change(winner, 1)
 		karma.Karma.store.change(loser, -1)
 		return "%s %s %s in %s." % (winner, vtype, loser, fdesc)
