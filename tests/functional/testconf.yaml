@@ -1,7 +1,0 @@
-server_port: 6668
-bot_nickname: pmxbotTest
-log_channels:
-    - "#logged"
-other_channels:
-    - "#inane"
-database: "sqlite:tests/functional/pmxbot.sqlite"

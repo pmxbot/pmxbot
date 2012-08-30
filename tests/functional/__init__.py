@@ -9,8 +9,9 @@ import urlparse
 
 import irc.client
 import yaml
-
 import py.test
+
+import pmxbot.dictlib
 
 class TestingClient(object):
 	def __init__(self, server, port, nickname):
@@ -24,13 +25,21 @@ class TestingClient(object):
 		time.sleep(0.05)
 
 class PmxbotHarness(object):
+	config = pmxbot.dictlib.ConfigDict(
+		server_port = 6668,
+		bot_nickname = 'pmxbotTest',
+		log_channels = ['#logged'],
+		other_channels = ['#inane'],
+		database = "sqlite:tests/functional/pmxbot.sqlite",
+	)
+
 	@classmethod
 	def setup_class(cls):
 		"""Start a tcl IRC server, launch the bot, and
 		ask it to do stuff"""
 		path = os.path.dirname(os.path.abspath(__file__))
-		configfile = os.path.join(path, 'testconf.yaml')
-		cls.config = yaml.load(open(configfile))
+		cls.config_fn = os.path.join(path, 'testconf.yaml')
+		cls.config.to_yaml(cls.config_fn)
 		cls.dbfile = urlparse.urlparse(cls.config['database']).path
 		cls.db = sqlite3.connect(cls.dbfile)
 		try:
@@ -50,7 +59,7 @@ class PmxbotHarness(object):
 			#  the console entry point, which can't be properly
 			#  .terminate()d on Windows.
 			cls.bot = subprocess.Popen([sys.executable, '-c',
-				'from pmxbot.core import run; run()', configfile],
+				'from pmxbot.core import run; run()', cls.config_fn],
 				env=env)
 		except OSError:
 			py.test.skip("Unable to launch pmxbot (pmxbot must be installed)")
@@ -80,6 +89,7 @@ class PmxbotHarness(object):
 
 	@classmethod
 	def teardown_class(cls):
+		os.remove(cls.config_fn)
 		if hasattr(cls, 'bot') and not cls.bot.poll():
 			cls.bot.terminate()
 			cls.bot.wait()
