@@ -1,2 +1,3 @@
 import pmxbot.core
-pmxbot.core.run()
+if __name__ == '__main__':
+	pmxbot.core.run()

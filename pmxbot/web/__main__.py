@@ -1,2 +1,3 @@
 import pmxbot.web.viewer
-pmxbot.web.viewer.run()
+if __name__ == '__main__':
+	pmxbot.web.viewer.run()
