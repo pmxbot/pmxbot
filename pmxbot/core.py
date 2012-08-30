@@ -80,7 +80,6 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 
 	def out(self, channel, s, log=True):
 		func = self.c.privmsg
-		s = s.encode(u'utf-8')
 		if s.startswith(u'/me '):
 			func = self.c.action
 			s = s.split(' ', 1)[-1].lstrip()
