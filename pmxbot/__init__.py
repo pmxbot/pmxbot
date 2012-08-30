@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # vim:ts=4:sw=4:noexpandtab
 
+import importlib
+
 from .dictlib import ConfigDict
 
 config = ConfigDict(
@@ -25,3 +27,6 @@ config = ConfigDict(
 	librarypaste = 'http://paste.jaraco.com',
 )
 "The config object"
+
+if __name__ == '__main__':
+	importlib.import_module('pmxbot.core').run()

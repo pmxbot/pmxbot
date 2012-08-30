@@ -345,6 +345,3 @@ def startup(config):
 
 def run():
 	startup(pmxbot.core.get_args().config)
-
-if __name__ == '__main__':
-	run()
