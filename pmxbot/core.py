@@ -341,6 +341,8 @@ def initialize(config):
 
 	logging.basicConfig(level=logging.INFO, format="%(message)s")
 	_load_library_extensions()
+	if not _handler_registry:
+		raise RuntimeError("No handlers registered")
 
 	class_ = SilentCommandBot if config.silent_bot else LoggingCommandBot
 
