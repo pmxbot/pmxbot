@@ -1,19 +1,7 @@
-server_host: "localhost"
 server_port: 6668
-bot_nickname: integrationbot
+bot_nickname: pmxbotTest
 log_channels:
     - "#logged"
 other_channels:
     - "#inane"
-inane_channel: "#inane"
 database: "sqlite:tests/functional/pmxbot.sqlite"
-places: ["Palo Alto, CA", "Canton, OH", "Washington, DC", "London, England"]
-lunch_choices:
-    PA: ["Pasta?", "Thaiphoon", "Pluto's", "Penninsula Creamery", "Kan Zeman"]
-feed_interval: 15 #15 minutes
-feeds:
-    - name    : "pmxbot bitbucket"
-      channel : "#inane"
-      linkurl : "http://bitbucket.org/yougov/pmxbot"
-      url     : "https://bitbucket.org/yougov/pmxbot/rss?token=bf235a4ede35fcd8af179bdeb511ff0a"
-local_extensions: []
