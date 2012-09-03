@@ -32,7 +32,7 @@ colors = ["06F", "900", "093", "F0C", "C30", "0C9", "666", "C90", "C36",
 random.shuffle(colors)
 
 def get_context():
-	c = pmxbot.web.config
+	c = pmxbot.config
 	d = dict(
 		request = cherrypy.request,
 		name = c.bot_nickname,
