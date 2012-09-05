@@ -372,3 +372,9 @@ def where(client, event, channel, nick, rest):
 		onick, tm, chan)
 	else:
 		return "Sorry!  I don't have any record of %s speaking" % onick
+
+@command("logs", doc="Where can one find the logs?")
+def logs(client, event, channel, nick, rest):
+	return pmxbot.config.get('logs URL') or ("I don't know where the logs "
+		"are. Maybe try http://{server_host} or ask the admin to set the "
+		"'logs URL' config parameter.".format(**pmxbot.config))
