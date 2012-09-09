@@ -61,7 +61,7 @@ setup_params = dict(
 	long_description = open('README').read(),
 	setup_requires=[
 		'hgtools',
-		'pytest-runner',
+		'pytest-runner>=1.1,<3.0dev',
 	],
 	tests_require=[
 		'pymongo',

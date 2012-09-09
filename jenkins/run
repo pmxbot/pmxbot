@@ -4,4 +4,4 @@ virtualenv env
 # it's necessary to set up a virtual environment for the tests because the
 #  functional tests need to launch pmxbot (as a subprocess).
 env/bin/python setup.py develop
-env/bin/python setup.py ptr --junitxml="test results.xml"
+env/bin/python setup.py ptr --addopts='--junitxml="test results.xml"'
