@@ -13,7 +13,7 @@ def mongodb_instance():
 
 def pytest_funcarg__mongodb_uri(request):
 	instance = request.cached_setup(setup=mongodb_instance, scope='session',
-		teardown=lambda instance: instance.stop())
+		teardown=lambda instance: instance.stop() if instance else None)
 	if not instance:
 		py.test.skip("MongoDB not available")
 	return 'mongodb://' + ','.join(instance.get_connect_hosts())
