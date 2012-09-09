@@ -55,7 +55,10 @@ class PmxbotHarness(object):
 		# add './plugins' to the path so we get some pmxbot commands specific
 		#  for testing.
 		env = os.environ.copy()
-		env['PYTHONPATH'] = os.path.join(path, 'plugins')
+		plugins = os.path.join(path, 'plugins')
+		# also copy the current sys.path to PYTHONPATH so pmxbot can be
+		#  launched with the same path.
+		env['PYTHONPATH'] = os.pathsep.join([plugins] + sys.path)
 		try:
 			# Launch pmxbot using Python directly (rather than through
 			#  the console entry point, which can't be properly
