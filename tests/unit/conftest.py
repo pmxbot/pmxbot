@@ -5,6 +5,7 @@ def mongodb_instance():
 	try:
 		import pymongo
 		instance = services.MongoDBInstance()
+		instance.log_root = ''
 		instance.start()
 		pymongo.Connection(instance.get_connect_hosts())
 	except Exception:
