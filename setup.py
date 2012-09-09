@@ -60,13 +60,13 @@ setup_params = dict(
 	],
 	long_description = open('README').read(),
 	setup_requires=[
-		'hgtools',
+		'hgtools<3.0dev',
 		'pytest-runner>=1.1,<3.0dev',
 	],
 	tests_require=[
 		'pymongo',
 		'pytest',
-		'jaraco.test>=1.0.1',
+		'jaraco.test>=1.0.2,<2.0dev',
 	],
 )
 
