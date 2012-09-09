@@ -1,2 +1,2 @@
 #!/bin/bash -e
-/usr/bin/env python2.7 setup.py ptr --addopts='--junitxml="test results.xml"'
+/usr/bin/env python2.7 setup.py ptr --addopts='--junitxml="test results.xml"' --index-url https://cheese.yougov.net
