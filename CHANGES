@@ -1,3 +1,19 @@
+1103.3
+======
+
+* Initial support for logging joins/parts in logged channels.
+
+1103.2
+======
+
+* Added !logs command to query for the location of the logs.
+
+1103.1
+======
+
+* Moved config to 'pmxbot.config'.
+* Config parameter no longer required.
+
 1103
 ====
 
