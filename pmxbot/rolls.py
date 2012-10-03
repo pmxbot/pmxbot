@@ -57,7 +57,7 @@ class SQLiteLogger(ParticipantLogger, storage.SQLiteStorage):
 		self.db.execute(INDEX_DT_CREATE_SQL)
 		self.db.commit()
 
-	def log(self, channel, nick, change):
+	def log(self, nick, channel, change):
 		INSERT_LOG_SQL = 'INSERT INTO rolls (datetime, channel, nick, change) VALUES (?, ?, ?, ?)'
 		now = datetime.datetime.utcnow()
 		self.db.execute(INSERT_LOG_SQL, [now, channel, nick, change])
@@ -66,7 +66,7 @@ class SQLiteLogger(ParticipantLogger, storage.SQLiteStorage):
 class MongoDBLogger(ParticipantLogger, storage.MongoDBStorage):
 	collection_name = 'rolls'
 
-	def log(self, channel, nick, change):
+	def log(self, nick, channel, change):
 		self.db.ensure_index([
 			('datetime.d', pymongo.DESCENDING),
 			('channel', pymongo.ASCENDING),
