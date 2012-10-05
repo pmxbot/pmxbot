@@ -67,7 +67,9 @@ class PmxbotHarness(object):
 			cls.bot = subprocess.Popen(cmd, env=env)
 		except OSError:
 			py.test.skip("Unable to launch pmxbot (pmxbot must be installed)")
-		time.sleep(5)
+		# todo: instead of sleeping, wait for database tables to be created,
+		#  a better indicator that pmxbot has started properly.
+		time.sleep(7)
 		if cls.bot.poll() is not None:
 			py.test.skip("Bot did not start up properly")
 		cls.client = TestingClient('localhost', 6668, 'testingbot')
