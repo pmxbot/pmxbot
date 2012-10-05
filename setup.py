@@ -25,6 +25,7 @@ setup_params = dict(
 			'pmxbot notifier = pmxbot.notify:Notify.init',
 			'pmxbot feedparser = pmxbot.rss:RSSFeeds',
 			'pmxbot rolls = pmxbot.rolls:ParticipantLogger.initialize',
+			'pmxbot config = pmxbot.config_',
 		],
 	),
 	install_requires=[
