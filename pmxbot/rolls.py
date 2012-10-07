@@ -3,8 +3,6 @@ from __future__ import absolute_import
 
 import datetime
 
-import pymongo
-
 import pmxbot
 from . import storage
 from . import logging
@@ -68,8 +66,8 @@ class MongoDBLogger(ParticipantLogger, storage.MongoDBStorage):
 
 	def log(self, nick, channel, change):
 		self.db.ensure_index([
-			('datetime.d', pymongo.DESCENDING),
-			('channel', pymongo.ASCENDING),
+			('datetime.d', storage.pymongo.DESCENDING),
+			('channel', storage.pymongo.ASCENDING),
 			])
 		now = datetime.datetime.utcnow()
 		self.db.insert(dict(channel=channel, nick=nick, change=change,
