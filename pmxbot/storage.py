@@ -2,9 +2,12 @@ from __future__ import absolute_import
 
 import abc
 import itertools
-import urlparse
 import importlib
 import logging
+try:
+	import urllib.parse as urllib_parse
+except ImportError:
+	import urlparse as urllib_parse
 
 from jaraco.util.classutil import itersubclasses
 
@@ -29,7 +32,8 @@ class SelectableStorage(object):
 	@classmethod
 	def uri_matches(cls, uri):
 		super_matches = super(SelectableStorage, cls).uri_matches(uri)
-		return urlparse.urlparse(uri).scheme == cls.scheme or super_matches
+		return (urllib_parse.urlparse(uri).scheme == cls.scheme
+			or super_matches)
 
 	@classmethod
 	def migrate(cls, source_uri, dest_uri):
@@ -63,8 +67,9 @@ class SQLiteStorage(Storage):
 
 	def __init__(self, uri):
 		self._import_modules()
-		self.filename = urlparse.urlparse(uri).path
-		self.db = sqlite.connect(self.filename, isolation_level=None, timeout=20.0)
+		self.filename = urllib_parse.urlparse(uri).path
+		self.db = sqlite.connect(self.filename, isolation_level=None,
+			timeout=20.0)
 		self.init_tables()
 
 	def init_tables(self):
