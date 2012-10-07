@@ -1,3 +1,10 @@
+1103.4
+======
+
+* Updated to irc 3.1.
+* Replaced cleanhtml with BeautifulSoup.
+* Preliminary Python 3 support (compiles and runs).
+
 1103.3
 ======
 
