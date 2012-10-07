@@ -3,6 +3,7 @@ from __future__ import absolute_import
 
 import random
 import re
+import warnings
 try:
 	import urllib.parse as urllib_quote
 	import urllib.request as urllib_request
@@ -10,9 +11,12 @@ except ImportError:
 	import urllib as urllib_quote
 	import urllib2 as urllib_request
 
-import wordnik.api.APIClient
-import wordnik.api.WordAPI
-import wordnik.model
+try:
+	import wordnik.api.APIClient
+	import wordnik.api.WordAPI
+	import wordnik.model
+except ImportError:
+	warnings.warn("Wordnik failed to import")
 
 import pmxbot.phrases
 
