@@ -3,8 +3,12 @@ from __future__ import absolute_import
 
 import random
 import re
-import urllib
-import urllib2
+try:
+	import urllib.parse as urllib_quote
+	import urllib.request as urllib_request
+except ImportError:
+	import urllib as urllib_quote
+	import urllib2 as urllib_request
 
 import wordnik.api.APIClient
 import wordnik.api.WordAPI
@@ -36,8 +40,8 @@ def splitem(s):
 def open_url(url):
 	headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) '
 		'Gecko/20100101 Firefox/12.0'}
-	req = urllib2.Request(url, headers=headers)
-	return urllib2.urlopen(req)
+	req = urllib_request.Request(url, headers=headers)
+	return urllib_request.urlopen(req)
 
 def get_html(url):
 	return open_url(url).read()
@@ -76,7 +80,7 @@ lookup.provider = 'Wordnik'
 def urbanlookup(word):
 	'''Gets a Urban Dictionary summary for a word.
 	'''
-	word = urllib.quote_plus(word)
+	word = urllib_quote.quote_plus(word)
 	html = get_html('http://urbandictionary.com/define.php?term=%s' % word)
 	match = urbd_exp.search(html)
 	if not match:
