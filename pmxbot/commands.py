@@ -16,6 +16,7 @@ from xml.etree import ElementTree
 
 import popquotes.pmxbot as pq
 import pkg_resources
+from bs4 import BeautifulSoup
 
 import pmxbot
 from .core import command, contains, _handler_registry
@@ -25,7 +26,13 @@ from . import karma
 from . import quotes
 from . import phrases
 from . import saysomething as saysomethinglib
-from .cleanhtml import plaintext
+
+
+def plaintext(html):
+	"""
+	Extract the text from HTML.
+	"""
+	return BeautifulSoup(html).text
 
 @command("google", aliases=('g',), doc="Look a phrase up on google")
 def google(client, event, channel, nick, rest):

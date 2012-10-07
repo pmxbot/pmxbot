@@ -37,6 +37,7 @@ setup_params = dict(
 		"pytz",
 		"wordnik>=2.0,<3.0",
 		"jaraco.util",
+		"beautifulsoup4",
 		#for viewer
 		"jinja2",
 		"cherrypy",
