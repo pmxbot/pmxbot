@@ -70,6 +70,7 @@ setup_params = dict(
 		'pytest',
 		'jaraco.test>=1.0.2,<2.0dev',
 	],
+	use_2to3=True,
 )
 
 if __name__ == '__main__':
