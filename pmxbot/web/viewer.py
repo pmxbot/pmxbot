@@ -2,7 +2,6 @@
 
 from __future__ import unicode_literals
 
-import string
 import posixpath
 import random
 import calendar
@@ -286,7 +285,8 @@ class PmxbotPages(object):
 		db = pmxbot.logging.Logger.store
 		context = get_context()
 		chans = []
-		for chan in sorted(db.list_channels(), key = string.lower):
+		lower_case = lambda string: string.lower()
+		for chan in sorted(db.list_channels(), key=lower_case):
 			last = db.last_message(chan)
 			summary = [
 				chan,
