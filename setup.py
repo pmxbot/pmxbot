@@ -40,7 +40,7 @@ setup_params = dict(
 		"beautifulsoup4",
 		#for viewer
 		"jinja2",
-		"cherrypy",
+		"cherrypy>=3.2.3dev-20121007,<3.3dev",
 		"jaraco.compat>=1.0.3",
 	] + py26reqs,
 	description="IRC bot - full featured, yet extensible and customizable",
@@ -50,6 +50,9 @@ setup_params = dict(
 	maintainer = 'Jason R. Coombs',
 	maintainer_email = 'Jason.Coombs@YouGov.com',
 	url = 'http://bitbucket.org/yougov/pmxbot',
+	dependency_links = [
+		'https://bitbucket.org/cherrypy/cherrypy/downloads',
+	],
 	classifiers=[
 		'Development Status :: 5 - Production/Stable',
 		'License :: OSI Approved :: MIT License',
