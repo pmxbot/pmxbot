@@ -58,6 +58,7 @@ setup_params = dict(
 		'Operating System :: MacOS :: MacOS X',
 		'Programming Language :: Python :: 2.6',
 		'Programming Language :: Python :: 2.7',
+		'Programming Language :: Python :: 3',
 		'Topic :: Communications :: Chat :: Internet Relay Chat',
 		'Topic :: Internet :: WWW/HTTP :: WSGI :: Application',
 	],
