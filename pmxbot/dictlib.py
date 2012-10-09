@@ -8,5 +8,5 @@ class ConfigDict(ItemsAsAttributes, dict):
 			return cls(yaml.load(f))
 
 	def to_yaml(self, filename):
-		with open(filename, 'wb') as f:
+		with open(filename, 'w') as f:
 			yaml.dump(self, f)
