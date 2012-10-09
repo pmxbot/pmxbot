@@ -39,7 +39,7 @@ def google(client, event, channel, nick, rest):
 	BASE_URL = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&'
 	url = BASE_URL + urllib.urlencode({'q': rest.encode('utf-8').strip()})
 	raw_res = urllib.urlopen(url).read()
-	results = json.loads(raw_res)
+	results = json.loads(raw_res.decode('utf-8'))
 	hit1 = results['responseData']['results'][0]
 	return ' - '.join((
 		urllib.unquote(hit1['url']),
