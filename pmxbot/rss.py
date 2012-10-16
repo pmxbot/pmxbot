@@ -42,12 +42,6 @@ class RSSFeeds(object):
 	def finalize(self):
 		del self.store
 
-	def on_welcome(self, c, e):
-		if self._feeds:
-			# Feeds configured, check them periodically
-			c.execute_delayed(30, self.feed_parse,
-				arguments=(c, e, self._feed_interval, self._feeds))
-
 	def parse_feed(self, client, event, feed):
 		"""
 		Parse RSS feeds and spit out new articles at
