@@ -60,15 +60,12 @@ class NoLog(object):
 
 class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 	def __init__(self, db_uri, server, port, nickname, channels,
-			nolog_channels=None, use_ssl=False, password=None):
+			use_ssl=False, password=None):
 		server_list = [(server, port, password)]
 		irc.bot.SingleServerIRCBot.__init__(self, server_list, nickname,
 			nickname)
-		nolog_channels = nolog_channels or []
 		self.nickname = nickname
-		self._channels = channels + nolog_channels
-		self._nolog = set(('#' + c if not c.startswith('#') else c)
-			for c in nolog_channels)
+		self._channels = channels
 		self.db_uri = db_uri
 		self._nickname = nickname
 		self.__use_ssl = use_ssl
@@ -85,7 +82,11 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			s = s.split(' ', 1)[-1].lstrip()
 			log = False
 		func(channel, s)
-		if channel in self._channels and channel not in self._nolog and log:
+		if (
+				channel in self._channels
+				and channel in pmxbot.config.log_channels
+				and log
+				):
 			pmxbot.logging.Logger.store.message(channel, self._nickname, s)
 
 	def _schedule_at(self, name, channel, when, func, args, doc):
@@ -135,13 +136,14 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 					file=sys.stderr)
 				traceback.print_exc()
 
-		if channel in self._nolog or nick == self._nickname:
+		if channel not in pmxbot.config.log_channels:
+			return
+		if nick == self._nickname:
 			return
 		if not self.warn_history.needs_warning(nick):
 			return
-		logged_channels = sorted(set(self._channels) - set(self._nolog))
 		msg = self.warn_history.warn_message.format(
-			logged_channels_string = ', '.join(logged_channels))
+			logged_channels_string = ', '.join(pmxbot.config.log_channels))
 		for line in msg.splitlines():
 			c.notice(nick, line)
 
@@ -151,7 +153,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			return
 		nick = e.source().nick
 		channel = e.target()
-		if channel not in self._nolog:
+		if channel in pmxbot.config.log_channels:
 			pmxbot.logging.Logger.store.message(channel, nick, msg)
 		self.handle_action(c, e, channel, nick, msg)
 
@@ -169,7 +171,6 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		if not channel.startswith('#'):
 			channel = '#' + channel
 		self._channels.append(channel)
-		self._nolog.add(channel)
 		time.sleep(1)
 		c.join(channel)
 		time.sleep(1)
@@ -232,12 +233,14 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 						not channels and not exclude
 						or channel in channels
 						or exclude and channel not in exclude
-						or channels == 'logged' and channel in self._channels
-							and channel not in self._nolog
-						or channels == "unlogged" and channel in self._nolog
-						or exclude == "logged" and channel in self._nolog
-						or exclude == "unlogged" and channel in self._channels
-							and channel not in self._nolog
+						or channels == "logged"
+							and channel in pmxbot.config.log_channels
+						or channels == "unlogged"
+							and channel not in pmxbot.config.log_channels
+						or exclude == "logged"
+							and channel not in pmxbot.config.log_channels
+						or exclude == "unlogged"
+							and channel in pmxbot.config.log_channels
 						):
 					if random.random() > rate:
 						continue
@@ -347,8 +350,10 @@ def initialize(config):
 
 	class_ = SilentCommandBot if config.silent_bot else LoggingCommandBot
 
+	channels = config.log_channels + config.other_channels
+
 	return class_(config.database, config.server_host, config.server_port,
-		config.bot_nickname, config.log_channels, config.other_channels,
+		config.bot_nickname, channels=channels,
 		use_ssl=config.use_ssl, password=config.password)
 
 def _load_library_extensions():
