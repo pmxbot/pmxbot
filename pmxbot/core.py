@@ -72,7 +72,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 
 	def connect(self, *args, **kwargs):
 		factory = irc.connection.Factory()
-		factory.from_legacy_params(ssl=pmxbot.config.ssl)
+		factory.from_legacy_params(ssl=pmxbot.config.use_ssl)
 		return irc.bot.SingleServerIRCBot.connect(self,
 			connect_factory = factory, *args, **kwargs)
 
