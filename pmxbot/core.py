@@ -60,7 +60,7 @@ class NoLog(object):
 
 class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 	def __init__(self, db_uri, server, port, nickname, channels,
-			use_ssl=False, password=None):
+			password=None):
 		server_list = [(server, port, password)]
 		irc.bot.SingleServerIRCBot.__init__(self, server_list, nickname,
 			nickname)
@@ -68,12 +68,13 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		self._channels = channels
 		self.db_uri = db_uri
 		self._nickname = nickname
-		self.__use_ssl = use_ssl
 		self.warn_history = WarnHistory()
 
 	def connect(self, *args, **kwargs):
-		kwargs['ssl'] = self.__use_ssl
-		return irc.bot.SingleServerIRCBot.connect(self, *args, **kwargs)
+		factory = irc.connection.Factory()
+		factory.from_legacy_params(ssl=pmxbot.config.ssl)
+		return irc.bot.SingleServerIRCBot.connect(self,
+			connect_factory = factory, *args, **kwargs)
 
 	def out(self, channel, s, log=True):
 		func = self.c.privmsg
@@ -353,8 +354,7 @@ def initialize(config):
 	channels = config.log_channels + config.other_channels
 
 	return class_(config.database, config.server_host, config.server_port,
-		config.bot_nickname, channels=channels,
-		use_ssl=config.use_ssl, password=config.password)
+		config.bot_nickname, channels=channels, password=config.password)
 
 def _load_library_extensions():
 	"""
