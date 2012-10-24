@@ -97,7 +97,7 @@ html_strip = re.compile(r'<[^>]+?>')
 NUM_ACS = 3
 
 def lookup_acronym(acronym):
-	acronym = acronym.strip().upper()
+	acronym = acronym.strip().upper().replace('.','')
 	html = get_html('http://www.acronymfinder.com/%s.html' % acronym)
 	idx = html.find('<th>Meaning</th>')
 	if idx == -1:
