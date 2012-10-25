@@ -23,5 +23,6 @@ config = ConfigDict(
 		),
 	],
 	librarypaste = 'http://paste.jaraco.com',
+	chain_contains = False,
 )
 "The config object"

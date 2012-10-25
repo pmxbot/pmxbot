@@ -1,6 +1,8 @@
 from __future__ import unicode_literals
+from __future__ import absolute_import
 
 import io
+import itertools
 
 def always_iterable(item):
 	r"""
@@ -37,12 +39,12 @@ def always_iterable(item):
 
 	return item
 
-def generate_results(function):
+def generate_results(function, messages=()):
 	"""
 	Take a function, which may return an iterator or a static result
 	and convert it to a late-dispatched generator.
 	"""
-	for item in always_iterable(function()):
+	for item in itertools.chain(messages, always_iterable(function())):
 		yield item
 
 def trap_exceptions(results, handler, exceptions=Exception):
