@@ -809,14 +809,13 @@ def help(client, event, channel, nick, rest):
 		def mk_entries():
 			for handler in sorted(_handler_registry,
 					key=operator.attrgetter('name')):
-				typ, name, f, doc, junk1, junk2, junk3, priority = handler
-				if typ == 'command':
+				if handler.type_ == 'command':
 					aliases = sorted(
-						x[1]
+						x.name
 						for x in _handler_registry
-						if x[0] == 'alias' and x[2] == f
+						if x.type_ == 'alias' and x.func == handler.func
 					)
-					res = "!%s" % name
+					res = "!%s" % handler.name
 					if aliases:
 						res += " (%s)" % ', '.join(aliases)
 					yield res
