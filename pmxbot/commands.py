@@ -12,6 +12,7 @@ import sys
 import random
 import csv
 import io
+import operator
 from xml.etree import ElementTree
 
 import popquotes.pmxbot as pq
@@ -806,7 +807,8 @@ def help(client, event, channel, nick, rest):
 			yield "command not found"
 	else:
 		def mk_entries():
-			for handler in sorted(_handler_registry, key=lambda x: x[1]):
+			for handler in sorted(_handler_registry,
+					key=operator.attrgetter('name')):
 				typ, name, f, doc, junk1, junk2, junk3, priority = handler
 				if typ == 'command':
 					aliases = sorted(
