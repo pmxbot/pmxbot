@@ -215,36 +215,38 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 
 		messages = ()
 		for handler in _handler_registry:
-			typ, name, f, doc, channels, exclude, rate, priority = handler
 			exception_handler = functools.partial(
 				self._handle_exception,
-				type = typ,
-				name = name,
-				doc = doc,
+				type = handler.type_,
+				name = handler.name,
+				doc = handler.doc,
 				)
-			if typ in ('command', 'alias') and cmd.lower() == '!%s' % name:
-				f = functools.partial(f, c, e, channel, nick, cmd_args)
+			if (handler.type_ in ('command', 'alias')
+					and cmd.lower() == '!%s' % handler.name):
+				f = functools.partial(handler.func, c, e, channel, nick,
+					cmd_args)
 				messages = pmxbot.itertools.trap_exceptions(
 					pmxbot.itertools.generate_results(f),
 					exception_handler
 				)
 				break
-			elif typ in ('contains', '#') and name in lc_msg:
-				f = functools.partial(f, c, e, channel, nick, msg)
+			elif (handler.type_ in ('contains', '#')
+					and handler.name in lc_msg):
+				f = functools.partial(handler.func, c, e, channel, nick, msg)
 				if (
-						not channels and not exclude
-						or channel in channels
-						or exclude and channel not in exclude
-						or channels == "logged"
+						not handler.channels and not handler.exclude
+						or channel in handler.channels
+						or handler.exclude and channel not in handler.exclude
+						or handler.channels == "logged"
 							and channel in pmxbot.config.log_channels
-						or channels == "unlogged"
+						or handler.channels == "unlogged"
 							and channel not in pmxbot.config.log_channels
-						or exclude == "logged"
+						or handler.exclude == "logged"
 							and channel not in pmxbot.config.log_channels
-						or exclude == "unlogged"
+						or handler.exclude == "unlogged"
 							and channel in pmxbot.config.log_channels
 						):
-					if random.random() > rate:
+					if random.random() > handler.rate:
 						continue
 					messages = itertools.chain(messages,
 						pmxbot.itertools.trap_exceptions(
