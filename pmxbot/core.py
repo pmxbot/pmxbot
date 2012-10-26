@@ -12,6 +12,7 @@ import textwrap
 import functools
 import argparse
 import logging
+import itertools
 
 import irc.bot
 import pkg_resources
@@ -245,10 +246,11 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 						):
 					if random.random() > rate:
 						continue
-					messages = pmxbot.itertools.trap_exceptions(
-						pmxbot.itertools.generate_results(f, messages),
-						exception_handler
-					)
+					messages = itertools.chain(messages,
+						pmxbot.itertools.trap_exceptions(
+							pmxbot.itertools.generate_results(f),
+							exception_handler
+					)	)
 					if not pmxbot.config.chain_contains:
 						break
 		self._handle_output(channel, messages)
