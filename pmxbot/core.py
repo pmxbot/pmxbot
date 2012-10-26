@@ -252,7 +252,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 							pmxbot.itertools.generate_results(f),
 							exception_handler
 					)	)
-					if not pmxbot.config.chain_contains:
+					if not handler.allow_chain:
 						break
 		self._handle_output(channel, messages)
 
@@ -301,6 +301,7 @@ class ContainsHandler(Handler):
 	"rate to invoke handler"
 	doc = None
 	class_priority = 1
+	allow_chain = False
 
 class CommandHandler(Handler):
 	type_ = 'command'
@@ -311,7 +312,7 @@ class AliasHandler(CommandHandler):
 	class_priority = 2
 
 def contains(name, channels=(), exclude=(), rate=1.0, priority=1,
-		doc=None):
+		doc=None, **kwargs):
 	def deco(func):
 		effective_priority = priority+1 if name == '#' else priority
 		_handler_registry.append(ContainsHandler(
@@ -321,7 +322,8 @@ def contains(name, channels=(), exclude=(), rate=1.0, priority=1,
 			channels=channels,
 			exclude=exclude,
 			rate=rate,
-			priority=effective_priority))
+			priority=effective_priority,
+			**kwargs))
 		_handler_registry.sort()
 		return func
 	return deco
