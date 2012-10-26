@@ -7,7 +7,6 @@ import datetime
 import traceback
 import time
 import random
-import collections
 import textwrap
 import functools
 import argparse
@@ -276,50 +275,68 @@ _at_registry = []
 _join_registry = []
 
 class Handler(object):
-	sort_order = dict(
-		# command processed before alias before contains
-		command = 1,
-		alias = 2,
-		contains = 4,
-	)
-	def __init__(self, name, func, doc, channels, exclude, rate,
-			priority):
-		self.__dict__.update(**vars())
-		del self.self
+	class_priority = 1
+	"priority of this class relative to other classes, precedence to higher"
+
+	priority = 1
+	"priority relative to other handlers of this class, precedence to higher"
+
+	def __init__(self, name, func, **kwargs):
+		self.name = name
+		self.func = func
+		self.__dict__.update(kwargs)
 
 	@property
 	def sort_key(self):
-		return self.sort_order[self.type_], -self.priority, -len(self.name)
+		return -self.class_priority, -self.priority, -len(self.name)
 
 	def __gt__(self, other):
 		return self.sort_key > other.sort_key
 
 class ContainsHandler(Handler):
 	type_ = 'contains'
+	channels = ()
+	exclude = ()
+	rate = 1.0
+	"rate to invoke handler"
+	doc = None
+	class_priority = 1
 
 class CommandHandler(Handler):
 	type_ = 'command'
+	class_priority = 3
 
 class AliasHandler(CommandHandler):
 	type_ = 'alias'
+	class_priority = 2
 
-def contains(name, channels=None, exclude=None, rate=1.0, priority=1,
+def contains(name, channels=(), exclude=(), rate=1.0, priority=1,
 		doc=None):
 	def deco(func):
 		effective_priority = priority+1 if name == '#' else priority
-		_handler_registry.append(ContainsHandler(name.lower(), func, doc,
-			channels, exclude, rate, effective_priority))
+		_handler_registry.append(ContainsHandler(
+			name=name.lower(),
+			func=func,
+			doc=doc,
+			channels=channels,
+			exclude=exclude,
+			rate=rate,
+			priority=effective_priority))
 		_handler_registry.sort()
 		return func
 	return deco
 
 def command(name, aliases=[], doc=None):
 	def deco(func):
-		_handler_registry.append(CommandHandler(name.lower(), func,
-			doc, None, None, None, 5))
+		_handler_registry.append(CommandHandler(
+			name=name.lower(),
+			func=func,
+			doc=doc))
 		for a in aliases:
-			_handler_registry.append(AliasHandler(a, func, doc, None,
-				None, None, 4))
+			_handler_registry.append(AliasHandler(
+				name=a,
+				func=func,
+				doc=doc))
 		_handler_registry.sort()
 		return func
 	return deco
