@@ -275,14 +275,18 @@ _delay_registry = []
 _at_registry = []
 _join_registry = []
 
-class Handler(collections.namedtuple('HandlerTuple',
-	'type_ name func doc channels exclude rate priority')):
+class Handler(object):
 	sort_order = dict(
 		# command processed before alias before contains
 		command = 1,
 		alias = 2,
 		contains = 4,
 	)
+	def __init__(self, type_, name, func, doc, channels, exclude, rate,
+			priority):
+		self.__dict__.update(**vars())
+		del self.self
+
 	@property
 	def sort_key(self):
 		return self.sort_order[self.type_], -self.priority, -len(self.name)
