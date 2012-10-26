@@ -799,9 +799,8 @@ def help(client, event, channel, nick, rest):
 	rs = rest.strip()
 	if rs:
 		for handler in _handler_registry:
-			typ, name, f, doc, junk1, junk2, junk3, priority = handler
-			if name == rs:
-				yield '!%s: %s' % (name, doc)
+			if handler.name == rs.lower():
+				yield '!%s: %s' % (handler.name, handler.doc)
 				break
 		else:
 			yield "command not found"
