@@ -644,3 +644,8 @@ class TestCommands(object):
 		help = commands.help(c, e, '#test', 'testrunner', '')
 		result = ''.join(help)
 		assert 'help' in result
+
+	def test_help_specific(self):
+		help = commands.help(c, e, '#test', 'testrunner', 'help')
+		result = ''.join(help)
+		assert 'help' in result
