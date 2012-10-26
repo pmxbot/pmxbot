@@ -282,7 +282,7 @@ class Handler(object):
 		alias = 2,
 		contains = 4,
 	)
-	def __init__(self, type_, name, func, doc, channels, exclude, rate,
+	def __init__(self, name, func, doc, channels, exclude, rate,
 			priority):
 		self.__dict__.update(**vars())
 		del self.self
@@ -294,11 +294,20 @@ class Handler(object):
 	def __gt__(self, other):
 		return self.sort_key > other.sort_key
 
+class ContainsHandler(Handler):
+	type_ = 'contains'
+
+class CommandHandler(Handler):
+	type_ = 'command'
+
+class AliasHandler(CommandHandler):
+	type_ = 'alias'
+
 def contains(name, channels=None, exclude=None, rate=1.0, priority=1,
 		doc=None):
 	def deco(func):
 		effective_priority = priority+1 if name == '#' else priority
-		_handler_registry.append(Handler('contains', name.lower(), func, doc,
+		_handler_registry.append(ContainsHandler(name.lower(), func, doc,
 			channels, exclude, rate, effective_priority))
 		_handler_registry.sort()
 		return func
@@ -306,10 +315,10 @@ def contains(name, channels=None, exclude=None, rate=1.0, priority=1,
 
 def command(name, aliases=[], doc=None):
 	def deco(func):
-		_handler_registry.append(Handler('command', name.lower(), func,
+		_handler_registry.append(CommandHandler(name.lower(), func,
 			doc, None, None, None, 5))
 		for a in aliases:
-			_handler_registry.append(Handler('alias', a, func, doc, None,
+			_handler_registry.append(AliasHandler(a, func, doc, None,
 				None, None, 4))
 		_handler_registry.sort()
 		return func
