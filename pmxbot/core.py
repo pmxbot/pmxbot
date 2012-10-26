@@ -328,15 +328,21 @@ def contains(name, channels=(), exclude=(), rate=1.0, priority=1,
 
 def command(name, aliases=[], doc=None):
 	def deco(func):
-		_handler_registry.append(CommandHandler(
+		ch = CommandHandler(
 			name=name.lower(),
 			func=func,
-			doc=doc))
-		for a in aliases:
-			_handler_registry.append(AliasHandler(
-				name=a,
+			doc=doc,
+			aliases=[],
+		)
+		_handler_registry.append(ch)
+		for alias in aliases:
+			ah = AliasHandler(
+				name=alias,
 				func=func,
-				doc=doc))
+				doc=doc)
+			ch.aliases.append(ah)
+			_handler_registry.append(ah)
+
 		_handler_registry.sort()
 		return func
 	return deco
