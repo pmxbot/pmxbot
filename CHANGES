@@ -1,3 +1,10 @@
+1103.6
+======
+
+* @contains decorator has a new keyword parameter: `allow_chain`. Set to True
+  to allow subsequent @contains decorators to match.
+* Issue #18: Strip periods from acronym, fixing errors from remote service.
+
 1103.5
 ======
 
