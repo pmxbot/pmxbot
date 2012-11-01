@@ -83,7 +83,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			s = s.split(' ', 1)[-1].lstrip()
 			log = False
 		if len(s) > 510:
-			log.warning(u"Truncating long message: " + s)
+			log.warn(u"Truncating long message: " + s)
 			s = s[:510]
 		func(channel, s)
 		if (
