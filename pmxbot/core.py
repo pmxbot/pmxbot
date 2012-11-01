@@ -76,15 +76,26 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		return irc.bot.SingleServerIRCBot.connect(self,
 			connect_factory = factory, *args, **kwargs)
 
+	@staticmethod
+	def truncate(s):
+		# the encoded payload must be no longer than 512 characters including
+		#  the extra CR/LF
+		if len(s.encode('utf-8')) > 510:
+			globals()['log'].warn(u"Truncating long message: " + s)
+			s = s[:510]
+			# that gets the message pretty close, but with encoding, it could
+			#  still exceed the limit.
+			while len(s.encode('utf-8')) > 510:
+				s = s[:-1]
+		return s
+
 	def out(self, channel, s, log=True):
 		func = self.c.privmsg
 		if s.startswith(u'/me '):
 			func = self.c.action
 			s = s.split(' ', 1)[-1].lstrip()
 			log = False
-		if len(s) > 510:
-			globals()['log'].warn(u"Truncating long message: " + s)
-			s = s[:510]
+		s = self.truncate(s)
 		func(channel, s)
 		if (
 				channel in self._channels
