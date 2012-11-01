@@ -82,6 +82,8 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			func = self.c.action
 			s = s.split(' ', 1)[-1].lstrip()
 			log = False
+		if len(s) > 510:
+			s = s[:510]
 		func(channel, s)
 		if (
 				channel in self._channels
