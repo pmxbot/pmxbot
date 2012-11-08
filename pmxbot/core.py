@@ -92,7 +92,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 				return
 			if u'Carriage returns not allowed' in unicode(exc):
 				globals()['log'].warning("Message contains carriage returns, "
-					"which aren't allowed in IRC messages: %s", s)
+					"which aren't allowed in IRC messages: %r", s)
 				return
 			raise
 		if (
