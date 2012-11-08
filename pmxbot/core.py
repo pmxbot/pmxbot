@@ -14,6 +14,7 @@ import logging
 import itertools
 
 import irc.bot
+import irc.client
 import pkg_resources
 
 import pmxbot.itertools
@@ -84,17 +85,19 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			log = False
 		try:
 			func(channel, s)
-		except ValueError as exc:
+		except irc.client.MessageTooLong:
 			# some messages will fail because they're too long
-			if u'512 bytes' in unicode(exc):
-				globals()['log'].warning("Long message could not be "
-					"transmitted: %s", s)
-				return
-			if u'Carriage returns not allowed' in unicode(exc):
-				globals()['log'].warning("Message contains carriage returns, "
-					"which aren't allowed in IRC messages: %r", s)
-				return
-			raise
+			globals()['log'].warning("Long message could not be "
+				"transmitted: %s", s)
+			return
+		except irc.client.InvalidCharacters:
+			globals()['log'].warning("Message contains carriage returns, "
+				"which aren't allowed in IRC messages: %r", s)
+			return
+		except Exception:
+			globals()['log'].exception("Unhandled exception transmitting "
+				"message: %r", s)
+			return
 		if (
 				channel in self._channels
 				and channel in pmxbot.config.log_channels

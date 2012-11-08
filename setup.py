@@ -29,7 +29,7 @@ setup_params = dict(
 		],
 	),
 	install_requires=[
-		"irc>=3.3,<5.0dev",
+		"irc>=3.6,<5.0dev",
 		"popquotes>=1.3",
 		"excuses>=1.1.2",
 		"pyyaml",
