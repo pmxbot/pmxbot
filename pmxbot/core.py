@@ -90,6 +90,10 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 				globals()['log'].warning("Long message could not be "
 					"transmitted: %s", s)
 				return
+			if u'Carriage returns not allowed' in unicode(exc):
+				globals()['log'].warning("Message contains carriage returns, "
+					"which aren't allowed in IRC messages: %s", s)
+				return
 			raise
 		if (
 				channel in self._channels
