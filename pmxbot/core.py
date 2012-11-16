@@ -141,8 +141,8 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			self._schedule_at(*action)
 
 	def on_join(self, c, e):
-		nick = e.source().nick
-		channel = e.target()
+		nick = e.source.nick
+		channel = e.target
 		for func in _join_registry:
 			try:
 				func(client=c, event=e, nick=nick, channel=channel)
@@ -164,26 +164,26 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			c.notice(nick, line)
 
 	def on_pubmsg(self, c, e):
-		msg = u''.join(e.arguments())
+		msg = u''.join(e.arguments)
 		if not msg.strip():
 			return
-		nick = e.source().nick
-		channel = e.target()
+		nick = e.source.nick
+		channel = e.target
 		if channel in pmxbot.config.log_channels:
 			pmxbot.logging.Logger.store.message(channel, nick, msg)
 		self.handle_action(c, e, channel, nick, msg)
 
 	def on_privmsg(self, c, e):
-		msg = u''.join(e.arguments())
+		msg = u''.join(e.arguments)
 		if not msg.strip():
 			return
-		nick = e.source().nick
+		nick = e.source.nick
 		channel = nick
 		self.handle_action(c, e, channel, nick, msg)
 
 	def on_invite(self, c, e):
-		nick = e.source().nick
-		channel = e.arguments()[0]
+		nick = e.source.nick
+		channel = e.arguments[0]
 		if not channel.startswith('#'):
 			channel = '#' + channel
 		self._channels.append(channel)
