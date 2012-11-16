@@ -5,4 +5,7 @@ python:
 before_install:
   - sudo apt-get install -qq tcl
 # command to run tests
-script: python setup.py ptr
+script:
+  # for now, install cherrypy manually until it can be resolved by ptr
+  - easy_install -f https://bitbucket.org/cherrypy/cherrypy/downloads "cherrypy>=3.2.3dev-20121007,<3.3dev"
+  - python setup.py ptr
