@@ -12,6 +12,7 @@ import functools
 import argparse
 import logging
 import itertools
+import pprint
 
 import irc.bot
 import irc.client
@@ -410,6 +411,9 @@ def initialize(config):
 	class_ = SilentCommandBot if config.silent_bot else LoggingCommandBot
 
 	channels = config.log_channels + config.other_channels
+
+	log.info('Running with config')
+	log.info(pprint.pformat(config))
 
 	return class_(config.database, config.server_host, config.server_port,
 		config.bot_nickname, channels=channels, password=config.password)
