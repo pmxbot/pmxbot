@@ -96,7 +96,9 @@ class MongoDBStorage(Storage):
 			pymongo=pymongo,
 			bson=bson,
 		)
-		self.db = pymongo.Connection(host_uri).pmxbot[self.collection_name]
+		uri_p = pymongo.uri_parser.parse_uri(host_uri)
+		db_name = uri_p['database'] or 'pmxbot'
+		self.db = pymongo.Connection(host_uri)[db_name][self.collection_name]
 
 def migrate_all(source, dest):
 	for cls in SelectableStorage.__subclasses__():
