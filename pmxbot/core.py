@@ -13,6 +13,7 @@ import argparse
 import logging
 import itertools
 import pprint
+import re
 
 import irc.bot
 import irc.client
@@ -270,6 +271,17 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 					)	)
 					if not handler.allow_chain:
 						break
+
+			elif handler.type_ in ('regexp',):
+				search = handler.func.regexp.search(msg)
+				if not search:
+					continue
+				f = functools.partial(handler.func, c, e, channel, nick, search.group())
+				messages = pmxbot.itertools.trap_exceptions(
+					pmxbot.itertools.generate_results(f),
+					exception_handler
+				)
+                break
 		self._handle_output(channel, messages)
 
 
@@ -327,6 +339,10 @@ class AliasHandler(CommandHandler):
 	type_ = 'alias'
 	class_priority = 2
 
+class RegexpHandler(Handler):
+	type_ = 'regexp'
+	class_priority = 4
+
 def contains(name, channels=(), exclude=(), rate=1.0, priority=1,
 		doc=None, **kwargs):
 	def deco(func):
@@ -360,10 +376,21 @@ def command(name, aliases=[], doc=None):
 				doc=doc)
 			ch.aliases.append(ah)
 			_handler_registry.append(ah)
-
 		_handler_registry.sort()
 		return func
 	return deco
+
+def regexp(name, regexp, doc=None):
+    def deco(func):
+		func.regexp = re.compile(regexp, re.IGNORECASE)
+		_handler_registry.append(RegexpHandler(
+			name=name.lower(),
+			func=func,
+			doc=doc)
+		)
+		_handler_registry.sort()
+        return func
+    return deco
 
 def execdelay(name, channel, howlong, args=[], doc=None, repeat=False):
 	def deco(func):
