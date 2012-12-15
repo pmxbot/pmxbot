@@ -280,7 +280,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 					pmxbot.itertools.generate_results(f),
 					exception_handler
 				)
-                break
+				break
 		self._handle_output(channel, messages)
 
 
@@ -380,7 +380,7 @@ def command(name, aliases=[], doc=None):
 	return deco
 
 def regexp(name, regexp, doc=None):
-    def deco(func):
+	def deco(func):
 		func.regexp = re.compile(regexp, re.IGNORECASE)
 		_handler_registry.append(RegexpHandler(
 			name=name.lower(),
@@ -388,8 +388,8 @@ def regexp(name, regexp, doc=None):
 			doc=doc)
 		)
 		_handler_registry.sort()
-        return func
-    return deco
+		return func
+	return deco
 
 def execdelay(name, channel, howlong, args=[], doc=None, repeat=False):
 	def deco(func):
