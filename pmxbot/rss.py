@@ -49,29 +49,18 @@ class RSSFeeds(object):
 		"""
 		socket.setdefaulttimeout(20)
 		outputs = []
+		is_google = 'google.com' in feed['url'].lower()
 		try:
 			resp = feedparser.parse(feed['url'])
 		except:
 			log.exception("Error retrieving feed %s", feed['url'])
 		for entry in resp['entries']:
-			if 'id' in entry:
-				id = entry['id']
-			elif 'link' in entry:
-				id = entry['link']
-			elif 'title' in entry:
-				id = entry['title']
-			else:
+			try:
+				id = self.get_entry_id(entry, is_google)
+			except ValueError:
 				log.warning("Unrecognized entry in feed from %s: %s",
-					feed['url'],
-					entry)
-				continue
-			#If this is google let's overwrite
-			if 'google.com' in feed['url'].lower():
-				GNEWS_RE = re.compile(r'[?&]url=(.+?)[&$]', re.IGNORECASE)
-				try:
-					id = GNEWS_RE.findall(entry['link'])[0]
-				except:
-					pass
+					feed['url'], entry)
+
 			if not self.add_seen_feed(id):
 				continue
 
@@ -92,6 +81,27 @@ class RSSFeeds(object):
 			feed['linkurl'], ' || '.join(outputs[:10]))
 		yield core.NoLog
 		yield txt
+
+	@classmethod
+	def get_entry_id(cls, entry, is_google=False):
+		if 'id' in entry:
+			id = entry['id']
+		elif 'link' in entry:
+			id = entry['link']
+		elif 'title' in entry:
+			id = entry['title']
+		else:
+			raise ValueError("need id, link, or title field")
+
+		# Special-case for Google
+		if is_google:
+			GNEWS_RE = re.compile(r'[?&]url=(.+?)[&$]', re.IGNORECASE)
+			try:
+				id = GNEWS_RE.findall(entry['link'])[0]
+			except Exception:
+				pass
+
+		return id
 
 	def add_seen_feed(self, entry):
 		"""
