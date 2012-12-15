@@ -353,7 +353,7 @@ class RegexpHandler(ContainsHandler):
 		return self.pattern.search(message)
 
 	def process(self, message):
-		return self.pattern.search(message).group()
+		return self.pattern.search(message)
 
 
 def contains(name, channels=(), exclude=(), rate=1.0, priority=1,

@@ -114,8 +114,8 @@ A more complicated response (when you want to extract data from a message) uses
 the @regexp decorator::
 
   @regexp("jira", r"(?<![a-zA-Z0-9/])(OPS|LIB|SALES|UX|GENERAL|SUPPORT)-\d\d+")
-  def jira(client, event, channel, nick, jira_id):
-      return "https://jira.example.com/browse/%s" % jira_id
+  def jira(client, event, channel, nick, match_obj):
+      return "https://jira.example.com/browse/%s" % match_obj.group()
 
 For an example of how to implement a setuptools-based plugin, see one of the
 many examples in the pmxbot project itself or one of the popular third-party
