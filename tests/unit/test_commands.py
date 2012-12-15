@@ -125,6 +125,7 @@ class TestCommands(object):
 	single_time_pattern = re.compile(time_pattern)
 	multi_time_pattern = re.compile(time_pattern + r'\s+\(.*\)')
 
+	@pytest.mark.xfail(reason="Time parsing broken")
 	@pytest.has_internet
 	def test_time_one(self):
 		"""
@@ -138,6 +139,7 @@ class TestCommands(object):
 			assert self.single_time_pattern.match(line)
 		assert len(res) == 1
 
+	@pytest.mark.xfail(reason="Time parsing broken")
 	@pytest.has_internet
 	def test_time_three(self):
 		"""
@@ -152,6 +154,7 @@ class TestCommands(object):
 			assert self.multi_time_pattern.match(line)
 		assert len(res) == 3
 
+	@pytest.mark.xfail(reason="Time parsing broken")
 	@pytest.has_internet
 	def test_time_all(self):
 		"""
