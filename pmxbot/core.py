@@ -271,11 +271,9 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 					)	)
 					if not handler.allow_chain:
 						break
-			elif handler.type_ in ('regexp',):
-				search = handler.func.regexp.search(msg)
-				if not search:
-					continue
-				f = functools.partial(handler.func, c, e, channel, nick, search.group())
+			elif handler.type_ in ('regexp',) and handler.match(msg):
+				f = functools.partial(handler.func, c, e, channel, nick,
+					handler.process(msg))
 				messages = pmxbot.itertools.trap_exceptions(
 					pmxbot.itertools.generate_results(f),
 					exception_handler
@@ -347,9 +345,16 @@ class AliasHandler(CommandHandler):
 	type_ = 'alias'
 	class_priority = 2
 
-class RegexpHandler(Handler):
+class RegexpHandler(ContainsHandler):
 	type_ = 'regexp'
 	class_priority = 4
+
+	def match(self, message):
+		return self.pattern.search(message)
+
+	def process(self, message):
+		return self.pattern.search(message).group()
+
 
 def contains(name, channels=(), exclude=(), rate=1.0, priority=1,
 		doc=None, **kwargs):
@@ -390,12 +395,12 @@ def command(name, aliases=[], doc=None):
 
 def regexp(name, regexp, doc=None):
 	def deco(func):
-		func.regexp = re.compile(regexp, re.IGNORECASE)
 		_handler_registry.append(RegexpHandler(
 			name=name.lower(),
 			func=func,
-			doc=doc)
-		)
+			doc=doc,
+			pattern=re.compile(regexp, re.IGNORECASE),
+		))
 		_handler_registry.sort()
 		return func
 	return deco
