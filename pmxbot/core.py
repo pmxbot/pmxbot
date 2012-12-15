@@ -297,7 +297,6 @@ class Handler(object):
 		return message
 
 class ContainsHandler(Handler):
-	type_ = 'contains'
 	channels = ()
 	exclude = ()
 	rate = 1.0
@@ -331,7 +330,6 @@ class ContainsHandler(Handler):
 		return random.random() > self.rate
 
 class CommandHandler(Handler):
-	type_ = 'command'
 	class_priority = 3
 
 	def match(self, message, channel):
@@ -343,11 +341,9 @@ class CommandHandler(Handler):
 		return cmd_args
 
 class AliasHandler(CommandHandler):
-	type_ = 'alias'
 	class_priority = 2
 
 class RegexpHandler(ContainsHandler):
-	type_ = 'regexp'
 	class_priority = 4
 
 	def match(self, message, channel):
