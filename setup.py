@@ -65,7 +65,7 @@ setup_params = dict(
 		'Topic :: Communications :: Chat :: Internet Relay Chat',
 		'Topic :: Internet :: WWW/HTTP :: WSGI :: Application',
 	],
-	long_description = open('README').read(),
+	long_description = open('README.rst').read(),
 	setup_requires=[
 		'hgtools<3.0dev',
 		'pytest-runner>=1.1,<3.0dev',
