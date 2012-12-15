@@ -226,7 +226,6 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 
 	def handle_action(self, c, e, channel, nick, msg):
 		"""Core message parser and dispatcher"""
-		cmd, _, cmd_args = msg.partition(' ')
 
 		messages = ()
 		for handler in _handler_registry:
@@ -236,10 +235,10 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 				name = handler.name,
 				doc = handler.doc,
 				)
-			if (handler.type_ in ('command', 'alias')
-					and cmd.lower() == '!%s' % handler.name):
+			if isinstance(handler, CommandHandler) and handler.match(
+					msg, channel):
 				f = functools.partial(handler.func, c, e, channel, nick,
-					cmd_args)
+					handler.process(msg))
 				messages = pmxbot.itertools.trap_exceptions(
 					pmxbot.itertools.generate_results(f),
 					exception_handler
@@ -344,6 +343,14 @@ class ContainsHandler(Handler):
 class CommandHandler(Handler):
 	type_ = 'command'
 	class_priority = 3
+
+	def match(self, message, channel):
+		cmd, _, cmd_args = message.partition(' ')
+		return cmd.lower() == '!{name}'.format(vars(self))
+
+	def process(self, message):
+		cmd, _, cmd_args = message.partition(' ')
+		return cmd_args
 
 class AliasHandler(CommandHandler):
 	type_ = 'alias'
