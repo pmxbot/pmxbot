@@ -271,7 +271,6 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 					)	)
 					if not handler.allow_chain:
 						break
-
 			elif handler.type_ in ('regexp',):
 				search = handler.func.regexp.search(msg)
 				if not search:
