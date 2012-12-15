@@ -245,8 +245,8 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 					exception_handler
 				)
 				break
-			elif (handler.type_ in ('contains', '#')
-					and handler.match(msg, channel)):
+			elif isinstance(handler, ContainsHandler) and handler.match(
+					msg, channel):
 				f = functools.partial(handler.func, c, e, channel, nick,
 					handler.process(msg))
 				messages = itertools.chain(messages,
@@ -256,14 +256,6 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 				)	)
 				if not handler.allow_chain:
 					break
-			elif handler.type_ in ('regexp',) and handler.match(msg, channel):
-				f = functools.partial(handler.func, c, e, channel, nick,
-					handler.process(msg))
-				messages = pmxbot.itertools.trap_exceptions(
-					pmxbot.itertools.generate_results(f),
-					exception_handler
-				)
-				break
 		self._handle_output(channel, messages)
 
 
