@@ -246,32 +246,17 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 				)
 				break
 			elif (handler.type_ in ('contains', '#')
-					and handler.match(msg)):
+					and handler.match(msg, channel)):
 				f = functools.partial(handler.func, c, e, channel, nick,
 					handler.process(msg))
-				if (
-						not handler.channels and not handler.exclude
-						or channel in handler.channels
-						or handler.exclude and channel not in handler.exclude
-						or handler.channels == "logged"
-							and channel in pmxbot.config.log_channels
-						or handler.channels == "unlogged"
-							and channel not in pmxbot.config.log_channels
-						or handler.exclude == "logged"
-							and channel not in pmxbot.config.log_channels
-						or handler.exclude == "unlogged"
-							and channel in pmxbot.config.log_channels
-						):
-					if random.random() > handler.rate:
-						continue
-					messages = itertools.chain(messages,
-						pmxbot.itertools.trap_exceptions(
-							pmxbot.itertools.generate_results(f),
-							exception_handler
-					)	)
-					if not handler.allow_chain:
-						break
-			elif handler.type_ in ('regexp',) and handler.match(msg):
+				messages = itertools.chain(messages,
+					pmxbot.itertools.trap_exceptions(
+						pmxbot.itertools.generate_results(f),
+						exception_handler
+				)	)
+				if not handler.allow_chain:
+					break
+			elif handler.type_ in ('regexp',) and handler.match(msg, channel):
 				f = functools.partial(handler.func, c, e, channel, nick,
 					handler.process(msg))
 				messages = pmxbot.itertools.trap_exceptions(
@@ -328,11 +313,33 @@ class ContainsHandler(Handler):
 	class_priority = 1
 	allow_chain = False
 
-	def match(self, message):
+	def match(self, message, channel):
 		"""
 		Return True if the message is matched by this handler.
 		"""
-		return self.name in message.lower()
+		return (
+			self.name in message.lower()
+			and self._channel_match(channel)
+			and self._rate_match()
+		)
+
+	def _channel_match(self, channel):
+		return (
+			not self.channels and not self.exclude
+			or channel in self.channels
+			or self.exclude and channel not in self.exclude
+			or self.channels == "logged"
+				and channel in pmxbot.config.log_channels
+			or self.channels == "unlogged"
+				and channel not in pmxbot.config.log_channels
+			or self.exclude == "logged"
+				and channel not in pmxbot.config.log_channels
+			or self.exclude == "unlogged"
+				and channel in pmxbot.config.log_channels
+		)
+
+	def _rate_match(self):
+		return random.random() > self.rate
 
 	def process(self, message):
 		return message
@@ -349,7 +356,7 @@ class RegexpHandler(ContainsHandler):
 	type_ = 'regexp'
 	class_priority = 4
 
-	def match(self, message):
+	def match(self, message, channel):
 		return self.pattern.search(message)
 
 	def process(self, message):
