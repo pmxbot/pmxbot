@@ -1,3 +1,23 @@
+1104.3
+======
+
+* New @regexp decorator. Similar to @contains, except allows regular
+  expressions instead of simple string matching. See the README for an example
+  of usage. Thanks to `Craig Wright <https://bitbucket.org/crw>`_ for the
+  contribution.
+
+1104.2
+======
+
+* pmxbot will assume local host name is appropriate for logs URL if no logs
+  URL is specified in the config.
+
+1104.1
+======
+
+* One may now specify the database name in the URI.
+* pmxbot will log the config when starting up.
+
 1104
 ====
 
