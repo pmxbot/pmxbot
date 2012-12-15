@@ -91,8 +91,8 @@ If your plugin requires any initialization, specify an initialization function
 On startup, pmxbot will call `initialize_func` with no parameters.
 
 Within the script you'll want to import the decorates you need to use with:
-`from pmxbot.core import command, contains, execdelay, execat`. You'll then
-decorate each function with the appropriate line so pmxbot registers it.
+`from pmxbot.core import command, contains, regexp, execdelay, execat`. You'll
+then decorate each function with the appropriate line so pmxbot registers it.
 
 A command (!g) gets the @command decorator::
 
@@ -110,13 +110,20 @@ A response (when someone says something) uses the @contains decorator::
   	karmaChange(botbase.logger.db, 'sql on rails', 1)
   	return "Only 76,417 lines..."
 
+A more complicated response (when you want to extract data from a message) uses
+the @regexp decorator::
+
+  @regexp("jira", r"(?<![a-zA-Z0-9/])(OPS|LIB|SALES|UX|GENERAL|SUPPORT-\d\d+")
+  def jira(client, event, channel, nick, jira_id):
+      return "https://jira.example.com/browse/%s" % jira_id
+
 For an example of how to implement a setuptools-based plugin, see one of the
 many examples in the pmxbot project itself or one of the popular third-party
 projects::
 
- - `wolframalpha <http://bitbucket.org/yougov/pmxbot-wolframalpha>`_.
- - `jaraco.translate <http://bitbucket.org/jaraco/jaraco.translate>`_.
- - `excuses <http://bitbucket.org/yougov/excuses>`_.
+ - `wolframalpha <https://bitbucket.org/yougov/pmxbot-wolframalpha>`_.
+ - `jaraco.translate <https://bitbucket.org/jaraco/jaraco.translate>`_.
+ - `excuses <https://bitbucket.org/yougov/excuses>`_.
 
 Web Interface
 =============
