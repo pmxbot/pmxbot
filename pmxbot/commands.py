@@ -806,14 +806,14 @@ def help(client, event, channel, nick, rest):
 			yield "command not found"
 	else:
 		def mk_entries():
-			for handler in sorted(_handler_registry,
-					key=operator.attrgetter('name')):
-				if handler.type_ != 'command':
-					continue
-				res = "!%s" % handler.name
+			handlers = (handler for handler in _handler_registry
+				if type(handler) is pmxbot.core.CommandHandler)
+			handlers = sorted(handlers, key=operator.attrgetter('name'))
+			for handler in handlers:
+				res = "!" + handler.name
 				if handler.aliases:
-					res += " (%s)" % ', '.join(
-						alias.name for alias in handler.aliases)
+					alias_names = (alias.name for alias in handler.aliases)
+					res += " (%s)" % ', '.join(alias_names)
 				yield res
 		o = io.StringIO(u" ".join(mk_entries()))
 		more = o.read(160)
