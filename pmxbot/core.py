@@ -228,33 +228,25 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		"""Core message parser and dispatcher"""
 
 		messages = ()
-		for handler in _handler_registry:
+		matching_handlers = (
+			handler for handler in _handler_registry
+			if handler.match(msg, channel))
+		for handler in matching_handlers:
 			exception_handler = functools.partial(
 				self._handle_exception,
 				type = handler.type_,
 				name = handler.name,
 				doc = handler.doc,
 				)
-			if isinstance(handler, CommandHandler) and handler.match(
-					msg, channel):
-				f = functools.partial(handler.func, c, e, channel, nick,
-					handler.process(msg))
-				messages = pmxbot.itertools.trap_exceptions(
+			f = functools.partial(handler.func, c, e, channel, nick,
+				handler.process(msg))
+			messages = itertools.chain(messages,
+				pmxbot.itertools.trap_exceptions(
 					pmxbot.itertools.generate_results(f),
 					exception_handler
-				)
+			)	)
+			if not handler.allow_chain:
 				break
-			elif isinstance(handler, ContainsHandler) and handler.match(
-					msg, channel):
-				f = functools.partial(handler.func, c, e, channel, nick,
-					handler.process(msg))
-				messages = itertools.chain(messages,
-					pmxbot.itertools.trap_exceptions(
-						pmxbot.itertools.generate_results(f),
-						exception_handler
-				)	)
-				if not handler.allow_chain:
-					break
 		self._handle_output(channel, messages)
 
 
