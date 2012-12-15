@@ -431,7 +431,9 @@ def get_args():
 	return parser.parse_args()
 
 def run():
-	initialize(get_args().config).start()
+	global _bot
+	_bot = initialize(get_args().config)
+	_bot.start()
 
 def initialize(config):
 	"""
