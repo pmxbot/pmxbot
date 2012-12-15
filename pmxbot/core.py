@@ -226,7 +226,6 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 
 	def handle_action(self, c, e, channel, nick, msg):
 		"""Core message parser and dispatcher"""
-		lc_msg = msg.lower()
 		cmd, _, cmd_args = msg.partition(' ')
 
 		messages = ()
@@ -247,8 +246,9 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 				)
 				break
 			elif (handler.type_ in ('contains', '#')
-					and handler.name in lc_msg):
-				f = functools.partial(handler.func, c, e, channel, nick, msg)
+					and handler.match(msg)):
+				f = functools.partial(handler.func, c, e, channel, nick,
+					handler.process(msg))
 				if (
 						not handler.channels and not handler.exclude
 						or channel in handler.channels
@@ -329,6 +329,15 @@ class ContainsHandler(Handler):
 	doc = None
 	class_priority = 1
 	allow_chain = False
+
+	def match(self, message):
+		"""
+		Return True if the message is matched by this handler.
+		"""
+		return self.name in message.lower()
+
+	def process(self, message):
+		return message
 
 class CommandHandler(Handler):
 	type_ = 'command'
