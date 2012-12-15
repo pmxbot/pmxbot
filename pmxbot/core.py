@@ -283,6 +283,9 @@ class Handler(object):
 	priority = 1
 	"priority relative to other handlers of this class, precedence to higher"
 
+	allow_chain = False
+	"allow subsequent handlers to also process the same message"
+
 	def __init__(self, name, func, **kwargs):
 		self.name = name
 		self.func = func
@@ -295,6 +298,15 @@ class Handler(object):
 	def __gt__(self, other):
 		return self.sort_key > other.sort_key
 
+	def match(self, message, channel):
+		"""
+		Return True if the message is matched by this handler.
+		"""
+		return False
+
+	def process(self, message):
+		return message
+
 class ContainsHandler(Handler):
 	type_ = 'contains'
 	channels = ()
@@ -303,12 +315,8 @@ class ContainsHandler(Handler):
 	"rate to invoke handler"
 	doc = None
 	class_priority = 1
-	allow_chain = False
 
 	def match(self, message, channel):
-		"""
-		Return True if the message is matched by this handler.
-		"""
 		return (
 			self.name in message.lower()
 			and self._channel_match(channel)
@@ -332,9 +340,6 @@ class ContainsHandler(Handler):
 
 	def _rate_match(self):
 		return random.random() > self.rate
-
-	def process(self, message):
-		return message
 
 class CommandHandler(Handler):
 	type_ = 'command'
