@@ -211,16 +211,16 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			pmxbot.itertools.generate_results(func),
 			on_error))
 
-	def _handle_exception(self, exception, **kwargs):
+	def _handle_exception(self, exception, handler):
 		expletives = ['Yikes!', 'Zoiks!', 'Ouch!']
 		res = [
 			"{expletive} An error occurred: {exception}".format(
 				expletive=random.choice(expletives),
 				**vars())
 		]
-		res.append('!{name} {doc}'.format(**kwargs))
-		print(datetime.datetime.now(), "Error with command {type}"
-			.format(**kwargs))
+		res.append('!{name} {doc}'.format(name=handler.name, doc=handler.doc))
+		print(datetime.datetime.now(), "Error with command {handler}"
+			.format(handler=handler))
 		traceback.print_exc()
 		return res
 
@@ -234,9 +234,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		for handler in matching_handlers:
 			exception_handler = functools.partial(
 				self._handle_exception,
-				type = handler.type_,
-				name = handler.name,
-				doc = handler.doc,
+				handler = handler,
 				)
 			f = functools.partial(handler.func, c, e, channel, nick,
 				handler.process(msg))
