@@ -15,6 +15,7 @@ from pmxbot import logging
 from pmxbot import commands
 from pmxbot import karma
 from pmxbot import quotes
+from pmxbot import system
 
 def pytest_generate_tests(metafunc):
 	# any test that takes the iter_ parameter should be executed 100 times
@@ -637,15 +638,15 @@ class TestCommands(object):
 		assert len(res)
 
 	def test_logo(self):
-		lines = list(commands.logo(c, e, '#test', 'testrunner', ''))
+		lines = list(system.logo(c, e, '#test', 'testrunner', ''))
 		assert len(lines)
 
 	def test_help(self):
-		help = commands.help(c, e, '#test', 'testrunner', '')
+		help = system.help(c, e, '#test', 'testrunner', '')
 		result = ''.join(help)
 		assert 'help' in result
 
 	def test_help_specific(self):
-		help = commands.help(c, e, '#test', 'testrunner', 'help')
+		help = system.help(c, e, '#test', 'testrunner', 'help')
 		result = ''.join(help)
 		assert 'help' in result
