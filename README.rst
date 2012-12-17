@@ -2,7 +2,10 @@
 pmxbot
 ======
 
-[![Build Status](https://secure.travis-ci.org/jaraco/pmxbot.png)](http://travis-ci.org/jaraco/pmxbot)
+|BuildStatus|_
+
+.. |BuildStatus| image:: https://secure.travis-ci.org/jaraco/pmxbot.png
+.. _BuildStatus: http://travis-ci.org/jaraco/pmxbot
 
 pmxbot is an IRC bot written in python. Originally built for internal use,
 it's been sanitized and set free upon the world. You can find out more details
