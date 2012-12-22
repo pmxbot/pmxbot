@@ -17,15 +17,66 @@ from . import timing
 
 log = logging.getLogger(__name__)
 
-class RSSFeeds(object):
+class FeedHistory(set):
+	"""
+	A database-backed set of feed entries that have been seen before.
+	"""
+	def __init__(self):
+		self.store = FeedparserDB.from_URI(pmxbot.config.database)
+		timer = timing.Stopwatch()
+		self.update(self.store.get_seen_feeds())
+		log.info("Loaded feed history in %s", timer.split())
+		storage.SelectableStorage._finalizers.append(self.__finalize)
+		super(FeedHistory, self).__init__()
+
+	def __finalize(self):
+		del self.store
+
+	@classmethod
+	def get_entry_id(cls, entry, is_google=False):
+		if 'id' in entry:
+			id = entry['id']
+		elif 'link' in entry:
+			id = entry['link']
+		elif 'title' in entry:
+			id = entry['title']
+		else:
+			raise ValueError("need id, link, or title field")
+
+		# Special-case for Google
+		if is_google:
+			GNEWS_RE = re.compile(r'[?&]url=(.+?)[&$]', re.IGNORECASE)
+			try:
+				id = GNEWS_RE.findall(entry['link'])[0]
+			except Exception:
+				pass
+
+		return id
+
+	def add_seen_feed(self, entry):
+		"""
+		Update the database with the new feedparser entry.
+		Return True if it was a new feed and was added.
+		"""
+		if entry in self:
+			return False
+		self.add(entry)
+		try:
+			self.store.add_entries([entry])
+		except Exception:
+			log.exception("Unable to add seen feed")
+			return False
+		return True
+
+class RSSFeeds(FeedHistory):
 	"""
 	Plugin for feedparser support.
 	"""
 
 	def __init__(self):
+		super(RSSFeeds, self).__init__()
 		self.feed_interval = pmxbot.config.feed_interval
 		self.feeds = pmxbot.config.feeds
-		self.store = FeedparserDB.from_URI(pmxbot.config.database)
 		for feed in self.feeds:
 			core.execdelay(
 				name = 'feedparser',
@@ -34,13 +85,6 @@ class RSSFeeds(object):
 				args = [feed],
 				repeat = True,
 				)(self.parse_feed)
-		timer = timing.Stopwatch()
-		self.seen_feeds = set(self.store.get_seen_feeds())
-		log.info("Loaded feed history in %s", timer.split())
-		storage.SelectableStorage._finalizers.append(self.finalize)
-
-	def finalize(self):
-		del self.store
 
 	def parse_feed(self, client, event, feed):
 		"""
@@ -82,41 +126,6 @@ class RSSFeeds(object):
 		yield core.NoLog
 		yield txt
 
-	@classmethod
-	def get_entry_id(cls, entry, is_google=False):
-		if 'id' in entry:
-			id = entry['id']
-		elif 'link' in entry:
-			id = entry['link']
-		elif 'title' in entry:
-			id = entry['title']
-		else:
-			raise ValueError("need id, link, or title field")
-
-		# Special-case for Google
-		if is_google:
-			GNEWS_RE = re.compile(r'[?&]url=(.+?)[&$]', re.IGNORECASE)
-			try:
-				id = GNEWS_RE.findall(entry['link'])[0]
-			except Exception:
-				pass
-
-		return id
-
-	def add_seen_feed(self, entry):
-		"""
-		Update the database with the new entry.
-		Return True if it was a new feed and was added.
-		"""
-		if entry in self.seen_feeds:
-			return False
-		self.seen_feeds.add(entry)
-		try:
-			self.store.add_entries([entry])
-		except Exception:
-			log.exception("Unable to add seen feed")
-			return False
-		return True
 
 class FeedparserDB(storage.SelectableStorage):
 	pass
