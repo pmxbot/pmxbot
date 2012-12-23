@@ -33,7 +33,7 @@ class FeedHistory(set):
 		del self.store
 
 	@classmethod
-	def get_entry_id(cls, entry, is_google=False):
+	def get_entry_id(cls, entry, url):
 		if 'id' in entry:
 			id = entry['id']
 		elif 'link' in entry:
@@ -44,7 +44,7 @@ class FeedHistory(set):
 			raise ValueError("need id, link, or title field")
 
 		# Special-case for Google
-		if is_google:
+		if 'google.com' in url.lower():
 			GNEWS_RE = re.compile(r'[?&]url=(.+?)[&$]', re.IGNORECASE)
 			try:
 				id = GNEWS_RE.findall(entry['link'])[0]
@@ -53,16 +53,23 @@ class FeedHistory(set):
 
 		return id
 
-	def add_seen_feed(self, entry):
+	def add_seen_feed(self, entry, url):
 		"""
 		Update the database with the new feedparser entry.
 		Return True if it was a new feed and was added.
 		"""
-		if entry in self:
-			return False
-		self.add(entry)
 		try:
-			self.store.add_entries([entry])
+			id = self.get_entry_id(entry, url)
+		except ValueError:
+			log.exception("Unrecognized entry in feed from %s: %s",
+				url, entry)
+			return False
+
+		if id in self:
+			return False
+		self.add(id)
+		try:
+			self.store.add_entries([id])
 		except Exception:
 			log.exception("Unable to add seen feed")
 			return False
@@ -93,19 +100,12 @@ class RSSFeeds(FeedHistory):
 		"""
 		socket.setdefaulttimeout(20)
 		outputs = []
-		is_google = 'google.com' in feed['url'].lower()
 		try:
 			resp = feedparser.parse(feed['url'])
 		except:
 			log.exception("Error retrieving feed %s", feed['url'])
 		for entry in resp['entries']:
-			try:
-				id = self.get_entry_id(entry, is_google)
-			except ValueError:
-				log.warning("Unrecognized entry in feed from %s: %s",
-					feed['url'], entry)
-
-			if not self.add_seen_feed(id):
+			if not self.add_seen_feed(entry, feed['url']):
 				continue
 
 			if ' by ' in entry['title']:
