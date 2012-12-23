@@ -146,6 +146,10 @@ class SQLiteFeedparserDB(FeedparserDB, storage.SQLiteStorage):
 			[(x,) for x in entries])
 		self.db.commit()
 
+	def clear(self):
+		"Clear all entries"
+		self.db.execute('DELETE FROM feed_seen')
+
 	export_all = get_seen_feeds
 
 class MongoDBFeedparserDB(FeedparserDB, storage.MongoDBStorage):
@@ -159,3 +163,7 @@ class MongoDBFeedparserDB(FeedparserDB, storage.MongoDBStorage):
 
 	def import_(self, item):
 		self.add_entries([item])
+
+	def clear(self):
+		"Clear all entries"
+		self.db.remove()
