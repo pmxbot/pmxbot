@@ -37,3 +37,18 @@ class TestFeedHistory(object):
 		"an entry with no id/link/title"
 
 		assert not history.add_seen_feed(entry, 'http://example.com')
+
+	def test_feeds_loaded(self, history):
+		"""
+		Feeds saved in one history should be already present when loaded
+		subsequently in a new history object.
+		"""
+		entry = {'id': '1234'}
+		history.add_seen_feed(entry, 'http://example.com')
+		assert len(history) == 1
+
+		# now create a new history object
+		orig_uri = history.store.uri
+		new_history = pmxbot.rss.FeedHistory(orig_uri)
+		assert len(new_history) == 1
+		assert new_history.add_seen_feed(entry) is False
