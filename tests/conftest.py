@@ -55,3 +55,9 @@ def pytest_funcarg__mongodb_uri(request):
 	if not instance:
 		pytest.skip("MongoDB not available")
 	return 'mongodb://' + ','.join(instance.get_connect_hosts())
+
+@pytest.fixture(params=['mongodb', 'sqlite'])
+def db_uri(request):
+	if request.param == 'mongodb':
+		return request.getfuncargvalue('mongodb_uri')
+	return 'sqlite:pmxbot.sqlite'
