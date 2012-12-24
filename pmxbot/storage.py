@@ -67,6 +67,7 @@ class SQLiteStorage(Storage):
 
 	def __init__(self, uri):
 		self._import_modules()
+		self.uri = uri
 		self.filename = urllib_parse.urlparse(uri).path
 		self.db = sqlite.connect(self.filename, isolation_level=None,
 			timeout=20.0)
@@ -96,6 +97,7 @@ class MongoDBStorage(Storage):
 			pymongo=pymongo,
 			bson=bson,
 		)
+		self.uri = host_uri
 		uri_p = pymongo.uri_parser.parse_uri(host_uri)
 		db_name = uri_p['database'] or 'pmxbot'
 		self.db = pymongo.Connection(host_uri)[db_name][self.collection_name]
