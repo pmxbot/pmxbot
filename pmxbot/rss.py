@@ -22,13 +22,13 @@ class FeedHistory(set):
 	A database-backed set of feed entries that have been seen before.
 	"""
 	def __init__(self, db_uri=None):
+		super(FeedHistory, self).__init__()
 		db_uri = db_uri or pmxbot.config.database
 		self.store = FeedparserDB.from_URI(db_uri)
 		timer = timing.Stopwatch()
 		self.update(self.store.get_seen_feeds())
 		log.info("Loaded feed history in %s", timer.split())
 		storage.SelectableStorage._finalizers.append(self.__finalize)
-		super(FeedHistory, self).__init__()
 
 	def __finalize(self):
 		del self.store
@@ -167,4 +167,4 @@ class MongoDBFeedparserDB(FeedparserDB, storage.MongoDBStorage):
 
 	def clear(self):
 		"Clear all entries"
-		self.db.remove()
+		self.db.remove(safe=True)

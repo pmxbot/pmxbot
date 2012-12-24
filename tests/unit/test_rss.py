@@ -11,6 +11,7 @@ sample_feed_entries = [
 @pytest.fixture()
 def history(db_uri, request):
 	history = pmxbot.rss.FeedHistory(db_uri)
+	request.addfinalizer(history.store.clear)
 	request.addfinalizer(history._FeedHistory__finalize)
 	return history
 
@@ -51,4 +52,4 @@ class TestFeedHistory(object):
 		orig_uri = history.store.uri
 		new_history = pmxbot.rss.FeedHistory(orig_uri)
 		assert len(new_history) == 1
-		assert new_history.add_seen_feed(entry) is False
+		assert new_history.add_seen_feed(entry, 'http://example.com') is False
