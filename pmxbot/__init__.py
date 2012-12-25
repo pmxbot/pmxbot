@@ -2,6 +2,7 @@
 # vim:ts=4:sw=4:noexpandtab
 
 import socket
+import logging
 
 from .dictlib import ConfigDict
 
@@ -27,5 +28,6 @@ config = ConfigDict(
 	librarypaste = 'http://paste.jaraco.com',
 )
 config['logs URL'] = 'http://' + socket.getfqdn()
+config['log level'] = logging.INFO
 
 "The config object"

@@ -437,6 +437,12 @@ def run():
 	_bot = initialize(get_args().config)
 	_bot.start()
 
+def _setup_logging():
+	log_level = pmxbot.config['log level']
+	if isinstance(log_level, basestring):
+		log_level = getattr(logging, log_level.upper())
+	logging.basicConfig(level=log_level, format="%(message)s")
+
 def initialize(config):
 	"""
 	Initialize the bot with a dictionary of config items
@@ -444,7 +450,7 @@ def initialize(config):
 	pmxbot.config.update(config)
 	config = pmxbot.config
 
-	logging.basicConfig(level=logging.INFO, format="%(message)s")
+	_setup_logging()
 	_load_library_extensions()
 	if not _handler_registry:
 		raise RuntimeError("No handlers registered")
