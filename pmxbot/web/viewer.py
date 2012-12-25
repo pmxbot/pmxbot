@@ -2,7 +2,7 @@
 
 from __future__ import unicode_literals
 
-import posixpath
+import urlparse
 import random
 import calendar
 import datetime
@@ -305,6 +305,16 @@ def patch_compat(config):
 	if 'web_port' in config:
 		config['port'] = config.pop('web_port')
 
+def _init_config():
+	config = pmxbot.config
+
+	if not config.web_base.startswith('/'):
+		config['web_base'] = '/' + config.web_base
+	if config.web_base.endswith('/'):
+		config['web_base'] = config.web_base.rstrip('/')
+	if 'logo' not in config:
+		config['logo'] = urlparse.urljoin(config.web_base, 'pmxbot.png')
+
 def startup(config):
 	patch_compat(config)
 
@@ -313,12 +323,7 @@ def startup(config):
 
 	pmxbot.core._load_library_extensions()
 
-	if not config.web_base.startswith('/'):
-		config['web_base'] = '/' + config.web_base
-	if config.web_base.endswith('/'):
-		config['web_base'] = config.web_base.rstrip('/')
-	if 'logo' not in config:
-		config['logo'] = posixpath.join(config.web_base, 'pmxbot.png')
+	_init_config()
 
 	# Cherrypy configuration here
 	app_conf = {
