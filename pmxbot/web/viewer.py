@@ -207,14 +207,9 @@ class HelpPage(object):
 		contains = []
 		by_name = lambda handler: handler.name
 		for handler in sorted(pmxbot.core._handler_registry, key=by_name):
-			if handler.type_ == 'command':
-				aliases = sorted(alias.name
-					for alias in pmxbot.core._handler_registry
-					if alias.type_ == 'alias'
-					and alias.func == handler.func
-				)
-				commands.append((handler.name, handler.doc, aliases))
-			elif handler.type_ == 'contains':
+			if type(handler) is pmxbot.core.CommandHandler:
+				commands.append((handler.name, handler.doc, handler.aliases))
+			elif isinstance(handler, pmxbot.core.ContainsHandler):
 				contains.append((handler.name, handler.doc))
 		context['commands'] = commands
 		context['contains'] = contains
