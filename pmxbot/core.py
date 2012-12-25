@@ -133,10 +133,13 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		self.c.irclibobj._schedule_command(cmd)
 
 	def on_welcome(self, connection, event):
+		# join channels
 		for channel in self._channels:
 			if not channel.startswith('#'):
 				channel = '#' + channel
 			connection.join(channel)
+
+		# set up delayed tasks
 		for name, channel, howlong, func, args, doc, repeat in _delay_registry:
 			arguments = connection, channel, func, args
 			executor = (
