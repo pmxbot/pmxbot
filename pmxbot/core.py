@@ -45,6 +45,10 @@ class WarnHistory(dict):
 		return now - last > self.warn_every
 
 class NoLog(object):
+	"""
+	A sentinel indicating that subsequent items should not be logged.
+	"""
+
 	@classmethod
 	def secret_items(cls, items):
 		"""
