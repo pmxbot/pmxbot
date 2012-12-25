@@ -84,7 +84,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 	def out(self, channel, s, log=True):
 		log &= (channel in self._channels
 			and channel in pmxbot.config.log_channels)
-		self._out(self.c, channel, s, self._nickname, log)
+		self._out(self.connection, channel, s, self._nickname, log)
 
 	@staticmethod
 	def _out(client, channel, msg, nick, log=True):
@@ -132,26 +132,28 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			when, daily, self.background_runner, arguments)
 		self.c.irclibobj._schedule_command(cmd)
 
-	def on_welcome(self, c, e):
-		self.c = c
+	def on_welcome(self, connection, event):
 		for channel in self._channels:
 			if not channel.startswith('#'):
 				channel = '#' + channel
-			c.join(channel)
+			connection.join(channel)
 		for name, channel, howlong, func, args, doc, repeat in _delay_registry:
-			arguments = self.c, channel, func, args
+			arguments = connection, channel, func, args
 			executor = (
-				self.c.execute_every if repeat else self.c.execute_delayed)
+				connection.execute_every if repeat
+				else connection.execute_delayed
+			)
 			executor(howlong, self.background_runner, arguments)
 		for action in _at_registry:
 			self._schedule_at(*action)
 
-	def on_join(self, c, e):
-		nick = e.source.nick
-		channel = e.target
+	def on_join(self, connection, event):
+		nick = event.source.nick
+		channel = event.target
 		for func in _join_registry:
 			try:
-				func(client=c, event=e, nick=nick, channel=channel)
+				func(client=connection, event=event, nick=nick,
+					channel=channel)
 			except Exception:
 				print(datetime.datetime.now(),
 					"Error in on_join handler %s" % func,
@@ -167,42 +169,42 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		msg = self.warn_history.warn_message.format(
 			logged_channels_string = ', '.join(pmxbot.config.log_channels))
 		for line in msg.splitlines():
-			c.notice(nick, line)
+			connection.notice(nick, line)
 
-	def on_pubmsg(self, c, e):
-		msg = u''.join(e.arguments)
+	def on_pubmsg(self, connection, event):
+		msg = u''.join(event.arguments)
 		if not msg.strip():
 			return
-		nick = e.source.nick
-		channel = e.target
+		nick = event.source.nick
+		channel = event.target
 		if channel in pmxbot.config.log_channels:
 			pmxbot.logging.Logger.store.message(channel, nick, msg)
-		self.handle_action(c, e, channel, nick, msg)
+		self.handle_action(connection, event, channel, nick, msg)
 
-	def on_privmsg(self, c, e):
-		msg = u''.join(e.arguments)
+	def on_privmsg(self, connection, event):
+		msg = u''.join(event.arguments)
 		if not msg.strip():
 			return
-		nick = e.source.nick
+		nick = event.source.nick
 		channel = nick
-		self.handle_action(c, e, channel, nick, msg)
+		self.handle_action(connection, event, channel, nick, msg)
 
-	def on_invite(self, c, e):
-		nick = e.source.nick
-		channel = e.arguments[0]
+	def on_invite(self, connection, event):
+		nick = event.source.nick
+		channel = event.arguments[0]
 		if not channel.startswith('#'):
 			channel = '#' + channel
 		self._channels.append(channel)
 		time.sleep(1)
-		c.join(channel)
+		connection.join(channel)
 		time.sleep(1)
-		c.privmsg(channel, "You summoned me, master %s?" % nick)
+		connection.privmsg(channel, "You summoned me, master %s?" % nick)
 
 	def _handle_output(self, channel, output):
 		for secret, item in NoLog.secret_items(output):
 			self.out(channel, item, not secret)
 
-	def background_runner(self, c, channel, func, args):
+	def background_runner(self, connection, channel, func, args):
 		"""
 		Wrapper to run scheduled type tasks cleanly.
 		"""
@@ -210,7 +212,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			print(datetime.datetime.now(), "Error in background runner for ",
 				func)
 			traceback.print_exc()
-		func = functools.partial(func, c, None, *args)
+		func = functools.partial(func, connection, None, *args)
 		self._handle_output(channel, pmxbot.itertools.trap_exceptions(
 			pmxbot.itertools.generate_results(func),
 			on_error))
@@ -228,7 +230,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		traceback.print_exc()
 		return res
 
-	def handle_action(self, c, e, channel, nick, msg):
+	def handle_action(self, connection, event, channel, nick, msg):
 		"""Core message parser and dispatcher"""
 
 		messages = ()
@@ -240,8 +242,8 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 				self._handle_exception,
 				handler = handler,
 				)
-			f = functools.partial(handler.func, c, e, channel, nick,
-				handler.process(msg))
+			f = functools.partial(handler.func, connection, event, channel,
+				nick, handler.process(msg))
 			messages = itertools.chain(messages,
 				pmxbot.itertools.trap_exceptions(
 					pmxbot.itertools.generate_results(f),
