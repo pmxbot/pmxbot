@@ -66,14 +66,12 @@ class NoLog(object):
 			yield secret, item
 
 class LoggingCommandBot(irc.bot.SingleServerIRCBot):
-	def __init__(self, db_uri, server, port, nickname, channels,
-			password=None):
+	def __init__(self, server, port, nickname, channels, password=None):
 		server_list = [(server, port, password)]
 		irc.bot.SingleServerIRCBot.__init__(self, server_list, nickname,
 			nickname)
 		self.nickname = nickname
 		self._channels = channels
-		self.db_uri = db_uri
 		self._nickname = nickname
 		self.warn_history = WarnHistory()
 
@@ -466,7 +464,7 @@ def initialize(config):
 	log.info('Running with config')
 	log.info(pprint.pformat(config))
 
-	return class_(config.database, config.server_host, config.server_port,
+	return class_(config.server_host, config.server_port,
 		config.bot_nickname, channels=channels, password=config.password)
 
 def _load_library_extensions():

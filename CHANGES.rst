@@ -1,3 +1,17 @@
+1105.0
+======
+
+* Removed db_uri from LoggingCommandBot (attribute and constructor).
+  Clients that invoke the constructor or expect the attribute to be present
+  will need to be updated to use the value from the config instead.
+
+1104.4
+======
+
+* Refactored FeedHistory, allowing for other classes to re-use the history
+  concept in other RSS handlers.
+* Exposed the bot instance as `pmxbot.core._bot` (experimental).
+
 1104.3
 ======
 
