@@ -4,7 +4,7 @@
 from __future__ import absolute_import
 
 import socket
-import logging
+import logging as _logging
 
 from .dictlib import ConfigDict
 
@@ -30,6 +30,6 @@ config = ConfigDict(
 	librarypaste = 'http://paste.jaraco.com',
 )
 config['logs URL'] = 'http://' + socket.getfqdn()
-config['log level'] = logging.INFO
+config['log level'] = _logging.INFO
 
 "The config object"
