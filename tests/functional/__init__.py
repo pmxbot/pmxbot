@@ -8,7 +8,7 @@ import sqlite3
 import urlparse
 
 import irc.client
-import py.test
+import pytest
 
 import pmxbot.dictlib
 
@@ -49,7 +49,7 @@ class PmxbotHarness(object):
 				'tclircd/ircd.tcl')], stdout=open(os.path.devnull, 'w'),
 				stderr=open(os.path.devnull, 'w'))
 		except OSError:
-			py.test.skip("Unable to launch irc server (tclsh must be in the "
+			pytest.skip("Unable to launch irc server (tclsh must be in the "
 				"path)")
 		time.sleep(0.5)
 		# add './plugins' to the path so we get some pmxbot commands specific
@@ -66,12 +66,12 @@ class PmxbotHarness(object):
 			cmd = [sys.executable, '-m', 'pmxbot', cls.config_fn]
 			cls.bot = subprocess.Popen(cmd, env=env)
 		except OSError:
-			py.test.skip("Unable to launch pmxbot (pmxbot must be installed)")
+			pytest.skip("Unable to launch pmxbot (pmxbot must be installed)")
 		# todo: instead of sleeping, wait for database tables to be created,
 		#  a better indicator that pmxbot has started properly.
 		time.sleep(7)
 		if cls.bot.poll() is not None:
-			py.test.skip("Bot did not start up properly")
+			pytest.skip("Bot did not start up properly")
 		cls.client = TestingClient('localhost', 6668, 'testingbot')
 
 	def check_logs(cls, channel='', nick='', message=''):
