@@ -44,21 +44,22 @@ class PmxbotHarness(object):
 		cls.config.to_yaml(cls.config_fn)
 		cls.dbfile = urlparse.urlparse(cls.config['database']).path
 		cls.db = sqlite3.connect(cls.dbfile)
+		env = os.environ.copy()
+		# copy the current sys.path to PYTHONPATH so subprocesses have access
+		#  to libs pulled by tests_require
+		env['PYTHONPATH'] = sys.path
 		try:
-			cls.server = subprocess.Popen(['tclsh', os.path.join(path,
-				'tclircd/ircd.tcl')], stdout=open(os.path.devnull, 'w'),
+			cmd = [sys.executable, '-m', 'irc.server', '-p', '6668']
+			cls.server = subprocess.Popen(cmd,
+				stdout=open(os.path.devnull, 'w'),
 				stderr=open(os.path.devnull, 'w'))
 		except OSError:
-			pytest.skip("Unable to launch irc server (tclsh must be in the "
-				"path)")
+			pytest.skip("Unable to launch irc server.")
 		time.sleep(0.5)
 		# add './plugins' to the path so we get some pmxbot commands specific
 		#  for testing.
-		env = os.environ.copy()
 		plugins = os.path.join(path, 'plugins')
-		# also copy the current sys.path to PYTHONPATH so pmxbot can be
-		#  launched with the same path.
-		env['PYTHONPATH'] = os.pathsep.join([plugins] + sys.path)
+		env['PYTHONPATH'] = os.pathsep.join([plugins] + env['PYTHONPATH'])
 		try:
 			# Launch pmxbot using Python directly (rather than through
 			#  the console entry point, which can't be properly
