@@ -21,8 +21,15 @@ class TestingClient(object):
 		self.c = self.irc.server()
 		self.c.connect(server, port, nickname)
 		self.irc.process_once(0.1)
+		self.channels = set()
+
+	def join(self, channel):
+		self.c.join(channel)
+		self.channels.add(channel)
 
 	def send_message(self, channel, message):
+		if not channel in self.channels:
+			self.join(channel)
 		self.c.privmsg(channel, message)
 		time.sleep(0.05)
 
@@ -37,8 +44,7 @@ class PmxbotHarness(object):
 
 	@classmethod
 	def setup_class(cls):
-		"""Start a tcl IRC server, launch the bot, and
-		ask it to do stuff"""
+		"""Start an IRC server, launch the bot, and ask it to do stuff"""
 		path = os.path.dirname(os.path.abspath(__file__))
 		cls.config_fn = os.path.join(path, 'testconf.yaml')
 		cls.config.to_yaml(cls.config_fn)
@@ -47,19 +53,17 @@ class PmxbotHarness(object):
 		env = os.environ.copy()
 		# copy the current sys.path to PYTHONPATH so subprocesses have access
 		#  to libs pulled by tests_require
-		env['PYTHONPATH'] = sys.path
+		env['PYTHONPATH'] = os.pathsep.join(sys.path)
 		try:
 			cmd = [sys.executable, '-m', 'irc.server', '-p', '6668']
-			cls.server = subprocess.Popen(cmd,
-				stdout=open(os.path.devnull, 'w'),
-				stderr=open(os.path.devnull, 'w'))
+			cls.server = subprocess.Popen(cmd, env=env)
 		except OSError:
 			pytest.skip("Unable to launch irc server.")
 		time.sleep(0.5)
 		# add './plugins' to the path so we get some pmxbot commands specific
 		#  for testing.
 		plugins = os.path.join(path, 'plugins')
-		env['PYTHONPATH'] = os.pathsep.join([plugins] + env['PYTHONPATH'])
+		env['PYTHONPATH'] = os.pathsep.join([plugins, env['PYTHONPATH']])
 		try:
 			# Launch pmxbot using Python directly (rather than through
 			#  the console entry point, which can't be properly
