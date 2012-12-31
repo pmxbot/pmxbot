@@ -1,13 +1,9 @@
-1105.1
+1105.0
 ======
 
 * Added `pmxbot.core.SwitchChannel`. Handlers can yield this sentinel,
   constructed with the name of a new channel, to cause subsequest messages
   to be sent on the indicated channel.
-
-1105.0
-======
-
 * Removed db_uri from LoggingCommandBot (attribute and constructor).
   Clients that invoke the constructor or expect the attribute to be present
   will need to be updated to use the value from the config instead.
