@@ -124,15 +124,9 @@ class RSSFeeds(FeedHistory):
 		"""
 		Format the entry suitable for output (add the author if suitable).
 		"""
-		if ' by ' in entry['title']:
-			# We don't need to add the author
-			out = '%s' % entry['title']
-		else:
-			try:
-				out = '%s by %s' % (entry['title'], entry['author'])
-			except KeyError:
-				out = '%s' % entry['title']
-		return out
+		needs_author = ' by ' not in entry['title'] and 'author' in entry
+		template = '{title} by {author}' if needs_author else '{title}'
+		return template.format(entry)
 
 
 class FeedparserDB(storage.SelectableStorage):
