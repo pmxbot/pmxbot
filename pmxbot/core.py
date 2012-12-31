@@ -63,59 +63,70 @@ class AugmentableMessage(unicode):
 			self.__dict__.update(vars(other))
 		self.__dict__.update(**kwargs)
 
-class NoLog(object):
+class Sentinel(object):
 	"""
-	A sentinel indicating that subsequent items should not be logged.
+	A base Sentinel object which can be injected into a series of messages to
+	alter the properties of subsequent messages.
 	"""
 
 	@classmethod
-	def secret_items(cls, items):
+	def augment_items(cls, items, **defaults):
 		"""
-		Iterate over the items, adding a 'secret' attribute for each item
-		indicating whether it should be secret or not.
+		Iterate over the items, keeping a adding properties as supplied by
+		Sentinel objects encountered.
 
-		>>> res = tuple(NoLog.secret_items(['a', 'b', NoLog, 'c']))
+		>>> res = tuple(Sentinel.augment_items(['a', 'b', NoLog, 'c'], secret=False))
 		>>> res
 		(u'a', u'b', u'c')
 		>>> [msg.secret for msg in res]
 		[False, False, True]
-		"""
-		secret = False
-		for item in items:
-			if item is cls:
-				secret = True
-				continue
-			yield AugmentableMessage(item, secret=secret)
 
-class SwitchChannel(unicode):
-	"""
-	A sentinel indicating a new channel for subsequent messages.
-	"""
-
-	@classmethod
-	def channel_items(cls, items, channel=None):
-		"""
-		Iterate over the items, augmenting each with an attribute indicating
-		the target channel, defaulting to `channel`.
-
-		>>> msgs = ['a', 'b', SwitchChannel('#foo'), 'c']
-		>>> res = tuple(SwitchChannel.channel_items(msgs))
+		>>> msgs = ['a', NoLog, 'b', SwitchChannel('#foo'), 'c']
+		>>> res = tuple(Sentinel.augment_items(msgs, secret=False, channel=None))
 		>>> res
 		(u'a', u'b', u'c')
 		>>> [msg.channel for msg in res]
 		[None, None, u'#foo']
+		>>> [msg.secret for msg in res]
+		[False, True, True]
 
-		>>> res = tuple(SwitchChannel.channel_items(msgs, u'#default'))
+		>>> res = tuple(Sentinel.augment_items(msgs, channel=u'#default', secret=False))
 		>>> [msg.channel for msg in res]
 		[u'#default', u'#default', u'#foo']
 		"""
+		properties = defaults
 		for item in items:
-			if isinstance(item, cls):
-				channel = item
-				if not channel.startswith('#'):
-					channel = '#' + channel
+			# allow the Sentinel to be just the class itself, which is to be
+			#  constructed with no parameters.
+			if isinstance(item, type) and issubclass(item, Sentinel):
+				item = item()
+			if isinstance(item, Sentinel):
+				properties.update(item.properties)
 				continue
-			yield AugmentableMessage(item, channel=channel)
+			yield AugmentableMessage(item, **properties)
+
+class NoLog(Sentinel):
+	"""
+	A sentinel indicating that subsequent items should not be logged.
+	"""
+
+	@property
+	def properties(self):
+		return dict(secret=True)
+
+class SwitchChannel(unicode, Sentinel):
+	"""
+	A sentinel indicating a new channel for subsequent messages.
+	"""
+
+	def __new__(cls, other):
+		if not other.startswith('#'):
+			other = '#' + other
+		return super(SwitchChannel, cls).__new__(cls, other)
+
+	@property
+	def properties(self):
+		return dict(channel=self)
 
 class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 	def __init__(self, server, port, nickname, channels, password=None):
@@ -265,10 +276,10 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		Given an initial channel and a sequence of messages or sentinels,
 		output the messages.
 		"""
-		secret_items = NoLog.secret_items(output)
-		channel_items = SwitchChannel.channel_items(secret_items, channel)
-		for item in channel_items:
-			self.out(item.channel, item, not item.secret)
+		augmented_messages = Sentinel.augment_items(output,
+			channel=channel, secret=False)
+		for message in augmented_messages:
+			self.out(message.channel, message, not message.secret)
 
 	def background_runner(self, connection, channel, func, args):
 		"""
