@@ -1,3 +1,8 @@
+1105.1
+======
+
+* Extracted `RSSFeeds.format_entry`.
+
 1105.0
 ======
 
