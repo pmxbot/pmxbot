@@ -1,4 +1,7 @@
+import urlparse
+
 import pytest
+import feedparser
 
 import pmxbot.rss
 
@@ -53,3 +56,11 @@ class TestFeedHistory(object):
 		new_history = pmxbot.rss.FeedHistory(orig_uri)
 		assert len(new_history) == 1
 		assert new_history.add_seen_feed(entry, 'http://example.com') is False
+
+@pytest.has_internet
+def test_format_entry():
+	bitbucket = 'https://bitbucket.org'
+	feed_url=urlparse.urljoin(bitbucket, '/yougov/pmxbot/rss')
+	res = feedparser.parse(feed_url)
+	entry = res['entries'][0]
+	pmxbot.rss.RSSFeeds.format_entry(entry)
