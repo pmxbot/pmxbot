@@ -45,7 +45,15 @@ class WarnHistory(dict):
 		return now - last > self.warn_every
 
 class AugmentableMessage(unicode):
-	"A text string which may be augmented with attributes"
+	"""
+	A text string which may be augmented with attributes
+
+	>>> msg = AugmentableMessage('foo', bar='baz')
+	>>> msg == 'foo'
+	True
+	>>> msg.bar == 'baz'
+	True
+	"""
 
 	def __new__(cls, other, **kwargs):
 		return super(AugmentableMessage, cls).__new__(cls, other)
@@ -90,12 +98,16 @@ class SwitchChannel(unicode):
 		Iterate over the items, augmenting each with an attribute indicating
 		the target channel, defaulting to `channel`.
 
-		>>> res = tuple(SwitchChannel.channel_items(['a', 'b',
-		...  SwitchChannel('#foo'), 'c']))
+		>>> msgs = ['a', 'b', SwitchChannel('#foo'), 'c']
+		>>> res = tuple(SwitchChannel.channel_items(msgs))
 		>>> res
 		(u'a', u'b', u'c')
 		>>> [msg.channel for msg in res]
 		[None, None, u'#foo']
+
+		>>> res = tuple(SwitchChannel.channel_items(msgs, u'#default'))
+		>>> [msg.channel for msg in res]
+		[u'#default', u'#default', u'#foo']
 		"""
 		for item in items:
 			if isinstance(item, cls):
