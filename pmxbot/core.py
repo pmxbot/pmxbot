@@ -132,6 +132,11 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 
 	@staticmethod
 	def _out(conn, channel, msg):
+		"""
+		Transmit `msg` on irc.client.ServerConnection `conn` using
+		`channel`. If `msg` looks like an action, transmit it as such.
+		Suppress all exceptions (but log warnings for each).
+		"""
 		func = conn.privmsg
 		if msg.startswith(u'/me '):
 			func = conn.action
