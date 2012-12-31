@@ -100,16 +100,16 @@ class RSSFeeds(FeedHistory):
 		regular intervals in the relevant channels.
 		"""
 		socket.setdefaulttimeout(20)
-		outputs = []
 		try:
 			resp = feedparser.parse(feed['url'])
 		except:
 			log.exception("Error retrieving feed %s", feed['url'])
-		for entry in resp['entries']:
-			if not self.add_seen_feed(entry, feed['url']):
-				continue
 
-			outputs.append(self.format_entry(entry))
+		outputs = [
+			self.format_entry(entry)
+			for entry in resp['entries']
+			if not self.add_seen_feed(entry, feed['url'])
+		]
 
 		if not outputs:
 			return
