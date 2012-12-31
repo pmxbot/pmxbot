@@ -122,7 +122,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			connect_factory = factory, *args, **kwargs)
 
 	def out(self, channel, s, log=True):
-		sent = self._out(self.connection, channel, s)
+		sent = self._out(self._conn, channel, s)
 		log &= (channel in self._channels
 			and channel in pmxbot.config.log_channels
 			and not s.startswith('/me ')
@@ -153,15 +153,15 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		except Exception:
 			log.exception("Unhandled exception transmitting message: %r", msg)
 
-	def _schedule_at(self, name, channel, when, func, args, doc):
-		arguments = self.c, channel, func, args
+	def _schedule_at(self, conn, name, channel, when, func, args, doc):
+		arguments = conn, channel, func, args
 		if isinstance(when, datetime.date):
 			midnight = datetime.time(0,0)
 			when = datetime.datetime.combine(when, midnight)
 		if isinstance(when, datetime.datetime):
 			cmd = irc.client.DelayedCommand.at_time(
 				when, self.background_runner, arguments)
-			self.c.irclibobj._schedule_command(cmd)
+			conn.irclibobj._schedule_command(cmd)
 			return
 		if not isinstance(when, datetime.time):
 			raise ValueError("when must be datetime, date, or time")
@@ -172,9 +172,12 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			when += daily
 		cmd = irc.client.PeriodicCommandFixedDelay.at_time(
 			when, daily, self.background_runner, arguments)
-		self.c.irclibobj._schedule_command(cmd)
+		conn.irclibobj._schedule_command(cmd)
 
 	def on_welcome(self, connection, event):
+		# save the connection object so .out has something to call
+		self._conn = connection
+
 		# join channels
 		for channel in self._channels:
 			if not channel.startswith('#'):
@@ -190,7 +193,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			)
 			executor(howlong, self.background_runner, arguments)
 		for action in _at_registry:
-			self._schedule_at(*action)
+			self._schedule_at(connection, *action)
 
 	def on_join(self, connection, event):
 		nick = event.source.nick
