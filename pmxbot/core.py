@@ -44,6 +44,17 @@ class WarnHistory(dict):
 	def _expired(self, last, now):
 		return now - last > self.warn_every
 
+class AugmentableMessage(unicode):
+	"A text string which may be augmented with attributes"
+
+	def __new__(cls, other, **kwargs):
+		return super(AugmentableMessage, cls).__new__(cls, other)
+
+	def __init__(self, other, **kwargs):
+		if hasattr(other, '__dict__'):
+			self.__dict__.update(vars(other))
+		self.__dict__.update(**kwargs)
+
 class NoLog(object):
 	"""
 	A sentinel indicating that subsequent items should not be logged.
@@ -52,18 +63,47 @@ class NoLog(object):
 	@classmethod
 	def secret_items(cls, items):
 		"""
-		Iterate over the items, and yield each item with an indicator of
-		whether it should be secret or not.
+		Iterate over the items, adding a 'secret' attribute for each item
+		indicating whether it should be secret or not.
 
-		>>> tuple(NoLog.secret_items(['a', 'b', NoLog, 'c']))
-		((False, 'a'), (False, 'b'), (True, 'c'))
+		>>> res = tuple(NoLog.secret_items(['a', 'b', NoLog, 'c']))
+		>>> res
+		(u'a', u'b', u'c')
+		>>> [msg.secret for msg in res]
+		[False, False, True]
 		"""
 		secret = False
 		for item in items:
 			if item is cls:
 				secret = True
 				continue
-			yield secret, item
+			yield AugmentableMessage(item, secret=secret)
+
+class SwitchChannel(unicode):
+	"""
+	A sentinel indicating a new channel for subsequent messages.
+	"""
+
+	@classmethod
+	def channel_items(cls, items, channel=None):
+		"""
+		Iterate over the items, augmenting each with an attribute indicating
+		the target channel, defaulting to `channel`.
+
+		>>> res = tuple(SwitchChannel.channel_items(['a', 'b',
+		...  SwitchChannel('#foo'), 'c']))
+		>>> res
+		(u'a', u'b', u'c')
+		>>> [msg.channel for msg in res]
+		[None, None, u'#foo']
+		"""
+		for item in items:
+			if isinstance(item, cls):
+				channel = item
+				if not channel.startswith('#'):
+					channel = '#' + channel
+				continue
+			yield AugmentableMessage(item, channel=channel)
 
 class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 	def __init__(self, server, port, nickname, channels, password=None):
@@ -204,8 +244,8 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		connection.privmsg(channel, "You summoned me, master %s?" % nick)
 
 	def _handle_output(self, channel, output):
-		for secret, item in NoLog.secret_items(output):
-			self.out(channel, item, not secret)
+		for item in SwitchChannel.channel_items(NoLog.secret_items(output)):
+			self.out(item.channel, item, not item.secret)
 
 	def background_runner(self, connection, channel, func, args):
 		"""

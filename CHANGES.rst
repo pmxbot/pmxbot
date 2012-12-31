@@ -1,3 +1,10 @@
+1105.1
+======
+
+* Added `pmxbot.core.SwitchChannel`. Handlers can yield this sentinel,
+  constructed with the name of a new channel, to cause subsequest messages
+  to be sent on the indicated channel.
+
 1105.0
 ======
 
