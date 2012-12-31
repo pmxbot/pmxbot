@@ -122,34 +122,31 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			connect_factory = factory, *args, **kwargs)
 
 	def out(self, channel, s, log=True):
+		sent = self._out(self.connection, channel, s)
 		log &= (channel in self._channels
-			and channel in pmxbot.config.log_channels)
-		self._out(self.connection, channel, s, self._nickname, log)
+			and channel in pmxbot.config.log_channels
+			and not s.startswith('/me ')
+		)
+		if sent and log:
+			pmxbot.logging.Logger.store.message(channel, self._nickname, sent)
 
 	@staticmethod
-	def _out(client, channel, msg, nick, log=True):
-		func = client.privmsg
+	def _out(conn, channel, msg):
+		func = conn.privmsg
 		if msg.startswith(u'/me '):
-			func = client.action
+			func = conn.action
 			msg = msg.split(' ', 1)[-1].lstrip()
-			log = False
 		try:
 			func(channel, msg)
+			return msg
 		except irc.client.MessageTooLong:
 			# some messages will fail because they're too long
-			globals()['log'].warning("Long message could not be "
-				"transmitted: %s", msg)
-			return
+			log.warning("Long message could not be transmitted: %s", msg)
 		except irc.client.InvalidCharacters:
-			globals()['log'].warning("Message contains carriage returns, "
+			log.warning("Message contains carriage returns, "
 				"which aren't allowed in IRC messages: %r", msg)
-			return
 		except Exception:
-			globals()['log'].exception("Unhandled exception transmitting "
-				"message: %r", msg)
-			return
-		if log:
-			pmxbot.logging.Logger.store.message(channel, nick, msg)
+			log.exception("Unhandled exception transmitting message: %r", msg)
 
 	def _schedule_at(self, name, channel, when, func, args, doc):
 		arguments = self.c, channel, func, args
