@@ -126,7 +126,7 @@ class RSSFeeds(FeedHistory):
 		"""
 		needs_author = ' by ' not in entry['title'] and 'author' in entry
 		template = '{title} by {author}' if needs_author else '{title}'
-		return template.format(entry)
+		return template.format(**entry)
 
 
 class FeedparserDB(storage.SelectableStorage):
