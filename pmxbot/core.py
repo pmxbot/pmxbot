@@ -244,7 +244,13 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		connection.privmsg(channel, "You summoned me, master %s?" % nick)
 
 	def _handle_output(self, channel, output):
-		for item in SwitchChannel.channel_items(NoLog.secret_items(output)):
+		"""
+		Given an initial channel and a sequence of messages or sentinels,
+		output the messages.
+		"""
+		secret_items = NoLog.secret_items(output)
+		channel_items = SwitchChannel.channel_items(secret_items, channel)
+		for item in channel_items:
 			self.out(item.channel, item, not item.secret)
 
 	def background_runner(self, connection, channel, func, args):
