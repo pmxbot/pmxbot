@@ -109,15 +109,7 @@ class RSSFeeds(FeedHistory):
 			if not self.add_seen_feed(entry, feed['url']):
 				continue
 
-			if ' by ' in entry['title']:
-				# We don't need to add the author
-				out = '%s' % entry['title']
-			else:
-				try:
-					out = '%s by %s' % (entry['title'], entry['author'])
-				except KeyError:
-					out = '%s' % entry['title']
-			outputs.append(out)
+			outputs.append(self.format_entry(entry))
 
 		if not outputs:
 			return
@@ -126,6 +118,21 @@ class RSSFeeds(FeedHistory):
 			feed['linkurl'], ' || '.join(outputs[:10]))
 		yield core.NoLog
 		yield txt
+
+	@staticmethod
+	def format_entry(entry):
+		"""
+		Format the entry suitable for output (add the author if suitable).
+		"""
+		if ' by ' in entry['title']:
+			# We don't need to add the author
+			out = '%s' % entry['title']
+		else:
+			try:
+				out = '%s by %s' % (entry['title'], entry['author'])
+			except KeyError:
+				out = '%s' % entry['title']
+		return out
 
 
 class FeedparserDB(storage.SelectableStorage):
