@@ -14,7 +14,7 @@ def always_iterable(item):
 	>>> list(always_iterable('foo'))
 	[u'foo']
 	>>> list(always_iterable('foo\nbar'))
-	[u'foo\n', u'bar']
+	[u'foo', u'bar']
 
 	>>> list(always_iterable([1,2,3]))
 	[1, 2, 3]
@@ -30,7 +30,7 @@ def always_iterable(item):
 		item = ()
 
 	if isinstance(item, basestring):
-		item = io.StringIO(unicode(item))
+		item = (line.rstrip('\n') for line in io.StringIO(unicode(item)))
 
 	if not hasattr(item, '__iter__'):
 		item = item,
