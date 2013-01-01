@@ -1,3 +1,9 @@
+1105.2
+======
+
+* Added `pmxbot.core.FinalRegistry` for registering callback functions to be
+  called when the bot exits.
+
 1105.1
 ======
 
