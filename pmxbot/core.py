@@ -342,6 +342,23 @@ class SilentCommandBot(LoggingCommandBot):
 	def on_join(self, *args, **kwargs):
 		"Do nothing"
 
+class FinalRegistry:
+	"""
+	A list of callbacks to run at exit.
+	"""
+	_finalizers = []
+
+	@classmethod
+	def at_exit(cls, finalizer):
+		cls._finalizers.append(finalizer)
+
+	@classmethod
+	def finalize(cls):
+		for callback in cls._finalizers:
+			try:
+				callback()
+			except:
+				pass
 
 _handler_registry = []
 _delay_registry = []
@@ -516,7 +533,10 @@ def get_args():
 def run():
 	global _bot
 	_bot = initialize(get_args().config)
-	_bot.start()
+	try:
+		_bot.start()
+	finally:
+		FinalRegistry.finalize()
 
 def _setup_logging():
 	log_level = pmxbot.config['log level']
