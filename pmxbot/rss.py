@@ -108,7 +108,7 @@ class RSSFeeds(FeedHistory):
 		outputs = [
 			self.format_entry(entry)
 			for entry in resp['entries']
-			if not self.add_seen_feed(entry, feed['url'])
+			if self.add_seen_feed(entry, feed['url'])
 		]
 
 		if not outputs:
