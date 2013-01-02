@@ -427,7 +427,7 @@ class ContainsHandler(Handler):
 		)
 
 	def _rate_match(self):
-		return random.random() > self.rate
+		return random.random() <= self.rate
 
 class CommandHandler(Handler):
 	class_priority = 3
