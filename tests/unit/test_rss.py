@@ -64,3 +64,6 @@ def test_format_entry():
 	res = feedparser.parse(feed_url)
 	entry = res['entries'][0]
 	pmxbot.rss.RSSFeeds.format_entry(entry)
+
+def test_format_entry_unicode():
+	pmxbot.rss.RSSFeeds.format_entry(dict(title=u'\u2013'))
