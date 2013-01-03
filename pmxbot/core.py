@@ -487,11 +487,12 @@ def command(name, aliases=[], doc=None):
 		],
 	).decorate
 
-def regexp(name, regexp, doc=None):
+def regexp(name, regexp, doc=None, **kwargs):
 	return RegexpHandler(
 		name=name.lower(),
 		doc=doc,
 		pattern=re.compile(regexp, re.IGNORECASE),
+		**kwargs
 	).decorate
 
 def execdelay(name, channel, howlong, args=[], doc=None, repeat=False):
