@@ -10,14 +10,14 @@ import time
 import pkg_resources
 
 import pmxbot.core
-from pmxbot.core import command, _handler_registry
+from pmxbot.core import command, Handler
 
 @command("help", aliases=('h',), doc="Help (this command)")
 def help(client, event, channel, nick, rest):
 	rs = rest.strip()
 	if rs:
 		# give help for matching commands
-		for handler in _handler_registry:
+		for handler in Handler._registry:
 			if handler.name == rs.lower():
 				yield '!%s: %s' % (handler.name, handler.doc)
 				break
@@ -27,7 +27,7 @@ def help(client, event, channel, nick, rest):
 
 	# give help for all commands
 	def mk_entries():
-		handlers = (handler for handler in _handler_registry
+		handlers = (handler for handler in Handler._registry
 			if type(handler) is pmxbot.core.CommandHandler)
 		handlers = sorted(handlers, key=operator.attrgetter('name'))
 		for handler in handlers:

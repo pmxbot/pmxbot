@@ -312,7 +312,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 
 		messages = ()
 		matching_handlers = (
-			handler for handler in _handler_registry
+			handler for handler in Handler._registry
 			if handler.match(msg, channel))
 		for handler in matching_handlers:
 			exception_handler = functools.partial(
@@ -360,12 +360,13 @@ class FinalRegistry:
 			except:
 				pass
 
-_handler_registry = []
 _delay_registry = []
 _at_registry = []
 _join_registry = []
 
 class Handler(object):
+	_registry = []
+
 	class_priority = 1
 	"priority of this class relative to other classes, precedence to higher"
 
@@ -379,6 +380,11 @@ class Handler(object):
 		self.name = name
 		self.func = func
 		self.__dict__.update(kwargs)
+
+	@classmethod
+	def add_handler(cls, handler):
+		cls._registry.append(handler)
+		cls._registry.sort()
 
 	@property
 	def sort_key(self):
@@ -457,7 +463,7 @@ def contains(name, channels=(), exclude=(), rate=1.0, priority=1,
 		doc=None, **kwargs):
 	def deco(func):
 		effective_priority = priority+1 if name == '#' else priority
-		_handler_registry.append(ContainsHandler(
+		Handler.register(ContainsHandler(
 			name=name.lower(),
 			func=func,
 			doc=doc,
@@ -466,7 +472,6 @@ def contains(name, channels=(), exclude=(), rate=1.0, priority=1,
 			rate=rate,
 			priority=effective_priority,
 			**kwargs))
-		_handler_registry.sort()
 		return func
 	return deco
 
@@ -478,27 +483,25 @@ def command(name, aliases=[], doc=None):
 			doc=doc,
 			aliases=[],
 		)
-		_handler_registry.append(ch)
+		Handler.register(ch)
 		for alias in aliases:
 			ah = AliasHandler(
 				name=alias,
 				func=func,
 				doc=doc)
 			ch.aliases.append(ah)
-			_handler_registry.append(ah)
-		_handler_registry.sort()
+			Handler.register(ah)
 		return func
 	return deco
 
 def regexp(name, regexp, doc=None):
 	def deco(func):
-		_handler_registry.append(RegexpHandler(
+		Handler.register(RegexpHandler(
 			name=name.lower(),
 			func=func,
 			doc=doc,
 			pattern=re.compile(regexp, re.IGNORECASE),
 		))
-		_handler_registry.sort()
 		return func
 	return deco
 
@@ -553,7 +556,7 @@ def initialize(config):
 
 	_setup_logging()
 	_load_library_extensions()
-	if not _handler_registry:
+	if not Handler._registry:
 		raise RuntimeError("No handlers registered")
 
 	class_ = SilentCommandBot if config.silent_bot else LoggingCommandBot
