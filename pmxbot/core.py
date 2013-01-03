@@ -376,15 +376,17 @@ class Handler(object):
 	allow_chain = False
 	"allow subsequent handlers to also process the same message"
 
-	def __init__(self, name, func, **kwargs):
-		self.name = name
-		self.func = func
+	def __init__(self, **kwargs):
 		self.__dict__.update(kwargs)
 
-	@classmethod
-	def add_handler(cls, handler):
-		cls._registry.append(handler)
-		cls._registry.sort()
+	def register(self):
+		self._registry.append(self)
+		self._registry.sort()
+
+	def decorate(self, func):
+		self.func = func
+		self.register()
+		return func
 
 	@property
 	def sort_key(self):
@@ -437,6 +439,12 @@ class ContainsHandler(Handler):
 
 class CommandHandler(Handler):
 	class_priority = 3
+	aliases = ()
+
+	def decorate(self, func):
+		for alias in self.aliases:
+			func = alias.decorate(func)
+		return super(CommandHandler, self).decorate(func)
 
 	def match(self, message, channel):
 		cmd, _, cmd_args = message.partition(' ')
@@ -458,51 +466,33 @@ class RegexpHandler(ContainsHandler):
 	def process(self, message):
 		return self.pattern.search(message)
 
-
 def contains(name, channels=(), exclude=(), rate=1.0, priority=1,
 		doc=None, **kwargs):
-	def deco(func):
-		Handler.register(ContainsHandler(
-			name=name.lower(),
-			func=func,
-			doc=doc,
-			channels=channels,
-			exclude=exclude,
-			rate=rate,
-			priority=priority,
-			**kwargs))
-		return func
-	return deco
+	return ContainsHandler(
+		name=name.lower(),
+		doc=doc,
+		channels=channels,
+		exclude=exclude,
+		rate=rate,
+		priority=priority,
+		**kwargs).decorate
 
 def command(name, aliases=[], doc=None):
-	def deco(func):
-		ch = CommandHandler(
-			name=name.lower(),
-			func=func,
-			doc=doc,
-			aliases=[],
-		)
-		Handler.register(ch)
-		for alias in aliases:
-			ah = AliasHandler(
-				name=alias,
-				func=func,
-				doc=doc)
-			ch.aliases.append(ah)
-			Handler.register(ah)
-		return func
-	return deco
+	return CommandHandler(
+		name=name.lower(),
+		doc=doc,
+		aliases=[
+			AliasHandler(name=alias, doc=doc)
+			for alias in aliases
+		],
+	).decorate
 
 def regexp(name, regexp, doc=None):
-	def deco(func):
-		Handler.register(RegexpHandler(
-			name=name.lower(),
-			func=func,
-			doc=doc,
-			pattern=re.compile(regexp, re.IGNORECASE),
-		))
-		return func
-	return deco
+	return RegexpHandler(
+		name=name.lower(),
+		doc=doc,
+		pattern=re.compile(regexp, re.IGNORECASE),
+	).decorate
 
 def execdelay(name, channel, howlong, args=[], doc=None, repeat=False):
 	def deco(func):
