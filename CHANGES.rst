@@ -1,3 +1,8 @@
+1105.3
+======
+
+* Allow keyword arguments to @regexp decorator.
+
 1105.2
 ======
 
