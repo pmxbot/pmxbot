@@ -462,7 +462,6 @@ class RegexpHandler(ContainsHandler):
 def contains(name, channels=(), exclude=(), rate=1.0, priority=1,
 		doc=None, **kwargs):
 	def deco(func):
-		effective_priority = priority+1 if name == '#' else priority
 		Handler.register(ContainsHandler(
 			name=name.lower(),
 			func=func,
@@ -470,7 +469,7 @@ def contains(name, channels=(), exclude=(), rate=1.0, priority=1,
 			channels=channels,
 			exclude=exclude,
 			rate=rate,
-			priority=effective_priority,
+			priority=priority,
 			**kwargs))
 		return func
 	return deco
