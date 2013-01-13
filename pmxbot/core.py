@@ -17,6 +17,7 @@ import re
 
 import irc.bot
 import irc.client
+import irc.schedule
 import pkg_resources
 
 import pmxbot.itertools
@@ -177,24 +178,19 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			log.exception("Unhandled exception transmitting message: %r", msg)
 
 	def _schedule_at(self, conn, name, channel, when, func, args, doc):
-		arguments = conn, channel, func, args
+		runner_func = functools.partial(self.background_runner, conn, channel,
+			func, args)
 		if isinstance(when, datetime.date):
 			midnight = datetime.time(0,0)
 			when = datetime.datetime.combine(when, midnight)
 		if isinstance(when, datetime.datetime):
-			cmd = irc.client.DelayedCommand.at_time(
-				when, self.background_runner, arguments)
+			cmd = irc.schedule.DelayedCommand.at_time(when, runner_func)
 			conn.irclibobj._schedule_command(cmd)
 			return
 		if not isinstance(when, datetime.time):
 			raise ValueError("when must be datetime, date, or time")
-		daily = datetime.timedelta(days=1)
-		# convert when to the next datetime matching this time
-		when = datetime.datetime.combine(datetime.date.today(), when)
-		if when < datetime.datetime.now():
-			when += daily
-		cmd = irc.client.PeriodicCommandFixedDelay.at_time(
-			when, daily, self.background_runner, arguments)
+		cmd = irc.schedule.PeriodicCommandFixedDelay.daily_at(when,
+			runner_func)
 		conn.irclibobj._schedule_command(cmd)
 
 	def on_welcome(self, connection, event):
