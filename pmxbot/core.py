@@ -456,6 +456,11 @@ class AliasHandler(CommandHandler):
 class RegexpHandler(ContainsHandler):
 	class_priority = 4
 
+	def __init__(self, *args, **kwargs):
+		super(RegexpHandler, self).__init__(*args, **kwargs)
+		if isinstance(self.pattern, basestring):
+			self.pattern = re.compile(self.pattern, re.IGNORECASE)
+
 	def match(self, message, channel):
 		return self.pattern.search(message)
 
@@ -487,7 +492,7 @@ def regexp(name, regexp, doc=None, **kwargs):
 	return RegexpHandler(
 		name=name.lower(),
 		doc=doc,
-		pattern=re.compile(regexp, re.IGNORECASE),
+		pattern=regexp,
 		**kwargs
 	).decorate
 
