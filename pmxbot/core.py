@@ -196,6 +196,9 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 	def on_welcome(self, connection, event):
 		# save the connection object so .out has something to call
 		self._conn = connection
+		if pmxbot.config.nickserv_password:
+			connection.privmsg('NickServ', 'identify %s' %
+				pmxbot.config.nickserv_password)
 
 		# join channels
 		for channel in self._channels:

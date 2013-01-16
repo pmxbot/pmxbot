@@ -15,6 +15,7 @@ config = ConfigDict(
 	server_port = 6667,
 	use_ssl = False,
 	password = None,
+	nickserv_password = None,
 	silent_bot = False,
 	log_channels = [],
 	other_channels = [],
