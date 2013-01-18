@@ -376,3 +376,15 @@ def where(client, event, channel, nick, rest):
 @command("logs", doc="Where can one find the logs?")
 def logs(client, event, channel, nick, rest):
 	return pmxbot.config.get('logs URL')
+
+@command("log", doc="Enable or disable logging for a channel; use 'please' "
+	"to start logging and 'stop please' to stop.")
+def log(client, event, channel, nick, rest):
+	words = [s.lower() for s in rest.split()]
+	if not 'please' in words:
+		return
+	include = 'stop' not in rest
+	existing = set(pmxbot.config.log_channels)
+	# add the channel if include, otherwise remove the channel
+	op = existing.union if include else existing.difference
+	pmxbot.config.log_channels = list(op([channel]))
