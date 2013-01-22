@@ -56,4 +56,4 @@ def ctlaltdel(client, event, channel, nick, rest):
 def logo(client, event, channel, nick, rest):
 	logo_txt = pkg_resources.resource_stream('pmxbot', 'asciilogo.txt')
 	for line in logo_txt:
-		yield line
+		yield line.rstrip()
