@@ -53,6 +53,7 @@ def get_html(url):
 def_exp1 = re.compile(r"<div><span class=f>.*?</span>(.+?)</div>", re.MULTILINE)
 def_exp2 = re.compile(r"Definition for.*<div class=s><div>(.+?)<", re.MULTILINE)
 urbd_exp = re.compile(r"""<td class=['"]word['"]>(.+?)^</td>$(?:.+?)<div class=['"]definition['"]>(.+?)</div>""", re.MULTILINE | re.DOTALL)
+ecomp_exp = re.compile(r"""\[.*\]""", re.MULTILINE|re.DOTALL)
 
 def strip_tags(string):
 	"""
@@ -113,6 +114,16 @@ def lookup_acronym(acronym):
 
 	return all
 
+def emergency_complement():
+	compurl = 'http://emergencycompliment.com/js/compliments.js'
+	comps = open_url(compurl).read()
+	match = ecomp_exp.search(comps)
+	if not match:
+		return None
+	complist = match.group()
+	return complist
+	
+
 def passagg(recipient='', sender=''):
 	adj = random.choice(pmxbot.phrases.adjs)
 	if random.randint(0,1):
@@ -130,3 +141,6 @@ def passagg(recipient='', sender=''):
 	end = "%s." % end
 	final = " ".join([start, end])
 	return final
+
+if __name__ == '__main__':
+	print emergency_complement()

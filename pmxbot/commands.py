@@ -480,6 +480,25 @@ def compliment(client, event, channel, nick, rest):
 				'%s has' % complimentee, compliment)
 		return compliment
 
+@command('emergencycompliment', aliases=('ec','emercomp'),
+	doc="Return a random compliment from http://emergencycompliment.com/")
+def emer_comp(client, event, channel, nick, rest):
+	if hasattr(phrases, 'emer_comp'):
+		comps = phrases.emer_comp
+	else:
+		comps = util.emergency_complement()
+		if comps is None:
+			return "Sorry %s, I can't do that right now." % nick
+		comps = [x[u'phrase'] for x in json.loads(comps)]
+		#Cache the results
+		phrases.emer_comp = comps
+	compliment = random.choice(comps)
+	if rest:
+		complimentee = rest.strip()
+		karma.Karma.store.change(complimentee, 1)
+		return "%s: %s" % (complimentee, compliment)
+	return compliment
+
 @command("gettowork", aliases=("gtw",), doc="You really ought to, ya know...")
 def gettowork(client, event, channel, nick, rest):
 	suggestions = [u"Um, might I suggest working now",
