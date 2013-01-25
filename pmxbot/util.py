@@ -141,6 +141,3 @@ def passagg(recipient='', sender=''):
 	end = "%s." % end
 	final = " ".join([start, end])
 	return final
-
-if __name__ == '__main__':
-	print emergency_complement()
