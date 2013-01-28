@@ -313,7 +313,8 @@ def _init_config():
 	if config.web_base.endswith('/'):
 		config['web_base'] = config.web_base.rstrip('/')
 	if 'logo' not in config:
-		config['logo'] = urlparse.urljoin(config.web_base, 'pmxbot.png')
+		web_base = config.web_base or '/'
+		config['logo'] = urlparse.urljoin(web_base, 'pmxbot.png')
 
 def startup(config):
 	patch_compat(config)
