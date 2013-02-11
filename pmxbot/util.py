@@ -12,9 +12,8 @@ except ImportError:
 	import urllib2 as urllib_request
 
 try:
-	import wordnik.api.APIClient
-	import wordnik.api.WordAPI
-	import wordnik.model
+	import wordnik.swagger
+	import wordnik.WordApi
 except ImportError:
 	warnings.warn("Wordnik failed to import")
 
@@ -70,12 +69,9 @@ def lookup(word):
 	'''
 	# Jason's key - do not abuse
 	key = 'edc4b9b94b341eeae350e087c2e05d2f5a2a9e0478cefc6dc'
-	client = wordnik.api.APIClient.APIClient(key, 'http://api.wordnik.com/v4')
-	words = wordnik.api.WordAPI.WordAPI(client)
-	input = wordnik.model.WordDefinitionsInput.WordDefinitionsInput()
-	input.word = word
-	input.limit = 1
-	definitions = words.getDefinitions(input)
+	client = wordnik.swagger.ApiClient(key, 'http://api.wordnik.com/v4')
+	words = wordnik.WordApi.WordApi(client)
+	definitions = words.getDefinitions(word, limit=1)
 	if not definitions:
 		return
 	definition = definitions[0]
@@ -122,7 +118,7 @@ def emergency_complement():
 		return None
 	complist = match.group()
 	return complist
-	
+
 
 def passagg(recipient='', sender=''):
 	adj = random.choice(pmxbot.phrases.adjs)
