@@ -555,7 +555,6 @@ class TestCommands(object):
 		"""
 		res = commands.urbandefit(c, e, "#test", "testrunner", "irc")
 		assert "Internet Relay Chat" in res
-		assert "protocol" in res.lower()
 
 	@pytest.has_internet
 	def test_acronym_irc(self):
