@@ -435,10 +435,10 @@ def password(client, event, channel, nick, rest):
 	return ''.join(passwd)
 
 @command("insult", aliases=(),
-	doc="Generate a random insult from http://www.webinsult.com/index.php")
+	doc="Generate a random insult from http://autoinsult.com/")
 def insult(client, event, channel, nick, rest):
 	instype = random.randrange(4)
-	insurl = "http://www.webinsult.com/index.php?style=%s&r=0&sc=1" % instype
+	insurl = "http://autoinsult.com/webinsult.php?style=%s&r=0&sc=1" % instype
 	insre = re.compile('<div class="insult" id="insult">(.*?)</div>')
 	html = util.get_html(insurl)
 	insult = insre.search(html).group(1)
