@@ -442,19 +442,20 @@ def insult(client, event, channel, nick, rest):
 	insre = re.compile('<div class="insult" id="insult">(.*?)</div>')
 	html = util.get_html(insurl)
 	insult = insre.search(html).group(1)
-	if insult:
-		if rest:
-			insultee = rest.strip()
-			karma.Karma.store.change(insultee, -1)
-			if instype in (0, 2):
-				cinsre = re.compile(r'\b(your)\b', re.IGNORECASE)
-				insult = cinsre.sub("%s's" % insultee, insult)
-			elif instype in (1, 3):
-				cinsre = re.compile(r'^([TY])')
-				insult = cinsre.sub(
-					lambda m: "%s, %s" % (
-						insultee, m.group(1).lower()), insult)
-		return insult
+	if not insult:
+		return
+	if rest:
+		insultee = rest.strip()
+		karma.Karma.store.change(insultee, -1)
+		if instype in (0, 2):
+			cinsre = re.compile(r'\b(your)\b', re.IGNORECASE)
+			insult = cinsre.sub("%s's" % insultee, insult)
+		elif instype in (1, 3):
+			cinsre = re.compile(r'^([TY])')
+			insult = cinsre.sub(
+				lambda m: "%s, %s" % (
+					insultee, m.group(1).lower()), insult)
+	return insult
 
 @command("compliment", aliases=('surreal',),
 	doc="Generate a random compliment from "
