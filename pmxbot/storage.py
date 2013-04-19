@@ -4,6 +4,7 @@ import abc
 import itertools
 import importlib
 import logging
+import threading
 try:
 	import urllib.parse as urllib_parse
 except ImportError:
@@ -58,7 +59,7 @@ class Storage(object):
 		return False
 
 
-class SQLiteStorage(Storage):
+class SQLiteStorage(Storage, threading.local):
 	scheme = 'sqlite'
 
 	@classmethod
