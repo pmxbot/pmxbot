@@ -39,14 +39,10 @@ be used).
 Testing
 =======
 
-`pmxbot` includes a test suite that does some functional tests
-with an
-included TCL IRC daemon, and some basic unit tests as well. Just run them
-from
-the pmxbot root directory using "py.test"
+`pmxbot` includes a test suite that does some functional tests written against
+the Python IRC server and quite a few unit tests as well. Just run them
+from the pmxbot root directory using "py.test"
 (requires pytest) and it should do it all for you.
-
-You'll need TCL for the functional tests not to be skipped.
 
 Configuration
 =============
