@@ -219,7 +219,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		for action in _at_registry:
 			self._schedule_at(connection, *action)
 
-		self.set_keepalive(connection)
+		self._set_keepalive(connection)
 
 	def _set_keepalive(self, connection):
 		if 'TCP keepalive' not in pmxbot.config:
@@ -229,9 +229,9 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			period = datetime.timedelta(seconds=period)
 		if isinstance(period, basestring):
 			period = dateutil.parse_timedelta(period)
+		log.info("Setting keepalive for %s", period)
 		pinger = functools.partial(connection.ping, 'keep-alive')
 		connection.execute_every(period, pinger)
-
 
 	def on_join(self, connection, event):
 		nick = event.source.nick
