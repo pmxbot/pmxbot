@@ -14,11 +14,13 @@ import logging
 import itertools
 import pprint
 import re
+import numbers
 
 import irc.bot
 import irc.client
 import irc.schedule
 import pkg_resources
+from jaraco import dateutil
 
 import pmxbot.itertools
 import pmxbot.dictlib
@@ -216,6 +218,20 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			executor(howlong, self.background_runner, arguments)
 		for action in _at_registry:
 			self._schedule_at(connection, *action)
+
+		self.set_keepalive(connection)
+
+	def _set_keepalive(self, connection):
+		if 'TCP keepalive' not in pmxbot.config:
+			return
+		period = pmxbot.config['TCP keepalive']
+		if isinstance(period, numbers.Number):
+			period = datetime.timedelta(seconds=period)
+		if isinstance(period, basestring):
+			period = dateutil.parse_timedelta(period)
+		pinger = functools.partial(connection.ping, 'keep-alive')
+		connection.execute_every(period, pinger)
+
 
 	def on_join(self, connection, event):
 		nick = event.source.nick
