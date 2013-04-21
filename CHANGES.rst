@@ -1,3 +1,12 @@
+1105.5
+======
+
+* Added support for keepalives. To enable, set the 'TCP keepalive' config
+  value to a non-zero number of seconds or a period string like '3 minutes'.
+  If configured correctly, pmxbot will report during startup the interval
+  that it detected, and every interval, it will send a 'ping' message to the
+  server.
+
 1105.3
 ======
 
