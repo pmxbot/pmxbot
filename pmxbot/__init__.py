@@ -26,8 +26,7 @@ config = ConfigDict(
 		channel = '#inane',
 		linkurl = 'http://bitbucket.org/yougov/pmxbot',
 		url = 'http://bitbucket.org/yougov/pmxbot',
-		),
-	],
+	)],
 	librarypaste = 'http://paste.jaraco.com',
 )
 config['logs URL'] = 'http://' + socket.getfqdn()
