@@ -1,4 +1,3 @@
-
 == Welcome ==
 {{https://bitbucket.org/yougov/pmxbot/raw/8af8328a91ce/pmxbotweb/templates/pmxbot.png|pmxbot skynet logo}}{{https://bitbucket.org/yougov/pmxbot/raw/tip/horrible-logos-pmxbot.gif|pmxbot horrible logo}}
 
