@@ -24,6 +24,7 @@ from jaraco import dateutil
 
 import pmxbot.itertools
 import pmxbot.dictlib
+import pmxbot.buffer
 
 log = logging.getLogger('pmxbot')
 
@@ -564,6 +565,7 @@ def initialize(config):
 	pmxbot.config.update(config)
 	config = pmxbot.config
 
+	pmxbot.buffer.ErrorReportingBuffer.install()
 	_setup_logging()
 	_load_library_extensions()
 	if not Handler._registry:
