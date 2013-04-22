@@ -473,6 +473,10 @@ class CommandHandler(Handler):
 class AliasHandler(CommandHandler):
 	class_priority = 2
 
+	def __str__(self):
+		return self.name
+	__unicode__ = __str__
+
 class RegexpHandler(ContainsHandler):
 	class_priority = 4
 

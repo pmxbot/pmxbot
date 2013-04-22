@@ -6,6 +6,7 @@
   If configured correctly, pmxbot will report during startup the interval
   that it detected, and every interval, it will send a 'ping' message to the
   server.
+* Issue #27: Fix display of aliases in web help.
 
 1105.3
 ======
