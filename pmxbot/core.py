@@ -470,6 +470,10 @@ class CommandHandler(Handler):
 		cmd, _, cmd_args = message.partition(' ')
 		return cmd_args
 
+	@property
+	def alias_names(self):
+		return [alias.name for alias in self.aliases]
+
 class AliasHandler(CommandHandler):
 	class_priority = 2
 
