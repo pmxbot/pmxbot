@@ -18,7 +18,7 @@ While pmxbot's feature set is always growing and changing, here's a list of the 
 | boo |  | Boo someone |
 | bottom10 | 'bottom' | Return the bottom n (default 10) lowest entities by Karmic value. Use negative numbers for the bottom N. |
 | calc |  | Perform a basic calculation |
-| chain |  | Chain some(one|thing)down. |
+| chain |  | Chain some(one~|thing)down. |
 | cheer | 'c' | Cheer for something |
 | compliment | 'surreal' | Generate a random compliment from http://www.madsci.org/cgi-bin/cgiwrap/~lynn/jardin/SCG |
 | config |  | Change the running config, something like a=b or a+=b or a-=b |
@@ -28,9 +28,9 @@ While pmxbot's feature set is always growing and changing, here's a list of the 
 | deal |  | Deal or No Deal? |
 | define | 'def' | Define a word |
 | demotivate | 'dm' | Demotivate someone |
-| disembowel | 'dis', 'eviscerate' | Disembowel some(one|thing)! |
+| disembowel | 'dis', 'eviscerate' | Disembowel some(one~|thing)! |
 | duck | 'ducky' | Display a helpful duck |
-| embowel | 'reembowel' | Embowel some(one|thing)! |
+| embowel | 'reembowel' | Embowel some(one~|thing)! |
 | emergencycompliment | 'ec', 'emercomp' | Return a random compliment from http://emergencycompliment.com/ |
 | excuse | 'e' | Provide a convenient excuse |
 | featurecreep | 'fc' | Generate feature creep (P+C http://www.dack.com/web/bullshit.html) |
@@ -49,8 +49,8 @@ While pmxbot's feature set is always growing and changing, here's a list of the 
 | imotivate | 'im', 'ironicmotivate' | Ironically "Motivate" someone |
 | insult |  | Generate a random insult from http://autoinsult.com/ |
 | job | 'card' | Generate a job title, http://www.cubefigures.com/job.html |
-| karma | 'k' | Return or change the karma value for some(one|thing) |
-| keelhaul | 'kh' | Inflict great pain and embarassment on some(one|thing) |
+| karma | 'k' | Return or change the karma value for some(one~|thing) |
+| keelhaul | 'kh' | Inflict great pain and embarassment on some(one~|thing) |
 | klingon | 'klingonism' | Ask the magic klingon a question |
 | log |  | Enable or disable logging for a channel; use 'please' to start logging and 'stop please' to stop. |
 | logo |  | The pmxbot logo in ascii art.  Fixed-width font recommended! |
@@ -60,21 +60,21 @@ While pmxbot's feature set is always growing and changing, here's a list of the 
 | motivate | 'm', 'appreciate', 'thanks', 'thank' | Motivate someone |
 | murphy | 'law' | Look up one of Murphy's laws |
 | nailedit | 'nail', 'n' | Nail that interview |
-| nastygram | 'nerf', 'passive', 'bcc' | A random passive-agressive comment, optionally directed toward some(one|thing). |
+| nastygram | 'nerf', 'passive', 'bcc' | A random passive-agressive comment, optionally directed toward some(one~|thing). |
 | notify |  | notify <nick> <message> |
 | oregontrail | 'otrail' | It's edutainment! |
 | panic | 'pc' | Panic! |
 | password | 'pw', 'passwd' | Generate a random password, similar to http://www.pctools.com/guides/password |
 | paste |  | Drop a link to your latest paste |
 | pick | 'p', 'p:', 'pick:' | Pick between a few options |
-| progress |  | Display the progress of something: start|end|percent |
+| progress |  | Display the progress of something: start~|end~|percent |
 | quote | 'q' | If passed with nothing then get a random quote. If passed with some string then search for that. If prepended with "add:" then add it to the db, eg "!quote add: drivers: I only work here because of pmxbot!" |
 | r | 'r' | Quote the R mailing list |
 | roll |  | Roll a die, default = 100. |
 | rubberstamp | 'approve' | Approve something |
 | saysomething |  | Generate a Markov Chain response based on past logs. Seed it with a starting word by adding that to the end, eg '!saysomething dowski:' |
 | simpsons | 'simp' | Quote the Simpsons, a la http://snpp.com/ |
-| stab | 'shank', 'shiv' | Stab, shank or shiv some(one|thing)! |
+| stab | 'shank', 'shiv' | Stab, shank or shiv some(one~|thing)! |
 | storytime | 'story' | A story is about to be told. |
 | strategy |  | Social Media Strategy, courtsey of http://whatthefuckismysocialmediastrategy.com/ |
 | strike |  | Strike last <n> statements from the record |
@@ -84,7 +84,7 @@ While pmxbot's feature set is always growing and changing, here's a list of the 
 | time |  | What time is it in.... Similar to !weather |
 | tinytear | 'tt', 'tear', 'cry' | I cry a tiny tear for you. |
 | top10 | 'top' | Return the top n (default 10) highest entities by Karmic value. Use negative numbers for the bottom N. |
-| troutslap | 'slap', 'ts' | Slap some(one|thing) with a fish |
+| troutslap | 'slap', 'ts' | Slap some(one~|thing) with a fish |
 | urbandict | 'urb', 'ud', 'urbandictionary', 'urbandefine', 'urbandef', 'urbdef' | Define a word with Urban Dictionary |
 | weather | 'w' | Get weather for a place. All offices with "all", or a list of places separated by pipes. |
 | where | 'last', 'seen', 'lastseen' | When did pmxbot last see <nick> speak? |
