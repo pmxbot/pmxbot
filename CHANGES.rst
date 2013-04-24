@@ -7,6 +7,8 @@
   that it detected, and every interval, it will send a 'ping' message to the
   server.
 * Issue #27: Fix display of aliases in web help.
+* Added a version command to get the pmxbot version or version of other
+  package in the environment.
 
 1105.3
 ======

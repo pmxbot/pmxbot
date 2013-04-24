@@ -11,6 +11,7 @@ import random
 import csv
 from xml.etree import ElementTree
 
+import pkg_resources
 import popquotes.pmxbot as pq
 from bs4 import BeautifulSoup
 
@@ -807,3 +808,9 @@ def meaculpa(client, event, channel, nick, rest):
 		return random.choice(phrases.direct_apologies) % dict(a=nick, b=rest)
 	else:
 		return random.choice(phrases.apologies) % dict(a=nick)
+
+@command("version", aliases=('ver'),
+	doc="Get the version of pmxbot or one of its plugins")
+def version(client, event, channel, nick, rest):
+	pkg = rest.strip() or 'pmxbot'
+	return pkg_resources.require(pkg)[0].version
