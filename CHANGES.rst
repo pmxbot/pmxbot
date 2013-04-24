@@ -1,3 +1,10 @@
+1105.6
+======
+
+* Added support for logging leave events as well as join events.
+* Added a new ``@on_leave`` decorator, suitable for implementing custom
+  handlers for leave events.
+
 1105.5
 ======
 

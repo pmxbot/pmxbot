@@ -1,3 +1,6 @@
+"""
+Support for rolls, leave and join events (i.e. Roll Call).
+"""
 
 from __future__ import absolute_import
 
@@ -6,7 +9,7 @@ import datetime
 import pmxbot
 from . import storage
 from . import logging
-from pmxbot.core import on_join
+from pmxbot.core import on_join, on_leave
 
 class ParticipantLogger(storage.SelectableStorage):
 	"Base class for logging participants"
@@ -35,6 +38,12 @@ def log_join(nick, channel, **kwargs):
 	if channel not in pmxbot.config.log_channels:
 		return
 	ParticipantLogger.store.log_join(nick, channel)
+
+@on_leave()
+def log_leave(nick, channel, **kwargs):
+	if channel not in pmxbot.config.log_channels:
+		return
+	ParticipantLogger.store.log_leave(nick, channel)
 
 class SQLiteLogger(ParticipantLogger, storage.SQLiteStorage):
 
@@ -68,7 +77,7 @@ class MongoDBLogger(ParticipantLogger, storage.MongoDBStorage):
 		self.db.ensure_index([
 			('datetime.d', storage.pymongo.DESCENDING),
 			('channel', storage.pymongo.ASCENDING),
-			])
+		])
 		now = datetime.datetime.utcnow()
 		self.db.insert(dict(channel=channel, nick=nick, change=change,
 			datetime=logging.MongoDBLogger._fmt_date(now)))

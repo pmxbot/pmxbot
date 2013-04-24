@@ -258,6 +258,19 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		for line in msg.splitlines():
 			connection.notice(nick, line)
 
+	def on_leave(self, connection, event):
+		nick = event.source.nick
+		channel = event.target
+		for func in _leave_registry:
+			try:
+				func(client=connection, event=event, nick=nick,
+					channel=channel)
+			except Exception:
+				print(datetime.datetime.now(),
+					"Error in on_leave handler %s" % func,
+					file=sys.stderr)
+				traceback.print_exc()
+
 	def on_pubmsg(self, connection, event):
 		msg = u''.join(event.arguments)
 		if not msg.strip():
@@ -379,6 +392,7 @@ class FinalRegistry:
 _delay_registry = []
 _at_registry = []
 _join_registry = []
+_leave_registry = []
 
 class Handler(object):
 	_registry = []
@@ -543,6 +557,12 @@ def execat(name, channel, when, args=[], doc=None):
 def on_join(doc=None):
 	def deco(func):
 		_join_registry.append(func)
+		return func
+	return deco
+
+def on_leave(doc=None):
+	def deco(func):
+		_leave_registry.append(func)
 		return func
 	return deco
 
