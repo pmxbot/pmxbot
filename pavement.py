@@ -1,6 +1,6 @@
 
 import pkg_resources
-from jaraco.develop import bitbucket
+#from jaraco.develop import bitbucket
 from paver.easy import task
 
 import pmxbot.core
