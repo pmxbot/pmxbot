@@ -566,11 +566,18 @@ def on_leave(doc=None):
 		return func
 	return deco
 
-def get_args():
+class ConfigMergeAction(argparse.Action):
+	def __call__(self, parser, namespace, values, option_string=None):
+		def merge_dicts(a, b):
+			a.update(b)
+			return a
+		setattr(namespace, self.dest, reduce(merge_dicts, values))
+
+def get_args(*args, **kwargs):
 	parser = argparse.ArgumentParser()
 	parser.add_argument('config', type=pmxbot.dictlib.ConfigDict.from_yaml,
-		default={}, nargs='?')
-	return parser.parse_args()
+		default={}, nargs='*', action=ConfigMergeAction)
+	return parser.parse_args(*args, **kwargs)
 
 def run():
 	global _bot

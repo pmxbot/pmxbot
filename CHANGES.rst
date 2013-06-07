@@ -4,6 +4,7 @@
 * Added support for logging leave events as well as join events.
 * Added a new ``@on_leave`` decorator, suitable for implementing custom
   handlers for leave events.
+* ``pmxbot`` command now optionally accepts multiple config files.
 
 1105.5
 ======
