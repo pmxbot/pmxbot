@@ -11,16 +11,16 @@ def always_iterable(item):
 	[]
 
 	If the item is a string, return an iterable of the lines in the string.
-	>>> list(always_iterable('foo'))
-	['foo']
-	>>> list(always_iterable('foo\nbar'))
-	['foo', 'bar']
+	>>> print('/'.join(always_iterable('foo')))
+	foo
+	>>> print('/'.join(always_iterable('foo\nbar')))
+	foo/bar
 
 	>>> list(always_iterable([1,2,3]))
 	[1, 2, 3]
 
 	>>> always_iterable(iter('abc'))  # doctest: +ELLIPSIS
-	<str_iterator ...>
+	<...iterator ...>
 
 	And any other non-iterable objects are returned as single-tuples of that
 	item.
