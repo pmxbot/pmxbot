@@ -10,5 +10,5 @@ def test_config_append():
 	"""
 	pmxbot.config['foo'] = []
 	text = 'foo += {"a": 3, "b": foo}'
-	pmxbot.config_.config.config(None, None, None, None, text)
+	pmxbot.config_.config(None, None, None, None, text)
 	assert pmxbot.config['foo'][0] == {'a': 3, 'b': 'foo'}
