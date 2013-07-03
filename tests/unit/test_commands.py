@@ -360,12 +360,12 @@ class TestCommands(object):
 		"""
 		Get the current stock price of the NASDAQ.
 
-		^IXIC at 10:37am (ET): 2490.40 (0.4%)
+		^IXIC at 10:37am (ET): 3403.247 (0.0%)
 		"""
 		res = commands.ticker(c, e, "#test", "testrunner", "^ixic")
 		print(res)
 		assert re.match(r"^\^IXIC at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): "
-			r"\d{4,5}.\d{2} \(\-?\d{1,3}.\d%\)$", res), res
+			r"\d{4,5}.\d{2,4} \(\-?\d{1,3}.\d%\)$", res), res
 
 	def test_pick_or(self):
 		"""
