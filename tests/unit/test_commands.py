@@ -5,6 +5,7 @@ import re
 import os
 import uuid
 
+import six
 import pytest
 import popquotes.pmxbot
 
@@ -38,11 +39,8 @@ def logical_xor(a, b):
 	return bool(a) ^ bool(b)
 
 def onetrue(*args):
-	truthiness = filter(bool, args)
-	if len(truthiness) == 1:
-		return True
-	else:
-		return False
+	truthiness = list(filter(bool, args))
+	return len(truthiness) == 1
 
 class TestCommands(object):
 	@classmethod
@@ -524,7 +522,7 @@ class TestCommands(object):
 		Test the dictionary with the word keyboard.
 		"""
 		res = commands.defit(c, e, "#test", "testrunner", "keyboard")
-		assert isinstance(res, unicode)
+		assert isinstance(res, six.text_type)
 		assert res == ("Wordnik says: A set of keys, as on a computer "
 			"terminal, word processor, typewriter, or piano.")
 
@@ -534,7 +532,7 @@ class TestCommands(object):
 		Test the dictionary with the word IRC.
 		"""
 		res = commands.defit(c, e, "#test", "testrunner", "  IRC \t")
-		assert isinstance(res, unicode)
+		assert isinstance(res, six.text_type)
 		assert res == ("Wordnik says: An international computer network of "
 			"Internet servers, using its own protocol through which "
 			"individual users can hold real-time online conversations.")
@@ -545,7 +543,7 @@ class TestCommands(object):
 		Test the dictionary with a nonsense word.
 		"""
 		res = commands.defit(c, e, "#test", "testrunner", "notaword")
-		assert isinstance(res, unicode)
+		assert isinstance(res, six.text_type)
 		assert res == "Wordnik does not have a definition for that."
 
 	@pytest.has_internet
@@ -634,7 +632,7 @@ class TestCommands(object):
 	def test_rand_bot(self, iter_):
 		res = commands.rand_bot(c, e, '#test', 'testrunner', '')
 		if res is None: return
-		if not isinstance(res, basestring):
+		if not isinstance(res, six.string_types):
 			res = u''.join(res)
 		assert len(res)
 

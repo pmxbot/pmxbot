@@ -1,4 +1,7 @@
-import urlparse
+try:
+	import urllib.parse as urllib_parse
+except ImportError:
+	import urlparse as urllib_parse
 
 import pytest
 import feedparser
@@ -27,9 +30,9 @@ class TestFeedHistory(object):
 		and return False each subsequent time.
 		"""
 		added = history.add_seen_feed(entry, 'http://example.com')
-		assert added == True
+		assert added is True
 		added = history.add_seen_feed(entry, 'http://example.com')
-		assert added == False
+		assert added is False
 		assert len(history) == 1
 
 	def test_add_seen_feed_no_identifier(self, history):
@@ -60,7 +63,7 @@ class TestFeedHistory(object):
 @pytest.has_internet
 def test_format_entry():
 	bitbucket = 'https://bitbucket.org'
-	feed_url=urlparse.urljoin(bitbucket, '/yougov/pmxbot/rss')
+	feed_url=urllib_parse.urljoin(bitbucket, '/yougov/pmxbot/rss')
 	res = feedparser.parse(feed_url)
 	entry = res['entries'][0]
 	pmxbot.rss.RSSFeeds.format_entry(entry)

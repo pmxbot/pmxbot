@@ -14,6 +14,6 @@ def test_contains_rate_limit():
 	handler = core.ContainsHandler(name='#', func=None, rate=0.5)
 	results = set(
 		handler.match('Tell me about #foo', channel='bar')
-		for x in xrange(1000)
+		for x in range(1000)
 	)
 	assert True in results and False in results

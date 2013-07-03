@@ -1,6 +1,6 @@
-from __future__ import unicode_literals
-
 import io
+
+import six
 
 def always_iterable(item):
 	r"""
@@ -12,14 +12,15 @@ def always_iterable(item):
 
 	If the item is a string, return an iterable of the lines in the string.
 	>>> list(always_iterable('foo'))
-	[u'foo']
+	['foo']
 	>>> list(always_iterable('foo\nbar'))
-	[u'foo', u'bar']
+	['foo', 'bar']
 
 	>>> list(always_iterable([1,2,3]))
 	[1, 2, 3]
-	>>> always_iterable(xrange(10))
-	xrange(10)
+
+	>>> always_iterable(iter('abc'))  # doctest: +ELLIPSIS
+	<str_iterator ...>
 
 	And any other non-iterable objects are returned as single-tuples of that
 	item.
@@ -29,8 +30,8 @@ def always_iterable(item):
 	if item is None:
 		item = ()
 
-	if isinstance(item, basestring):
-		item = (line.rstrip('\n') for line in io.StringIO(unicode(item)))
+	if isinstance(item, six.string_types):
+		item = (line.rstrip('\n') for line in io.StringIO(six.text_type(item)))
 
 	if not hasattr(item, '__iter__'):
 		item = item,

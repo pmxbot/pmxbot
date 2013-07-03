@@ -83,12 +83,12 @@ class TestPmxbotLog(PmxbotHarness):
 		assert self.check_logs(channel="#logged", message=pre_text)
 
 		base = "Strike ME msg %s from test_strike_3. " + id
-		for i in xrange(1, 4):
+		for i in range(1, 4):
 			self.client.send_message('#logged', base % i)
-		for i in xrange(1, 4):
+		for i in range(1, 4):
 			assert self.check_logs(channel="#logged", message=(base % i))
 		self.client.send_message('#logged', "!strike 3")
-		for i in xrange(1, 4):
+		for i in range(1, 4):
 			assert not self.check_logs(channel="#logged", message=(base % i))
 		assert self.check_logs(channel="#logged", message=pre_text)
 

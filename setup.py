@@ -31,6 +31,8 @@ setup_params = dict(
 	),
 	install_requires=[
 		"irc>=8.0,<9.0dev",
+		'six',
+		'requests',
 		"popquotes>=1.3",
 		"excuses>=1.1.2",
 		"pyyaml",
@@ -73,7 +75,6 @@ setup_params = dict(
 		'jaraco.test>=1.0.2,<2.0dev',
 		'mock',
 	],
-	use_2to3=True,
 )
 
 if __name__ == '__main__':

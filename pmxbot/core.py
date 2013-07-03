@@ -16,6 +16,7 @@ import pprint
 import re
 import numbers
 
+import six
 import irc.bot
 import irc.client
 import irc.schedule
@@ -48,7 +49,7 @@ class WarnHistory(dict):
 	def _expired(self, last, now):
 		return now - last > self.warn_every
 
-class AugmentableMessage(unicode):
+class AugmentableMessage(six.text_type):
 	"""
 	A text string which may be augmented with attributes
 
@@ -79,24 +80,33 @@ class Sentinel(object):
 		Iterate over the items, keeping a adding properties as supplied by
 		Sentinel objects encountered.
 
-		>>> res = tuple(Sentinel.augment_items(['a', 'b', NoLog, 'c'], secret=False))
-		>>> res
-		(u'a', u'b', u'c')
+		>>> from jaraco.util.itertools import consume
+		>>> res = Sentinel.augment_items(['a', 'b', NoLog, 'c'], secret=False)
+		>>> res = tuple(res)
+		>>> consume(map(print, res))
+		a
+		b
+		c
 		>>> [msg.secret for msg in res]
 		[False, False, True]
 
 		>>> msgs = ['a', NoLog, 'b', SwitchChannel('#foo'), 'c']
-		>>> res = tuple(Sentinel.augment_items(msgs, secret=False, channel=None))
-		>>> res
-		(u'a', u'b', u'c')
-		>>> [msg.channel for msg in res]
-		[None, None, u'#foo']
+		>>> res = Sentinel.augment_items(msgs, secret=False, channel=None)
+		>>> res = tuple(res)
+		>>> consume(map(print, res))
+		a
+		b
+		c
+		>>> [msg.channel for msg in res] == [None, None, '#foo']
+		True
 		>>> [msg.secret for msg in res]
 		[False, True, True]
 
 		>>> res = tuple(Sentinel.augment_items(msgs, channel=u'#default', secret=False))
-		>>> [msg.channel for msg in res]
-		[u'#default', u'#default', u'#foo']
+		>>> consume(map(print, [msg.channel for msg in res]))
+		#default
+		#default
+		#foo
 		"""
 		properties = defaults
 		for item in items:
@@ -118,7 +128,7 @@ class NoLog(Sentinel):
 	def properties(self):
 		return dict(secret=True)
 
-class SwitchChannel(unicode, Sentinel):
+class SwitchChannel(six.text_type, Sentinel):
 	"""
 	A sentinel indicating a new channel for subsequent messages.
 	"""
@@ -150,7 +160,8 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 
 	def out(self, channel, s, log=True):
 		sent = self._out(self._conn, channel, s)
-		log &= (channel in self._channels
+		log &= (
+			channel in self._channels
 			and channel in pmxbot.config.log_channels
 			and not s.startswith('/me ')
 		)
@@ -228,7 +239,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		period = pmxbot.config['TCP keepalive']
 		if isinstance(period, numbers.Number):
 			period = datetime.timedelta(seconds=period)
-		if isinstance(period, basestring):
+		if isinstance(period, six.string_types):
 			period = dateutil.parse_timedelta(period)
 		log.info("Setting keepalive for %s", period)
 		pinger = functools.partial(connection.ping, 'keep-alive')
@@ -500,7 +511,7 @@ class RegexpHandler(ContainsHandler):
 
 	def __init__(self, *args, **kwargs):
 		super(RegexpHandler, self).__init__(*args, **kwargs)
-		if isinstance(self.pattern, basestring):
+		if isinstance(self.pattern, six.string_types):
 			self.pattern = re.compile(self.pattern, re.IGNORECASE)
 
 	def match(self, message, channel):
@@ -571,7 +582,7 @@ class ConfigMergeAction(argparse.Action):
 		def merge_dicts(a, b):
 			a.update(b)
 			return a
-		setattr(namespace, self.dest, reduce(merge_dicts, values))
+		setattr(namespace, self.dest, six.moves.reduce(merge_dicts, values))
 
 def get_args(*args, **kwargs):
 	parser = argparse.ArgumentParser()
@@ -589,7 +600,7 @@ def run():
 
 def _setup_logging():
 	log_level = pmxbot.config['log level']
-	if isinstance(log_level, basestring):
+	if isinstance(log_level, six.string_types):
 		log_level = getattr(logging, log_level.upper())
 	logging.basicConfig(level=log_level, format="%(message)s")
 

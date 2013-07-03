@@ -2,12 +2,16 @@
 
 from __future__ import unicode_literals
 
-import urlparse
 import random
 import calendar
 import datetime
 import textwrap
 import cgi
+
+try:
+	import urllib.parse as urllib_parse
+except ImportError:
+	import urlparse as urllib_parse
 
 from py31compat.functools import lru_cache
 
@@ -49,8 +53,8 @@ def pmon(month):
 	"""
 	P the month
 
-	>>> pmon('2012-08')
-	u'August, 2012'
+	>>> print(pmon('2012-08'))
+	August, 2012
 	"""
 	year, month = month.split('-')
 	return '{month_name}, {year}'.format(
@@ -62,8 +66,8 @@ def pday(dayfmt):
 	"""
 	P the day
 
-	>>> pday('2012-08-24')
-	u'Friday the 24th'
+	>>> print(pday('2012-08-24'))
+	Friday the 24th
 	"""
 
 	year, month, day = map(int, dayfmt.split('-'))
@@ -75,7 +79,7 @@ def pday(dayfmt):
 class ChannelPage(object):
 	month_ordinal = dict(
 		(calendar.month_name[m_ord], m_ord)
-		for m_ord in xrange(1, 13)
+		for m_ord in range(1, 13)
 	)
 
 	@cherrypy.expose
@@ -104,8 +108,10 @@ class ChannelPage(object):
 		"""
 		Return a key suitable for sorting by month.
 
-		>>> ChannelPage.date_key('August, 2012')
-		(u' 2012', 8)
+		>>> k1 = ChannelPage.date_key('September, 2012')
+		>>> k2 = ChannelPage.date_key('August, 2013')
+		>>> k2 > k1
+		True
 		"""
 		month, year = month_string.split(',')
 		month_ord = cls.month_ordinal[month]
@@ -313,7 +319,7 @@ def _init_config():
 		config['web_base'] = config.web_base.rstrip('/')
 	if 'logo' not in config:
 		web_base = config.web_base or '/'
-		config['logo'] = urlparse.urljoin(web_base, 'pmxbot.png')
+		config['logo'] = urllib_parse.urljoin(web_base, 'pmxbot.png')
 
 def startup(config):
 	patch_compat(config)

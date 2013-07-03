@@ -11,6 +11,9 @@ except ImportError:
 	import urllib as urllib_quote
 	import urllib2 as urllib_request
 
+import six
+import requests
+
 try:
 	import wordnik.swagger
 	import wordnik.WordApi
@@ -37,17 +40,16 @@ def splitem(s):
 		c = c[:-1] + c[-1].split(' or ')
 
 	c = [x.strip() for x in c]
-	c = filter(None, c)
+	c = list(filter(None, c))
 	return c
 
 def open_url(url):
 	headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) '
 		'Gecko/20100101 Firefox/12.0'}
-	req = urllib_request.Request(url, headers=headers)
-	return urllib_request.urlopen(req)
+	return requests.get(url, headers=headers)
 
 def get_html(url):
-	return open_url(url).read()
+	return open_url(url).text
 
 def_exp1 = re.compile(r"<div><span class=f>.*?</span>(.+?)</div>", re.MULTILINE)
 def_exp2 = re.compile(r"Definition for.*<div class=s><div>(.+?)<", re.MULTILINE)
@@ -75,7 +77,7 @@ def lookup(word):
 	if not definitions:
 		return
 	definition = definitions[0]
-	return unicode(definition.text)
+	return six.text_type(definition.text)
 lookup.provider = 'Wordnik'
 
 def urbanlookup(word):
@@ -100,7 +102,7 @@ def lookup_acronym(acronym):
 	if idx == -1:
 		return None
 	all = []
-	for x in xrange(NUM_ACS):
+	for x in range(NUM_ACS):
 		idx = html.find('%s</a>' % acronym, idx)
 		idx = html.find('<td>', idx)
 		edx = html.find('</td>', idx)
@@ -112,7 +114,7 @@ def lookup_acronym(acronym):
 
 def emergency_complement():
 	compurl = 'http://emergencycompliment.com/js/compliments.js'
-	comps = open_url(compurl).read()
+	comps = get_html(compurl)
 	match = ecomp_exp.search(comps)
 	if not match:
 		return None

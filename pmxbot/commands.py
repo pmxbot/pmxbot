@@ -3,7 +3,12 @@
 
 from __future__ import absolute_import, division
 
-import urllib
+try:
+	import urllib.request as urllib_request
+	import urllib.parse as urllib_parse
+except ImportError:
+	import urllib2 as urllib_request
+	import urlparse as urllib_parse
 import json
 import re
 import functools
@@ -34,12 +39,12 @@ def plaintext(html):
 @command("google", aliases=('g',), doc="Look a phrase up on google")
 def google(client, event, channel, nick, rest):
 	BASE_URL = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&'
-	url = BASE_URL + urllib.urlencode({'q': rest.encode('utf-8').strip()})
-	raw_res = urllib.urlopen(url).read()
+	url = BASE_URL + urllib_parse.urlencode({'q': rest.encode('utf-8').strip()})
+	raw_res = urllib_request.urlopen(url).read()
 	results = json.loads(raw_res.decode('utf-8'))
 	hit1 = results['responseData']['results'][0]
 	return ' - '.join((
-		urllib.unquote(hit1['url']),
+		urllib_parse.unquote(hit1['url']),
 		hit1['titleNoFormatting'],
 	))
 
@@ -48,7 +53,7 @@ def google(client, event, channel, nick, rest):
 def googlecalc(client, event, channel, nick, rest):
 	query = rest
 	json_raw = util.get_html('http://www.google.com/ig/calculator?%s' %
-		urllib.urlencode(dict(hl='en', q=query.encode('utf-8'))))
+		urllib_parse.urlencode(dict(hl='en', q=query.encode('utf-8'))))
 	try:
 		res = json.loads(json_raw)
 	except ValueError:
@@ -85,7 +90,7 @@ def time_for(place, format='{time}'):
 	else:
 		query = place
 	timere = re.compile(r'<b>\s*(\d+:\d{2}([ap]m)?).*\s*</b>', re.I)
-	query_string = urllib.urlencode(dict(q = query.encode('utf-8')))
+	query_string = urllib_parse.urlencode(dict(q = query.encode('utf-8')))
 	html = util.get_html('http://www.google.com/search?%s' % query_string)
 	_time = plaintext(timere.search(html).group(1))
 	return format.format(time=_time, place=place)
@@ -98,11 +103,11 @@ def to_snowman(condition):
 
 def weather_for(place):
 	"Retrieve the weather for a specific place using the iGoogle API"
-	url = "http://www.google.com/ig/api?" + urllib.urlencode(dict(
+	url = "http://www.google.com/ig/api?" + urllib_parse.urlencode(dict(
 		weather= place.encode('utf-8')))
 	parser = ElementTree.XMLParser()
 	try:
-		wdata = ElementTree.parse(util.open_url(url), parser=parser)
+		wdata = ElementTree.parse(util.open_url(url).raw, parser=parser)
 	except ElementTree.ParseError:
 		raise RuntimeError("No weather for {place}; Google weather APIs "
 			"disabled".format(**vars()))
@@ -135,7 +140,7 @@ def suppress_exceptions(callables, exceptions=Exception):
 	Suppress supplied exceptions (tuple or single exception)
 	encountered when a callable is invoked.
 	>>> five_over_n = lambda n: 5//n
-	>>> callables = (functools.partial(five_over_n, n) for n in xrange(-3,3))
+	>>> callables = (functools.partial(five_over_n, n) for n in range(-3,3))
 	>>> safe_results = suppress_exceptions(callables, ZeroDivisionError)
 	>>> tuple(safe_results)
 	(-2, -3, -5, 5, 2)
@@ -392,7 +397,7 @@ def ticker(client, event, channel, nick, rest):
 	format = ''.join((symbol, last_trade))
 	url = ('http://finance.yahoo.com/d/quotes.csv?s=%(ticker)s&f=%(format)s'
 		% vars())
-	stockInfo = csv.reader(urllib.urlopen(url))
+	stockInfo = csv.reader(util.open_url(url).text.splitlines())
 	lastTrade = next(stockInfo)
 	ticker_given, price, date, time, diff = lastTrade[:5]
 	if date == 'N/A':
@@ -463,7 +468,7 @@ def insult(client, event, channel, nick, rest):
 	"http://www.madsci.org/cgi-bin/cgiwrap/~lynn/jardin/SCG")
 def compliment(client, event, channel, nick, rest):
 	compurl = 'http://www.madsci.org/cgi-bin/cgiwrap/~lynn/jardin/SCG'
-	comphtml = ''.join([i for i in urllib.urlopen(compurl)])
+	comphtml = ''.join([i.decode() for i in urllib_request.urlopen(compurl)])
 	compmark1 = '<h2>\n\n'
 	compmark2 = '\n</h2>'
 	compliment = comphtml[
@@ -644,7 +649,7 @@ def blame(client, event, channel, nick, rest):
 
 @command("paste", aliases=(), doc="Drop a link to your latest paste")
 def paste(client, event, channel, nick, rest):
-	req = urllib.urlopen("%slast/%s" % (pmxbot.config.librarypaste, nick))
+	req = urllib_request.urlopen("%slast/%s" % (pmxbot.config.librarypaste, nick))
 	if req.getcode() >= 200 and req.getcode() < 400:
 		return req.geturl()
 	else:
