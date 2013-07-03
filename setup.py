@@ -71,6 +71,7 @@ setup_params = dict(
 		'pymongo',
 		'pytest',
 		'jaraco.test>=1.0.2,<2.0dev',
+		'mock',
 	],
 	use_2to3=True,
 )
