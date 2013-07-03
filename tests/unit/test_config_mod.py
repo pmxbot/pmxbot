@@ -4,7 +4,7 @@ import mock
 import pmxbot.config_
 
 @mock.patch('pmxbot.config', {})
-def test_config_append(self):
+def test_config_append():
 	"""
 	+= should append an item to a list
 	"""
