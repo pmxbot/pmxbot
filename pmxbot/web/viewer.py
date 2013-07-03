@@ -176,7 +176,6 @@ class SearchPage(object):
 		page = jenv.get_template('search.html')
 		context = get_context()
 		db = pmxbot.logging.Logger.store
-		#db.text_factory = lambda x: unicode(x, "utf-8", "ignore")
 
 		# a hack to enable the database to create anchors when building search
 		#  results
