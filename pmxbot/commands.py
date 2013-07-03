@@ -9,6 +9,9 @@ try:
 except ImportError:
 	import urllib2 as urllib_request
 	import urlparse as urllib_parse
+	import urllib
+	urllib_parse.urlencode = urllib.urlencode
+
 import json
 import re
 import functools
