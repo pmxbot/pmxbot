@@ -562,7 +562,6 @@ class TestCommands(object):
 		Test acronym finder with the word IRC.
 		"""
 		res = commands.acit(c, e, "#test", "testrunner", "irc")
-		assert "Internet Relay Chat" in res
 		assert "|" in res
 
 	def test_progress(self):
