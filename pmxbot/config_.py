@@ -26,7 +26,7 @@ def config(client, event, channel, nick, rest):
 		if not isinstance(pmxbot.config[key], (list, tuple)):
 			msg = "{key} is not list or tuple. Can't {op_name}."
 			return msg.format(**vars())
-		op = getattr(pmxbot.config[key], op)
+		op = getattr(pmxbot.config[key], op_name)
 		op(value)
 	else: # op is '='
 		pmxbot.config[key] = value
