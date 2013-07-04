@@ -59,7 +59,12 @@ class PmxbotHarness(object):
 		#  to libs pulled by tests_require
 		env['PYTHONPATH'] = os.pathsep.join(sys.path)
 		try:
-			cmd = [sys.executable, '-m', 'irc.server', '-p', '6668']
+			cmd = [
+				sys.executable,
+				'-m', 'irc.server',
+				'-p', '6668',
+				'-l', 'debug',
+			]
 			cls.server = subprocess.Popen(cmd, env=env)
 		except OSError:
 			pytest.skip("Unable to launch irc server.")
@@ -72,7 +77,11 @@ class PmxbotHarness(object):
 			# Launch pmxbot using Python directly (rather than through
 			#  the console entry point, which can't be properly
 			#  .terminate()d on Windows.
-			cmd = [sys.executable, '-m', 'pmxbot', cls.config_fn]
+			cmd = [
+				sys.executable,
+				'-m', 'pmxbot',
+				cls.config_fn,
+			]
 			cls.bot = subprocess.Popen(cmd, env=env)
 		except OSError:
 			pytest.skip("Unable to launch pmxbot (pmxbot must be installed)")
