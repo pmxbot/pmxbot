@@ -516,7 +516,7 @@ class TestCommands(object):
 		print(res)
 		assert res.startswith("6.070566")
 
-	@pytest.has_internet
+	@pytest.has_wordnik
 	def test_define_keyboard(self):
 		"""
 		Test the dictionary with the word keyboard.
@@ -526,7 +526,7 @@ class TestCommands(object):
 		assert res == ("Wordnik says: A set of keys, as on a computer "
 			"terminal, word processor, typewriter, or piano.")
 
-	@pytest.has_internet
+	@pytest.has_wordnik
 	def test_define_irc(self):
 		"""
 		Test the dictionary with the word IRC.
@@ -537,7 +537,7 @@ class TestCommands(object):
 			"Internet servers, using its own protocol through which "
 			"individual users can hold real-time online conversations.")
 
-	@pytest.has_internet
+	@pytest.has_wordnik
 	def test_define_notaword(self):
 		"""
 		Test the dictionary with a nonsense word.
