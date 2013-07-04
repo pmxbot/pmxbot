@@ -86,15 +86,25 @@ class PmxbotHarness(object):
 		except OSError:
 			pytest.skip("Unable to launch pmxbot (pmxbot must be installed)")
 		cls.wait_for_tables()
+		cls.wait_for_output()
 		if cls.bot.poll() is not None:
 			pytest.skip("Bot did not start up properly")
 		cls.client = TestingClient('localhost', 6668, 'testingbot')
 
 	@classmethod
+	def wait_for_output(cls):
+		"""
+		Wait for 'Running with config' in cls.bot.output
+		"""
+		if cls.bot.poll() is not None:
+			return
+		# stubbed
+		time.sleep(5)
+
+	@classmethod
 	def wait_for_tables(cls, timeout=30):
 		import jaraco.util.timing
 		import datetime
-		import time
 		watch = jaraco.util.timing.Stopwatch()
 		while watch.split() < datetime.timedelta(seconds=timeout):
 			try:
