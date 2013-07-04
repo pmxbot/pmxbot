@@ -17,7 +17,7 @@ import requests
 try:
 	import wordnik.swagger
 	import wordnik.WordApi
-except ImportError:
+except (ImportError, SyntaxError):
 	warnings.warn("Wordnik failed to import")
 
 import pmxbot.phrases
