@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function, absolute_import
+from __future__ import print_function, absolute_import, unicode_literals
 
 import re
 import os
@@ -633,7 +633,7 @@ class TestCommands(object):
 		res = commands.rand_bot(c, e, '#test', 'testrunner', '')
 		if res is None: return
 		if not isinstance(res, six.string_types):
-			res = u''.join(res)
+			res = ''.join(res)
 		assert len(res)
 
 	def test_logo(self):

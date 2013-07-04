@@ -1,6 +1,6 @@
 # vim:ts=4:sw=4:noexpandtab
 
-from __future__ import absolute_import, print_function
+from __future__ import absolute_import, print_function, unicode_literals
 
 import sys
 import datetime
@@ -102,7 +102,7 @@ class Sentinel(object):
 		>>> [msg.secret for msg in res]
 		[False, True, True]
 
-		>>> res = tuple(Sentinel.augment_items(msgs, channel=u'#default', secret=False))
+		>>> res = tuple(Sentinel.augment_items(msgs, channel='#default', secret=False))
 		>>> consume(map(print, [msg.channel for msg in res]))
 		#default
 		#default
@@ -176,7 +176,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		Suppress all exceptions (but log warnings for each).
 		"""
 		func = conn.privmsg
-		if msg.startswith(u'/me '):
+		if msg.startswith('/me '):
 			func = conn.action
 			msg = msg.split(' ', 1)[-1].lstrip()
 		try:
@@ -283,7 +283,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 				traceback.print_exc()
 
 	def on_pubmsg(self, connection, event):
-		msg = u''.join(event.arguments)
+		msg = ''.join(event.arguments)
 		if not msg.strip():
 			return
 		nick = event.source.nick
@@ -293,7 +293,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		self.handle_action(connection, event, channel, nick, msg)
 
 	def on_privmsg(self, connection, event):
-		msg = u''.join(event.arguments)
+		msg = ''.join(event.arguments)
 		if not msg.strip():
 			return
 		nick = event.source.nick

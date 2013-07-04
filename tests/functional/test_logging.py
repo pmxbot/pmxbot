@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
+
 import time
 import uuid
+
 from tests.functional import PmxbotHarness
 
 
@@ -42,7 +45,7 @@ class TestPmxbotLog(PmxbotHarness):
 		"""
 		Test that international characters get logged properly.
 		"""
-		msg = u'Я предпочитаю круассаны с рыбой. {id}'.format(
+		msg = 'Я предпочитаю круассаны с рыбой. {id}'.format(
 			id=str(uuid.uuid4()))
 		self.client.send_message('#logged', msg)
 		assert self.check_logs(channel='#logged', message=msg)

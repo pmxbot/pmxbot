@@ -2,6 +2,8 @@
 System commands
 """
 
+from __future__ import unicode_literals
+
 import sys
 import operator
 import io
@@ -36,7 +38,7 @@ def help(client, event, channel, nick, rest):
 				alias_names = (alias.name for alias in handler.aliases)
 				res += " (%s)" % ', '.join(alias_names)
 			yield res
-	o = io.StringIO(u" ".join(mk_entries()))
+	o = io.StringIO(" ".join(mk_entries()))
 	more = o.read(160)
 	while more:
 		yield more

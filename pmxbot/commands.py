@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim:ts=4:sw=4:noexpandtab
 
-from __future__ import absolute_import, division
+from __future__ import absolute_import, division, unicode_literals
 
 try:
 	import urllib.request as urllib_request
@@ -62,12 +62,12 @@ def googlecalc(client, event, channel, nick, rest):
 	except ValueError:
 		# google returns invalid JSON
 		# !dm google
-		karma.Karma.store.change(u'google', -1)
+		karma.Karma.store.change('google', -1)
 		json_fixed = re.sub(r'(\w+):', r'"\1":', json_raw)
 		res = json.loads(json_fixed)
-	if res[u'error']:
-		raise RuntimeError(res[u'error'])
-	return u"{lhs} = {rhs}".format(**res)
+	if res['error']:
+		raise RuntimeError(res['error'])
+	return "{lhs} = {rhs}".format(**res)
 
 @command("time", doc="What time is it in.... Similar to !weather")
 def googletime(client, event, channel, nick, rest):
@@ -102,7 +102,7 @@ def to_snowman(condition):
 	"""
 	Replace 'Snow' and 'Snow Showers' with a snowman (☃).
 	"""
-	return condition.replace('Snow Showers', u'☃').replace('Snow', u'☃')
+	return condition.replace('Snow Showers', '☃').replace('Snow', '☃')
 
 def weather_for(place):
 	"Retrieve the weather for a specific place using the iGoogle API"
@@ -131,9 +131,9 @@ def weather_for(place):
 		'weather/forecast_conditions/condition').get('data')
 	future_conds = to_snowman(future_conds)
 	fmt = '    '.join((
-		u"%(city)s. Currently: %(tempf)sF/%(tempc)sC, %(conds)s.",
-		u"%(future_day)s: %(future_highf)sF/%(future_highc)sC, "
-			u"%(future_conds)s",
+		"%(city)s. Currently: %(tempf)sF/%(tempc)sC, %(conds)s.",
+		"%(future_day)s: %(future_highf)sF/%(future_highc)sC, "
+			"%(future_conds)s",
 	))
 	weather = fmt % vars()
 	return weather
@@ -499,7 +499,7 @@ def emer_comp(client, event, channel, nick, rest):
 		comps = util.emergency_complement()
 		if comps is None:
 			return "Sorry %s, I can't do that right now." % nick
-		comps = [x[u'phrase'] for x in json.loads(comps)]
+		comps = [x['phrase'] for x in json.loads(comps)]
 		#Cache the results
 		phrases.emer_comp = comps
 	compliment = random.choice(comps)
@@ -511,14 +511,14 @@ def emer_comp(client, event, channel, nick, rest):
 
 @command("gettowork", aliases=("gtw",), doc="You really ought to, ya know...")
 def gettowork(client, event, channel, nick, rest):
-	suggestions = [u"Um, might I suggest working now",
-		u"Get to work",
-		u"Between the coffee break, the smoking break, the lunch break, "
-			u"the tea break, the bagel break, and the water cooler break, "
-			u"may I suggest a work break.  It’s when you do some work",
-		u"Work faster",
-		u"I didn’t realize we paid people for doing that",
-		u"You aren't being paid to believe in the power of your dreams",]
+	suggestions = ["Um, might I suggest working now",
+		"Get to work",
+		"Between the coffee break, the smoking break, the lunch break, "
+			"the tea break, the bagel break, and the water cooler break, "
+			"may I suggest a work break.  It’s when you do some work",
+		"Work faster",
+		"I didn’t realize we paid people for doing that",
+		"You aren't being paid to believe in the power of your dreams",]
 	suggestion = random.choice(suggestions)
 	rest = rest.strip()
 	if rest:
@@ -698,8 +698,8 @@ def calc(client, event, channel, nick, rest):
 def defit(client, event, channel, nick, rest):
 	word = rest.strip()
 	res = util.lookup(word)
-	fmt = (u'{lookup.provider} says: {res}' if res else
-		u"{lookup.provider} does not have a definition for that.")
+	fmt = ('{lookup.provider} says: {res}' if res else
+		"{lookup.provider} does not have a definition for that.")
 	return fmt.format(**dict(vars(), lookup=util.lookup))
 
 @command("urbandict", aliases=("urb", 'ud', 'urbandictionary', 'urbandefine',
