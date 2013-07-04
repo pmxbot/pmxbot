@@ -85,13 +85,28 @@ class PmxbotHarness(object):
 			cls.bot = subprocess.Popen(cmd, env=env)
 		except OSError:
 			pytest.skip("Unable to launch pmxbot (pmxbot must be installed)")
-		# todo: instead of sleeping, wait for database tables to be created,
-		#  a better indicator that pmxbot has started properly.
-		time.sleep(7)
+		cls.wait_for_tables()
 		if cls.bot.poll() is not None:
 			pytest.skip("Bot did not start up properly")
 		cls.client = TestingClient('localhost', 6668, 'testingbot')
 
+	@classmethod
+	def wait_for_tables(cls, timeout=30):
+		import jaraco.util.timing
+		import datetime
+		import time
+		watch = jaraco.util.timing.Stopwatch()
+		while watch.split() < datetime.timedelta(seconds=timeout):
+			try:
+				cls.check_logs('#check')
+				return
+			except:
+				# short-circuit if the bot has stopped
+				if cls.bot.poll() is not None:
+					return
+				time.sleep(.2)
+
+	@classmethod
 	def check_logs(cls, channel='', nick='', message=''):
 		if channel.startswith('#'):
 			channel = channel[1:]
