@@ -78,11 +78,8 @@ class SQLiteStorage(Storage, threading.local):
 		pass
 
 	def _import_modules(self):
-		try:
-			from pysqlite2 import dbapi2 as sqlite
-		except ImportError:
-			from sqlite3 import dbapi2 as sqlite
-		globals().update(sqlite=sqlite)
+		import sqlite3
+		globals().update(sqlite=sqlite3)
 
 class MongoDBStorage(Storage):
 	scheme = 'mongodb'
