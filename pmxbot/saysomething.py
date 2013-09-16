@@ -65,13 +65,6 @@ def paragraph_from_words(words):
 		result.append(word)
 	return ' '.join(result)
 
-def saysomething_db(db, initial_word='\n'):
-	return paragraph_from_words(
-			words_from_markov_data(
-				markov_data_from_words(
-					words_from_db(db)),
-				initial_word))
-
 class FastSayer(object):
 	def __init__(self, word_factory):
 		if not hasattr(self, 'markovdata'):
