@@ -1,0 +1,21 @@
+from pmxbot import logging
+
+class TestMongoDBLogging(object):
+	def setup_logging(self, mongodb_uri):
+		logger = logging.Logger.from_URI(mongodb_uri)
+		logger.db = logger.db.database.connection[
+			logger.db.database.name+'_test'
+			][logger.db.name]
+		self.logger = logger
+
+	def teardown_method(self, method):
+		if hasattr(self, 'logger'):
+			self.logger.db.drop()
+
+	def test_message(self, mongodb_uri):
+		self.setup_logging(mongodb_uri)
+		l = self.logger
+		l.message('#channel5', 'nik', 'something great happened today - '
+			'the test passed')
+		assert l.db.count() == 1
+		assert 'test passed' in l.db.find_one()['message']
