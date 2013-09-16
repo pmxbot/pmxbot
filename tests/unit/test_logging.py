@@ -7,6 +7,7 @@ class TestMongoDBLogging(object):
 			logger.db.database.name+'_test'
 			][logger.db.name]
 		self.logger = logger
+		return logger
 
 	def teardown_method(self, method):
 		if hasattr(self, 'logger'):
@@ -19,3 +20,11 @@ class TestMongoDBLogging(object):
 			'the test passed')
 		assert l.db.count() == 1
 		assert 'test passed' in l.db.find_one()['message']
+
+	def test_get_random_logs(self, mongodb_uri):
+		l = self.setup_logging(mongodb_uri)
+		l.message('#inane', 'nik', 'message one')
+		l.message('#inane', 'nik', 'message two')
+		messages = list(l.get_random_logs(2))
+		assert len(messages) == 2
+		assert set(messages) == set(['message one', 'message two'])
