@@ -227,32 +227,16 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		rows_deleted = max(len(ids_to_delete) - 1, 0)
 		return rows_deleted
 
-	@staticmethod
-	def _get_skips(indexes):
-		"""
-		Given a sorted list of indexes, return the distance between each
-		index.
-
-		>>> gs = MongoDBLogger._get_skips
-
-		>>> list(gs([1,2,3]))
-		[1, 0, 0]
-
-		>>> list(gs([0,1,5]))
-		[0, 0, 3]
-		"""
-		last_index = 0
-		for index in indexes:
-			yield index - last_index
-			last_index = index + 1
-
 	def get_random_logs(self, limit):
 		length = self.db.count()
-		indexes = [random.randint(0, length-1) for n in range(limit)]
-		indexes.sort()
-		cur = self.db.find()
-		for skip in self._get_skips(indexes):
-			cur.skip(skip)
+		if limit < length//1000:
+			# there are far more messages than are needed, so to simulate
+			# sampling by just selecting random integers.
+			indexes = [random.randint(0, length-1) for n in range(limit)]
+		else:
+			indexes = random.sample(list(range(length)), limit)
+		for skip in indexes:
+			cur = self.db.find().skip(skip)
 			yield next(cur)['message']
 
 	def get_channel_days(self, channel):
