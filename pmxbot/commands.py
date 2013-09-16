@@ -30,7 +30,6 @@ from . import util
 from . import karma
 from . import quotes
 from . import phrases
-from . import saysomething as saysomethinglib
 
 
 def plaintext(html):
@@ -770,17 +769,6 @@ def therethere(client, event, channel, nick, rest):
 		return "There there %s... There there." % rest
 	else:
 		return "/me shares its sympathy."
-
-@command("saysomething", aliases=(),
-	doc="Generate a Markov Chain response based on past logs. Seed it with "
-		"a starting word by adding that to the end, eg "
-		"'!saysomething dowski:'")
-def saysomething(client, event, channel, nick, rest):
-	sayer = saysomethinglib.FastSayer()
-	if rest:
-		return sayer.saysomething(rest)
-	else:
-		return sayer.saysomething()
 
 @command("tgif", doc="Thanks for the words of wisdow, Mike.")
 def tgif(client, event, channel, nick, rest):

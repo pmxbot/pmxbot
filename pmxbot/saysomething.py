@@ -7,6 +7,7 @@ import random
 import logging
 from itertools import chain
 
+import pmxbot.core
 import pmxbot.logging
 import pmxbot.timing
 
@@ -91,3 +92,16 @@ class FastSayer(object):
 	def saysomething(self, initial_word='\n'):
 		return paragraph_from_words(words_from_markov_data(self.markov_data,
 			initial_word))
+
+@pmxbot.core.command("saysomething", aliases=(),
+	doc="Generate a Markov Chain response based on past logs. Seed it with "
+		"a starting word by adding that to the end, eg "
+		"'!saysomething dowski:'")
+def saysomething(client, event, channel, nick, rest):
+	sayer = FastSayer()
+	if not hasattr(sayer, 'markov_data'):
+		return "Sayer not yet initialized. Try again later."
+	if rest:
+		return sayer.saysomething(rest)
+	else:
+		return sayer.saysomething()

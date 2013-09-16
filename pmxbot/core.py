@@ -26,7 +26,6 @@ from jaraco import dateutil
 import pmxbot.itertools
 import pmxbot.dictlib
 import pmxbot.buffer
-import pmxbot.saysomething
 
 log = logging.getLogger('pmxbot')
 
@@ -624,8 +623,6 @@ def initialize(config):
 
 	log.info('Running with config')
 	log.info(pprint.pformat(config))
-
-	pmxbot.saysomething.FastSayer.init_in_thread()
 
 	return class_(config.server_host, config.server_port,
 		config.bot_nickname, channels=channels, password=config.password)
