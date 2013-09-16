@@ -2,8 +2,15 @@
 
 from __future__ import absolute_import
 
+import threading
 import random
+import logging
 from itertools import chain
+
+import pmxbot.logging
+import pmxbot.timing
+
+log = logging.getLogger(__name__)
 
 nlnl = '\n', '\n'
 
@@ -66,11 +73,21 @@ def paragraph_from_words(words):
 	return ' '.join(result)
 
 class FastSayer(object):
-	def __init__(self, word_factory):
-		if not hasattr(self, 'markovdata'):
-			words = word_factory()
-			# save the markov data in the class for future instances
-			self.__class__.markovdata = markov_data_from_words(words)
+	@classmethod
+	def init_in_thread(cls):
+		threading.Thread(target=cls.init_class).start()
+
+	@classmethod
+	def init_class(cls):
+		log.info("Initializing FastSayer...")
+		timer = pmxbot.timing.Stopwatch()
+		words = words_from_logger_and_quotes(
+			pmxbot.logging.Logger.store,
+			pmxbot.logging.Quotes.store,
+		)
+		cls.markov_data = markov_data_from_words(words)
+		log.info("Done initializing FastSayer in %s.", timer.split())
 
 	def saysomething(self, initial_word='\n'):
-		return paragraph_from_words(words_from_markov_data(self.markovdata, initial_word))
+		return paragraph_from_words(words_from_markov_data(self.markov_data,
+			initial_word))

@@ -776,12 +776,7 @@ def therethere(client, event, channel, nick, rest):
 		"a starting word by adding that to the end, eg "
 		"'!saysomething dowski:'")
 def saysomething(client, event, channel, nick, rest):
-	word_factory = functools.partial(
-		saysomethinglib.words_from_logger_and_quotes,
-		logging.Logger.store,
-		quotes.Quotes.store,
-	)
-	sayer = saysomethinglib.FastSayer(word_factory)
+	sayer = saysomethinglib.FastSayer()
 	if rest:
 		return sayer.saysomething(rest)
 	else:
