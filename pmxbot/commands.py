@@ -324,7 +324,7 @@ def zinger(client, event, channel, nick, rest):
 		karma.Karma.store.change(name, -1)
 	return "OH MAN!!! %s TOTALLY GOT ZING'D!" % (name.upper())
 
-@command("motivate", aliases=("m", "appreciate", "thanks", "thank"),
+@command("motivate", aliases=("m", "appreciate", "thanks", "thank", "gracias"),
 	doc="Motivate someone")
 def motivate(client, event, channel, nick, rest):
 	if rest:
