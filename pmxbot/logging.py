@@ -386,7 +386,7 @@ def logs(client, event, channel, nick, rest):
 	base = pmxbot.config.get('logs URL')
 	logged_channel = channel in pmxbot.config.log_channels
 	path = '/channel/' + channel.lstrip('#') if logged_channel else '/'
-	return six.urllib.parse.urljoin(base, path)
+	return six.moves.urllib.parse.urljoin(base, path)
 
 @command("log", doc="Enable or disable logging for a channel; use 'please' "
 	"to start logging and 'stop please' to stop.")
