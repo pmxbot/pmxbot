@@ -10,6 +10,7 @@ import threading
 import traceback
 
 import pytz
+import six
 
 import pmxbot
 from . import storage
@@ -382,7 +383,10 @@ def where(client, event, channel, nick, rest):
 
 @command("logs", doc="Where can one find the logs?")
 def logs(client, event, channel, nick, rest):
-	return pmxbot.config.get('logs URL')
+	base = pmxbot.config.get('logs URL')
+	logged_channel = channel in pmxbot.config.log_channels
+	path = '/channel/' + channel.lstrip('#') if logged_channel else '/'
+	return six.urllib.parse.urljoin(base, path)
 
 @command("log", doc="Enable or disable logging for a channel; use 'please' "
 	"to start logging and 'stop please' to stop.")

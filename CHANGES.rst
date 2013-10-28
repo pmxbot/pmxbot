@@ -1,3 +1,8 @@
+1105.7
+======
+
+* Include channel in hyperlink for logs for logged channels.
+
 1105.6
 ======
 
