@@ -10,6 +10,17 @@ try:
 except ImportError:
 	import urlparse as urllib_parse
 
+try:
+	import sqlite3 as sqlite
+except ImportError:
+	pass
+
+try:
+	import pymongo
+	import bson
+except ImportError:
+	pass
+
 from jaraco.util.classutil import itersubclasses
 
 log = logging.getLogger(__name__)
@@ -67,7 +78,6 @@ class SQLiteStorage(Storage, threading.local):
 		return uri.endswith('.sqlite')
 
 	def __init__(self, uri):
-		self._import_modules()
 		self.uri = uri
 		self.filename = urllib_parse.urlparse(uri).path
 		self.db = sqlite.connect(self.filename, isolation_level=None,
@@ -77,9 +87,6 @@ class SQLiteStorage(Storage, threading.local):
 	def init_tables(self):
 		pass
 
-	def _import_modules(self):
-		import sqlite3
-		globals().update(sqlite=sqlite3)
 
 class MongoDBStorage(Storage):
 	scheme = 'mongodb'
@@ -89,12 +96,6 @@ class MongoDBStorage(Storage):
 		return uri.startswith('mongodb:')
 
 	def __init__(self, host_uri):
-		pymongo = importlib.import_module('pymongo')
-		bson = importlib.import_module('bson')
-		globals().update(
-			pymongo=pymongo,
-			bson=bson,
-		)
 		self.uri = host_uri
 		uri_p = pymongo.uri_parser.parse_uri(host_uri)
 		db_name = uri_p['database'] or 'pmxbot'
