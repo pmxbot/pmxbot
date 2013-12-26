@@ -35,7 +35,7 @@ class SelectableStorage(object):
 
 	@classmethod
 	def from_URI(cls, URI):
-		candidates = itersubclasses(cls)
+		candidates = reversed(list(itersubclasses(cls)))
 		if hasattr(cls, 'scheme'):
 			candidates = itertools.chain([cls], candidates)
 		matches = (cls for cls in candidates if cls.uri_matches(URI))
