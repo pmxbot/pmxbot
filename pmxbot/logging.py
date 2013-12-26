@@ -193,9 +193,9 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		self.db.ensure_index('datetime.d')
 		self.db.ensure_index('channel')
 		now = datetime.datetime.utcnow()
-		self.db.insert(dict(channel=channel, nick=nick, message=msg,
-			datetime=self._fmt_date(now),
-			))
+		doc = dict(channel=channel, nick=nick, message=msg,
+			datetime=self._fmt_date(now))
+		self.db.insert(doc)
 
 	@staticmethod
 	def _fmt_date(datetime):
