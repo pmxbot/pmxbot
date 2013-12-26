@@ -259,9 +259,12 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		patterns = [re.compile('.*' + term + '.*') for term in terms]
 		query = dict(message = {'$all': patterns})
 
+		return self._generate_search_results(self.db.find(query))
+
+	def _generate_search_results(self, matched_entries):
 		matches = []
 		alllines = []
-		for match in self.db.find(query):
+		for match in matched_entries:
 			channel = match['channel']
 			row_date = lambda row: row['_id'].generation_time.date()
 			to_line = lambda row: (row['_id'].generation_time.time(),
