@@ -78,6 +78,7 @@ class SQLiteStorage(Storage, threading.local):
 		return uri.endswith('.sqlite')
 
 	def __init__(self, uri):
+		importlib.import_module('sqlite3')
 		self.uri = uri
 		self.filename = urllib_parse.urlparse(uri).path
 		self.db = sqlite.connect(self.filename, isolation_level=None,
@@ -97,9 +98,14 @@ class MongoDBStorage(Storage):
 
 	def __init__(self, host_uri):
 		self.uri = host_uri
-		uri_p = pymongo.uri_parser.parse_uri(host_uri)
+		self.db = self._get_collection(host_uri)
+
+	@classmethod
+	def _get_collection(cls, uri):
+		importlib.import_module('pymongo')
+		uri_p = pymongo.uri_parser.parse_uri(uri)
 		db_name = uri_p['database'] or 'pmxbot'
-		self.db = pymongo.Connection(host_uri)[db_name][self.collection_name]
+		return pymongo.Connection(uri)[db_name][cls.collection_name]
 
 def migrate_all(source, dest):
 	for cls in SelectableStorage.__subclasses__():
