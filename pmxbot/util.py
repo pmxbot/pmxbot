@@ -47,7 +47,6 @@ def get_html(url):
 
 def_exp1 = re.compile(r"<div><span class=f>.*?</span>(.+?)</div>", re.MULTILINE)
 def_exp2 = re.compile(r"Definition for.*<div class=s><div>(.+?)<", re.MULTILINE)
-ecomp_exp = re.compile(r"""\[.*\]""", re.MULTILINE | re.DOTALL)
 
 def strip_tags(string):
 	"""
@@ -107,6 +106,7 @@ def lookup_acronym(acronym):
 	return all
 
 def emergency_complement():
+	ecomp_exp = re.compile(r"""\[.*\]""", re.MULTILINE | re.DOTALL)
 	compurl = 'http://emergencycompliment.com/js/compliments.js'
 	comps = get_html(compurl)
 	match = ecomp_exp.search(comps)
