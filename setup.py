@@ -65,7 +65,7 @@ setup_params = dict(
 	],
 	long_description = open('README.rst').read(),
 	setup_requires=[
-		'hgtools<3.0dev',
+		'hgtools',
 		'pytest-runner>=1.1,<3.0dev',
 	],
 	tests_require=[
