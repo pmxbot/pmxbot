@@ -687,13 +687,10 @@ def defit(client, event, channel, nick, rest):
 	'urbandef', 'urbdef'), doc="Define a word with Urban Dictionary")
 def urbandefit(client, event, channel, nick, rest):
 		word = rest.strip()
-		newword, res = util.urbanlookup(word)
-		if res is None:
+		definition = util.urban_lookup(word)
+		if not definition:
 			return "Arg!  I didn't find a definition for that."
-		else:
-			newword = plaintext(newword)
-			res = plaintext(res)
-			return 'Urban Dictionary says %s: %s' % (newword, res)
+		return 'Urban Dictionary says {word}: {definition}'.format(**vars())
 
 
 @command("acronym", aliases=("ac",), doc="Look up an acronym")

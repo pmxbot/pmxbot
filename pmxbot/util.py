@@ -70,8 +70,10 @@ def lookup(word):
 	return six.text_type(definition.text)
 lookup.provider = 'Wordnik'
 
-def urbanlookup(word):
-	'''Gets a Urban Dictionary summary for a word.
+def urban_lookup(word):
+	'''
+	Return a Urban Dictionary definition for a word or None if no result was
+	found.
 	'''
 	url = "http://api.urbandictionary.com/v0/define"
 	params = dict(term=word)
@@ -79,8 +81,8 @@ def urbanlookup(word):
 	resp.raise_for_status()
 	res = resp.json()
 	if not res['list']:
-		return None, None
-	return word.strip(), res['list'][0]['definition']
+		return
+	return res['list'][0]['definition']
 
 html_strip = re.compile(r'<[^>]+?>')
 NUM_ACS = 3
