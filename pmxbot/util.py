@@ -54,7 +54,7 @@ def get_html(url):
 def_exp1 = re.compile(r"<div><span class=f>.*?</span>(.+?)</div>", re.MULTILINE)
 def_exp2 = re.compile(r"Definition for.*<div class=s><div>(.+?)<", re.MULTILINE)
 urbd_exp = re.compile(r"""<td class=['"]word['"]>(.+?)^</td>$(?:.+?)<div class=['"]definition['"]>(.+?)</div>""", re.MULTILINE | re.DOTALL)
-ecomp_exp = re.compile(r"""\[.*\]""", re.MULTILINE|re.DOTALL)
+ecomp_exp = re.compile(r"""\[.*\]""", re.MULTILINE | re.DOTALL)
 
 def strip_tags(string):
 	"""
