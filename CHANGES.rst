@@ -2,6 +2,7 @@
 ====
 
 * Removed !googlecalc, which depended on iGoogle, now defunct.
+* Restored !urbandict using the API instead of HTML scraping.
 
 1105.7
 ======

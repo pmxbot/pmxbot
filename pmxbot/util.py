@@ -47,7 +47,6 @@ def get_html(url):
 
 def_exp1 = re.compile(r"<div><span class=f>.*?</span>(.+?)</div>", re.MULTILINE)
 def_exp2 = re.compile(r"Definition for.*<div class=s><div>(.+?)<", re.MULTILINE)
-urbd_exp = re.compile(r"""<td class=['"]word['"]>(.+?)^</td>$(?:.+?)<div class=['"]definition['"]>(.+?)</div>""", re.MULTILINE | re.DOTALL)
 ecomp_exp = re.compile(r"""\[.*\]""", re.MULTILINE | re.DOTALL)
 
 def strip_tags(string):
@@ -78,13 +77,14 @@ def urbanlookup(word):
 	'''Gets a Urban Dictionary summary for a word.
 	'''
 	word = six.moves.urllib.parse.quote_plus(word)
-	html = get_html('http://urbandictionary.com/define.php?term=%s' % word)
-	match = urbd_exp.search(html)
-	if not match:
+	url = "http://api.urbandictionary.com/v0/define"
+	params = six.moves.urllib.parse.urlencode(dict(term=word))
+	resp = requests.get(url+'?'+params)
+	resp.raise_for_status()
+	res = resp.json()
+	if not res['list']:
 		return None, None
-	word, definition = match.groups()
-	definition = ' '.join(definition.replace('<br/>', '').splitlines())
-	return word.strip(), definition.strip()
+	return word.strip(), res['list'][0]['definition']
 
 html_strip = re.compile(r'<[^>]+?>')
 NUM_ACS = 3
