@@ -73,10 +73,9 @@ lookup.provider = 'Wordnik'
 def urbanlookup(word):
 	'''Gets a Urban Dictionary summary for a word.
 	'''
-	word = six.moves.urllib.parse.quote_plus(word)
 	url = "http://api.urbandictionary.com/v0/define"
-	params = six.moves.urllib.parse.urlencode(dict(term=word))
-	resp = requests.get(url+'?'+params)
+	params = dict(term=word)
+	resp = requests.get(url, params=params)
 	resp.raise_for_status()
 	res = resp.json()
 	if not res['list']:
