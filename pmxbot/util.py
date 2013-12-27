@@ -4,12 +4,6 @@ from __future__ import absolute_import
 import random
 import re
 import warnings
-try:
-	import urllib.parse as urllib_quote
-	import urllib.request as urllib_request
-except ImportError:
-	import urllib as urllib_quote
-	import urllib2 as urllib_request
 
 import six
 import requests
@@ -83,7 +77,7 @@ lookup.provider = 'Wordnik'
 def urbanlookup(word):
 	'''Gets a Urban Dictionary summary for a word.
 	'''
-	word = urllib_quote.quote_plus(word)
+	word = six.moves.urllib.parse.quote_plus(word)
 	html = get_html('http://urbandictionary.com/define.php?term=%s' % word)
 	match = urbd_exp.search(html)
 	if not match:
