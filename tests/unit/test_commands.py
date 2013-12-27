@@ -66,57 +66,6 @@ class TestCommands(object):
 		print(res)
 		assert "http" in res
 
-	@pytest.has_internet
-	def test_googlecalc_simple(self):
-		"""
-		Basic google calculator command - 1+1 must include 2 in results
-		"""
-		res = commands.googlecalc(c, e, "#test", "testrunner", "1+1")
-		print(res)
-		assert "2" in res
-
-	@pytest.has_internet
-	def test_googlecalc_complicated(self):
-		"""
-		More complicated google calculator command - 40 gallons in liters must
-		include 151.4 in results
-		"""
-		res = commands.googlecalc(c, e, "#test", "testrunner", "40 gallons "
-			"in liters")
-		print(res)
-		assert "151.4" in res
-
-	@pytest.has_internet
-	def test_googlecalc_supercomplicated(self):
-		"""
-		Supercomplicated google calculator command - 502 hogsheads per mile in
-		litres per km includes 74 and 388.9641 in results
-		"""
-		res = commands.googlecalc(c, e, "#test", "testrunner",
-			"502 hogsheads per mile in litres per km")
-		assert "388.9641" in res and "74" in res
-
-	@pytest.has_internet
-	def test_googlecalc_currency_usd_gbp(self):
-		"""
-		Test that google calculator for a currency conversion: 1 USD in GBP
-		"""
-		res = commands.googlecalc(c, e, "#test", "testrunner", "1 USD in GBP")
-		print(res)
-		assert re.match(r"1 (?:US|U\.S\.) dollars? = \d\.\d+ British "
-			r"pounds?(?: sterling)?", res)
-
-	@pytest.has_internet
-	def test_googlecalc_currency_czk_euro(self):
-		"""
-		Test that google calculator for a currency conversion: 12 CZK in euros
-		"""
-		res = commands.googlecalc(c, e, "#test", "testrunner", "12 CZK in "
-			"euros")
-		print(res)
-		assert re.match(r"12 Czech(?: Republic)? [Kk]orun(?:a|y)s? = "
-			r"\d\.\d+ [Ee]uros?", res)
-
 	# time patterns come as 4:20pm when queried from the U.S. and 16:20
 	#  when queried from (at least some) other locales.
 	time_pattern = r'[0-9]{1,2}:[0-9]{2}(?:am|pm)?'

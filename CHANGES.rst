@@ -1,3 +1,8 @@
+1106
+====
+
+* Removed !googlecalc, which depended on iGoogle, now defunct.
+
 1105.7
 ======
 

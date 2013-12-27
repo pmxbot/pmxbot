@@ -50,24 +50,6 @@ def google(client, event, channel, nick, rest):
 		hit1['titleNoFormatting'],
 	))
 
-@command("googlecalc", aliases=('gc',),
-	doc="Calculate something using google")
-def googlecalc(client, event, channel, nick, rest):
-	query = rest
-	json_raw = util.get_html('http://www.google.com/ig/calculator?%s' %
-		urllib_parse.urlencode(dict(hl='en', q=query.encode('utf-8'))))
-	try:
-		res = json.loads(json_raw)
-	except ValueError:
-		# google returns invalid JSON
-		# !dm google
-		karma.Karma.store.change('google', -1)
-		json_fixed = re.sub(r'(\w+):', r'"\1":', json_raw)
-		res = json.loads(json_fixed)
-	if res['error']:
-		raise RuntimeError(res['error'])
-	return "{lhs} = {rhs}".format(**res)
-
 @command("time", doc="What time is it in.... Similar to !weather")
 def googletime(client, event, channel, nick, rest):
 	rest = rest.strip()
