@@ -5,8 +5,6 @@ import sys
 
 import setuptools
 
-py26reqs = ['importlib'] if sys.version_info < (2, 7) else []
-
 setup_params = dict(
 	name="pmxbot",
 	use_hg_version=True,
@@ -46,7 +44,7 @@ setup_params = dict(
 		"jinja2",
 		"cherrypy>=3.2.3,<3.3dev",
 		"jaraco.compat>=1.0.3",
-	] + py26reqs,
+	],
 	description="IRC bot - full featured, yet extensible and customizable",
 	license = 'MIT',
 	author="YouGov, Plc.",
