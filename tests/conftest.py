@@ -32,10 +32,6 @@ def pytest_configure(config):
 	config.has_internet = not throws_exception(open_google)
 	config.has_wordnik = 'wordnik' in dir(pmxbot.util)
 
-def pytest_addoption(parser):
-	parser.addoption("--runslow", action="store_true",
-		help="run slow tests")
-
 def pytest_runtest_setup(item):
 	if 'slow' in item.keywords and not item.config.getvalue("runslow"):
 		pytest.skip("need --runslow option to run")
