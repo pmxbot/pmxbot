@@ -45,8 +45,6 @@ def open_url(url):
 def get_html(url):
 	return open_url(url).text
 
-def_exp1 = re.compile(r"<div><span class=f>.*?</span>(.+?)</div>", re.MULTILINE)
-def_exp2 = re.compile(r"Definition for.*<div class=s><div>(.+?)<", re.MULTILINE)
 
 def strip_tags(string):
 	"""
