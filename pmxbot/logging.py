@@ -285,7 +285,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 				_id={'$gt': match['_id']}
 				)).sort('_id', storage.pymongo.ASCENDING).limit(2)
 			next2 = map(to_line, next2)
-			context = prev2 + [line] + next2
+			context = list(itertools.chain(prev2, [line], next2))
 			marker = self.make_anchor(line[:2])
 			matches.append((channel, row_date(match), marker, context))
 			alllines.extend(context)

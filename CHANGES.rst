@@ -1,3 +1,8 @@
+1106.1.1
+========
+
+* Fix issue in log search on Python 3.
+
 1106.1
 ======
 
