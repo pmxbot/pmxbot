@@ -207,7 +207,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		query = dict(nick=nick)
 		cursor = self.db.find(query, fields=fields)
 		cursor = cursor.sort('_id', storage.pymongo.DESCENDING)
-		res = first(cursor)
+		res = next(cursor, None)
 		return res and [res['_id'].generation_time, res['channel']]
 
 	def strike(self, channel, nick, count):
@@ -374,16 +374,6 @@ class FullTextMongoDBLogger(MongoDBLogger):
 		docs = (res['obj'] for res in resp['results'])
 		return self._generate_search_results(docs)
 
-
-def first(iterable):
-	"""
-	Return the first element from the iterable or None if no element is
-	found.
-	"""
-	try:
-		return next(iterable)
-	except StopIteration:
-		pass
 
 @command("strike", aliases=(), doc="Strike last <n> statements from the "
 	"record")
