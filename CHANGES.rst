@@ -1,3 +1,9 @@
+1106.1
+======
+
+* Added MongoDBFullTextLogger, leveraging MongoDB Full Text Search on MongoDB
+  2.4 or later (if enabled).
+
 1106
 ====
 

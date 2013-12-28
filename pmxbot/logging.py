@@ -11,6 +11,7 @@ import traceback
 
 import pytz
 import six
+from jaraco.util.context import ExceptionTrap
 
 import pmxbot
 from . import storage
@@ -341,6 +342,37 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		message['_id'] = oid
 		message['datetime'] = self._fmt_date(dt)
 		self.db.insert(message)
+
+class FullTextMongoDBLogger(MongoDBLogger):
+	@classmethod
+	def uri_matches(cls, uri):
+		"""
+		override 'uri_matches' to disallow this logger if full text searching
+		is not available.
+		"""
+		return (
+			super(FullTextMongoDBLogger, cls).uri_matches(uri)
+			and cls._has_fulltext(uri)
+		)
+
+	@classmethod
+	def _has_fulltext(cls, uri):
+		"""
+		Enable full text search on the messages if possible and return True.
+		If the full text search cannot be enabled, then return False.
+		"""
+		coll = cls._get_collection(uri)
+		with ExceptionTrap(storage.pymongo.errors.OperationFailure) as trap:
+			coll.ensure_index([('message', 'text')], background=True)
+		return not trap
+
+	def search(self, *terms):
+		query = ' '.join(terms)
+		db = self.db.database
+		collection_name = db.name
+		resp = db.command('text', collection_name, search=query)
+		return (res['obj'] for res in resp['results'])
+
 
 def first(iterable):
 	"""
