@@ -371,7 +371,8 @@ class FullTextMongoDBLogger(MongoDBLogger):
 		db = self.db.database
 		collection_name = db.name
 		resp = db.command('text', collection_name, search=query)
-		return (res['obj'] for res in resp['results'])
+		docs = (res['obj'] for res in resp['results'])
+		return self._generate_search_results(docs)
 
 
 def first(iterable):

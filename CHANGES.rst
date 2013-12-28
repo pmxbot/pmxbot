@@ -1,3 +1,8 @@
+1106.1.2
+========
+
+* Fix issue in new MongoDBFullTextLogger where docs weren't processed.
+
 1106.1.1
 ========
 
