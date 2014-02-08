@@ -34,7 +34,7 @@ class WarnHistory(dict):
 	warn_message = textwrap.dedent("""
 		PRIVACY INFORMATION: LOGGING IS ENABLED!!
 
-		The following channels are logged are being logged to provide a
+		The following channels are being logged to provide a
 		convenient, searchable archive of conversation histories:
 		{logged_channels_string}
 		""").lstrip()
