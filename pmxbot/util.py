@@ -18,7 +18,7 @@ import pmxbot.phrases
 
 def wchoice(d):
 	l = []
-	for item, num in d.iteritems():
+	for item, num in six.iteritems(d):
 		l.extend([item] * (num*100))
 	return random.choice(l)
 
