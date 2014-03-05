@@ -402,8 +402,8 @@ def where(client, event, channel, nick, rest):
 	last = Logger.store.last_seen(onick)
 	if last:
 		tm, chan = last
-		return "I last saw %s speak at %s in channel #%s" % (
-		onick, tm, chan)
+		tmpl = "I last saw {onick} speak at {tm} in channel #{chan}"
+		return tmpl.format(tm=tm, chan=chan, onick=onick)
 	else:
 		return "Sorry!  I don't have any record of %s speaking" % onick
 
