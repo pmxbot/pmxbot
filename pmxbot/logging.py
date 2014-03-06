@@ -369,7 +369,7 @@ class FullTextMongoDBLogger(MongoDBLogger):
 	def search(self, *terms):
 		query = ' '.join(terms)
 		db = self.db.database
-		collection_name = db.name
+		collection_name = self.db.name
 		resp = db.command('text', collection_name, search=query)
 		docs = (res['obj'] for res in resp['results'])
 		return self._generate_search_results(docs)
