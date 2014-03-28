@@ -6,7 +6,7 @@ import sys
 import setuptools
 
 wordnik = (
-	["wordnik>=2.1.2,<3.0"] if sys.python_version < (3,)
+	["wordnik>=2.1.2,<3.0"] if sys.version_info < (3,)
 	else ["wordnik-py3"]
 )
 
@@ -42,7 +42,7 @@ setup_params = dict(
 		"pyyaml",
 		"feedparser",
 		"pytz",
-		"jaraco.util>=8.8,<9dev",
+		"jaraco.util>=8.8,<10dev",
 		"beautifulsoup4",
 		#for viewer
 		"jinja2",
