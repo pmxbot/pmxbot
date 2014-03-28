@@ -35,7 +35,8 @@ setup_params = dict(
 		"pyyaml",
 		"feedparser",
 		"pytz",
-		"wordnik>=2.1.2,<3.0",
+		"wordnik>=2.1.2,<3.0[python_version < '3.0']",
+		"wordnik-py3[python_version >= '3.0']",
 		"jaraco.util>=8.8,<9dev",
 		"beautifulsoup4",
 		#for viewer
