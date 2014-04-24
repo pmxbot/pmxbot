@@ -22,6 +22,7 @@ import irc.client
 import irc.schedule
 import pkg_resources
 from jaraco import dateutil
+from jaraco.util.itertools import always_iterable
 
 import pmxbot.itertools
 import pmxbot.dictlib
@@ -531,13 +532,13 @@ def contains(name, channels=(), exclude=(), rate=1.0, priority=1,
 		priority=priority,
 		**kwargs).decorate
 
-def command(name, aliases=[], doc=None):
+def command(name, aliases=None, doc=None):
 	return CommandHandler(
 		name=name.lower(),
 		doc=doc,
 		aliases=[
 			AliasHandler(name=alias, doc=doc)
-			for alias in aliases
+			for alias in always_iterable(aliases)
 		],
 	).decorate
 
