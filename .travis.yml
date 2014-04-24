@@ -4,6 +4,7 @@ python:
   # disable 3.2 tests until Jinja is fixed (https://github.com/mitsuhiko/jinja2/pull/248)
   # 3.2
   - 3.3
+  - 3.4
 # command to run tests
 script:
   - python setup.py ptr
