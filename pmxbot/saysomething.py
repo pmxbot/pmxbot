@@ -6,10 +6,12 @@ import threading
 import random
 import logging
 import time
+import datetime
 from itertools import chain
 
 import pmxbot.core
 import pmxbot.logging
+import pmxbot.quotes
 import pmxbot.timing
 
 log = logging.getLogger(__name__)
@@ -81,9 +83,9 @@ class FastSayer(object):
 
 	@classmethod
 	def init_class(cls):
-		time.sleep(30)
 		log.info("Initializing FastSayer...")
 		timer = pmxbot.timing.Stopwatch()
+		cls._wait_for_stores(timer)
 		words = words_from_logger_and_quotes(
 			pmxbot.logging.Logger.store,
 			pmxbot.quotes.Quotes.store,
@@ -94,6 +96,19 @@ class FastSayer(object):
 	def saysomething(self, initial_word='\n'):
 		return paragraph_from_words(words_from_markov_data(self.markov_data,
 			initial_word))
+
+	@classmethod
+	def _wait_for_stores(cls, timer):
+		while timer.elapsed < datetime.timedelta(seconds=30):
+			stores_initialized = (
+				hasattr(pmxbot.logging.Logger, 'store') and
+				hasattr(pmxbot.quotes.Quotes, 'store')
+			)
+			if stores_initialized:
+				break
+			time.sleep(0.1)
+		else:
+			raise RuntimeError("Timeout waiting for stores to be initialized")
 
 @pmxbot.core.command("saysomething", aliases=(),
 	doc="Generate a Markov Chain response based on past logs. Seed it with "
