@@ -15,6 +15,7 @@ https://bitbucket.org/yougov/pmxbot/wiki/Home
 
 Commands
 ========
+
 pmxbot listens to commands prefixed by a '!'
 If it's a command, it knows it will reply, take an action, etc.
 It can search the web, store quotes you, track karma, make decisions,
@@ -24,6 +25,7 @@ database, and there's a web interface for reviewing the logs and karma.
 
 Contains
 ========
+
 pmxbot will respond to things you say if it detects words and phrases it's
 been told to recognize. For example, mention sql on rails.
 
@@ -79,7 +81,7 @@ something similar to the following in the package's setup.py::
         ],
     },
 
-During startup (and after loading the traditional script-based plugins),
+During startup,
 pmxbot will load `mylib.mymodule`. `plugin name` can be anything, but should
 be a name suitable to identify the plugin (and it will be displayed during
 pmxbot startup).
