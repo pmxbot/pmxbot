@@ -30,8 +30,8 @@ been told to recognize. For example, mention sql on rails.
 Requirements
 ============
 
-`pmxbot` requires Python 2.6 or 2.7. It also requires a few python
-packages as defined in setup.py.
+`pmxbot` requires Python 2.7 or later (including Python 3). It also requires a
+few python packages as defined in setup.py.
 
 If using the MongoDB backend, it requires pymongo (otherwise, sqlite will
 be used).
