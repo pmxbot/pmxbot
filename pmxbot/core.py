@@ -533,14 +533,13 @@ def contains(name, channels=(), exclude=(), rate=1.0, priority=1,
 		**kwargs).decorate
 
 def command(name, aliases=None, doc=None):
-	return CommandHandler(
-		name=name.lower(),
-		doc=doc,
-		aliases=[
-			AliasHandler(name=alias, doc=doc)
-			for alias in always_iterable(aliases)
-		],
-	).decorate
+	handler = CommandHandler(name=name.lower(), doc=doc)
+	aliases = [
+		AliasHandler(name=alias, doc=doc)
+		for alias in always_iterable(aliases)
+	]
+	handler.aliases = aliases
+	return handler.decorate
 
 def regexp(name, regexp, doc=None, **kwargs):
 	return RegexpHandler(
