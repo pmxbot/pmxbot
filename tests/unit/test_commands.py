@@ -595,6 +595,7 @@ class TestCommands(object):
 		assert 'help' in result
 
 	def test_help_specific(self):
-		help = system.help(c, e, '#test', 'testrunner', 'help')
-		result = ''.join(help)
+		lines = system.help(c, e, '#test', 'testrunner', 'help')
+		result = ''.join(lines)
 		assert 'help' in result
+		assert result == '!help: Help (this command)'
