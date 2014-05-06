@@ -484,9 +484,18 @@ class CommandHandler(Handler):
 	aliases = ()
 
 	def decorate(self, func):
+		self._set_doc(func)
 		for alias in self.aliases:
 			func = alias.decorate(func)
 		return super(CommandHandler, self).decorate(func)
+
+	def _set_doc(self, func):
+		"""
+		If no doc was explicitly set, use the function's docstring, trimming
+		whitespace and replacing newlines with spaces.
+		"""
+		if not self.doc and func.__doc__:
+			self.doc = func.__doc__.strip().replace('\n', ' ')
 
 	def match(self, message, channel):
 		cmd, _, cmd_args = message.partition(' ')

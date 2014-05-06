@@ -5,6 +5,20 @@
   the parent command. The ``doc`` parameter is no longer honored, but instead
   refers to ``parent.doc``. Commands that construct AliasHandlers explicitly
   will need to be updated, though no known implementations do so.
+* ``commands`` will now defer to the decorated function's docstring for the
+  command help if no doc is supplied. So now the following are equivalent::
+
+    @command('something', doc='do something special')
+    def func(...):
+        return 'something'
+
+    @command('foo')
+    def func(...):
+        """
+        do something
+        special
+        """
+        return 'something'
 
 1106.2
 ======
