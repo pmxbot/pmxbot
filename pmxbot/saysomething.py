@@ -5,6 +5,7 @@ from __future__ import absolute_import
 import threading
 import random
 import logging
+import time
 from itertools import chain
 
 import pmxbot.core
@@ -80,11 +81,12 @@ class FastSayer(object):
 
 	@classmethod
 	def init_class(cls):
+		time.sleep(30)
 		log.info("Initializing FastSayer...")
 		timer = pmxbot.timing.Stopwatch()
 		words = words_from_logger_and_quotes(
 			pmxbot.logging.Logger.store,
-			pmxbot.logging.Quotes.store,
+			pmxbot.quotes.Quotes.store,
 		)
 		cls.markov_data = markov_data_from_words(words)
 		log.info("Done initializing FastSayer in %s.", timer.split())
