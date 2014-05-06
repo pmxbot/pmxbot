@@ -1,3 +1,9 @@
+1107.1
+======
+
+* ``saysomething`` no longer requires 30 seconds to startup, but will time
+  out waiting for the quotes and logging to startup after 30 seconds.
+
 1107.0
 ======
 
