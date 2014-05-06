@@ -503,6 +503,10 @@ class CommandHandler(Handler):
 class AliasHandler(CommandHandler):
 	class_priority = 2
 
+	@property
+	def doc(self):
+		return self.parent.doc
+
 	def __str__(self):
 		return self.name
 	__unicode__ = __str__
@@ -535,7 +539,7 @@ def contains(name, channels=(), exclude=(), rate=1.0, priority=1,
 def command(name, aliases=None, doc=None):
 	handler = CommandHandler(name=name.lower(), doc=doc)
 	aliases = [
-		AliasHandler(name=alias, doc=doc)
+		AliasHandler(name=alias, parent=handler)
 		for alias in always_iterable(aliases)
 	]
 	handler.aliases = aliases

@@ -1,3 +1,11 @@
+1107.0
+======
+
+* ``pmxbot.core.AliasHandler`` now expects a 'parent' argument referring to
+  the parent command. The ``doc`` parameter is no longer honored, but instead
+  refers to ``parent.doc``. Commands that construct AliasHandlers explicitly
+  will need to be updated, though no known implementations do so.
+
 1106.2
 ======
 
