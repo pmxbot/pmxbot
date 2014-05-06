@@ -109,7 +109,7 @@ A response (when someone says something) uses the @contains decorator::
 
   @contains("sqlonrails")
   def yay_sor(client, event, channel, nick, rest):
-  	karmaChange(botbase.logger.db, 'sql on rails', 1)
+  	karma.Karma.store.change('sql on rails', 1)
   	return "Only 76,417 lines..."
 
 A more complicated response (when you want to extract data from a message) uses
