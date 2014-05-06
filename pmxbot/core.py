@@ -81,7 +81,7 @@ class Sentinel(object):
 		Iterate over the items, keeping a adding properties as supplied by
 		Sentinel objects encountered.
 
-		>>> from jaraco.util.itertools import consume
+		>>> from more_itertools.recipes import consume
 		>>> res = Sentinel.augment_items(['a', 'b', NoLog, 'c'], secret=False)
 		>>> res = tuple(res)
 		>>> consume(map(print, res))

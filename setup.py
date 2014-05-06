@@ -42,7 +42,7 @@ setup_params = dict(
 		"pyyaml",
 		"feedparser",
 		"pytz",
-		"jaraco.util>=8.8,<10dev",
+		"jaraco.util>=8.8,<11dev",
 		"beautifulsoup4",
 		#for viewer
 		"jinja2",
@@ -77,6 +77,7 @@ setup_params = dict(
 		'pytest',
 		'jaraco.test>=1.0.2,<2.0dev',
 		'mock',
+		'more_itertools',
 	],
 )
 
