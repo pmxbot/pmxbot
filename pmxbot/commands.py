@@ -12,6 +12,7 @@ except ImportError:
 	import urllib
 	urllib_parse.urlencode = urllib.urlencode
 
+import sys
 import json
 import re
 import functools
@@ -783,4 +784,6 @@ def meaculpa(client, event, channel, nick, rest):
 	doc="Get the version of pmxbot or one of its plugins")
 def version(client, event, channel, nick, rest):
 	pkg = rest.strip() or 'pmxbot'
+	if pkg.lower() == 'python':
+		return sys.version.split()[0]
 	return pkg_resources.require(pkg)[0].version
