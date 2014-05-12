@@ -3,15 +3,6 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
-try:
-	import urllib.request as urllib_request
-	import urllib.parse as urllib_parse
-except ImportError:
-	import urllib2 as urllib_request
-	import urlparse as urllib_parse
-	import urllib
-	urllib_parse.urlencode = urllib.urlencode
-
 import sys
 import json
 import re
@@ -20,6 +11,7 @@ import random
 import csv
 from xml.etree import ElementTree
 
+from six.moves import urllib
 import pkg_resources
 import popquotes.pmxbot as pq
 from bs4 import BeautifulSoup
@@ -41,12 +33,12 @@ def plaintext(html):
 @command("google", aliases=('g',), doc="Look a phrase up on google")
 def google(client, event, channel, nick, rest):
 	BASE_URL = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&'
-	url = BASE_URL + urllib_parse.urlencode({'q': rest.encode('utf-8').strip()})
-	raw_res = urllib_request.urlopen(url).read()
+	url = BASE_URL + urllib.parse.urlencode({'q': rest.encode('utf-8').strip()})
+	raw_res = urllib.request.urlopen(url).read()
 	results = json.loads(raw_res.decode('utf-8'))
 	hit1 = results['responseData']['results'][0]
 	return ' - '.join((
-		urllib_parse.unquote(hit1['url']),
+		urllib.parse.unquote(hit1['url']),
 		hit1['titleNoFormatting'],
 	))
 
@@ -74,7 +66,7 @@ def time_for(place, format='{time}'):
 	else:
 		query = place
 	timere = re.compile(r'<b>\s*(\d+:\d{2}([ap]m)?).*\s*</b>', re.I)
-	query_string = urllib_parse.urlencode(dict(q = query.encode('utf-8')))
+	query_string = urllib.parse.urlencode(dict(q = query.encode('utf-8')))
 	html = util.get_html('http://www.google.com/search?%s' % query_string)
 	_time = plaintext(timere.search(html).group(1))
 	return format.format(time=_time, place=place)
@@ -87,7 +79,7 @@ def to_snowman(condition):
 
 def weather_for(place):
 	"Retrieve the weather for a specific place using the iGoogle API"
-	url = "http://www.google.com/ig/api?" + urllib_parse.urlencode(dict(
+	url = "http://www.google.com/ig/api?" + urllib.parse.urlencode(dict(
 		weather= place.encode('utf-8')))
 	parser = ElementTree.XMLParser()
 	try:
@@ -452,7 +444,7 @@ def insult(client, event, channel, nick, rest):
 	"http://www.madsci.org/cgi-bin/cgiwrap/~lynn/jardin/SCG")
 def compliment(client, event, channel, nick, rest):
 	compurl = 'http://www.madsci.org/cgi-bin/cgiwrap/~lynn/jardin/SCG'
-	comphtml = ''.join([i.decode() for i in urllib_request.urlopen(compurl)])
+	comphtml = ''.join([i.decode() for i in urllib.request.urlopen(compurl)])
 	compmark1 = '<h2>\n\n'
 	compmark2 = '\n</h2>'
 	compliment = comphtml[
@@ -633,7 +625,7 @@ def blame(client, event, channel, nick, rest):
 
 @command("paste", aliases=(), doc="Drop a link to your latest paste")
 def paste(client, event, channel, nick, rest):
-	req = urllib_request.urlopen("%slast/%s" % (pmxbot.config.librarypaste, nick))
+	req = urllib.request.urlopen("%slast/%s" % (pmxbot.config.librarypaste, nick))
 	if req.getcode() >= 200 and req.getcode() < 400:
 		return req.geturl()
 	else:
