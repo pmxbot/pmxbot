@@ -26,7 +26,6 @@ from bs4 import BeautifulSoup
 
 import pmxbot
 from .core import command, contains
-from . import logging
 from . import util
 from . import karma
 from . import quotes
