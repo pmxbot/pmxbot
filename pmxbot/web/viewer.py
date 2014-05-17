@@ -336,6 +336,7 @@ def startup(config):
 		cherrypy._cpcompat.tonative('global', encoding='ascii'): {
 			'server.socket_port': config.port,
 			'server.socket_host': config.host,
+			'server.environment': 'production',
 			#'tools.encode.on': True,
 			'tools.encode.encoding': 'utf-8',
 		},
