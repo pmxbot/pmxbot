@@ -337,6 +337,7 @@ def startup(config):
 			'server.socket_port': config.port,
 			'server.socket_host': config.host,
 			'server.environment': 'production',
+			'engine.autoreload.on': False,
 			#'tools.encode.on': True,
 			'tools.encode.encoding': 'utf-8',
 		},
