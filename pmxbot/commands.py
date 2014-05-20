@@ -623,9 +623,12 @@ def blame(client, event, channel, nick, rest):
 			"fault!!" % blamee)
 		yield "/me cries and weeps in despair"
 
-@command("paste", aliases=(), doc="Drop a link to your latest paste")
+@command("paste")
 def paste(client, event, channel, nick, rest):
-	req = urllib.request.urlopen("%slast/%s" % (pmxbot.config.librarypaste, nick))
+	"Drop a link to your latest paste"
+	path = '/last/{nick}'.format(**vars())
+	url = urllib.parse.urljoin(pmxbot.config.librarypaste, path)
+	req = urllib.request.urlopen(url)
 	if req.getcode() >= 200 and req.getcode() < 400:
 		return req.geturl()
 	else:
