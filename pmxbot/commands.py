@@ -629,7 +629,8 @@ def paste(client, event, channel, nick, rest):
 	"Drop a link to your latest paste"
 	path = '/last/{nick}'.format(**vars())
 	url = urllib.parse.urljoin(pmxbot.config.librarypaste, path)
-	resp = requests.head(url)
+	auth = pmxbot.config.get('librarypaste auth')
+	resp = requests.head(url, auth=auth)
 	if not resp.ok:
 		return "I couldn't resolve a recent paste of yours. Maybe try " + url
 	return resp.headers['location']
