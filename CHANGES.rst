@@ -1,3 +1,8 @@
+1107.4
+======
+
+* ``paste`` command now allows for auth to be provided.
+
 1107.1
 ======
 
