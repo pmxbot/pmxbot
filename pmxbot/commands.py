@@ -624,13 +624,21 @@ def blame(client, event, channel, nick, rest):
 			"fault!!" % blamee)
 		yield "/me cries and weeps in despair"
 
+def _request_friendly(auth):
+	"""
+	Requests does strict type checking on the auth. If it's not a tuple, it
+	tries to call it.
+	"""
+	if auth is not None:
+		return tuple(auth)
+
 @command("paste")
 def paste(client, event, channel, nick, rest):
 	"Drop a link to your latest paste"
 	path = '/last/{nick}'.format(**vars())
 	url = urllib.parse.urljoin(pmxbot.config.librarypaste, path)
 	auth = pmxbot.config.get('librarypaste auth')
-	resp = requests.head(url, auth=auth)
+	resp = requests.head(url, auth=_request_friendly(auth))
 	if not resp.ok:
 		return "I couldn't resolve a recent paste of yours. Maybe try " + url
 	return resp.headers['location']
