@@ -632,8 +632,7 @@ def paste(client, event, channel, nick, rest):
 	if req.getcode() >= 200 and req.getcode() < 400:
 		return req.geturl()
 	else:
-		return ("hmm.. I didn't find a recent paste of yours, %s. "
-			"Checkout %s" % (nick, pmxbot.config.librarypaste))
+		return "I couldn't resolve a recent paste of yours. Maybe try " + url
 
 @contains('pmxbot', channels='unlogged', rate=.3)
 def rand_bot(client, event, channel, nick, rest):
