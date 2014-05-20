@@ -15,6 +15,7 @@ from six.moves import urllib
 import pkg_resources
 import popquotes.pmxbot as pq
 from bs4 import BeautifulSoup
+import requests
 
 import pmxbot
 from .core import command, contains
@@ -628,11 +629,10 @@ def paste(client, event, channel, nick, rest):
 	"Drop a link to your latest paste"
 	path = '/last/{nick}'.format(**vars())
 	url = urllib.parse.urljoin(pmxbot.config.librarypaste, path)
-	req = urllib.request.urlopen(url)
-	if req.getcode() >= 200 and req.getcode() < 400:
-		return req.geturl()
-	else:
+	resp = requests.head(url)
+	if not resp.ok:
 		return "I couldn't resolve a recent paste of yours. Maybe try " + url
+	return resp.headers['location']
 
 @contains('pmxbot', channels='unlogged', rate=.3)
 def rand_bot(client, event, channel, nick, rest):
