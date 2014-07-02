@@ -7,7 +7,7 @@ import warnings
 
 import six
 import requests
-from six.moves import urllib
+import backports.method_request
 
 try:
 	import wordnik.swagger
@@ -60,24 +60,7 @@ def _patch_wordnik():
 	"""
 	https://github.com/wordnik/wordnik-python3/issues/1
 	"""
-	class MethodRequest(urllib.request.Request):
-		method = None
-
-		def __init__(self, *args, **kwargs):
-			"""
-			Construct a MethodRequest. Usage is the same as for
-			`urllib.request.Request` except it also takes an optional `method`
-			keyword argument. If supplied, `method` will be used instead of
-			the default.
-			"""
-			method = kwargs.pop('method', self.method)
-			urllib.request.Request.__init__(self, *args, **kwargs)
-			# write the method after __init__ as Python 3.3 overrides the value
-			self.method = method
-
-		def get_method(self):
-			return getattr(self, 'method') or urllib.request.Request.get_method(self)
-	wordnik.swagger.MethodRequest = MethodRequest
+	wordnik.swagger.MethodRequest = backports.method_request.Request
 
 def lookup(word):
 	'''

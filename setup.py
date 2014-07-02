@@ -48,6 +48,7 @@ setup_params = dict(
 		"jinja2",
 		"cherrypy>=3.2.3,<3.3dev",
 		"jaraco.compat>=1.0.3",
+		"backports.method_request",
 	] + wordnik,
 	description="IRC bot - full featured, yet extensible and customizable",
 	license = 'MIT',
