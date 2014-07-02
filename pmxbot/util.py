@@ -7,6 +7,7 @@ import warnings
 
 import six
 import requests
+from six.moves import urllib
 
 try:
 	import wordnik.swagger
@@ -55,10 +56,34 @@ def strip_tags(string):
 	"""
 	return re.sub('<.*?>', '', string).replace('&nbsp;', ' ')
 
+def _patch_wordnik():
+	"""
+	https://github.com/wordnik/wordnik-python3/issues/1
+	"""
+	class MethodRequest(urllib.request.Request):
+		method = None
+
+		def __init__(self, *args, **kwargs):
+			"""
+			Construct a MethodRequest. Usage is the same as for
+			`urllib.request.Request` except it also takes an optional `method`
+			keyword argument. If supplied, `method` will be used instead of
+			the default.
+			"""
+			method = kwargs.pop('method', self.method)
+			urllib.request.Request.__init__(self, *args, **kwargs)
+			# write the method after __init__ as Python 3.3 overrides the value
+			self.method = method
+
+		def get_method(self):
+			return getattr(self, 'method') or urllib.request.Request.get_method(self)
+	wordnik.swagger.MethodRequest = MethodRequest
+
 def lookup(word):
 	'''
 	Get a definition for a word (uses Wordnik)
 	'''
+	_patch_wordnik()
 	# Jason's key - do not abuse
 	key = 'edc4b9b94b341eeae350e087c2e05d2f5a2a9e0478cefc6dc'
 	client = wordnik.swagger.ApiClient(key, 'http://api.wordnik.com/v4')
