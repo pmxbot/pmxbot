@@ -123,7 +123,7 @@ the @regexp decorator::
 
 For an example of how to implement a setuptools-based plugin, see one of the
 many examples in the pmxbot project itself or one of the popular third-party
-projects::
+projects:
 
  - `motivation <https://bitbucket.org/yougov/motivation>`_.
  - `wolframalpha <https://bitbucket.org/yougov/pmxbot-wolframalpha>`_.
