@@ -76,7 +76,7 @@ setup_params = dict(
 	tests_require=[
 		'pymongo',
 		'pytest',
-		'jaraco.test>=1.0.2,<2.0dev',
+		'jaraco.test>=1.5,<2.0dev',
 		'mock',
 		'more_itertools',
 	],
