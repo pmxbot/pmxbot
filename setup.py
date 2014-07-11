@@ -37,7 +37,6 @@ setup_params = dict(
 		"irc>=8.0,<9.0dev",
 		'six',
 		'requests',
-		"popquotes>=1.3",
 		"pyyaml",
 		"feedparser",
 		"pytz",

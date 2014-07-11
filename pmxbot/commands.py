@@ -13,7 +13,6 @@ from xml.etree import ElementTree
 
 from six.moves import urllib
 import pkg_resources
-import popquotes.pmxbot as pq
 from bs4 import BeautifulSoup
 import requests
 
@@ -649,8 +648,7 @@ def rand_bot(client, event, channel, nick, rest):
 		golfclap, nastygram, curse, bless, job, hire, oregontrail,
 		chain, tinytear, blame, panic, rubberstamp, dance, annoy, klingon,
 		storytime, murphy]
-	quote_functions = [quotes.quote, pq.zoidberg, pq.simpsons, pq.bender,
-		pq.hal, pq.grail, pq.R, pq.anchorman, pq.hangover]
+	quote_functions = [quotes.quote]
 	func = random.choice(normal_functions + quote_functions)
 	nick = nick if func in normal_functions else ''
 	# save the func for troubleshooting

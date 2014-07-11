@@ -7,7 +7,6 @@ import uuid
 
 import six
 import pytest
-import popquotes.pmxbot
 
 import pmxbot.dictlib
 import pmxbot.storage
@@ -567,11 +566,6 @@ class TestCommands(object):
 		print(res)
 		assert res == ("Quiet bitching is useless, foo'. Do something about "
 			"it.")
-
-	def test_popquotes(self):
-		popquotes.pmxbot.install_commands()
-		res = popquotes.pmxbot.bender(c, e, '#test', 'testrunner', '')
-		assert len(res) > 5
 
 	def test_rand_bot(self, iter_):
 		res = commands.rand_bot(c, e, '#test', 'testrunner', '')
