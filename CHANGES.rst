@@ -1,3 +1,9 @@
+1108.0
+======
+
+* ``popquotes`` and ``excuses`` are removed from the package. Include them
+  explicitly in your deployment to maintain compatibility.
+
 1107.4
 ======
 
