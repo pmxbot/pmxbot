@@ -38,7 +38,6 @@ setup_params = dict(
 		'six',
 		'requests',
 		"popquotes>=1.3",
-		"excuses>=1.1.2",
 		"pyyaml",
 		"feedparser",
 		"pytz",

@@ -568,11 +568,6 @@ class TestCommands(object):
 		assert res == ("Quiet bitching is useless, foo'. Do something about "
 			"it.")
 
-	def test_excuse(self):
-		import excuses
-		gen = excuses.RandomExcuseGenerator.create_local()
-		gen.pmxbot_excuse(c, e, '#test', 'testrunner', '')
-
 	def test_popquotes(self):
 		popquotes.pmxbot.install_commands()
 		res = popquotes.pmxbot.bender(c, e, '#test', 'testrunner', '')
