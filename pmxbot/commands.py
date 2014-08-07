@@ -463,9 +463,9 @@ def compliment(client, event, channel, nick, rest):
 				'%s has' % complimentee, compliment)
 		return compliment
 
-@command('emergencycompliment', aliases=('ec','emercomp'),
-	doc="Return a random compliment from http://emergencycompliment.com/")
+@command('emergencycompliment', aliases=('ec','emercomp'))
 def emer_comp(client, event, channel, nick, rest):
+	"Return a random compliment from http://emergencycompliment.com/"
 	if hasattr(phrases, 'emer_comp'):
 		comps = phrases.emer_comp
 	else:
