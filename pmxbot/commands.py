@@ -466,15 +466,7 @@ def compliment(client, event, channel, nick, rest):
 @command('emergencycompliment', aliases=('ec','emercomp'))
 def emer_comp(client, event, channel, nick, rest):
 	"Return a random compliment from http://emergencycompliment.com/"
-	if hasattr(phrases, 'emer_comp'):
-		comps = phrases.emer_comp
-	else:
-		comps = util.emergency_complement()
-		if comps is None:
-			return "Sorry %s, I can't do that right now." % nick
-		comps = [x['phrase'] for x in json.loads(comps)]
-		#Cache the results
-		phrases.emer_comp = comps
+	comps = util.load_emergency_compliments()
 	compliment = random.choice(comps)
 	if rest:
 		complimentee = rest.strip()

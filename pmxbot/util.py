@@ -7,6 +7,7 @@ import warnings
 
 import six
 import requests
+import jaraco.util.functools
 import backports.method_request
 
 try:
@@ -112,15 +113,17 @@ def lookup_acronym(acronym):
 
 	return all
 
-def emergency_complement():
-	ecomp_exp = re.compile(r"""\[.*\]""", re.MULTILINE | re.DOTALL)
-	compurl = 'http://emergencycompliment.com/js/compliments.js'
-	comps = get_html(compurl)
-	match = ecomp_exp.search(comps)
-	if not match:
-		return None
-	complist = match.group()
-	return complist
+
+@jaraco.util.functools.once
+def load_emergency_compliments():
+	compurl = ('https://spreadsheets.google.com/feeds/list/'
+		'1eEa2ra2yHBXVZ_ctH4J15tFSGEu-VTSunsrvaCAV598/od6/public/values'
+		'?alt=json')
+	doc = open_url(compurl).json()
+	return [
+		entry['title']['$t']
+		for entry in doc['feed']['entry']
+	]
 
 
 def passagg(recipient='', sender=''):
