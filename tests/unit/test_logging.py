@@ -12,6 +12,7 @@ class TestMongoDBLogging(object):
 	def teardown_method(self, method):
 		if hasattr(self, 'logger'):
 			self.logger.db.drop()
+			self.logger.db.database.recent.drop()
 
 	def test_message(self, mongodb_uri):
 		self.setup_logging(mongodb_uri)
