@@ -381,9 +381,9 @@ def ticker(client, event, channel, nick, rest):
 	change = str(round((float(diff) / (float(price) - float(diff))) * 100, 1))
 	return '%(ticker)s at %(time)s (ET): %(price)s (%(change)s%%)' % locals()
 
-@command("pick", aliases=("p", 'p:', "pick:"),
-	doc="Pick between a few options")
+@command("pick", aliases=("p", 'p:', "pick:"))
 def pick(client, event, channel, nick, rest):
+	"Pick between a few options"
 	question = rest.strip()
 	choices = util.splitem(question)
 	if len(choices) == 1:
