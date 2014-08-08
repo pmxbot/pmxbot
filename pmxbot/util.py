@@ -153,20 +153,22 @@ def load_emergency_compliments():
 	]
 
 
-def passagg(recipient='', sender=''):
+def passagg(recipient, sender):
+	"""
+	Generate a passive-aggressive statement to recipient from sender.
+	"""
 	adj = random.choice(pmxbot.phrases.adjs)
-	if random.randint(0,1):
+	if random.choice([False, True]):
+		# address the recipient last
 		lead = ""
-		trail=recipient if not recipient else ", %s" % recipient
+		trail = recipient if not recipient else ", %s" % recipient
 	else:
-		lead=recipient if not recipient else "%s, " % recipient
-		trail=""
-	start = "%s%s%s." % (lead, random.choice(pmxbot.phrases.adj_intros) % adj, trail)
-	if not lead and not start[0].isupper():
-		start = "%s%s" % (start[0].upper(), start[1:])
-	end = random.choice(pmxbot.phrases.farewells)
-	if sender:
-		end = "%s, %s" % (end, sender)
-	end = "%s." % end
-	final = " ".join([start, end])
-	return final
+		# address the recipient first
+		lead = recipient if not recipient else "%s, " % recipient
+		trail = ""
+	body = random.choice(pmxbot.phrases.adj_intros) % adj
+	if not lead:
+		body = body.capitalize()
+	msg = "{lead}{body}{trail}.".format(**locals())
+	fw = random.choice(pmxbot.phrases.farewells)
+	return "{msg} {fw}, {sender}.".format(**locals())
