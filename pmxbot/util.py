@@ -4,9 +4,11 @@ from __future__ import absolute_import
 import random
 import re
 import warnings
+import itertools
 
 import six
 import requests
+import bs4
 import jaraco.util.functools
 import backports.method_request
 
@@ -93,25 +95,15 @@ def urban_lookup(word):
 		return
 	return res['list'][0]['definition']
 
-html_strip = re.compile(r'<[^>]+?>')
-NUM_ACS = 3
-
-def lookup_acronym(acronym):
+def lookup_acronym(acronym, limit=3):
 	acronym = acronym.strip().upper().replace('.','')
 	html = get_html('http://www.acronymfinder.com/%s.html' % acronym)
-	idx = html.find('<th>Meaning</th>')
-	if idx == -1:
-		return None
-	all = []
-	for x in range(NUM_ACS):
-		idx = html.find('%s</a>' % acronym, idx)
-		idx = html.find('<td>', idx)
-		edx = html.find('</td>', idx)
-		ans = html[idx+4:edx]
-		ans = html_strip.sub('', ans)
-		all.append(ans)
-
-	return all
+	soup = bs4.BeautifulSoup(html)
+	nodes = soup.findAll(
+		name='td',
+		attrs={'class': 'result-list__body__meaning'},
+	)
+	return [node.text for node in itertools.islice(nodes, limit)]
 
 
 @jaraco.util.functools.once
