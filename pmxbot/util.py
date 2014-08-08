@@ -43,8 +43,33 @@ def wchoice(d):
 		if count > target:
 			return word
 
-def splitem(s):
-	s = s.rstrip('?.!')
+def splitem(query):
+	"""
+	Split a query into choices
+
+	>>> splitem('dog, cat')
+	['dog', 'cat']
+
+	Disregards trailing punctuation.
+
+	>>> splitem('dogs, cats???')
+	['dogs', 'cats']
+	>>> splitem('cats!!!')
+	['cats']
+
+	Allow or
+	>>> splitem('dogs, cats or prarie dogs?')
+	['dogs', 'cats', 'prarie dogs']
+
+	Honors serial commas
+	>>> splitem('dogs, cats, or prarie dogs?')
+	['dogs', 'cats', 'prarie dogs']
+
+	Allow choices to be prefixed by some ignored prompt.
+	>>> splitem('stuff: a, b, c')
+	['a', 'b', 'c']
+	"""
+	s = query.rstrip('?.!')
 	if ':' in s:
 		question, choices = s.rsplit(':', 1)
 	else:
