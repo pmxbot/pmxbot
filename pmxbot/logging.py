@@ -169,6 +169,9 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
 		return itertools.imap(parse_date, results)
 
 def parse_date(record):
+	"""
+	Parse a date from sqlite. Assumes the date is in US/Pacific time zone.
+	"""
 	dt = record.pop('datetime')
 	fmts = [
 		'%Y-%m-%d %H:%M:%S.%f',
