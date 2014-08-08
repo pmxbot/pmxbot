@@ -9,3 +9,7 @@ def test_lookup():
 @pytest.has_internet
 def test_emergency_compliment():
 	assert util.load_emergency_compliments()
+
+@pytest.has_internet
+def test_acronym_lookup():
+	assert util.lookup_acronym('NSFW')
