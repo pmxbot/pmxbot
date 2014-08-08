@@ -1,14 +1,8 @@
 # -*- coding: utf-8 -*-
 # vim:ts=4:sw=4:noexpandtab
 # c-basic-indent: 4; tab-width: 4; indent-tabs-mode: true;
-import sys
 
 import setuptools
-
-wordnik = (
-	["wordnik>=2.1.2,<3.0"] if sys.version_info < (3,)
-	else ["wordnik-py3"]
-)
 
 setup_params = dict(
 	name="pmxbot",
@@ -47,7 +41,8 @@ setup_params = dict(
 		"cherrypy>=3.2.3,<3.3dev",
 		"jaraco.compat>=1.0.3",
 		"backports.method_request",
-	] + wordnik,
+		"wordnik-py3",
+	],
 	description="IRC bot - full featured, yet extensible and customizable",
 	license = 'MIT',
 	author="YouGov, Plc.",
@@ -61,7 +56,6 @@ setup_params = dict(
 		'Operating System :: POSIX',
 		'Operating System :: Microsoft :: Windows',
 		'Operating System :: MacOS :: MacOS X',
-		'Programming Language :: Python :: 2.7',
 		'Programming Language :: Python :: 3',
 		'Topic :: Communications :: Chat :: Internet Relay Chat',
 		'Topic :: Internet :: WWW/HTTP :: WSGI :: Application',

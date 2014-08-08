@@ -1,3 +1,8 @@
+1109.0
+======
+
+* Dropped support for Python 2.
+
 1108.0
 ======
 
