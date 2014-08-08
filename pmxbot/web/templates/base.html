@@ -33,6 +33,26 @@
 					node.innerHTML = Autolinker.link(node.innerHTML);
 				})
 			}
+
+			animation_speed = 200;
+
+			function animate_logs() {
+				base = '2014-01-01T';
+				[].slice.call(
+					document.querySelectorAll('.logline')
+				).forEach(function (node) {
+					node.style.display = 'none';
+					logtime_str = node.querySelector('.comment-link').innerHTML;
+					logtime = Date.parse(base + logtime_str);
+					diff = logtime - Date.parse(base + '00:00:00');
+					// replay logs at animation_speed x real time
+					delay = diff / animation_speed;
+					setTimeout(function() {
+						node.style.display = 'block';
+						window.scrollTo(0, document.body.scrollHeight);
+					}, delay);
+				});
+			}
 		</script>
 	</head>
 	<body onload="add_links();">
