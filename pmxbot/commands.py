@@ -686,8 +686,9 @@ def urbandefit(client, event, channel, nick, rest):
 		return 'Urban Dictionary says {word}: {definition}'.format(**vars())
 
 
-@command("acronym", aliases=("ac",), doc="Look up an acronym")
+@command("acronym", aliases=("ac",))
 def acit(client, event, channel, nick, rest):
+	"Look up an acronym"
 	word = rest.strip()
 	res = util.lookup_acronym(word)
 	if res is None:
@@ -695,9 +696,9 @@ def acit(client, event, channel, nick, rest):
 	else:
 		return ' | '.join(res)
 
-@command("fight",
-	doc="Pit two sworn enemies against each other (separate with 'vs.')")
+@command("fight")
 def fight(client, event, channel, nick, rest):
+	"Pit two sworn enemies against each other (separate with 'vs.')"
 	if rest:
 		vtype = random.choice(phrases.fight_victories)
 		fdesc = random.choice(phrases.fight_descriptions)
