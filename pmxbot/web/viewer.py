@@ -346,6 +346,11 @@ def startup(config):
 			'tools.staticfile.filename': pkg_resources.resource_filename(
 				'pmxbot.web', 'templates/pmxbot.png'),
 		},
+		'/Autolinker.js': {
+			'tools.staticfile.on': True,
+			'tools.staticfile.filename': pkg_resources.resource_filename(
+				'pmxbot.web', 'templates/Autolinker.js'),
+		},
 	}
 
 	cherrypy.quickstart(PmxbotPages(), config.web_base, config=app_conf)
