@@ -725,10 +725,12 @@ def progress(client, event, channel, nick, rest):
 		bar = "=" * ticks
 		return "%s [%-10s] %s" % (left, bar, right)
 
-@command("nastygram", aliases=('nerf', 'passive', 'bcc'),
-	doc="A random passive-agressive comment, optionally directed toward "
-		"some(one|thing).")
+@command("nastygram", aliases=('nerf', 'passive', 'bcc'))
 def nastygram(client, event, channel, nick, rest):
+	"""
+	A random passive-agressive comment, optionally directed toward
+	some(one|thing).
+	"""
 	recipient = ""
 	if rest:
 		recipient = rest.strip()
