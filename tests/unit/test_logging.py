@@ -28,3 +28,12 @@ class TestMongoDBLogging(object):
 		messages = list(l.get_random_logs(2))
 		assert len(messages) == 2
 		assert set(messages) == set(['message one', 'message two'])
+
+	def test_list_channels(self, mongodb_uri):
+		l = self.setup_logging(mongodb_uri)
+		l.message('#inane', 'nik', 'message one')
+		l.message('#inane', 'sam', 'message two')
+		l.message('#bar', 'nik', 'in walk two olives')
+		channels = l.list_channels()
+		assert len(channels) == 2
+		assert set(channels) == set(['bar', 'inane'])
