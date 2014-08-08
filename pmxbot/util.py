@@ -1,5 +1,5 @@
 # vim:ts=4:sw=4:noexpandtab
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import random
 import re
@@ -21,10 +21,27 @@ except (ImportError, SyntaxError):
 import pmxbot.phrases
 
 def wchoice(d):
-	l = []
-	for item, num in six.iteritems(d):
-		l.extend([item] * (num*100))
-	return random.choice(l)
+	"""
+	Given a dictionary of word: proportion, return a word randomly selected
+	from the keys weighted by proportion.
+
+	>>> wchoice({'a': 0, 'b': 1})
+	'b'
+	>>> choices = [wchoice({'a': 1, 'b': 2}) for x in range(1000)]
+
+	Statistically speaking, choices should be .5 a:b
+	>>> ratio = choices.count('a') / choices.count('b')
+	>>> .45 < ratio < .55
+	True
+	"""
+	total = sum(d.values())
+	target = random.random() * total
+	# elect the first item which pushes the count over target
+	count = 0
+	for word, proportion in six.iteritems(d):
+		count += proportion
+		if count > target:
+			return word
 
 def splitem(s):
 	s = s.rstrip('?.!')
