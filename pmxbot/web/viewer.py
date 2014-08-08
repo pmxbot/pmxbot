@@ -155,7 +155,7 @@ class KarmaPage(object):
 		term = term.strip()
 		if term:
 			context['lookup'] = (
-				[self.karma_comma(res) for res in karma.search(term)]
+				self.karma_comma(karma.search(term))
 				or [('NO RESULTS FOUND', '')]
 			)
 		context['top100'] = self.karma_comma(karma.list(select=100))
