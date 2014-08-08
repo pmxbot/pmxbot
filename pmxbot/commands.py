@@ -108,7 +108,7 @@ def weather_for(place):
 		"%(future_day)s: %(future_highf)sF/%(future_highc)sC, "
 			"%(future_conds)s",
 	))
-	weather = fmt % vars()
+	weather = fmt % locals()
 	return weather
 
 def suppress_exceptions(callables, exceptions=Exception):
@@ -379,7 +379,7 @@ def ticker(client, event, channel, nick, rest):
 	if date == 'N/A':
 		return "d'oh... could not find information for symbol %s" % ticker
 	change = str(round((float(diff) / (float(price) - float(diff))) * 100, 1))
-	return '%(ticker)s at %(time)s (ET): %(price)s (%(change)s%%)' % vars()
+	return '%(ticker)s at %(time)s (ET): %(price)s (%(change)s%%)' % locals()
 
 @command("pick", aliases=("p", 'p:', "pick:"),
 	doc="Pick between a few options")
