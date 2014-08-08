@@ -199,7 +199,19 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		now = datetime.datetime.utcnow()
 		doc = dict(channel=channel, nick=nick, message=msg,
 			datetime=self._fmt_date(now))
-		self.db.insert(doc)
+		id = self.db.insert(doc)
+		self._add_recent(doc, id)
+
+	def _add_recent(self, doc, logged_id):
+		"Keep a tab on the most recent message for each channel"
+		spec = dict(name=doc['channel'])
+		doc['ref'] = logged_id
+		self._recent.update(spec, doc, upsert=True)
+
+	@property
+	def _recent(self):
+		"roundabout way to get the 'recent' collection"
+		return self.db.database.recent
 
 	@staticmethod
 	def _fmt_date(datetime):
@@ -295,27 +307,12 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		return matches
 
 	def list_channels(self):
-		# channel listing can be expensive, so returned a cached result and
-		#  refresh the cache in the background.
-		def update_cache():
-			self._channel_cache = self._list_channels()
-		if not '_channel_cache' in vars(self):
-			update_cache()
-		else:
-			threading.Thread(target = update_cache).start()
-		return self._channel_cache
-
-	def _list_channels(self):
-		return self.db.distinct('channel')
+		return [doc['name'] for doc in self._recent.find()]
 
 	def last_message(self, channel):
-		rec = next(
-			self.db.find(
-				dict(channel=channel)
-			).sort('_id', storage.pymongo.DESCENDING).limit(1)
-		)
+		rec = self._recent.find_one(dict(channel=channel))
 		return dict(
-			datetime=rec['_id'].generation_time,
+			datetime=rec['ref'].generation_time,
 			nick=rec['nick'],
 			message=rec['message']
 		)
