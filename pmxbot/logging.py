@@ -204,8 +204,9 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 
 	def _add_recent(self, doc, logged_id):
 		"Keep a tab on the most recent message for each channel"
-		spec = dict(name=doc['channel'])
+		spec = dict(channel=doc['channel'])
 		doc['ref'] = logged_id
+		doc.pop('_id')
 		self._recent.update(spec, doc, upsert=True)
 
 	@property
