@@ -69,19 +69,12 @@ def splitem(query):
 	>>> splitem('stuff: a, b, c')
 	['a', 'b', 'c']
 	"""
-	s = query.rstrip('?.!')
-	if ':' in s:
-		question, choices = s.rsplit(':', 1)
-	else:
-		choices = s
+	prompt, sep, query = query.rstrip('?.!').rpartition(':')
 
-	c = choices.split(',')
-	if ' or ' in c[-1]:
-		c = c[:-1] + c[-1].split(' or ')
+	choices = query.split(',')
+	choices[-1:] = choices[-1].split(' or ')
 
-	c = [x.strip() for x in c]
-	c = list(filter(None, c))
-	return c
+	return [choice.strip() for choice in choices if choice.strip()]
 
 def open_url(url):
 	headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) '
