@@ -71,7 +71,6 @@ class TestPmxbotLog(PmxbotHarness):
 		assert not self.check_logs(channel="#logged", message=msg)
 		assert self.check_logs(channel="#logged", message=pre_text)
 
-
 	def test_strike_3(self):
 		"""
 		Test the strike function for multiple lines.
@@ -98,20 +97,19 @@ class TestPmxbotLog(PmxbotHarness):
 	def test_blank_input_logged(self):
 		self.client.send_message("#logged", '')
 		time.sleep(1)
-		assert self.bot.poll() == None
+		assert self.bot.poll() is None
 
 	def test_blank_input_notlogged(self):
 		self.client.send_message("#inane", '')
 		time.sleep(1)
-		assert self.bot.poll() == None
-
+		assert self.bot.poll() is None
 
 	def test_onespace_input_logged(self):
 		self.client.send_message("#logged", '  ')
 		time.sleep(1)
-		assert self.bot.poll() == None
+		assert self.bot.poll() is None
 
 	def test_onespace_input_notlogged(self):
 		self.client.send_message("#inane", '  ')
 		time.sleep(1)
-		assert self.bot.poll() == None
+		assert self.bot.poll() is None
