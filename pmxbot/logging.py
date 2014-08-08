@@ -307,7 +307,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		return matches
 
 	def list_channels(self):
-		return [doc['name'] for doc in self._recent.find()]
+		return [doc['channel'] for doc in self._recent.find()]
 
 	def last_message(self, channel):
 		rec = self._recent.find_one(dict(channel=channel))
