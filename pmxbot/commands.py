@@ -30,8 +30,9 @@ def plaintext(html):
 	"""
 	return BeautifulSoup(html).text
 
-@command("google", aliases=('g',), doc="Look a phrase up on google")
+@command(aliases='g')
 def google(client, event, channel, nick, rest):
+	"Look up a phrase on google"
 	BASE_URL = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&'
 	url = BASE_URL + urllib.parse.urlencode({'q': rest.encode('utf-8').strip()})
 	raw_res = urllib.request.urlopen(url).read()
@@ -42,8 +43,9 @@ def google(client, event, channel, nick, rest):
 		hit1['titleNoFormatting'],
 	))
 
-@command("time", doc="What time is it in.... Similar to !weather")
+@command("time")
 def googletime(client, event, channel, nick, rest):
+	"What time is it in.... Similar to !weather"
 	rest = rest.strip()
 	if rest == 'all':
 		places = pmxbot.config.places
@@ -127,9 +129,12 @@ def suppress_exceptions(callables, exceptions=Exception):
 		except exceptions:
 			pass
 
-@command('weather', aliases=('w'), doc='Get weather for a place. All '
-	'offices with "all", or a list of places separated by pipes.')
+@command(aliases='w')
 def weather(client, event, channel, nick, rest):
+	"""
+	Get weather for a place. All offices with "all", or a list of places
+	separated by pipes.
+	"""
 	rest = rest.strip()
 	if rest == 'all':
 		places = pmxbot.config.places
@@ -146,30 +151,31 @@ def weather(client, event, channel, nick, rest):
 	)
 	return suppress_exceptions(weather_callables, suppressed_errors)
 
-@command("boo", doc="Boo someone")
+@command()
 def boo(client, event, channel, nick, rest):
+	"Boo someone"
 	slapee = rest
 	karma.Karma.store.change(slapee, -1)
 	return "/me BOOO %s!!! BOOO!!!" % slapee
 
-@command("troutslap", aliases=("slap", "ts"),
-	doc="Slap some(one|thing) with a fish")
+@command(aliases=("slap", "ts"))
 def troutslap(client, event, channel, nick, rest):
+	"Slap some(one|thing) with a fish"
 	slapee = rest
 	karma.Karma.store.change(slapee, -1)
 	return "/me slaps %s around a bit with a large trout" % slapee
 
-@command("keelhaul", aliases=("kh",),
-	doc="Inflict great pain and embarassment on some(one|thing)")
+@command(aliases="kh")
 def keelhaul(client, event, channel, nick, rest):
+	"Inflict great pain and embarassment on some(one|thing)"
 	keelee = rest
 	karma.Karma.store.change(keelee, -1)
 	return ("/me straps %s to a dirty rope, tosses 'em overboard and pulls "
 		"with great speed. Yarrr!" % keelee)
 
-@command("annoy", aliases=("a", "bother",),
-	doc="Annoy everyone with meaningless banter")
+@command(aliases=("a", "bother"))
 def annoy(client, event, channel, nick, rest):
+	"Annoy everyone with meaningless banter"
 	def a1():
 		yield 'OOOOOOOHHH, WHAT DO YOU DO WITH A DRUNKEN SAILOR'
 		yield 'WHAT DO YOU DO WITH A DRUNKEN SAILOR'
@@ -197,27 +203,31 @@ def annoy(client, event, channel, nick, rest):
 			"My Tallest!")
 	return random.choice([a1, a2, a3, a4, a5, a6])()
 
-@command("dance", aliases=("d",), doc="Do a little dance")
+@command(aliases="d")
 def dance(client, event, channel, nick, rest):
+	"Do a little dance"
 	yield 'O-\-<'
 	yield 'O-|-<'
 	yield 'O-/-<'
 
-@command("panic", aliases=("pc",), doc="Panic!")
+@command(aliases="pc")
 def panic(client, event, channel, nick, rest):
+	"Panic!"
 	yield 'O-|-<'
 	yield 'O-<-<'
 	yield 'O->-<'
 	yield 'AAAAAAAHHHH!!!  HEAD FOR THE HILLS!'
 
-@command("duck", aliases=("ducky",), doc="Display a helpful duck")
+@command(aliases="ducky")
 def duck(client, event, channel, nick, rest):
+	"Display a helpful duck"
 	yield '__("<'
 	yield '\__/'
 	yield ' ^^'
 
-@command("rubberstamp",  aliases=('approve',), doc="Approve something")
+@command(aliases='approve')
 def rubberstamp(client, event, channel, nick, rest):
+	"Approve something"
 	parts = ["Bad credit? No credit? Slow credit?"]
 	rest = rest.strip()
 	if rest:
@@ -226,16 +236,18 @@ def rubberstamp(client, event, channel, nick, rest):
 	parts.append("APPROVED!")
 	return " ".join(parts)
 
-@command("cheer", aliases=("c",), doc="Cheer for something")
+@command(aliases="c")
 def cheer(client, event, channel, nick, rest):
+	"Cheer for something"
 	if rest:
 		karma.Karma.store.change(rest, 1)
 		return "/me cheers for %s!" % rest
 	karma.Karma.store.change('the day', 1)
 	return "/me cheers!"
 
-@command("golfclap", aliases=("clap",), doc="Clap for something")
+@command(aliases="clap")
 def golfclap(client, event, channel, nick, rest):
+	"Clap for something"
 	clapv = random.choice(phrases.clapvl)
 	adv = random.choice(phrases.advl)
 	adj = random.choice(phrases.adjl)
@@ -245,38 +257,41 @@ def golfclap(client, event, channel, nick, rest):
 		return "/me claps %s for %s, %s %s." % (clapv, rest, adv, adj)
 	return "/me claps %s, %s %s." % (clapv, adv, adj)
 
-@command('featurecreep', aliases=('fc',),
-	doc='Generate feature creep (P+C http://www.dack.com/web/bullshit.html)')
+@command(aliases='fc')
 def featurecreep(client, event, channel, nick, rest):
+	'Generate feature creep (P+C http://www.dack.com/web/bullshit.html)'
 	verb = random.choice(phrases.fcverbs).capitalize()
 	adjective = random.choice(phrases.fcadjectives)
 	noun = random.choice(phrases.fcnouns)
 	return '%s %s %s!' % (verb, adjective, noun)
 
-@command('job', aliases=('card',),
-	doc='Generate a job title, http://www.cubefigures.com/job.html')
+@command(aliases='card')
 def job(client, event, channel, nick, rest):
+	'Generate a job title, http://www.cubefigures.com/job.html'
 	j1 = random.choice(phrases.jobs1)
 	j2 = random.choice(phrases.jobs2)
 	j3 = random.choice(phrases.jobs3)
 	return '%s %s %s' % (j1, j2, j3)
 
-@command('hire',
-	doc="When all else fails, pmxbot delivers the perfect employee.")
+@command()
 def hire(client, event, channel, nick, rest):
+	"When all else fails, pmxbot delivers the perfect employee."
 	title = job(client, event, channel, nick, rest)
 	task = featurecreep(client, event, channel, nick, rest)
 	return "/me finds a new %s to %s" % (title, task.lower())
 
-@command('strategy',
-	doc='Social Media Strategy, courtsey of '
-		'http://whatthefuckismysocialmediastrategy.com/')
+@command()
 def strategy(client, event, channel, nick, rest):
+	"""
+	Social Media Strategy, courtsey of
+	http://whatthefuckismysocialmediastrategy.com/
+	"""
 	return random.choice(phrases.socialstrategies)
 
 
-@command('oregontrail', aliases=('otrail',), doc='It\'s edutainment!')
+@command(aliases='otrail')
 def oregontrail(client, event, channel, nick, rest):
+	"It's edutainment!"
 	rest = rest.strip()
 	if rest:
 		who = rest.strip()
@@ -290,17 +305,18 @@ def oregontrail(client, event, channel, nick, rest):
 		text = '%s %s' % (who, action)
 	return text
 
-@command('zinger', aliases=('zing',), doc='ZING!')
+@command(aliases='zing')
 def zinger(client, event, channel, nick, rest):
+	"ZING!"
 	name = 'you'
 	if rest:
 		name = rest.strip()
 		karma.Karma.store.change(name, -1)
 	return "OH MAN!!! %s TOTALLY GOT ZING'D!" % (name.upper())
 
-@command("motivate", aliases=("m", "appreciate", "thanks", "thank", "gracias"),
-	doc="Motivate someone")
+@command(aliases=("m", "appreciate", "thanks", "thank", "gracias"))
 def motivate(client, event, channel, nick, rest):
+	"Motivate someone"
 	if rest:
 		r = rest.strip()
 	else:
@@ -308,9 +324,9 @@ def motivate(client, event, channel, nick, rest):
 	karma.Karma.store.change(r, 1)
 	return "you're doing good work, %s!" % r
 
-@command("imotivate", aliases=("im", 'ironicmotivate',),
-	doc='''Ironically "Motivate" someone''')
+@command(aliases=("im", 'ironicmotivate',))
 def imotivate(client, event, channel, nick, rest):
+	'''Ironically "Motivate" someone'''
 	if rest:
 		r = rest.strip()
 		karma.Karma.store.change(r, -1)
@@ -318,15 +334,17 @@ def imotivate(client, event, channel, nick, rest):
 		r = channel
 	return '''you're "doing" "good" "work", %s!''' % r
 
-@command("nailedit", aliases=("nail", "n"), doc="Nail that interview")
+@command(aliases=("nail", "n"))
 def nailedit(client, event, channel, nick, rest):
+	"Nail that interview"
 	random.shuffle(phrases.interview_excuses)
 	yield "Sorry, but " + phrases.interview_excuses[0]
 	yield("/me Nailed it!")
 
 
-@command("demotivate", aliases=("dm",), doc="Demotivate someone")
+@command(aliases="dm")
 def demotivate(client, event, channel, nick, rest):
+	"Demotivate someone"
 	if rest:
 		r = rest.strip()
 	else:
@@ -334,17 +352,19 @@ def demotivate(client, event, channel, nick, rest):
 	karma.Karma.store.change(r, -1)
 	return "you're doing horrible work, %s!" % r
 
-@command("8ball", aliases=("8",), doc="Ask the magic 8ball a question")
+@command(name="8ball", aliases="8")
 def eball(client, event, channel, nick, rest):
+	"Ask the magic 8ball a question"
 	return util.wchoice(phrases.ball8_opts)
 
-@command("klingon", aliases=('klingonism',),
-	doc="Ask the magic klingon a question")
+@command(aliases='klingonism')
 def klingon(client, event, channel, nick, rest):
+	"Ask the magic klingon a question"
 	return random.choice(phrases.klingonisms)
 
-@command("roll", aliases=(), doc="Roll a die, default = 100.")
+@command()
 def roll(client, event, channel, nick, rest):
+	"Roll a die, default = 100."
 	if rest:
 		rest = rest.strip()
 		die = int(rest)
@@ -353,19 +373,21 @@ def roll(client, event, channel, nick, rest):
 	myroll = random.randint(1, die)
 	return "%s rolls %s" % (nick, myroll)
 
-@command("flip", aliases=(), doc="Flip a coin")
+@command()
 def flip(client, event, channel, nick, rest):
+	"Flip a coin"
 	myflip = random.choice(('Heads', 'Tails'))
 	return "%s gets %s" % (nick, myflip)
 
-@command("deal", aliases=(), doc="Deal or No Deal?")
+@command()
 def deal(client, event, channel, nick, rest):
+	"Deal or No Deal?"
 	mydeal = random.choice(('Deal!', 'No Deal!'))
 	return "%s gets %s" % (nick, mydeal)
 
-@command("ticker", aliases=("t",),
-	doc="Look up a ticker symbol's current trading value")
+@command(aliases="t")
 def ticker(client, event, channel, nick, rest):
+	"Look up a ticker symbol's current trading value"
 	ticker = rest.upper()
 	# let's use Yahoo's nifty csv facility, and pull last time/price both
 	symbol = 's'
@@ -381,7 +403,7 @@ def ticker(client, event, channel, nick, rest):
 	change = str(round((float(diff) / (float(price) - float(diff))) * 100, 1))
 	return '%(ticker)s at %(time)s (ET): %(price)s (%(change)s%%)' % locals()
 
-@command("pick", aliases=("p", 'p:', "pick:"))
+@command(aliases=("p", 'p:', "pick:"))
 def pick(client, event, channel, nick, rest):
 	"Pick between a few options"
 	question = rest.strip()
@@ -393,9 +415,9 @@ def pick(client, event, channel, nick, rest):
 		certainty = random.sample(phrases.certainty_opts, 1)[0]
 		return "%s... %s %s" % (pick, certainty, pick)
 
-@command("lunch", aliases=("lunchpick", "lunchpicker"),
-	doc="Pick where to go to lunch")
+@command(aliases=("lunchpick", "lunchpicker"))
 def lunch(client, event, channel, nick, rest):
+	"Pick where to go to lunch"
 	rs = rest.strip()
 	if not rs:
 		return "Give me an area and I'll pick a place: (%s)" % (
@@ -406,19 +428,21 @@ def lunch(client, event, channel, nick, rest):
 	choices = pmxbot.config.lunch_choices[rs]
 	return random.choice(choices)
 
-@command("password", aliases=("pw", "passwd",),
-	doc="Generate a random password, similar to "
-	"http://www.pctools.com/guides/password")
+@command(aliases=("pw", "passwd",))
 def password(client, event, channel, nick, rest):
+	"""
+	Generate a random password, similar to
+	http://www.pctools.com/guides/password
+	"""
 	chars = '32547698ACBEDGFHKJMNQPSRUTWVYXZacbedgfhkjmnqpsrutwvyxz'
 	passwd = []
 	for i in range(8):
 		passwd.append(random.choice(chars))
 	return ''.join(passwd)
 
-@command("insult", aliases=(),
-	doc="Generate a random insult from http://autoinsult.com/")
+@command()
 def insult(client, event, channel, nick, rest):
+	"Generate a random insult from http://autoinsult.com/"
 	instype = random.randrange(4)
 	insurl = "http://autoinsult.com/webinsult.php?style=%s&r=0&sc=1" % instype
 	insre = re.compile('<div class="insult" id="insult">(.*?)</div>')
@@ -439,10 +463,12 @@ def insult(client, event, channel, nick, rest):
 					insultee, m.group(1).lower()), insult)
 	return insult
 
-@command("compliment", aliases=('surreal',),
-	doc="Generate a random compliment from "
-	"http://www.madsci.org/cgi-bin/cgiwrap/~lynn/jardin/SCG")
+@command(aliases='surreal')
 def compliment(client, event, channel, nick, rest):
+	"""
+	Generate a random compliment from
+	http://www.madsci.org/cgi-bin/cgiwrap/~lynn/jardin/SCG
+	"""
 	compurl = 'http://www.madsci.org/cgi-bin/cgiwrap/~lynn/jardin/SCG'
 	comphtml = ''.join([i.decode() for i in urllib.request.urlopen(compurl)])
 	compmark1 = '<h2>\n\n'
@@ -463,7 +489,7 @@ def compliment(client, event, channel, nick, rest):
 				'%s has' % complimentee, compliment)
 		return compliment
 
-@command('emergencycompliment', aliases=('ec','emercomp'))
+@command(name='emergencycompliment', aliases=('ec','emercomp'))
 def emer_comp(client, event, channel, nick, rest):
 	"Return a random compliment from http://emergencycompliment.com/"
 	comps = util.load_emergency_compliments()
@@ -474,8 +500,9 @@ def emer_comp(client, event, channel, nick, rest):
 		return "%s: %s" % (complimentee, compliment)
 	return compliment
 
-@command("gettowork", aliases=("gtw",), doc="You really ought to, ya know...")
+@command(aliases="gtw")
 def gettowork(client, event, channel, nick, rest):
+	"You really ought to, ya know..."
 	suggestions = ["Um, might I suggest working now",
 		"Get to work",
 		"Between the coffee break, the smoking break, the lunch break, "
@@ -494,9 +521,9 @@ def gettowork(client, event, channel, nick, rest):
 	karma.Karma.store.change(nick, -1)
 	return suggestion
 
-@command("bitchingisuseless", aliases=("qbiu",),
-	doc="It really is, ya know...")
+@command(aliases="qbiu")
 def bitchingisuseless(client, event, channel, nick, rest):
+	"It really is, ya know..."
 	rest = rest.strip()
 	if rest:
 		karma.Karma.store.change(rest, -1)
@@ -506,8 +533,9 @@ def bitchingisuseless(client, event, channel, nick, rest):
 	advice = 'Quiet bitching is useless, %s. Do something about it.' % rest
 	return advice
 
-@command("curse", doc="Curse the day!")
+@command()
 def curse(client, event, channel, nick, rest):
+	"Curse the day!"
 	if rest:
 		cursee = rest
 	else:
@@ -515,18 +543,18 @@ def curse(client, event, channel, nick, rest):
 	karma.Karma.store.change(cursee, -1)
 	return "/me curses %s!" % cursee
 
-@command("tinytear", aliases=('tt', 'tear', 'cry'),
-	doc="I cry a tiny tear for you.")
+@command(aliases=('tt', 'tear', 'cry'))
 def tinytear(client, event, channel, nick, rest):
+	"I cry a tiny tear for you."
 	if rest:
 		return "/me sheds a single tear for %s" % rest
 	else:
 		return ("/me sits and cries as a single tear slowly trickles down "
 			"its cheek")
 
-@command("stab", aliases=("shank", "shiv",),
-	doc="Stab, shank or shiv some(one|thing)!")
+@command(aliases=("shank", "shiv",))
 def stab(client, event, channel, nick, rest):
+	"Stab, shank or shiv some(one|thing)!"
 	if rest:
 		stabee = rest
 	else:
@@ -548,9 +576,9 @@ def stab(client, event, channel, nick, rest):
 		return ("/me turns on its master and shivs %s. This is reality man, "
 			"and you never know what you're going to get!" % nick)
 
-@command("disembowel", aliases=("dis", "eviscerate"),
-	doc="Disembowel some(one|thing)!")
+@command(aliases=("dis", "eviscerate"))
 def disembowel(client, event, channel, nick, rest):
+	"Disembowel some(one|thing)!"
 	if rest:
 		stabee = rest
 		karma.Karma.store.change(stabee, -1)
@@ -560,9 +588,9 @@ def disembowel(client, event, channel, nick, rest):
 		"leaky pipe, and once bored of playing with them mercifully "
 		"ritually disembowels them..." % stabee)
 
-@command("embowel", aliases=("reembowel",),
-	doc="Embowel some(one|thing)!")
+@command(aliases="reembowel")
 def embowel(client, event, channel, nick, rest):
+	"Embowel some(one|thing)!"
 	if rest:
 		stabee = rest
 		karma.Karma.store.change(stabee, 1)
@@ -573,8 +601,9 @@ def embowel(client, event, channel, nick, rest):
 		"takes them to the hospital with entrails on ice, and mercifully "
 		"embowels them, saving the day..." % stabee)
 
-@command("chain", aliases=(), doc="Chain some(one|thing)down.")
+@command()
 def chain(client, event, channel, nick, rest):
+	"Chain some(one|thing)down."
 	if rest:
 		chainee = rest
 	else:
@@ -590,8 +619,9 @@ def chain(client, event, channel, nick, rest):
 			"desk.  your days of chaining people down and stomping on their "
 			"dreams are over!  get a life, you miserable beast." % nick)
 
-@command("bless", doc="Bless the day!")
+@command()
 def bless(client, event, channel, nick, rest):
+	"Bless the day!"
 	if rest:
 		blesse = rest
 	else:
@@ -599,8 +629,9 @@ def bless(client, event, channel, nick, rest):
 	karma.Karma.store.change(blesse, 1)
 	return "/me blesses %s!" % blesse
 
-@command("blame", doc="Pass the buck!")
+@command()
 def blame(client, event, channel, nick, rest):
+	"Pass the buck!"
 	if rest:
 		blamee = rest
 	else:
@@ -623,7 +654,7 @@ def _request_friendly(auth):
 	if auth is not None:
 		return tuple(auth)
 
-@command("paste")
+@command()
 def paste(client, event, channel, nick, rest):
 	"Drop a link to your latest paste"
 	path = '/last/{nick}'.format(**vars())
