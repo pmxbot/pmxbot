@@ -419,7 +419,6 @@ class Handler(object):
 
 	def __init__(self, **kwargs):
 		self.__dict__.update(kwargs)
-		self.name = self.name.lower()
 
 	def register(self):
 		self._registry.append(self)
@@ -427,8 +426,17 @@ class Handler(object):
 
 	def decorate(self, func):
 		self.func = func
+		self._set_implied_name()
 		self.register()
 		return func
+
+	def _set_implied_name(self):
+		"""
+		Allow the name of this handler to default to the function name.
+		"""
+		if getattr(self, 'name', None) is None:
+			self.name = self.func.__name__
+		self.name = self.name.lower()
 
 	@property
 	def sort_key(self):
