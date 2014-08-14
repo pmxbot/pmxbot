@@ -419,6 +419,7 @@ class Handler(object):
 
 	def __init__(self, **kwargs):
 		self.__dict__.update(kwargs)
+		self.name = self.name.lower()
 
 	def register(self):
 		self._registry.append(self)
@@ -536,7 +537,7 @@ class RegexpHandler(ContainsHandler):
 def contains(name, channels=(), exclude=(), rate=1.0, priority=1,
 		doc=None, **kwargs):
 	return ContainsHandler(
-		name=name.lower(),
+		name=name,
 		doc=doc,
 		channels=channels,
 		exclude=exclude,
@@ -544,8 +545,8 @@ def contains(name, channels=(), exclude=(), rate=1.0, priority=1,
 		priority=priority,
 		**kwargs).decorate
 
-def command(name, aliases=None, doc=None):
-	handler = CommandHandler(name=name.lower(), doc=doc)
+def command(name=None, aliases=None, doc=None):
+	handler = CommandHandler(name=name, doc=doc)
 	aliases = [
 		AliasHandler(name=alias, parent=handler)
 		for alias in always_iterable(aliases)
@@ -555,7 +556,7 @@ def command(name, aliases=None, doc=None):
 
 def regexp(name, regexp, doc=None, **kwargs):
 	return RegexpHandler(
-		name=name.lower(),
+		name=name,
 		doc=doc,
 		pattern=regexp,
 		**kwargs
