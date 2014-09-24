@@ -1,3 +1,9 @@
+1109.3
+======
+
+* Improved FastSayer startup time on MongoDB when logs database is millions
+  of rows.
+
 1109.0
 ======
 
