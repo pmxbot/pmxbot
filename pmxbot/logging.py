@@ -257,10 +257,12 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		indexes.insert(0, -1)
 		pairs = recipes.pairwise(indexes)
 		skips = (b-a-1 for a, b in pairs)
-		cur = self.db.find()
+		# scan through the _ids (in the index)
+		cur = self.db.find(fields=['_id']).sort([('_id', 1)])
 		for skip in skips:
-			cur.skip(skip)
-			yield next(cur)['message']
+			recipes.consume(itertools.islice(cur, skip))
+			query = next(cur)
+			yield self.db.find_one(query, fields=['message'])['message']
 
 	def get_channel_days(self, channel):
 		query = dict(channel=channel)
