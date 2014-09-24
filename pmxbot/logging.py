@@ -6,7 +6,6 @@ import random
 import datetime
 import itertools
 import struct
-import threading
 import traceback
 
 import pytz
