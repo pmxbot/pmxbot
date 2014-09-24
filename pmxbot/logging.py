@@ -11,6 +11,7 @@ import traceback
 import pytz
 import six
 from jaraco.util.context import ExceptionTrap
+from more_itertools import recipes
 
 import pmxbot
 from . import storage
@@ -252,8 +253,13 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 			indexes = [random.randint(0, length-1) for n in range(limit)]
 		else:
 			indexes = random.sample(list(range(length)), limit)
-		for skip in indexes:
-			cur = self.db.find().skip(skip)
+		indexes.sort()
+		indexes.insert(0, -1)
+		pairs = recipes.pairwise(indexes)
+		skips = (b-a-1 for a, b in pairs)
+		cur = self.db.find()
+		for skip in skips:
+			cur.skip(skip)
 			yield next(cur)['message']
 
 	def get_channel_days(self, channel):

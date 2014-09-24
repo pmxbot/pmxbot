@@ -42,6 +42,7 @@ setup_params = dict(
 		"jaraco.compat>=1.0.3",
 		"backports.method_request",
 		"wordnik-py3",
+		"more_itertools",
 	],
 	description="IRC bot - full featured, yet extensible and customizable",
 	license = 'MIT',
