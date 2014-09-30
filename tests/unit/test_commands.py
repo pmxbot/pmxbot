@@ -114,48 +114,6 @@ class TestCommands(object):
 			assert self.multi_time_pattern.match(line)
 		assert len(res) == 4
 
-	@pytest.mark.xfail(reason="Google APIs disabled")
-	def test_weather_one(self):
-		"""
-		Check the weather in Washington, DC. Must include something that looks
-		like a weather XX:XX(AM/PM)
-		"""
-		res = commands.weather(c, e, "#test", "testrunner", "Washington, DC")
-		for line in res:
-			print(line)
-			assert re.match(r".+\. Currently: (?:-)?[0-9]{1,3}F/(?:-)?"
-				r"[0-9]{1,2}C, .+\.\W+[A-z]{3}: (?:-)?[0-9]{1,3}F/(?:-)?"
-				r"[0-9]{1,2}C, ", line)
-
-	@pytest.mark.xfail(reason="Google APIs disabled")
-	def test_weather_three(self):
-		"""
-		Check the weather in three cities. Must include something that looks
-		like a weather XX:XX(AM/PM) on each line
-		"""
-		places = "Washington, DC", "Palo Alto, CA", "London"
-		places_spec = ' | '.join(places)
-		res = commands.weather(c, e, "#test", "testrunner", places_spec)
-		for line in res:
-			print(line)
-			assert re.match(r".+\. Currently: (?:-)?[0-9]{1,3}F/(?:-)?"
-				r"[0-9]{1,2}C, .+\.\W+[A-z]{3}: (?:-)?[0-9]{1,3}F/(?:-)?"
-				r"[0-9]{1,2}C, ", line)
-
-	@pytest.mark.xfail(reason="Google APIs disabled")
-	def test_weather_all(self):
-		"""
-		Check the weather in "all" cities. Must include something that looks
-		like
-		a weather XX:XX(AM/PM) on each line
-		"""
-		res = commands.weather(c, e, "#test", "testrunner", "all")
-		for line in res:
-			print(line)
-			assert re.match(r".+\. Currently: (?:-)?[0-9]{1,3}F/(?:-)?"
-				r"[0-9]{1,2}C, .+\.\W+[A-z]{3}: (?:-)?[0-9]{1,3}F/(?:-)?"
-				r"[0-9]{1,2}C, ", line)
-
 	def test_boo(self):
 		"""
 		Test "boo foo"

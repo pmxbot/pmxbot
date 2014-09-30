@@ -9,7 +9,6 @@ import re
 import functools
 import random
 import csv
-from xml.etree import ElementTree
 
 from six.moves import urllib
 import pkg_resources
@@ -73,46 +72,6 @@ def time_for(place, format='{time}'):
 	_time = plaintext(timere.search(html).group(1))
 	return format.format(time=_time, place=place)
 
-def to_snowman(condition):
-	"""
-	Replace 'Snow' and 'Snow Showers' with a snowman (☃).
-	"""
-	return condition.replace('Snow Showers', '☃').replace('Snow', '☃')
-
-def weather_for(place):
-	"Retrieve the weather for a specific place using the iGoogle API"
-	url = "http://www.google.com/ig/api?" + urllib.parse.urlencode(dict(
-		weather= place.encode('utf-8')))
-	parser = ElementTree.XMLParser()
-	try:
-		wdata = ElementTree.parse(util.open_url(url).raw, parser=parser)
-	except ElementTree.ParseError:
-		raise RuntimeError("No weather for {place}; Google weather APIs "
-			"disabled".format(**vars()))
-	city = wdata.find('weather/forecast_information/city').get('data')
-	tempf = wdata.find('weather/current_conditions/temp_f').get('data')
-	tempc = wdata.find('weather/current_conditions/temp_c').get('data')
-	conds = wdata.find('weather/current_conditions/condition').get('data')
-	# sometimes, for no apparent reason, the current condition is blank,
-	#  so put something else there to keep the tests from failing.
-	unknown_conditions = ['spammy', 'unknown', 'mysterious']
-	conds = conds or random.choice(unknown_conditions)
-	conds = to_snowman(conds)
-	future_day = wdata.find(
-		'weather/forecast_conditions/day_of_week').get('data')
-	future_highf = wdata.find('weather/forecast_conditions/high').get('data')
-	future_highc = int((int(future_highf) - 32) / 1.8)
-	future_conds = wdata.find(
-		'weather/forecast_conditions/condition').get('data')
-	future_conds = to_snowman(future_conds)
-	fmt = '    '.join((
-		"%(city)s. Currently: %(tempf)sF/%(tempc)sC, %(conds)s.",
-		"%(future_day)s: %(future_highf)sF/%(future_highc)sC, "
-			"%(future_conds)s",
-	))
-	weather = fmt % locals()
-	return weather
-
 def suppress_exceptions(callables, exceptions=Exception):
 	"""
 	Suppress supplied exceptions (tuple or single exception)
@@ -128,28 +87,6 @@ def suppress_exceptions(callables, exceptions=Exception):
 			yield callable()
 		except exceptions:
 			pass
-
-@command(aliases='w')
-def weather(client, event, channel, nick, rest):
-	"""
-	Get weather for a place. All offices with "all", or a list of places
-	separated by pipes.
-	"""
-	rest = rest.strip()
-	if rest == 'all':
-		places = pmxbot.config.places
-	elif '|' in rest:
-		places = [x.strip() for x in rest.split('|')]
-	else:
-		places = [rest]
-	weather_callables = (functools.partial(weather_for, place)
-		for place in places)
-	suppressed_errors = (
-		IOError,
-		# sometimes, wdata.find returns None which has no .get
-		AttributeError,
-	)
-	return suppress_exceptions(weather_callables, suppressed_errors)
 
 @command()
 def boo(client, event, channel, nick, rest):
