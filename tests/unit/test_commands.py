@@ -65,55 +65,6 @@ class TestCommands(object):
 		print(res)
 		assert "http" in res
 
-	# time patterns come as 4:20pm when queried from the U.S. and 16:20
-	#  when queried from (at least some) other locales.
-	time_pattern = r'[0-9]{1,2}:[0-9]{2}(?:am|pm)?'
-	single_time_pattern = re.compile(time_pattern)
-	multi_time_pattern = re.compile(time_pattern + r'\s+\(.*\)')
-
-	@pytest.mark.xfail(reason="Time parsing broken")
-	@pytest.has_internet
-	def test_time_one(self):
-		"""
-		Check the time in Washington, DC. Must match time_pattern.
-		"""
-		res = commands.googletime(c, e, "#test", "testrunner",
-			"Washington, DC")
-		res = list(res)
-		assert res
-		for line in res:
-			assert self.single_time_pattern.match(line)
-		assert len(res) == 1
-
-	@pytest.mark.xfail(reason="Time parsing broken")
-	@pytest.has_internet
-	def test_time_three(self):
-		"""
-		Check the time in three cities. Must include something that
-		matches the time pattern on each line
-		"""
-		res = commands.googletime(c, e, "#test", "testrunner",
-			"Washington, DC | Palo Alto, CA | London")
-		res = list(res)
-		assert res
-		for line in res:
-			assert self.multi_time_pattern.match(line)
-		assert len(res) == 3
-
-	@pytest.mark.xfail(reason="Time parsing broken")
-	@pytest.has_internet
-	def test_time_all(self):
-		"""
-		Check the time in "all" cities. Must include something that
-		matches the time pattern on each line
-		"""
-		res = commands.googletime(c, e, "#test", "testrunner", "all")
-		res = list(res)
-		assert res
-		for line in res:
-			assert self.multi_time_pattern.match(line)
-		assert len(res) == 4
-
 	def test_boo(self):
 		"""
 		Test "boo foo"

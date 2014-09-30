@@ -42,36 +42,6 @@ def google(client, event, channel, nick, rest):
 		hit1['titleNoFormatting'],
 	))
 
-@command("time")
-def googletime(client, event, channel, nick, rest):
-	"What time is it in.... Similar to !weather"
-	rest = rest.strip()
-	if rest == 'all':
-		places = pmxbot.config.places
-	elif '|' in rest:
-		places = [x.strip() for x in rest.split('|')]
-	else:
-		places = [rest]
-	time_with_place = functools.partial(time_for, format='{time} ({place})')
-	time_func = time_with_place if len(places) > 1 else time_for
-	time_callables = (functools.partial(time_func, place) for place in places)
-	return suppress_exceptions(time_callables, AttributeError)
-
-def time_for(place, format='{time}'):
-	"""
-	Retrieve the time for a specific place. Raise AttributeError if the
-	place cannot be found.
-	"""
-	if not place.startswith('time'):
-		query = 'time ' + place
-	else:
-		query = place
-	timere = re.compile(r'<b>\s*(\d+:\d{2}([ap]m)?).*\s*</b>', re.I)
-	query_string = urllib.parse.urlencode(dict(q = query.encode('utf-8')))
-	html = util.get_html('http://www.google.com/search?%s' % query_string)
-	_time = plaintext(timere.search(html).group(1))
-	return format.format(time=_time, place=place)
-
 def suppress_exceptions(callables, exceptions=Exception):
 	"""
 	Suppress supplied exceptions (tuple or single exception)
