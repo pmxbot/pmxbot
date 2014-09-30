@@ -1,3 +1,10 @@
+1110.0
+======
+
+* Issue #20: Removed time and weather commands. They depended on a brittle
+  and deprecated Google service. Contributors are welcome to share a
+  replacement implementation.
+
 1109.3
 ======
 
