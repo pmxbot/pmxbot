@@ -169,9 +169,7 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
 		return itertools.imap(parse_date, results)
 
 def parse_date(record):
-	"""
-	Parse a date from sqlite. Assumes the date is in US/Pacific time zone.
-	"""
+	"Parse a date from sqlite. Assumes the date is in US/Pacific time zone."
 	dt = record.pop('datetime')
 	fmts = [
 		'%Y-%m-%d %H:%M:%S.%f',
@@ -385,7 +383,7 @@ class FullTextMongoDBLogger(MongoDBLogger):
 
 @command(aliases=())
 def strike(client, event, channel, nick, rest):
-	"""Strike last <n> statements from the record"""
+	"Strike last <n> statements from the record"
 	yield NoLog
 	rest = rest.strip()
 	if not rest:
@@ -405,7 +403,7 @@ def strike(client, event, channel, nick, rest):
 
 @command(aliases=('last', 'seen', 'lastseen'))
 def where(client, event, channel, nick, rest):
-	"""When did pmxbot last see <nick> speak?"""
+	"When did pmxbot last see <nick> speak?"
 	onick = rest.strip()
 	last = Logger.store.last_seen(onick)
 	if last:
@@ -417,7 +415,7 @@ def where(client, event, channel, nick, rest):
 
 @command()
 def logs(client, event, channel, nick, rest):
-	"""Where can one find the logs?"""
+	"Where can one find the logs?"
 	base = pmxbot.config.get('logs URL')
 	logged_channel = channel in pmxbot.config.log_channels
 	path = '/channel/' + channel.lstrip('#') if logged_channel else '/'

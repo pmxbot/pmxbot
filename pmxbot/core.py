@@ -125,9 +125,7 @@ class Sentinel(object):
 
 
 class NoLog(Sentinel):
-	"""
-	A sentinel indicating that subsequent items should not be logged.
-	"""
+	"A sentinel indicating that subsequent items should not be logged."
 
 	@property
 	def properties(self):
@@ -135,9 +133,7 @@ class NoLog(Sentinel):
 
 
 class SwitchChannel(six.text_type, Sentinel):
-	"""
-	A sentinel indicating a new channel for subsequent messages.
-	"""
+	"A sentinel indicating a new channel for subsequent messages."
 
 	def __new__(cls, other):
 		if not other.startswith('#'):
@@ -324,9 +320,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			self.out(message.channel, message, not message.secret)
 
 	def background_runner(self, connection, channel, func, args):
-		"""
-		Wrapper to run scheduled type tasks cleanly.
-		"""
+		"Wrapper to run scheduled type tasks cleanly."
 		def on_error(exception):
 			print(datetime.datetime.now(), "Error in background runner for ", func)
 			traceback.print_exc()
@@ -348,7 +342,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		return res
 
 	def handle_action(self, connection, event, channel, nick, msg):
-		"""Core message parser and dispatcher"""
+		"Core message parser and dispatcher"
 
 		messages = ()
 		matching_handlers = (
@@ -374,16 +368,14 @@ class SilentCommandBot(LoggingCommandBot):
 	processes commands).
 	"""
 	def out(self, *args, **kwargs):
-		"""Do nothing"""
+		"Do nothing"
 
 	def on_join(self, *args, **kwargs):
-		"""Do nothing"""
+		"Do nothing"
 
 
 class FinalRegistry:
-	"""
-	A list of callbacks to run at exit.
-	"""
+	"A list of callbacks to run at exit."
 	_finalizers = []
 
 	@classmethod
@@ -407,14 +399,11 @@ _leave_registry = []
 class Handler(object):
 	_registry = []
 
-	class_priority = 1
-	"""priority of this class relative to other classes, precedence to higher"""
+	class_priority = 1 # priority of this class relative to other classes, precedence to higher
 
-	priority = 1
-	"""priority relative to other handlers of this class, precedence to higher"""
+	priority = 1 # priority relative to other handlers of this class, precedence to higher
 
-	allow_chain = False
-	"""allow subsequent handlers to also process the same message"""
+	allow_chain = False # allow subsequent handlers to also process the same message
 
 	def __init__(self, **kwargs):
 		self.__dict__.update(kwargs)
@@ -430,9 +419,7 @@ class Handler(object):
 		return func
 
 	def _set_implied_name(self):
-		"""
-		Allow the name of this handler to default to the function name.
-		"""
+		"Allow the name of this handler to default to the function name."
 		if getattr(self, 'name', None) is None:
 			self.name = self.func.__name__
 		self.name = self.name.lower()
@@ -445,9 +432,7 @@ class Handler(object):
 		return self.sort_key > other.sort_key
 
 	def match(self, message, channel):
-		"""
-		Return True if the message is matched by this handler.
-		"""
+		"Return True if the message is matched by this handler."
 		return False
 
 	def process(self, message):
@@ -636,9 +621,7 @@ def _setup_logging():
 
 
 def initialize(config):
-	"""
-	Initialize the bot with a dictionary of config items
-	"""
+	"Initialize the bot with a dictionary of config items"
 	pmxbot.config.update(config)
 	config = pmxbot.config
 

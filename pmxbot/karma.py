@@ -122,9 +122,7 @@ class SQLiteKarma(Karma, storage.SQLiteStorage):
 		self.db.commit()
 
 	def _get(self, id):
-		"""
-		Return keys and value for karma id
-		"""
+		"Return keys and value for karma id"
 		VALUE_SQL = "SELECT karmavalue from karma_values where karmaid = ?"
 		KEYS_SQL = "SELECT karmakey from karma_keys where karmaid = ?"
 		value = self.db.execute(VALUE_SQL, [id]).fetchall()[0][0]
@@ -237,7 +235,7 @@ class MongoDBKarma(Karma, storage.MongoDBStorage):
 
 @command(aliases=("k",))
 def karma(client, event, channel, nick, rest):
-	"""Return or change the karma value for some(one|thing)"""
+	"Return or change the karma value for some(one|thing)"
 	karmee = rest.strip('++').strip('--').strip('~~')
 	if '++' in rest:
 		Karma.store.change(karmee, 1)
