@@ -69,9 +69,10 @@ class MongoDBNotify(Notify, storage.MongoDBStorage):
         oper = {'$set': {'value': notification}, '$addToSet': notification}
         self.db.insert(query, oper)
 
-@command("notify", doc="notify <nick> <message>")
+@command("notify")
 def donotify(client, event, channel, nick, rest):
-    opts = rest.split(' ')
+	"""notify <nick> <message>"""
+	opts = rest.split(' ')
     to = opts[0]
     Notify.store.notify(nick, to, ' '.join(opts[1:]))
     return "Will do!"

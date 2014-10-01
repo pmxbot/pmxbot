@@ -5,9 +5,9 @@ import yaml
 import pmxbot
 from pmxbot.core import command
 
-@command("config",
-	doc="Change the running config, something like a=b or a+=b or a-=b")
+@command("config")
 def config(client, event, channel, nick, rest):
+	"""Change the running config, something like a=b or a+=b or a-=b"""
 	pattern = re.compile('(?P<key>\w+)\s*(?P<op>[+-]?=)\s*(?P<value>.*)$')
 	match = pattern.match(rest)
 	if not match:

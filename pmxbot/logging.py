@@ -383,9 +383,9 @@ class FullTextMongoDBLogger(MongoDBLogger):
 		return self._generate_search_results(docs)
 
 
-@command("strike", aliases=(), doc="Strike last <n> statements from the "
-	"record")
+@command(aliases=())
 def strike(client, event, channel, nick, rest):
+	"""Strike last <n> statements from the record"""
 	yield NoLog
 	rest = rest.strip()
 	if not rest:
@@ -403,9 +403,9 @@ def strike(client, event, channel, nick, rest):
 		traceback.print_exc()
 		yield "Hmm.. I didn't find anything of yours to strike!"
 
-@command("where", aliases=('last', 'seen', 'lastseen'), doc="When did pmxbot "
-	"last see <nick> speak?")
+@command(aliases=('last', 'seen', 'lastseen'))
 def where(client, event, channel, nick, rest):
+	"""When did pmxbot last see <nick> speak?"""
 	onick = rest.strip()
 	last = Logger.store.last_seen(onick)
 	if last:
@@ -415,16 +415,20 @@ def where(client, event, channel, nick, rest):
 	else:
 		return "Sorry!  I don't have any record of %s speaking" % onick
 
-@command("logs", doc="Where can one find the logs?")
+@command()
 def logs(client, event, channel, nick, rest):
+	"""Where can one find the logs?"""
 	base = pmxbot.config.get('logs URL')
 	logged_channel = channel in pmxbot.config.log_channels
 	path = '/channel/' + channel.lstrip('#') if logged_channel else '/'
 	return six.moves.urllib.parse.urljoin(base, path)
 
-@command("log", doc="Enable or disable logging for a channel; use 'please' "
-	"to start logging and 'stop please' to stop.")
+@command()
 def log(client, event, channel, nick, rest):
+	"""
+	Enable or disable logging for a channel;
+	use 'please' to start logging and 'stop please' to stop.
+	"""
 	words = [s.lower() for s in rest.split()]
 	if not 'please' in words:
 		return

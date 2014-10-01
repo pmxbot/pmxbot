@@ -235,9 +235,9 @@ class MongoDBKarma(Karma, storage.MongoDBStorage):
 				self.db.update(query, update, safe=True)
 				self.db.remove(duplicate)
 
-@command("karma", aliases=("k",), doc="Return or change the karma value for "
-	"some(one|thing)")
+@command(aliases=("k",))
 def karma(client, event, channel, nick, rest):
+	"""Return or change the karma value for some(one|thing)"""
 	karmee = rest.strip('++').strip('--').strip('~~')
 	if '++' in rest:
 		Karma.store.change(karmee, 1)
@@ -268,10 +268,12 @@ def karma(client, event, channel, nick, rest):
 		score = Karma.store.lookup(karmee)
 		return "%s has %s karmas" % (karmee, score)
 
-@command("top10", aliases=("top",), doc="Return the top n (default 10) "
-	"highest entities by Karmic value. Use negative numbers for the bottom "
-	"N.")
+@command("top10", aliases=("top",), doc=)
 def top10(client, event, channel, nick, rest):
+	"""
+	Return the top n (default 10) highest entities by Karmic value.
+	Use negative numbers for the bottom N.
+	"""
 	if rest:
 		topn = int(rest)
 	else:
@@ -280,10 +282,12 @@ def top10(client, event, channel, nick, rest):
 	res = ' '.join('(%s: %s)' % (', '.join(n), k) for n, k in selection)
 	return res
 
-@command("bottom10", aliases=("bottom",), doc="Return the bottom n (default "
-	"10) lowest entities by Karmic value. Use negative numbers for the "
-	"bottom N.")
+@command(aliases=("bottom",))
 def bottom10(client, event, channel, nick, rest):
+	"""
+	Return the bottom n (default 10) lowest entities by Karmic value.
+	Use negative numbers for the bottom N.
+	"""
 	if rest:
 		topn = -int(rest)
 	else:

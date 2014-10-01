@@ -14,9 +14,9 @@ import pkg_resources
 import pmxbot.core
 from pmxbot.core import command, Handler
 
-@command("help", aliases='h')
+@command(aliases='h')
 def help(client, event, channel, nick, rest):
-	"Help (this command)"
+	"""Help (this command)"""
 	rs = rest.strip()
 	if rs:
 		# give help for matching commands
@@ -46,17 +46,16 @@ def help(client, event, channel, nick, rest):
 		time.sleep(0.3)
 		more = o.read(160)
 
-@command("ctlaltdel", aliases=('controlaltdelete', 'controlaltdelete', 'cad',
-	'restart', 'quit',))
+@command(aliases=('controlaltdelete', 'controlaltdelete', 'cad', 'restart', 'quit',))
 def ctlaltdel(client, event, channel, nick, rest):
-	"Quits pmxbot. A supervisor should automatically restart it."
+	"""Quits pmxbot. A supervisor should automatically restart it."""
 	if 'real' in rest.lower():
 		sys.exit()
 	return "Really?"
 
-@command("logo")
+@command()
 def logo(client, event, channel, nick, rest):
-	"The pmxbot logo in ascii art.  Fixed-width font recommended!"
+	"""The pmxbot logo in ascii art.  Fixed-width font recommended!"""
 	logo_txt = pkg_resources.resource_stream('pmxbot', 'asciilogo.txt')
 	for line in logo_txt:
 		yield line.rstrip()
