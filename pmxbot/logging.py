@@ -17,6 +17,7 @@ import pmxbot
 from . import storage
 from pmxbot.core import command, NoLog
 
+
 class Logger(storage.SelectableStorage):
 	"Base Logger class"
 
@@ -35,6 +36,7 @@ class Logger(storage.SelectableStorage):
 
 	def list_channels(self):
 		return self._list_channels()
+
 
 class SQLiteLogger(Logger, storage.SQLiteStorage):
 
@@ -71,7 +73,7 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
 			return res[0]
 
 	def strike(self, channel, nick, count):
-		count += 1 # let's get rid of 'the last !strike' too!
+		count += 1  # let's get rid of 'the last !strike' too!
 		if count > 20:
 			count = 20
 		LAST_N_IDS_SQL = '''select channel, nick, id from logs where channel = ? and nick = ? and date(datetime) = date('now','localtime') order by datetime desc limit ?'''
@@ -155,6 +157,7 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
 
 	def export_all(self):
 		query = 'SELECT id, datetime, nick, message, channel from logs'
+
 		def robust_text(text):
 			for encoding in 'utf-8', 'latin-1':
 				try:
@@ -167,6 +170,7 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
 		fields = 'id', 'datetime', 'nick', 'message', 'channel'
 		results = (dict(zip(fields, record)) for record in cursor)
 		return itertools.imap(parse_date, results)
+
 
 def parse_date(record):
 	"Parse a date from sqlite. Assumes the date is in US/Pacific time zone."
@@ -188,6 +192,7 @@ def parse_date(record):
 	record['datetime'] = loc_dt
 	return record
 
+
 class MongoDBLogger(Logger, storage.MongoDBStorage):
 	collection_name = 'logs'
 
@@ -195,8 +200,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		self.db.ensure_index('datetime.d')
 		self.db.ensure_index('channel')
 		now = datetime.datetime.utcnow()
-		doc = dict(channel=channel, nick=nick, message=msg,
-			datetime=self._fmt_date(now))
+		doc = dict(channel=channel, nick=nick, message=msg, datetime=self._fmt_date(now))
 		id = self.db.insert(doc)
 		self._add_recent(doc, id)
 
@@ -229,7 +233,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		# cap at 19 messages
 		count = min(count, 19)
 		# get rid of 'the last !strike' too!
-		limit = count+1
+		limit = count + 1
 		# don't delete anything beyond the past 18 hours
 		date_limit = storage.bson.objectid.ObjectId.from_datetime(
 			datetime.datetime.utcnow() - datetime.timedelta(hours=18)
@@ -245,16 +249,16 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 
 	def get_random_logs(self, limit):
 		length = self.db.count()
-		if limit < length//1000:
+		if limit < length // 1000:
 			# there are far more messages than are needed, so to simulate
 			# sampling by just selecting random integers.
-			indexes = [random.randint(0, length-1) for n in range(limit)]
+			indexes = [random.randint(0, length - 1) for n in range(limit)]
 		else:
 			indexes = random.sample(list(range(length)), limit)
 		indexes.sort()
 		indexes.insert(0, -1)
 		pairs = recipes.pairwise(indexes)
-		skips = (b-a-1 for a, b in pairs)
+		skips = (b - a - 1 for a, b in pairs)
 		# scan through the _ids (in the index)
 		cur = self.db.find(fields=['_id']).sort([('_id', 1)])
 		for skip in skips:
@@ -279,7 +283,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 
 	def search(self, *terms):
 		patterns = [re.compile('.*' + term + '.*') for term in terms]
-		query = dict(message = {'$all': patterns})
+		query = dict(message={'$all': patterns})
 
 		return self._generate_search_results(self.db.find(query))
 
@@ -289,21 +293,22 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		for match in matched_entries:
 			channel = match['channel']
 			row_date = lambda row: row['_id'].generation_time.date()
-			to_line = lambda row: (row['_id'].generation_time.time(),
-				row['nick'], row['message'])
+			to_line = lambda row: (row['_id'].generation_time.time(), row['nick'], row['message'])
 			line = to_line(match)
 			if line in alllines:
 				# we've seen this line in the context of a previous hit
 				continue
 			# get the context for this line
-			prev2 = self.db.find(dict(
-				channel=match['channel'],
-				_id={'$lt': match['_id']}
+			prev2 = self.db.find(
+				dict(
+					channel=match['channel'],
+					_id={'$lt': match['_id']}
 				)).sort('_id', storage.pymongo.DESCENDING).limit(2)
 			prev2 = map(to_line, prev2)
-			next2 = self.db.find(dict(
-				channel=match['channel'],
-				_id={'$gt': match['_id']}
+			next2 = self.db.find(
+				dict(
+					channel=match['channel'],
+					_id={'$gt': match['_id']}
 				)).sort('_id', storage.pymongo.ASCENDING).limit(2)
 			next2 = map(to_line, next2)
 			context = list(itertools.chain(prev2, [line], next2))
@@ -343,11 +348,13 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		orig_id_packed = struct.pack('>Q', orig_id)
 		oid_new = oid_time.binary[:4] + orig_id_packed
 		oid = storage.bson.objectid.ObjectId(oid_new)
-		if not hasattr(Logger, 'log_id_map'): Logger.log_id_map = dict()
+		if not hasattr(Logger, 'log_id_map'):
+			Logger.log_id_map = dict()
 		Logger.log_id_map[orig_id] = oid
 		message['_id'] = oid
 		message['datetime'] = self._fmt_date(dt)
 		self.db.insert(message)
+
 
 class FullTextMongoDBLogger(MongoDBLogger):
 	@classmethod
@@ -395,11 +402,13 @@ def strike(client, event, channel, nick, rest):
 		count = int(rest)
 	try:
 		struck = Logger.store.strike(channel, nick, count)
-		yield ("Isn't undo great?  Last %d statement%s by %s were stricken from the record." %
-		(struck, 's' if struck > 1 else '', nick))
+		yield (
+			"Isn't undo great?  Last %d statement%s by %s were stricken from the record." %
+			(struck, 's' if struck > 1 else '', nick))
 	except Exception:
 		traceback.print_exc()
 		yield "Hmm.. I didn't find anything of yours to strike!"
+
 
 @command(aliases=('last', 'seen', 'lastseen'))
 def where(client, event, channel, nick, rest):
@@ -413,6 +422,7 @@ def where(client, event, channel, nick, rest):
 	else:
 		return "Sorry!  I don't have any record of %s speaking" % onick
 
+
 @command()
 def logs(client, event, channel, nick, rest):
 	"Where can one find the logs?"
@@ -421,6 +431,7 @@ def logs(client, event, channel, nick, rest):
 	path = '/channel/' + channel.lstrip('#') if logged_channel else '/'
 	return six.moves.urllib.parse.urljoin(base, path)
 
+
 @command()
 def log(client, event, channel, nick, rest):
 	"""
@@ -428,7 +439,7 @@ def log(client, event, channel, nick, rest):
 	use 'please' to start logging and 'stop please' to stop.
 	"""
 	words = [s.lower() for s in rest.split()]
-	if not 'please' in words:
+	if 'please' not in words:
 		return
 	include = 'stop' not in rest
 	existing = set(pmxbot.config.log_channels)

@@ -8,6 +8,7 @@ import pmxbot
 from . import storage
 from .core import command
 
+
 class Quotes(storage.SelectableStorage):
 	lib = 'pmx'
 
@@ -19,6 +20,7 @@ class Quotes(storage.SelectableStorage):
 	@classmethod
 	def finalize(cls):
 		del cls.store
+
 
 class SQLiteQuotes(Quotes, storage.SQLiteStorage):
 	def init_tables(self):
@@ -60,14 +62,14 @@ class SQLiteQuotes(Quotes, storage.SQLiteStorage):
 		n = len(results)
 		if n > 0:
 			if num:
-				i = num-1
+				i = num - 1
 			else:
 				i = random.randrange(n)
 			quote = results[i]
 		else:
 			i = 0
 			quote = ''
-		return (quote, i+1, n)
+		return (quote, i + 1, n)
 
 	def quoteAdd(self, quote):
 		lib = self.lib
@@ -89,6 +91,7 @@ class SQLiteQuotes(Quotes, storage.SQLiteStorage):
 		fields = 'text', 'library', 'log_id'
 		return (dict(zip(fields, res)) for res in self.db.execute(query))
 
+
 class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 	collection_name = 'quotes'
 
@@ -109,6 +112,7 @@ class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 		thing = thing.strip().lower()
 		num = int(num)
 		words = thing.split()
+
 		def matches(quote):
 			quote = quote.lower()
 			return all(word in quote for word in words)
@@ -120,14 +124,14 @@ class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 		n = len(results)
 		if n > 0:
 			if num:
-				i = num-1
+				i = num - 1
 			else:
 				i = random.randrange(n)
 			quote = results[i]
 		else:
 			i = 0
 			quote = ''
-		return (quote, i+1, n)
+		return (quote, i + 1, n)
 
 	def quoteAdd(self, quote):
 		quote = quote.strip()
@@ -136,7 +140,8 @@ class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 		newest_first = [('_id', storage.pymongo.DESCENDING)]
 		last_message = self.db.database.logs.find_one(sort=newest_first)
 		if last_message and quote in last_message['message']:
-			self.db.update({'_id': quote_id},
+			self.db.update(
+				{'_id': quote_id},
 				{'$set': dict(log_id=last_message['_id'])})
 
 	def __iter__(self):
@@ -160,11 +165,14 @@ class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 			quote['log_id'] = log_id
 		self.db.insert(quote)
 
-@command('quote', aliases=('q',), doc='If passed with nothing then get a '
-	'random quote. If passed with some string then search for that. If '
-	'prepended with "add:" then add it to the db, eg "!quote add: drivers: I '
-	'only work here because of pmxbot!"')
+
+@command('quote', aliases=('q',))
 def quote(client, event, channel, nick, rest):
+	"""
+	If passed with nothing then get a random quote. If passed with some
+	string then search for that. If prepended with "add:" then add it to the
+	db, eg "!quote add: drivers: I only work here because of pmxbot!
+	"""
 	rest = rest.strip()
 	if rest.startswith('add: ') or rest.startswith('add '):
 		quoteToAdd = rest.split(' ', 1)[1]
@@ -172,5 +180,6 @@ def quote(client, event, channel, nick, rest):
 		qt = False
 		return 'Quote added!'
 	qt, i, n = Quotes.store.quoteLookupWNum(rest)
-	if not qt: return
+	if not qt:
+		return
 	return '(%s/%s): %s' % (i, n, qt)

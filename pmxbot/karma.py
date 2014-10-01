@@ -10,8 +10,13 @@ import pmxbot
 from . import storage
 from .core import command
 
-class SameName(ValueError): pass
-class AlreadyLinked(ValueError): pass
+
+class SameName(ValueError):
+	pass
+
+
+class AlreadyLinked(ValueError):
+	pass
 
 
 class Karma(storage.SelectableStorage):
@@ -23,6 +28,7 @@ class Karma(storage.SelectableStorage):
 	@classmethod
 	def finalize(cls):
 		del cls.store
+
 
 class SQLiteKarma(Karma, storage.SQLiteStorage):
 	def init_tables(self):
@@ -47,7 +53,7 @@ class SQLiteKarma(Karma, storage.SQLiteStorage):
 			karma = self.db.execute(LOOKUP_SQL, [thing]).fetchone()[0]
 		except:
 			karma = 0
-		if karma == None:
+		if karma is None:
 			karma = 0
 		return karma
 
@@ -77,7 +83,7 @@ class SQLiteKarma(Karma, storage.SQLiteStorage):
 
 	def list(self, select=0):
 		KARMIC_VALUES_SQL = 'SELECT karmaid, karmavalue from karma_values order by karmavalue desc'
-		KARMA_KEYS_SQL= 'SELECT karmakey from karma_keys where karmaid = ?'
+		KARMA_KEYS_SQL = 'SELECT karmakey from karma_keys where karmaid = ?'
 
 		karmalist = self.db.execute(KARMIC_VALUES_SQL).fetchall()
 		karmalist.sort(key=lambda x: int(x[1]), reverse=True)
@@ -112,13 +118,11 @@ class SQLiteKarma(Karma, storage.SQLiteStorage):
 
 		newvalue = t1value + t2value
 		# update the keys so t2 points to t1s value
-		self.db.execute('UPDATE karma_keys SET karmaid = ? where karmaid = ?',
-			(t1id, t2id))
+		self.db.execute('UPDATE karma_keys SET karmaid = ? where karmaid = ?', (t1id, t2id))
 		# drop the old value row for neatness
 		self.db.execute('DELETE FROM karma_values WHERE karmaid = ?', (t2id,))
 		# set the new combined value
-		self.db.execute('UPDATE karma_values SET karmavalue = ? where karmaid = ?',
-			(newvalue, t1id))
+		self.db.execute('UPDATE karma_values SET karmavalue = ? where karmaid = ?', (newvalue, t1id))
 		self.db.commit()
 
 	def _get(self, id):
@@ -132,7 +136,7 @@ class SQLiteKarma(Karma, storage.SQLiteStorage):
 
 	def search(self, term):
 		query = "SELECT distinct karmaid from karma_keys where karmakey like ?"
-		matches = (id for (id,) in self.db.execute(query, '%%'+term+'%%'))
+		matches = (id for (id,) in self.db.execute(query, '%%' + term + '%%'))
 		return (self._lookup(id) for id in matches)
 
 	def export_all(self):
@@ -141,9 +145,10 @@ class SQLiteKarma(Karma, storage.SQLiteStorage):
 
 class MongoDBKarma(Karma, storage.MongoDBStorage):
 	collection_name = 'karma'
+
 	def lookup(self, thing):
 		thing = thing.strip().lower()
-		res = self.db.find_one({'names':thing})
+		res = self.db.find_one({'names': thing})
 		return res['value'] if res else 0
 
 	def set(self, thing, value):
@@ -183,7 +188,8 @@ class MongoDBKarma(Karma, storage.MongoDBStorage):
 		rec = self.db.find_one({'names': thing2})
 		if thing1 in rec['names']:
 			raise AlreadyLinked("Those two are already linked")
-		if not rec: raise KeyError(thing2)
+		if not rec:
+			raise KeyError(thing2)
 		try:
 			query = {'names': thing1}
 			update = {
@@ -205,9 +211,9 @@ class MongoDBKarma(Karma, storage.MongoDBStorage):
 	def import_(self, item):
 		names, value = item
 		self.db.insert(dict(
-			names = names,
-			value = value,
-			))
+			names=names,
+			value=value,
+		))
 
 	def _all_names(self):
 		return set(itertools.chain.from_iterable(
@@ -232,6 +238,7 @@ class MongoDBKarma(Karma, storage.MongoDBStorage):
 				}
 				self.db.update(query, update, safe=True)
 				self.db.remove(duplicate)
+
 
 @command(aliases=("k",))
 def karma(client, event, channel, nick, rest):
@@ -266,6 +273,7 @@ def karma(client, event, channel, nick, rest):
 		score = Karma.store.lookup(karmee)
 		return "%s has %s karmas" % (karmee, score)
 
+
 @command("top10", aliases=("top",), doc=)
 def top10(client, event, channel, nick, rest):
 	"""
@@ -279,6 +287,7 @@ def top10(client, event, channel, nick, rest):
 	selection = Karma.store.list(topn)
 	res = ' '.join('(%s: %s)' % (', '.join(n), k) for n, k in selection)
 	return res
+
 
 @command(aliases=("bottom",))
 def bottom10(client, event, channel, nick, rest):

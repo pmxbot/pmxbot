@@ -14,6 +14,7 @@ import pkg_resources
 import pmxbot.core
 from pmxbot.core import command, Handler
 
+
 @command(aliases='h')
 def help(client, event, channel, nick, rest):
 	"""Help (this command)"""
@@ -30,8 +31,7 @@ def help(client, event, channel, nick, rest):
 
 	# give help for all commands
 	def mk_entries():
-		handlers = (handler for handler in Handler._registry
-			if type(handler) is pmxbot.core.CommandHandler)
+		handlers = (handler for handler in Handler._registry if type(handler) is pmxbot.core.CommandHandler)
 		handlers = sorted(handlers, key=operator.attrgetter('name'))
 		for handler in handlers:
 			res = "!" + handler.name
@@ -46,12 +46,14 @@ def help(client, event, channel, nick, rest):
 		time.sleep(0.3)
 		more = o.read(160)
 
+
 @command(aliases=('controlaltdelete', 'controlaltdelete', 'cad', 'restart', 'quit',))
 def ctlaltdel(client, event, channel, nick, rest):
 	"""Quits pmxbot. A supervisor should automatically restart it."""
 	if 'real' in rest.lower():
 		sys.exit()
 	return "Really?"
+
 
 @command()
 def logo(client, event, channel, nick, rest):

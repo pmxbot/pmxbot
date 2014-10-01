@@ -20,6 +20,7 @@ except (ImportError, SyntaxError):
 
 import pmxbot.phrases
 
+
 def wchoice(d):
 	"""
 	Given a dictionary of word: proportion, return a word randomly selected
@@ -42,6 +43,7 @@ def wchoice(d):
 		count += proportion
 		if count > target:
 			return word
+
 
 def splitem(query):
 	"""
@@ -76,10 +78,11 @@ def splitem(query):
 
 	return [choice.strip() for choice in choices if choice.strip()]
 
+
 def open_url(url):
-	headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) '
-		'Gecko/20100101 Firefox/12.0'}
+	headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0'}
 	return requests.get(url, headers=headers)
+
 
 def get_html(url):
 	return open_url(url).text
@@ -94,11 +97,13 @@ def strip_tags(string):
 	"""
 	return re.sub('<.*?>', '', string).replace('&nbsp;', ' ')
 
+
 def _patch_wordnik():
 	"""
 	https://github.com/wordnik/wordnik-python3/issues/1
 	"""
 	wordnik.swagger.MethodRequest = backports.method_request.Request
+
 
 def lookup(word):
 	'''
@@ -116,6 +121,7 @@ def lookup(word):
 	return six.text_type(definition.text)
 lookup.provider = 'Wordnik'
 
+
 def urban_lookup(word):
 	'''
 	Return a Urban Dictionary definition for a word or None if no result was
@@ -130,8 +136,9 @@ def urban_lookup(word):
 		return
 	return res['list'][0]['definition']
 
+
 def lookup_acronym(acronym, limit=3):
-	acronym = acronym.strip().upper().replace('.','')
+	acronym = acronym.strip().upper().replace('.', '')
 	html = get_html('http://www.acronymfinder.com/%s.html' % acronym)
 	soup = bs4.BeautifulSoup(html)
 	nodes = soup.findAll(
@@ -143,7 +150,8 @@ def lookup_acronym(acronym, limit=3):
 
 @jaraco.util.functools.once
 def load_emergency_compliments():
-	compurl = ('https://spreadsheets.google.com/feeds/list/'
+	compurl = (
+		'https://spreadsheets.google.com/feeds/list/'
 		'1eEa2ra2yHBXVZ_ctH4J15tFSGEu-VTSunsrvaCAV598/od6/public/values'
 		'?alt=json')
 	doc = open_url(compurl).json()

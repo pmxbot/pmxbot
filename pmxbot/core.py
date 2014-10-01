@@ -399,11 +399,11 @@ _leave_registry = []
 class Handler(object):
 	_registry = []
 
-	class_priority = 1 # priority of this class relative to other classes, precedence to higher
+	class_priority = 1  # priority of this class relative to other classes, precedence to higher
 
-	priority = 1 # priority relative to other handlers of this class, precedence to higher
+	priority = 1  # priority relative to other handlers of this class, precedence to higher
 
-	allow_chain = False # allow subsequent handlers to also process the same message
+	allow_chain = False  # allow subsequent handlers to also process the same message
 
 	def __init__(self, **kwargs):
 		self.__dict__.update(kwargs)

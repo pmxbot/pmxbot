@@ -17,6 +17,7 @@ from . import timing
 
 log = logging.getLogger(__name__)
 
+
 class FeedHistory(set):
 	"""
 	A database-backed set of feed entries that have been seen before.
@@ -62,8 +63,7 @@ class FeedHistory(set):
 		try:
 			id = self.get_entry_id(entry, url)
 		except ValueError:
-			log.exception("Unrecognized entry in feed from %s: %s",
-				url, entry)
+			log.exception("Unrecognized entry in feed from %s: %s", url, entry)
 			return False
 
 		if id in self:
@@ -76,6 +76,7 @@ class FeedHistory(set):
 			return False
 		return True
 
+
 class RSSFeeds(FeedHistory):
 	"""
 	Plugin for feedparser support.
@@ -87,12 +88,12 @@ class RSSFeeds(FeedHistory):
 		self.feeds = pmxbot.config.feeds
 		for feed in self.feeds:
 			core.execdelay(
-				name = 'feedparser',
-				channel = feed['channel'],
-				howlong = datetime.timedelta(minutes=self.feed_interval),
-				args = [feed],
-				repeat = True,
-				)(self.parse_feed)
+				name='feedparser',
+				channel=feed['channel'],
+				howlong=datetime.timedelta(minutes=self.feed_interval),
+				args=[feed],
+				repeat=True,
+			)(self.parse_feed)
 
 	def parse_feed(self, client, event, feed):
 		"""
@@ -114,8 +115,7 @@ class RSSFeeds(FeedHistory):
 		if not outputs:
 			return
 
-		txt = 'News from %s %s : %s' % (feed['name'],
-			feed['linkurl'], ' || '.join(outputs[:10]))
+		txt = 'News from %s %s : %s' % (feed['name'], feed['linkurl'], ' || '.join(outputs[:10]))
 		yield core.NoLog
 		yield txt
 
@@ -132,20 +132,18 @@ class RSSFeeds(FeedHistory):
 class FeedparserDB(storage.SelectableStorage):
 	pass
 
+
 class SQLiteFeedparserDB(FeedparserDB, storage.SQLiteStorage):
 	def init_tables(self):
 		self.db.execute("CREATE TABLE IF NOT EXISTS feed_seen (key varchar)")
-		self.db.execute('CREATE INDEX IF NOT EXISTS ix_feed_seen_key ON '
-			'feed_seen (key)')
+		self.db.execute('CREATE INDEX IF NOT EXISTS ix_feed_seen_key ON feed_seen (key)')
 		self.db.commit()
 
 	def get_seen_feeds(self):
-		return [row[0]
-			for row in self.db.execute('select key from feed_seen')]
+		return [row[0] for row in self.db.execute('select key from feed_seen')]
 
 	def add_entries(self, entries):
-		self.db.executemany('INSERT INTO feed_seen (key) values (?)',
-			[(x,) for x in entries])
+		self.db.executemany('INSERT INTO feed_seen (key) values (?)', [(x,) for x in entries])
 		self.db.commit()
 
 	def clear(self):
@@ -154,8 +152,10 @@ class SQLiteFeedparserDB(FeedparserDB, storage.SQLiteStorage):
 
 	export_all = get_seen_feeds
 
+
 class MongoDBFeedparserDB(FeedparserDB, storage.MongoDBStorage):
 	collection_name = 'feed history'
+
 	def get_seen_feeds(self):
 		return [row['key'] for row in self.db.find()]
 

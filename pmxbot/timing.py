@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import datetime
 
+
 class Stopwatch(object):
 	"""
 	A simple stopwatch which starts automatically.

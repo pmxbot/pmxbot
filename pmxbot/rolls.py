@@ -11,6 +11,7 @@ from . import storage
 from . import logging
 from pmxbot.core import on_join, on_leave
 
+
 class ParticipantLogger(storage.SelectableStorage):
 	"Base class for logging participants"
 
@@ -39,11 +40,13 @@ def log_join(nick, channel, **kwargs):
 		return
 	ParticipantLogger.store.log_join(nick, channel)
 
+
 @on_leave()
 def log_leave(nick, channel, **kwargs):
 	if channel not in pmxbot.config.log_channels:
 		return
 	ParticipantLogger.store.log_leave(nick, channel)
+
 
 class SQLiteLogger(ParticipantLogger, storage.SQLiteStorage):
 
@@ -70,6 +73,7 @@ class SQLiteLogger(ParticipantLogger, storage.SQLiteStorage):
 		self.db.execute(INSERT_LOG_SQL, [now, channel, nick, change])
 		self.db.commit()
 
+
 class MongoDBLogger(ParticipantLogger, storage.MongoDBStorage):
 	collection_name = 'rolls'
 
@@ -79,5 +83,7 @@ class MongoDBLogger(ParticipantLogger, storage.MongoDBStorage):
 			('channel', storage.pymongo.ASCENDING),
 		])
 		now = datetime.datetime.utcnow()
-		self.db.insert(dict(channel=channel, nick=nick, change=change,
-			datetime=logging.MongoDBLogger._fmt_date(now)))
+		self.db.insert(
+			dict(
+				channel=channel, nick=nick, change=change,
+				datetime=logging.MongoDBLogger._fmt_date(now)))

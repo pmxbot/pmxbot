@@ -25,6 +25,7 @@ from jaraco.util.classutil import itersubclasses
 
 log = logging.getLogger(__name__)
 
+
 class SelectableStorage(object):
 	"""
 	A mix-in for storage classes which will construct a suitable subclass based
@@ -44,8 +45,7 @@ class SelectableStorage(object):
 	@classmethod
 	def uri_matches(cls, uri):
 		super_matches = super(SelectableStorage, cls).uri_matches(uri)
-		return (urllib_parse.urlparse(uri).scheme == cls.scheme
-			or super_matches)
+		return (urllib_parse.urlparse(uri).scheme == cls.scheme or super_matches)
 
 	@classmethod
 	def migrate(cls, source_uri, dest_uri):
@@ -81,8 +81,7 @@ class SQLiteStorage(Storage, threading.local):
 		importlib.import_module('sqlite3')
 		self.uri = uri
 		self.filename = urllib_parse.urlparse(uri).path
-		self.db = sqlite.connect(self.filename, isolation_level=None,
-			timeout=20.0)
+		self.db = sqlite.connect(self.filename, isolation_level=None, timeout=20.0)
 		self.init_tables()
 
 	def init_tables(self):
@@ -106,6 +105,7 @@ class MongoDBStorage(Storage):
 		uri_p = pymongo.uri_parser.parse_uri(uri)
 		db_name = uri_p['database'] or 'pmxbot'
 		return pymongo.Connection(uri)[db_name][cls.collection_name]
+
 
 def migrate_all(source, dest):
 	for cls in SelectableStorage.__subclasses__():

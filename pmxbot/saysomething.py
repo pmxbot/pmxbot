@@ -18,9 +18,13 @@ log = logging.getLogger(__name__)
 
 nlnl = '\n', '\n'
 
+
 def new_key(key, word):
-	if word == '\n': return nlnl
-	else: return (key[1], word)
+	if word == '\n':
+		return nlnl
+	else:
+		return (key[1], word)
+
 
 def markov_data_from_words(words):
 	data = {}
@@ -30,6 +34,7 @@ def markov_data_from_words(words):
 		key = new_key(key, word)
 	return data
 
+
 def words_from_markov_data(data, initial_word='\n'):
 	key = '\n', initial_word
 	if initial_word != '\n':
@@ -38,6 +43,7 @@ def words_from_markov_data(data, initial_word='\n'):
 		word = random.choice(data.get(key, nlnl))
 		key = new_key(key, word)
 		yield word
+
 
 def words_from_file(f):
 	for line in f:
@@ -49,11 +55,14 @@ def words_from_file(f):
 			yield '\n'
 	yield '\n'
 
+
 def words_from_logger(logger, max=100000):
 	return words_from_lines(logger.get_random_logs(max))
 
+
 def words_from_quotes(quotes):
 	return words_from_lines(quotes)
+
 
 def words_from_lines(lines):
 	for line in lines:
@@ -62,6 +71,7 @@ def words_from_lines(lines):
 			yield word
 		yield '\n'
 
+
 def words_from_logger_and_quotes(logger, quotes):
 	return chain(
 		words_from_logger(logger),
@@ -69,12 +79,15 @@ def words_from_logger_and_quotes(logger, quotes):
 		['\n'],
 	)
 
+
 def paragraph_from_words(words):
 	result = []
 	for word in words:
-		if word == '\n': break
+		if word == '\n':
+			break
 		result.append(word)
 	return ' '.join(result)
+
 
 class FastSayer(object):
 	@classmethod
@@ -94,8 +107,7 @@ class FastSayer(object):
 		log.info("Done initializing FastSayer in %s.", timer.split())
 
 	def saysomething(self, initial_word='\n'):
-		return paragraph_from_words(words_from_markov_data(self.markov_data,
-			initial_word))
+		return paragraph_from_words(words_from_markov_data(self.markov_data, initial_word))
 
 	@classmethod
 	def _wait_for_stores(cls, timer):
@@ -109,6 +121,7 @@ class FastSayer(object):
 			time.sleep(0.1)
 		else:
 			raise RuntimeError("Timeout waiting for stores to be initialized")
+
 
 @pmxbot.core.command("saysomething")
 def saysomething(client, event, channel, nick, rest):

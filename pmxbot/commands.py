@@ -43,7 +43,7 @@ def google(client, event, channel, nick, rest):
 
 
 def suppress_exceptions(callables, exceptions=Exception):
-	"
+	"""
 	Suppress supplied exceptions (tuple or single exception)
 	encountered when a callable is invoked.
 	>>> five_over_n = lambda n: 5//n
@@ -51,7 +51,7 @@ def suppress_exceptions(callables, exceptions=Exception):
 	>>> safe_results = suppress_exceptions(callables, ZeroDivisionError)
 	>>> tuple(safe_results)
 	(-2, -3, -5, 5, 2)
-	"
+	"""
 	for callable in callables:
 		try:
 			yield callable()
