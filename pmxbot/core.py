@@ -30,6 +30,7 @@ import pmxbot.buffer
 
 log = logging.getLogger('pmxbot')
 
+
 class WarnHistory(dict):
 	warn_every = datetime.timedelta(seconds=60)
 	warn_message = textwrap.dedent("""
@@ -42,13 +43,14 @@ class WarnHistory(dict):
 
 	def needs_warning(self, key):
 		now = datetime.datetime.utcnow()
-		if not key in self or self._expired(self[key], now):
+		if key not in self or self._expired(self[key], now):
 			self[key] = now
 			return True
 		return False
 
 	def _expired(self, last, now):
 		return now - last > self.warn_every
+
 
 class AugmentableMessage(six.text_type):
 	"""
@@ -68,6 +70,7 @@ class AugmentableMessage(six.text_type):
 		if hasattr(other, '__dict__'):
 			self.__dict__.update(vars(other))
 		self.__dict__.update(**kwargs)
+
 
 class Sentinel(object):
 	"""
@@ -120,6 +123,7 @@ class Sentinel(object):
 				continue
 			yield AugmentableMessage(item, **properties)
 
+
 class NoLog(Sentinel):
 	"""
 	A sentinel indicating that subsequent items should not be logged.
@@ -128,6 +132,7 @@ class NoLog(Sentinel):
 	@property
 	def properties(self):
 		return dict(secret=True)
+
 
 class SwitchChannel(six.text_type, Sentinel):
 	"""
@@ -143,11 +148,11 @@ class SwitchChannel(six.text_type, Sentinel):
 	def properties(self):
 		return dict(channel=self)
 
+
 class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 	def __init__(self, server, port, nickname, channels, password=None):
 		server_list = [(server, port, password)]
-		irc.bot.SingleServerIRCBot.__init__(self, server_list, nickname,
-			nickname)
+		irc.bot.SingleServerIRCBot.__init__(self, server_list, nickname, nickname)
 		self.nickname = nickname
 		self._channels = channels
 		self._nickname = nickname
@@ -156,8 +161,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 	def connect(self, *args, **kwargs):
 		factory = irc.connection.Factory()
 		factory.from_legacy_params(ssl=pmxbot.config.use_ssl)
-		return irc.bot.SingleServerIRCBot.connect(self,
-			connect_factory = factory, *args, **kwargs)
+		return irc.bot.SingleServerIRCBot.connect(self, connect_factory=factory, *args, **kwargs)
 
 	def out(self, channel, s, log=True):
 		sent = self._out(self._conn, channel, s)
@@ -187,16 +191,16 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			# some messages will fail because they're too long
 			log.warning("Long message could not be transmitted: %s", msg)
 		except irc.client.InvalidCharacters:
-			log.warning("Message contains carriage returns, "
+			log.warning(
+				"Message contains carriage returns,"
 				"which aren't allowed in IRC messages: %r", msg)
 		except Exception:
 			log.exception("Unhandled exception transmitting message: %r", msg)
 
 	def _schedule_at(self, conn, name, channel, when, func, args, doc):
-		runner_func = functools.partial(self.background_runner, conn, channel,
-			func, args)
+		runner_func = functools.partial(self.background_runner, conn, channel, func, args)
 		if isinstance(when, datetime.date):
-			midnight = datetime.time(0,0)
+			midnight = datetime.time(0, 0)
 			when = datetime.datetime.combine(when, midnight)
 		if isinstance(when, datetime.datetime):
 			cmd = irc.schedule.DelayedCommand.at_time(when, runner_func)
@@ -204,16 +208,14 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			return
 		if not isinstance(when, datetime.time):
 			raise ValueError("when must be datetime, date, or time")
-		cmd = irc.schedule.PeriodicCommandFixedDelay.daily_at(when,
-			runner_func)
+		cmd = irc.schedule.PeriodicCommandFixedDelay.daily_at(when, runner_func)
 		conn.irclibobj._schedule_command(cmd)
 
 	def on_welcome(self, connection, event):
 		# save the connection object so .out has something to call
 		self._conn = connection
 		if pmxbot.config.nickserv_password:
-			connection.privmsg('NickServ', 'identify %s' %
-				pmxbot.config.nickserv_password)
+			connection.privmsg('NickServ', 'identify %s' % pmxbot.config.nickserv_password)
 
 		# join channels
 		for channel in self._channels:
@@ -251,10 +253,10 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		channel = event.target
 		for func in _join_registry:
 			try:
-				func(client=connection, event=event, nick=nick,
-					channel=channel)
+				func(client=connection, event=event, nick=nick, channel=channel)
 			except Exception:
-				print(datetime.datetime.now(),
+				print(
+					datetime.datetime.now(),
 					"Error in on_join handler %s" % func,
 					file=sys.stderr)
 				traceback.print_exc()
@@ -266,7 +268,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		if not self.warn_history.needs_warning(nick):
 			return
 		msg = self.warn_history.warn_message.format(
-			logged_channels_string = ', '.join(pmxbot.config.log_channels))
+			logged_channels_string=', '.join(pmxbot.config.log_channels))
 		for line in msg.splitlines():
 			connection.notice(nick, line)
 
@@ -275,10 +277,10 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		channel = event.target
 		for func in _leave_registry:
 			try:
-				func(client=connection, event=event, nick=nick,
-					channel=channel)
+				func(client=connection, event=event, nick=nick, channel=channel)
 			except Exception:
-				print(datetime.datetime.now(),
+				print(
+					datetime.datetime.now(),
 					"Error in on_leave handler %s" % func,
 					file=sys.stderr)
 				traceback.print_exc()
@@ -317,8 +319,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		Given an initial channel and a sequence of messages or sentinels,
 		output the messages.
 		"""
-		augmented_messages = Sentinel.augment_items(output,
-			channel=channel, secret=False)
+		augmented_messages = Sentinel.augment_items(output, channel=channel, secret=False)
 		for message in augmented_messages:
 			self.out(message.channel, message, not message.secret)
 
@@ -327,8 +328,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		Wrapper to run scheduled type tasks cleanly.
 		"""
 		def on_error(exception):
-			print(datetime.datetime.now(), "Error in background runner for ",
-				func)
+			print(datetime.datetime.now(), "Error in background runner for ", func)
 			traceback.print_exc()
 		func = functools.partial(func, connection, None, *args)
 		self._handle_output(channel, pmxbot.itertools.trap_exceptions(
@@ -343,8 +343,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 				**vars())
 		]
 		res.append('!{name} {doc}'.format(name=handler.name, doc=handler.doc))
-		print(datetime.datetime.now(), "Error with command {handler}"
-			.format(handler=handler))
+		print(datetime.datetime.now(), "Error with command {handler}".format(handler=handler))
 		traceback.print_exc()
 		return res
 
@@ -358,13 +357,11 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		for handler in matching_handlers:
 			exception_handler = functools.partial(
 				self._handle_exception,
-				handler = handler,
-				)
-			f = functools.partial(handler.func, connection, event, channel,
-				nick, handler.process(msg))
+				handler=handler,
+			)
+			f = functools.partial(handler.func, connection, event, channel, nick, handler.process(msg))
 			results = pmxbot.itertools.generate_results(f)
-			clean_results = pmxbot.itertools.trap_exceptions(results,
-				exception_handler)
+			clean_results = pmxbot.itertools.trap_exceptions(results, exception_handler)
 			messages = itertools.chain(messages, clean_results)
 			if not handler.allow_chain:
 				break
@@ -377,10 +374,11 @@ class SilentCommandBot(LoggingCommandBot):
 	processes commands).
 	"""
 	def out(self, *args, **kwargs):
-		"Do nothing"
+		"""Do nothing"""
 
 	def on_join(self, *args, **kwargs):
-		"Do nothing"
+		"""Do nothing"""
+
 
 class FinalRegistry:
 	"""
@@ -405,17 +403,18 @@ _at_registry = []
 _join_registry = []
 _leave_registry = []
 
+
 class Handler(object):
 	_registry = []
 
 	class_priority = 1
-	"priority of this class relative to other classes, precedence to higher"
+	"""priority of this class relative to other classes, precedence to higher"""
 
 	priority = 1
-	"priority relative to other handlers of this class, precedence to higher"
+	"""priority relative to other handlers of this class, precedence to higher"""
 
 	allow_chain = False
-	"allow subsequent handlers to also process the same message"
+	"""allow subsequent handlers to also process the same message"""
 
 	def __init__(self, **kwargs):
 		self.__dict__.update(kwargs)
@@ -454,6 +453,7 @@ class Handler(object):
 	def process(self, message):
 		return message
 
+
 class ContainsHandler(Handler):
 	channels = ()
 	exclude = ()
@@ -474,18 +474,15 @@ class ContainsHandler(Handler):
 			not self.channels and not self.exclude
 			or channel in self.channels
 			or self.exclude and channel not in self.exclude
-			or self.channels == "logged"
-				and channel in pmxbot.config.log_channels
-			or self.channels == "unlogged"
-				and channel not in pmxbot.config.log_channels
-			or self.exclude == "logged"
-				and channel not in pmxbot.config.log_channels
-			or self.exclude == "unlogged"
-				and channel in pmxbot.config.log_channels
+			or self.channels == "logged" and channel in pmxbot.config.log_channels
+			or self.channels == "unlogged" and channel not in pmxbot.config.log_channels
+			or self.exclude == "logged" and channel not in pmxbot.config.log_channels
+			or self.exclude == "unlogged" and channel in pmxbot.config.log_channels
 		)
 
 	def _rate_match(self):
 		return random.random() <= self.rate
+
 
 class CommandHandler(Handler):
 	class_priority = 3
@@ -507,7 +504,7 @@ class CommandHandler(Handler):
 
 	def match(self, message, channel):
 		cmd, _, cmd_args = message.partition(' ')
-		return cmd.lower() == '!{name}'.format(name = self.name)
+		return cmd.lower() == '!{name}'.format(name=self.name)
 
 	def process(self, message):
 		cmd, _, cmd_args = message.partition(' ')
@@ -516,6 +513,7 @@ class CommandHandler(Handler):
 	@property
 	def alias_names(self):
 		return [alias.name for alias in self.aliases]
+
 
 class AliasHandler(CommandHandler):
 	class_priority = 2
@@ -527,6 +525,7 @@ class AliasHandler(CommandHandler):
 	def __str__(self):
 		return self.name
 	__unicode__ = __str__
+
 
 class RegexpHandler(ContainsHandler):
 	class_priority = 4
@@ -542,8 +541,8 @@ class RegexpHandler(ContainsHandler):
 	def process(self, message):
 		return self.pattern.search(message)
 
-def contains(name, channels=(), exclude=(), rate=1.0, priority=1,
-		doc=None, **kwargs):
+
+def contains(name, channels=(), exclude=(), rate=1.0, priority=1, doc=None, **kwargs):
 	return ContainsHandler(
 		name=name,
 		doc=doc,
@@ -552,6 +551,7 @@ def contains(name, channels=(), exclude=(), rate=1.0, priority=1,
 		rate=rate,
 		priority=priority,
 		**kwargs).decorate
+
 
 def command(name=None, aliases=None, doc=None):
 	handler = CommandHandler(name=name, doc=doc)
@@ -562,6 +562,7 @@ def command(name=None, aliases=None, doc=None):
 	handler.aliases = aliases
 	return handler.decorate
 
+
 def regexp(name, regexp, doc=None, **kwargs):
 	return RegexpHandler(
 		name=name,
@@ -570,12 +571,13 @@ def regexp(name, regexp, doc=None, **kwargs):
 		**kwargs
 	).decorate
 
+
 def execdelay(name, channel, howlong, args=[], doc=None, repeat=False):
 	def deco(func):
-		_delay_registry.append((name.lower(), channel, howlong, func, args,
-			doc, repeat))
+		_delay_registry.append((name.lower(), channel, howlong, func, args, doc, repeat))
 		return func
 	return deco
+
 
 def execat(name, channel, when, args=[], doc=None):
 	def deco(func):
@@ -586,17 +588,20 @@ def execat(name, channel, when, args=[], doc=None):
 		return func
 	return deco
 
+
 def on_join(doc=None):
 	def deco(func):
 		_join_registry.append(func)
 		return func
 	return deco
 
+
 def on_leave(doc=None):
 	def deco(func):
 		_leave_registry.append(func)
 		return func
 	return deco
+
 
 class ConfigMergeAction(argparse.Action):
 	def __call__(self, parser, namespace, values, option_string=None):
@@ -605,11 +610,14 @@ class ConfigMergeAction(argparse.Action):
 			return a
 		setattr(namespace, self.dest, six.moves.reduce(merge_dicts, values))
 
+
 def get_args(*args, **kwargs):
 	parser = argparse.ArgumentParser()
-	parser.add_argument('config', type=pmxbot.dictlib.ConfigDict.from_yaml,
+	parser.add_argument(
+		'config', type=pmxbot.dictlib.ConfigDict.from_yaml,
 		default={}, nargs='*', action=ConfigMergeAction)
 	return parser.parse_args(*args, **kwargs)
+
 
 def run():
 	global _bot
@@ -619,11 +627,13 @@ def run():
 	finally:
 		FinalRegistry.finalize()
 
+
 def _setup_logging():
 	log_level = pmxbot.config['log level']
 	if isinstance(log_level, six.string_types):
 		log_level = getattr(logging, log_level.upper())
 	logging.basicConfig(level=log_level, format="%(message)s")
+
 
 def initialize(config):
 	"""
@@ -645,8 +655,10 @@ def initialize(config):
 	log.info('Running with config')
 	log.info(pprint.pformat(config))
 
-	return class_(config.server_host, config.server_port,
+	return class_(
+		config.server_host, config.server_port,
 		config.bot_nickname, channels=channels, password=config.password)
+
 
 def _load_library_extensions():
 	"""

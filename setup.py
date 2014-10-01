@@ -10,11 +10,11 @@ setup_params = dict(
 	packages=setuptools.find_packages(),
 	include_package_data=True,
 	entry_points=dict(
-		console_scripts = [
+		console_scripts=[
 			'pmxbot=pmxbot.core:run',
 			'pmxbotweb=pmxbot.web.viewer:run',
 		],
-		pmxbot_handlers = [
+		pmxbot_handlers=[
 			'pmxbot logging = pmxbot.logging:Logger.initialize',
 			'pmxbot karma = pmxbot.karma:Karma.initialize',
 			'pmxbot quotes = pmxbot.quotes:Quotes.initialize',
@@ -36,7 +36,7 @@ setup_params = dict(
 		"pytz",
 		"jaraco.util>=8.8,<11dev",
 		"beautifulsoup4",
-		#for viewer
+		# for viewer
 		"jinja2",
 		"cherrypy>=3.2.3,<3.3dev",
 		"jaraco.compat>=1.0.3",
@@ -45,12 +45,12 @@ setup_params = dict(
 		"more_itertools",
 	],
 	description="IRC bot - full featured, yet extensible and customizable",
-	license = 'MIT',
+	license='MIT',
 	author="YouGov, Plc.",
 	author_email="open.source@yougov.com",
-	maintainer = 'Jason R. Coombs',
-	maintainer_email = 'Jason.Coombs@YouGov.com',
-	url = 'http://bitbucket.org/yougov/pmxbot',
+	maintainer='Jason R. Coombs',
+	maintainer_email='Jason.Coombs@YouGov.com',
+	url='http://bitbucket.org/yougov/pmxbot',
 	classifiers=[
 		'Development Status :: 5 - Production/Stable',
 		'License :: OSI Approved :: MIT License',
@@ -61,7 +61,7 @@ setup_params = dict(
 		'Topic :: Communications :: Chat :: Internet Relay Chat',
 		'Topic :: Internet :: WWW/HTTP :: WSGI :: Application',
 	],
-	long_description = open('README.rst').read(),
+	long_description=open('README.rst').read(),
 	setup_requires=[
 		'hgtools',
 		'pytest-runner>=1.1,<3.0dev',

@@ -1,6 +1,7 @@
 import yaml
 from jaraco.util.dictlib import ItemsAsAttributes
 
+
 class ConfigDict(ItemsAsAttributes, dict):
 	@classmethod
 	def from_yaml(cls, filename):

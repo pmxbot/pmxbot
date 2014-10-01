@@ -1,5 +1,6 @@
 from jaraco.util.itertools import always_iterable
 
+
 def generate_results(function):
 	"""
 	Take a function, which may return an iterator or a static result
@@ -7,6 +8,7 @@ def generate_results(function):
 	"""
 	for item in always_iterable(function()):
 		yield item
+
 
 def trap_exceptions(results, handler, exceptions=Exception):
 	"""

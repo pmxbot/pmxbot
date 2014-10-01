@@ -6,6 +6,7 @@ import irc.buffer
 
 log = logging.getLogger(__name__)
 
+
 class ErrorReportingBuffer(irc.buffer.LineBuffer):
 	encoding = 'utf-8'
 

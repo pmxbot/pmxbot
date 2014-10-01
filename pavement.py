@@ -1,6 +1,6 @@
 
 import pkg_resources
-#from jaraco.develop import bitbucket
+# from jaraco.develop import bitbucket
 from paver.easy import task
 
 import pmxbot.core
@@ -13,6 +13,8 @@ def to_wiki(commands):
 		aliases = ', '.join(repr(alias.name) for alias in aliases)
 		doc = doc.replace('|', '~|')
 		yield '| {command} | {aliases} | {doc} |'.format(**vars())
+
+
 @task
 def update_wiki():
 	pmxbot.core._load_library_extensions()

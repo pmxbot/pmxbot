@@ -5,6 +5,7 @@ import yaml
 import pmxbot
 from pmxbot.core import command
 
+
 @command("config")
 def config(client, event, channel, nick, rest):
 	"""Change the running config, something like a=b or a+=b or a-=b"""
@@ -20,7 +21,7 @@ def config(client, event, channel, nick, rest):
 		# list operation
 		op_name = {'+=': 'append', '-=': 'remove'}[op]
 		op_name
-		if not key in pmxbot.config:
+		if key not in pmxbot.config:
 			msg = "{key} not found in config. Can't {op_name}."
 			return msg.format(**vars())
 		if not isinstance(pmxbot.config[key], (list, tuple)):
@@ -28,5 +29,5 @@ def config(client, event, channel, nick, rest):
 			return msg.format(**vars())
 		op = getattr(pmxbot.config[key], op_name)
 		op(value)
-	else: # op is '='
+	else:  # op is '='
 		pmxbot.config[key] = value
