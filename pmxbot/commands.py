@@ -258,7 +258,7 @@ def motivate(client, event, channel, nick, rest):
 
 @command(aliases=("im", 'ironicmotivate',))
 def imotivate(client, event, channel, nick, rest):
-	"Ironically "Motivate" someone"
+	"Ironically 'Motivate' someone"
 	if rest:
 		r = rest.strip()
 		karma.Karma.store.change(r, -1)
