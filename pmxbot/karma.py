@@ -274,7 +274,7 @@ def karma(client, event, channel, nick, rest):
 		return "%s has %s karmas" % (karmee, score)
 
 
-@command("top10", aliases=("top",), doc=)
+@command("top10", aliases=("top",))
 def top10(client, event, channel, nick, rest):
 	"""
 	Return the top n (default 10) highest entities by Karmic value.

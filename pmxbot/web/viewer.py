@@ -26,28 +26,32 @@ import pmxbot.logging
 import pmxbot.util
 
 jenv = jinja2.Environment(loader=jinja2.loaders.PackageLoader('pmxbot.web'))
-TIMEOUT=10.0
+TIMEOUT = 10.0
 
 
-colors = ["06F", "900", "093", "F0C", "C30", "0C9", "666", "C90", "C36",
+colors = [
+	"06F", "900", "093", "F0C", "C30", "0C9", "666", "C90", "C36",
 	"F60", "639", "630", "966", "69C", "039", '7e1e9c', '15b01a', '0343df',
 	'ff81c0', '653700', 'e50000', '029386', 'f97306', 'c20078', '75bbfd']
 random.shuffle(colors)
 
+
 def get_context():
 	c = pmxbot.config
 	d = dict(
-		request = cherrypy.request,
-		name = c.bot_nickname,
-		config = c,
-		base = c.web_base,
-		logo = c.logo
+		request=cherrypy.request,
+		name=c.bot_nickname,
+		config=c,
+		base=c.web_base,
+		logo=c.logo
 	)
 	return d
+
 
 def make_anchor(line):
 	time, nick = line
 	return "%s.%s" % (str(time).replace(':', '.'), nick)
+
 
 def pmon(month):
 	"""
@@ -58,9 +62,10 @@ def pmon(month):
 	"""
 	year, month = month.split('-')
 	return '{month_name}, {year}'.format(
-		month_name = calendar.month_name[int(month)],
-		year = year,
+		month_name=calendar.month_name[int(month)],
+		year=year,
 	)
+
 
 def pday(dayfmt):
 	"""
@@ -72,9 +77,10 @@ def pday(dayfmt):
 
 	year, month, day = map(int, dayfmt.split('-'))
 	return '{day} the {number}'.format(
-		day = calendar.day_name[calendar.weekday(year, month, day)],
-		number = th_it(day),
+		day=calendar.day_name[calendar.weekday(year, month, day)],
+		number=th_it(day),
 	)
+
 
 class ChannelPage(object):
 	month_ordinal = dict(
@@ -93,8 +99,7 @@ class ChannelPage(object):
 		for fn in sorted(contents, reverse=True):
 			mon_des, day = fn.rsplit('-', 1)
 			months.setdefault(pmon(mon_des), []).append((pday(fn), fn))
-		context['months'] = sorted(months.items(), key=self.by_date,
-			reverse=True)
+		context['months'] = sorted(months.items(), key=self.by_date, reverse=True)
 		context['channel'] = channel
 		return page.render(**context).encode('utf-8')
 
@@ -117,6 +122,7 @@ class ChannelPage(object):
 		month_ord = cls.month_ordinal[month]
 		return year, month_ord
 
+
 class DayPage(object):
 	@cherrypy.expose
 	def default(self, channel, day):
@@ -124,8 +130,7 @@ class DayPage(object):
 		db = pmxbot.logging.Logger.store
 		context = get_context()
 		day_logs = db.get_day_logs(channel, day)
-		data = [(t, n, make_anchor((t, n)), cgi.escape(m))
-			for (t,n,m) in day_logs]
+		data = [(t, n, make_anchor((t, n)), cgi.escape(m)) for (t, n, m) in day_logs]
 		usernames = [x[1] for x in data]
 		color_map = {}
 		clrs = colors[:]
@@ -140,8 +145,8 @@ class DayPage(object):
 		context['history'] = data
 		context['channel'] = channel
 		context['pdate'] = "{pday} of {days}".format(
-			pday = pday(day),
-			days = pmon(day.rsplit('-', 1)[0]),
+			pday=pday(day),
+			days=pmon(day.rsplit('-', 1)[0]),
 		)
 		return page.render(**context).encode('utf-8')
 
@@ -263,10 +268,10 @@ class LegacyPage():
 		url_fmt = '/day/{channel}/{target_date}#{target_time}.{nick}'
 		raise cherrypy.HTTPRedirect(
 			url_fmt.format(
-				target_date = utc_dt.date().isoformat(),
-				target_time = utc_dt.time().strftime('%H.%M.%S'),
+				target_date=utc_dt.date().isoformat(),
+				target_time=utc_dt.time().strftime('%H.%M.%S'),
 				**vars()
-				),
+			),
 			301,
 		)
 
@@ -301,6 +306,7 @@ class PmxbotPages(object):
 		context['chans'] = chans
 		return page.render(**context).encode('utf-8')
 
+
 def patch_compat(config):
 	"""
 	Support older config values.
@@ -309,6 +315,7 @@ def patch_compat(config):
 		config['host'] = config.pop('web_host')
 	if 'web_port' in config:
 		config['port'] = config.pop('web_port')
+
 
 def _init_config():
 	config = pmxbot.config
@@ -320,6 +327,7 @@ def _init_config():
 	if 'logo' not in config:
 		web_base = config.web_base or '/'
 		config['logo'] = urllib_parse.urljoin(web_base, 'pmxbot.png')
+
 
 def startup(config):
 	patch_compat(config)
@@ -338,7 +346,7 @@ def startup(config):
 			'server.socket_host': config.host,
 			'server.environment': 'production',
 			'engine.autoreload.on': False,
-			#'tools.encode.on': True,
+			# 'tools.encode.on': True,
 			'tools.encode.encoding': 'utf-8',
 		},
 		cherrypy._cpcompat.tonative('/pmxbot.png', encoding='ascii'): {
@@ -354,6 +362,7 @@ def startup(config):
 	}
 
 	cherrypy.quickstart(PmxbotPages(), config.web_base, config=app_conf)
+
 
 def run():
 	startup(pmxbot.core.get_args().config)
