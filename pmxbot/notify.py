@@ -13,7 +13,7 @@ class Notify(storage.SelectableStorage):
 	@classmethod
 	def init(cls):
 		cls.store = cls.from_URI(pmxbot.config.database)
-	cls._finalizers.append(cls.finalize)
+		cls._finalizers.append(cls.finalize)
 
 	@classmethod
 	def finalize(cls):
