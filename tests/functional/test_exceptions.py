@@ -2,6 +2,7 @@ import time
 
 from tests.functional import PmxbotHarness
 
+
 class TestPmxbotExceptions(PmxbotHarness):
 	def test_no_op(self):
 		"""

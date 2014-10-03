@@ -16,12 +16,14 @@ sample_feed_entries = [
 	{'title': 'A great blog'},
 ]
 
+
 @pytest.fixture()
 def history(db_uri, request):
 	history = pmxbot.rss.FeedHistory(db_uri)
 	request.addfinalizer(history.store.clear)
 	request.addfinalizer(history._FeedHistory__finalize)
 	return history
+
 
 class TestFeedHistory(object):
 
@@ -62,13 +64,15 @@ class TestFeedHistory(object):
 		assert len(new_history) == 1
 		assert new_history.add_seen_feed(entry, 'http://example.com') is False
 
+
 @pytest.has_internet
 def test_format_entry():
 	bitbucket = 'https://bitbucket.org'
-	feed_url=urllib_parse.urljoin(bitbucket, '/yougov/pmxbot/rss')
+	feed_url = urllib_parse.urljoin(bitbucket, '/yougov/pmxbot/rss')
 	res = feedparser.parse(feed_url)
 	entry = res['entries'][0]
 	pmxbot.rss.RSSFeeds.format_entry(entry)
+
 
 def test_format_entry_unicode():
 	pmxbot.rss.RSSFeeds.format_entry(dict(title='\u2013'))

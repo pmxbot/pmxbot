@@ -6,6 +6,7 @@ import time
 
 from tests.functional import PmxbotHarness
 
+
 class TestPmxbotMessages(PmxbotHarness):
 	def test_no_op(self):
 		"""

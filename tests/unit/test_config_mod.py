@@ -3,6 +3,7 @@ import mock
 
 import pmxbot.config_
 
+
 @mock.patch('pmxbot.config', {})
 def test_config_append():
 	"""

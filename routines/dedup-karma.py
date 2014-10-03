@@ -2,6 +2,7 @@ import sys
 import urllib.parse
 import pymongo
 
+
 def run():
 	url = sys.argv[1]
 	db_name = urllib.parse.urlparse(url).path.lstrip('/')

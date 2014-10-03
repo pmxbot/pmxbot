@@ -7,6 +7,7 @@ from jaraco.test import services
 
 import pmxbot.util
 
+
 def throws_exception(call, exceptions=[Exception]):
 	"""
 	Invoke the function and return True if it raises any of the
@@ -20,21 +21,24 @@ def throws_exception(call, exceptions=[Exception]):
 		pass
 	return False
 
+
 def pytest_namespace():
 	return dict(
-		has_internet = pytest.mark.skipif('not pytest.config.has_internet'),
-		has_wordnik = pytest.mark.skipif('not pytest.config.has_wordnik'),
+		has_internet=pytest.mark.skipif('not pytest.config.has_internet'),
+		has_wordnik=pytest.mark.skipif('not pytest.config.has_wordnik'),
 	)
 
+
 def pytest_configure(config):
-	open_google = functools.partial(pmxbot.util.get_html,
-		'http://www.google.com')
+	open_google = functools.partial(pmxbot.util.get_html, 'http://www.google.com')
 	config.has_internet = not throws_exception(open_google)
 	config.has_wordnik = 'wordnik' in dir(pmxbot.util)
+
 
 def pytest_runtest_setup(item):
 	if 'slow' in item.keywords and not item.config.getvalue("runslow"):
 		pytest.skip("need --runslow option to run")
+
 
 @pytest.fixture(params=['mongodb', 'sqlite'])
 def db_uri(request):

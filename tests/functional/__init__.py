@@ -16,6 +16,7 @@ import pytest
 
 import pmxbot.dictlib
 
+
 class TestingClient(object):
 	"""
 	A simple client simulating a user other than the pmxbot
@@ -32,18 +33,19 @@ class TestingClient(object):
 		self.channels.add(channel)
 
 	def send_message(self, channel, message):
-		if not channel in self.channels:
+		if channel not in self.channels:
 			self.join(channel)
 		self.c.privmsg(channel, message)
 		time.sleep(0.05)
 
+
 class PmxbotHarness(object):
 	config = pmxbot.dictlib.ConfigDict(
-		server_port = 6668,
-		bot_nickname = 'pmxbotTest',
-		log_channels = ['#logged'],
-		other_channels = ['#inane'],
-		database = "sqlite:tests/functional/pmxbot.sqlite",
+		server_port=6668,
+		bot_nickname='pmxbotTest',
+		log_channels=['#logged'],
+		other_channels=['#inane'],
+		database="sqlite:tests/functional/pmxbot.sqlite",
 	)
 
 	@classmethod
@@ -130,10 +132,10 @@ class PmxbotHarness(object):
 		if message:
 			query += " and message = :message"
 		cursor.execute(query, dict(
-			channel = channel,
-			nick = nick,
-			message = message,
-			))
+			channel=channel,
+			nick=nick,
+			message=message,
+		))
 		res = cursor.fetchall()
 		print(res)
 		return len(res) >= 1
@@ -156,7 +158,8 @@ class PmxbotHarness(object):
 		# wait up to 10 seconds for the file to be removable
 		for x in range(100):
 			try:
-				if os.path.isfile(cls.dbfile): os.remove(cls.dbfile)
+				if os.path.isfile(cls.dbfile):
+					os.remove(cls.dbfile)
 				break
 			except OSError:
 				time.sleep(.1)

@@ -1,5 +1,6 @@
 import pmxbot.web.viewer
 
+
 def test_get_context():
 	"""
 	Calling get_context should return a dictionary.

@@ -4,6 +4,7 @@ import pytest
 
 from tests.functional import PmxbotHarness
 
+
 class TestPmxbotLog(PmxbotHarness):
 	def test_no_op(self):
 		"""
