@@ -455,8 +455,8 @@ def gettowork(client, event, channel, nick, rest):
 		"Um, might I suggest working now",
 		"Get to work",
 		"Between the coffee break, the smoking break, the lunch break, "
-		"the tea break, the bagel break, and the water cooler break, "
-		"may I suggest a work break.  It’s when you do some work",
+			"the tea break, the bagel break, and the water cooler break, "
+			"may I suggest a work break.  It’s when you do some work",
 		"Work faster",
 		"I didn’t realize we paid people for doing that",
 		"You aren't being paid to believe in the power of your dreams",
