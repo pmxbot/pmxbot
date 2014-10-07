@@ -32,7 +32,8 @@ def plaintext(html):
 def google(client, event, channel, nick, rest):
 	"Look up a phrase on google"
 	BASE_URL = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&'
-	url = BASE_URL + urllib.parse.urlencode({'q': rest.encode('utf-8').strip()})
+	params = {'q': rest.encode('utf-8').strip()}
+	url = BASE_URL + urllib.parse.urlencode(params)
 	raw_res = urllib.request.urlopen(url).read()
 	results = json.loads(raw_res.decode('utf-8'))
 	hit1 = results['responseData']['results'][0]
