@@ -572,7 +572,7 @@ def chain(client, event, channel, nick, rest):
 		chainee = "someone nearby"
 	if chainee == 'cperry':
 		tmpl = "/me ties the chains extra tight around {chainee}"
-	elif random.randint(1, 10) != 1:
+	elif random.random() < .9:
 		tmpl = (
 			"/me chains {chainee} to the nearest desk. "
 			"you ain't going home, buddy."
