@@ -459,7 +459,8 @@ def gettowork(client, event, channel, nick, rest):
 		"may I suggest a work break.  It’s when you do some work",
 		"Work faster",
 		"I didn’t realize we paid people for doing that",
-		"You aren't being paid to believe in the power of your dreams"]
+		"You aren't being paid to believe in the power of your dreams",
+	]
 	suggestion = random.choice(suggestions)
 	rest = rest.strip()
 	if rest:
