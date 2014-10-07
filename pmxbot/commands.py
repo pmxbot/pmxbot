@@ -565,7 +565,7 @@ def embowel(client, event, channel, nick, rest):
 
 @command()
 def chain(client, event, channel, nick, rest):
-	"Chain some(one|thing)down."
+	"Chain some(one|thing) down."
 	if rest:
 		chainee = rest
 	else:
