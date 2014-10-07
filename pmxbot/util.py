@@ -32,7 +32,7 @@ def wchoice(d):
 
 	Statistically speaking, choices should be .5 a:b
 	>>> ratio = choices.count('a') / choices.count('b')
-	>>> .45 < ratio < .55
+	>>> .4 < ratio < .5
 	True
 	"""
 	total = sum(d.values())
