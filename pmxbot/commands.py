@@ -571,19 +571,20 @@ def chain(client, event, channel, nick, rest):
 	else:
 		chainee = "someone nearby"
 	if chainee == 'cperry':
-		return "/me ties the chains extra tight around %s" % chainee
+		tmpl = "/me ties the chains extra tight around %s"
 	elif random.randint(1, 10) != 1:
 		tmpl = (
 			"/me chains %s to the nearest desk.  you ain't going home, buddy."
 		)
-		return tmpl % chainee
 	else:
 		karma.Karma.store.change(nick, -1)
-		return (
+		chainee = nick
+		tmpl = (
 			"/me spins violently around and chains %s to the nearest "
 			"desk.  your days of chaining people down and stomping on their "
-			"dreams are over!  get a life, you miserable beast." % nick
+			"dreams are over!  get a life, you miserable beast."
 		)
+	return tmpl % chainee
 
 
 @command()
