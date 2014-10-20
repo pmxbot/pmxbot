@@ -99,7 +99,7 @@ then decorate each function with the appropriate line so pmxbot registers it.
 
 A command (!g) gets the @command decorator::
 
-  @command("tinytear", aliases=('tt', 'tear', 'cry'))
+  @command(aliases=('tt', 'tear', 'cry'))
   def tinytear(client, event, channel, nick, rest):
     "I cry a tiny tear for you."
     if rest:
