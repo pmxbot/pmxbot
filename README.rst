@@ -102,24 +102,24 @@ A command (!g) gets the @command decorator::
   @command("tinytear", aliases=('tt', 'tear', 'cry'))
   def tinytear(client, event, channel, nick, rest):
     "I cry a tiny tear for you."
-  	if rest:
-  		return "/me sheds a single tear for %s" % rest
-  	else:
-  		return "/me sits and cries as a single tear slowly trickles down its cheek"
+    if rest:
+      return "/me sheds a single tear for %s" % rest
+    else:
+      return "/me sits and cries as a single tear slowly trickles down its cheek"
 
 A response (when someone says something) uses the @contains decorator::
 
   @contains("sqlonrails")
   def yay_sor(client, event, channel, nick, rest):
-  	karma.Karma.store.change('sql on rails', 1)
-  	return "Only 76,417 lines..."
+    karma.Karma.store.change('sql on rails', 1)
+    return "Only 76,417 lines..."
 
 A more complicated response (when you want to extract data from a message) uses
 the @regexp decorator::
 
   @regexp("jira", r"(?<![a-zA-Z0-9/])(OPS|LIB|SALES|UX|GENERAL|SUPPORT)-\d\d+")
   def jira(client, event, channel, nick, match_obj):
-      return "https://jira.example.com/browse/%s" % match_obj.group()
+    return "https://jira.example.com/browse/%s" % match_obj.group()
 
 For an example of how to implement a setuptools-based plugin, see one of the
 many examples in the pmxbot project itself or one of the popular third-party
