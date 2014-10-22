@@ -673,8 +673,8 @@ def calc(client, event, channel, nick, rest):
 		return "misformatted arithmetic!"
 
 
-@command("define", aliases=("def",))
-def defit(client, event, channel, nick, rest):
+@command(aliases="def")
+def define(client, event, channel, nick, rest):
 	"Define a word"
 	word = rest.strip()
 	res = util.lookup(word)
