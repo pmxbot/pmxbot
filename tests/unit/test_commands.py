@@ -376,7 +376,7 @@ class TestCommands(object):
 		"""
 		Test the dictionary with the word keyboard.
 		"""
-		res = commands.defit(c, e, "#test", "testrunner", "keyboard")
+		res = commands.define(c, e, "#test", "testrunner", "keyboard")
 		assert isinstance(res, six.text_type)
 		assert res == ("Wordnik says: A set of keys, as on a computer terminal, word processor, typewriter, or piano.")
 
@@ -385,7 +385,7 @@ class TestCommands(object):
 		"""
 		Test the dictionary with the word IRC.
 		"""
-		res = commands.defit(c, e, "#test", "testrunner", "  IRC \t")
+		res = commands.define(c, e, "#test", "testrunner", "  IRC \t")
 		assert isinstance(res, six.text_type)
 		assert res == (
 			"Wordnik says: An international computer network of "
@@ -397,7 +397,7 @@ class TestCommands(object):
 		"""
 		Test the dictionary with a nonsense word.
 		"""
-		res = commands.defit(c, e, "#test", "testrunner", "notaword")
+		res = commands.define(c, e, "#test", "testrunner", "notaword")
 		assert isinstance(res, six.text_type)
 		assert res == "Wordnik does not have a definition for that."
 
@@ -406,7 +406,7 @@ class TestCommands(object):
 		"""
 		Test the urban dictionary with the word IRC.
 		"""
-		res = commands.urbandefit(c, e, "#test", "testrunner", "irc")
+		res = commands.urbandict(c, e, "#test", "testrunner", "irc")
 		assert "Internet Relay Chat" in res
 
 	@pytest.has_internet

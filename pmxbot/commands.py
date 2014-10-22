@@ -684,8 +684,8 @@ def define(client, event, channel, nick, rest):
 	return fmt.format(**dict(vars(), lookup=util.lookup))
 
 
-@command("urbandict", aliases=("urb", 'ud', 'urbandictionary', 'urbandefine', 'urbandef', 'urbdef'))
-def urbandefit(client, event, channel, nick, rest):
+@command(aliases=("urb", 'ud', 'urbandictionary', 'urbandefine', 'urbandef', 'urbdef'))
+def urbandict(client, event, channel, nick, rest):
 	"Define a word with Urban Dictionary"
 	word = rest.strip()
 	definition = util.urban_lookup(word)
