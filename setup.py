@@ -38,7 +38,7 @@ setup_params = dict(
 		"beautifulsoup4",
 		# for viewer
 		"jinja2",
-		"cherrypy>=3.2.3,<3.3dev",
+		"cherrypy>=3.2.3,<4dev",
 		"jaraco.compat>=1.0.3",
 		"backports.method_request",
 		"wordnik-py3",
