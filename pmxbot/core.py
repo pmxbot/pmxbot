@@ -200,12 +200,12 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			when = datetime.datetime.combine(when, midnight)
 		if isinstance(when, datetime.datetime):
 			cmd = irc.schedule.DelayedCommand.at_time(when, runner_func)
-			conn.irclibobj._schedule_command(cmd)
+			conn.manifold._schedule_command(cmd)
 			return
 		if not isinstance(when, datetime.time):
 			raise ValueError("when must be datetime, date, or time")
 		cmd = irc.schedule.PeriodicCommandFixedDelay.daily_at(when, runner_func)
-		conn.irclibobj._schedule_command(cmd)
+		conn.manifold._schedule_command(cmd)
 
 	def on_welcome(self, connection, event):
 		# save the connection object so .out has something to call
