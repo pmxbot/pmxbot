@@ -325,9 +325,9 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			print(datetime.datetime.now(), "Error in background runner for ", func)
 			traceback.print_exc()
 		func = functools.partial(func, connection, None, *args)
-		self._handle_output(channel, pmxbot.itertools.trap_exceptions(
-			pmxbot.itertools.generate_results(func),
-			on_error))
+		results = pmxbot.itertools.generate_results(func)
+		clean_results = pmxbot.itertools.trap_exceptions(results, on_error)
+		self._handle_output(channel, clean_results)
 
 	def _handle_exception(self, exception, handler):
 		expletives = ['Yikes!', 'Zoiks!', 'Ouch!']
