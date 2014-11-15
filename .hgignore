@@ -1,7 +1,0 @@
-syntax: glob
-
-*.pyc
-bot_database
-*egg-info*
-build/*
-dist/*
