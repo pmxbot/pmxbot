@@ -28,7 +28,7 @@ setup_params = dict(
 		],
 	),
 	install_requires=[
-		"irc>=8.0,<11dev",
+		"irc>=11.0,<12dev",
 		'six',
 		'requests',
 		"pyyaml",

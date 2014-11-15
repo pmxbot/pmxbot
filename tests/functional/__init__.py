@@ -22,10 +22,10 @@ class TestingClient(object):
 	A simple client simulating a user other than the pmxbot
 	"""
 	def __init__(self, server, port, nickname):
-		self.manifold = irc.client.Manifold()
-		self.c = self.manifold.server()
+		self.reactor = irc.client.Reactor()
+		self.c = self.reactor.server()
 		self.c.connect(server, port, nickname)
-		self.manifold.process_once(0.1)
+		self.reactor.process_once(0.1)
 		self.channels = set()
 
 	def join(self, channel):
