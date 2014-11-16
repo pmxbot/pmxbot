@@ -1,7 +1,6 @@
 import functools
 
 import pytest
-from jaraco.test import services
 
 import pmxbot.util
 
