@@ -8,11 +8,11 @@ import datetime
 import logging
 
 import feedparser
+from jaraco import timing
 
 import pmxbot
 from . import core
 from . import storage
-from . import timing
 
 log = logging.getLogger(__name__)
 

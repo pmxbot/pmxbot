@@ -7,10 +7,11 @@ import time
 import datetime
 from itertools import chain
 
+from jaraco import timing
+
 import pmxbot.core
 import pmxbot.logging
 import pmxbot.quotes
-import pmxbot.timing
 
 log = logging.getLogger(__name__)
 
@@ -95,7 +96,7 @@ class FastSayer(object):
 	@classmethod
 	def init_class(cls):
 		log.info("Initializing FastSayer...")
-		timer = pmxbot.timing.Stopwatch()
+		timer = timing.Stopwatch()
 		cls._wait_for_stores(timer)
 		words = words_from_logger_and_quotes(
 			pmxbot.logging.Logger.store,

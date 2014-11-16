@@ -5,6 +5,7 @@ import os
 import sys
 import time
 import sqlite3
+import datetime
 
 try:
 	import urllib.parse as urllib_parse
@@ -13,6 +14,7 @@ except ImportError:
 
 import irc.client
 import pytest
+import jaraco.timing
 
 import pmxbot.dictlib
 
@@ -105,9 +107,7 @@ class PmxbotHarness(object):
 
 	@classmethod
 	def wait_for_tables(cls, timeout=30):
-		import jaraco.util.timing
-		import datetime
-		watch = jaraco.util.timing.Stopwatch()
+		watch = jaraco.timing.Stopwatch()
 		while watch.split() < datetime.timedelta(seconds=timeout):
 			try:
 				cls.check_logs('#check')
