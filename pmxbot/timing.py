@@ -1,5 +1,4 @@
 # copied from jaraco.util.timing
-from __future__ import unicode_literals
 
 import datetime
 

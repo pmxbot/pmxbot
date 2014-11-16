@@ -1,7 +1,5 @@
 # vim:ts=4:sw=4:noexpandtab
 
-from __future__ import absolute_import
-
 import threading
 import random
 import logging

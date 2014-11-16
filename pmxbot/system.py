@@ -2,8 +2,6 @@
 System commands
 """
 
-from __future__ import unicode_literals
-
 import sys
 import operator
 import io

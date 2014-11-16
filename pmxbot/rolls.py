@@ -2,8 +2,6 @@
 Support for rolls, leave and join events (i.e. Roll Call).
 """
 
-from __future__ import absolute_import
-
 import datetime
 
 import pmxbot
