@@ -15,7 +15,6 @@ except ImportError:
 
 try:
 	import pymongo
-	import bson
 except ImportError:
 	pass
 
