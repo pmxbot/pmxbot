@@ -5,11 +5,7 @@ import calendar
 import datetime
 import textwrap
 import cgi
-
-try:
-	import urllib.parse as urllib_parse
-except ImportError:
-	import urlparse as urllib_parse
+import urllib.parse
 
 from py31compat.functools import lru_cache
 
@@ -324,7 +320,7 @@ def _init_config():
 		config['web_base'] = config.web_base.rstrip('/')
 	if 'logo' not in config:
 		web_base = config.web_base or '/'
-		config['logo'] = urllib_parse.urljoin(web_base, 'pmxbot.png')
+		config['logo'] = urllib.parse.urljoin(web_base, 'pmxbot.png')
 
 
 def startup(config):

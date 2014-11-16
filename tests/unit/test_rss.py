@@ -1,9 +1,6 @@
 from __future__ import unicode_literals
 
-try:
-	import urllib.parse as urllib_parse
-except ImportError:
-	import urlparse as urllib_parse
+import urllib.parse
 
 import pytest
 import feedparser
@@ -68,7 +65,7 @@ class TestFeedHistory(object):
 @pytest.has_internet
 def test_format_entry():
 	bitbucket = 'https://bitbucket.org'
-	feed_url = urllib_parse.urljoin(bitbucket, '/yougov/pmxbot/rss')
+	feed_url = urllib.parse.urljoin(bitbucket, '/yougov/pmxbot/rss')
 	res = feedparser.parse(feed_url)
 	entry = res['entries'][0]
 	pmxbot.rss.RSSFeeds.format_entry(entry)

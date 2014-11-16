@@ -3,10 +3,7 @@ import itertools
 import importlib
 import logging
 import threading
-try:
-	import urllib.parse as urllib_parse
-except ImportError:
-	import urlparse as urllib_parse
+import urllib.parse
 
 try:
 	import sqlite3 as sqlite
@@ -42,7 +39,7 @@ class SelectableStorage(object):
 	@classmethod
 	def uri_matches(cls, uri):
 		super_matches = super(SelectableStorage, cls).uri_matches(uri)
-		return (urllib_parse.urlparse(uri).scheme == cls.scheme or super_matches)
+		return (urllib.parse.urlparse(uri).scheme == cls.scheme or super_matches)
 
 	@classmethod
 	def migrate(cls, source_uri, dest_uri):
@@ -77,7 +74,7 @@ class SQLiteStorage(Storage, threading.local):
 	def __init__(self, uri):
 		importlib.import_module('sqlite3')
 		self.uri = uri
-		self.filename = urllib_parse.urlparse(uri).path
+		self.filename = urllib.parse.urlparse(uri).path
 		self.db = sqlite.connect(self.filename, isolation_level=None, timeout=20.0)
 		self.init_tables()
 

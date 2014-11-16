@@ -6,11 +6,7 @@ import sys
 import time
 import sqlite3
 import datetime
-
-try:
-	import urllib.parse as urllib_parse
-except ImportError:
-	import urlparse as urllib_parse
+import urllib.parse
 
 import irc.client
 import pytest
@@ -56,7 +52,7 @@ class PmxbotHarness(object):
 		path = os.path.dirname(os.path.abspath(__file__))
 		cls.config_fn = os.path.join(path, 'testconf.yaml')
 		cls.config.to_yaml(cls.config_fn)
-		cls.dbfile = urllib_parse.urlparse(cls.config['database']).path
+		cls.dbfile = urllib.parse.urlparse(cls.config['database']).path
 		cls.db = sqlite3.connect(cls.dbfile)
 		env = os.environ.copy()
 		# copy the current sys.path to PYTHONPATH so subprocesses have access
