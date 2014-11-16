@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # vim:ts=4:sw=4:noexpandtab
 # c-basic-indent: 4; tab-width: 4; indent-tabs-mode: true;
 
