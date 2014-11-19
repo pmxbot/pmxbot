@@ -31,13 +31,25 @@ class Karma(storage.SelectableStorage):
 class SQLiteKarma(Karma, storage.SQLiteStorage):
 	def init_tables(self):
 		CREATE_KARMA_VALUES_TABLE = '''
-			CREATE TABLE IF NOT EXISTS karma_values (karmaid INTEGER NOT NULL, karmavalue INTEGER, primary key (karmaid))
+			CREATE TABLE IF NOT EXISTS karma_values (
+				karmaid INTEGER NOT NULL,
+				karmavalue INTEGER,
+				primary key (karmaid)
+			)
 		'''
 		CREATE_KARMA_KEYS_TABLE = '''
-			CREATE TABLE IF NOT EXISTS karma_keys (karmakey varchar, karmaid INTEGER, primary key (karmakey))
+			CREATE TABLE IF NOT EXISTS karma_keys (
+				karmakey varchar,
+				karmaid INTEGER,
+				primary key (karmakey)
+			)
 		'''
 		CREATE_KARMA_LOG_TABLE = '''
-			CREATE TABLE IF NOT EXISTS karma_log (karmakey varchar, logid INTEGER, change INTEGER)
+			CREATE TABLE IF NOT EXISTS karma_log (
+				karmakey varchar,
+				logid INTEGER,
+				change INTEGER
+			)
 		'''
 		self.db.execute(CREATE_KARMA_VALUES_TABLE)
 		self.db.execute(CREATE_KARMA_KEYS_TABLE)
