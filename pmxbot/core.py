@@ -151,6 +151,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		self._channels = channels
 		self._nickname = nickname
 		self.warn_history = WarnHistory()
+		self._scheduled_tasks = set()
 
 	def connect(self, *args, **kwargs):
 		factory = irc.connection.Factory()
@@ -192,6 +193,10 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			log.exception("Unhandled exception transmitting message: %r", msg)
 
 	def _schedule_at(self, conn, name, channel, when, func, args, doc):
+		unique_task = (func, tuple(args), name, channel, when, doc)
+		if unique_task in self._scheduled_tasks:
+			return
+		self._scheduled_tasks.add(unique_task)
 		runner_func = functools.partial(self.background_runner, conn, channel, func, args)
 		if isinstance(when, datetime.date):
 			midnight = datetime.time(0, 0)
