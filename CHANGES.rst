@@ -5,6 +5,11 @@
   invocations of ``_schedule_at``. This prevents duplicate scheduled
   notifications on systems such as Slack.
 
+1110.2
+======
+
+* Bump requirement on ``irc`` 10.
+
 1110.1
 ======
 
