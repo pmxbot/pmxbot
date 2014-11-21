@@ -1,3 +1,10 @@
+1110.3
+======
+
+* Scheduled commands with the same arguments are now suppressed on subsequent
+  invocations of ``_schedule_at``. This prevents duplicate scheduled
+  notifications on systems such as Slack.
+
 1110.1
 ======
 
