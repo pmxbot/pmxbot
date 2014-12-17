@@ -35,8 +35,10 @@ def get_context():
 		name=c.bot_nickname,
 		config=c,
 		base=c.web_base,
-		logo=c.logo
+		logo=c.logo,
 	)
+	if 'web byline' in c:
+		d['byline'] = c['web byline']
 	return d
 
 
