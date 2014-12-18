@@ -28,8 +28,11 @@ def plaintext(html):
 @command(aliases='g')
 def google(client, event, channel, nick, rest):
 	"Look up a phrase on google"
-	BASE_URL = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&'
-	params = {'q': rest.encode('utf-8').strip()}
+	BASE_URL = 'http://ajax.googleapis.com/ajax/services/search/web?'
+	params = dict(
+		v='1.0',
+		q=rest.encode('utf-8').strip(),
+	)
 	url = BASE_URL + urllib.parse.urlencode(params)
 	raw_res = urllib.request.urlopen(url).read()
 	results = json.loads(raw_res.decode('utf-8'))
