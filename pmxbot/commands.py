@@ -1,9 +1,7 @@
 # vim:ts=4:sw=4:noexpandtab
 
 import sys
-import json
 import re
-import functools
 import random
 import csv
 import urllib.parse
