@@ -12,6 +12,7 @@ except ImportError:
 
 try:
 	import pymongo
+	bson = importlib.import_module('bson')
 except ImportError:
 	pass
 
