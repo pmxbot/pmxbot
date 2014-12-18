@@ -14,7 +14,6 @@ import pprint
 import re
 import numbers
 
-import six
 import irc.bot
 import irc.client
 import irc.schedule
@@ -60,7 +59,7 @@ class WarnHistory(dict):
 			connection.notice(nick, line)
 
 
-class AugmentableMessage(six.text_type):
+class AugmentableMessage(str):
 	"""
 	A text string which may be augmented with attributes
 
@@ -140,7 +139,7 @@ class NoLog(Sentinel):
 		return dict(secret=True)
 
 
-class SwitchChannel(six.text_type, Sentinel):
+class SwitchChannel(str, Sentinel):
 	"A sentinel indicating a new channel for subsequent messages."
 
 	def __new__(cls, other):
@@ -251,7 +250,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		period = pmxbot.config['TCP keepalive']
 		if isinstance(period, numbers.Number):
 			period = datetime.timedelta(seconds=period)
-		if isinstance(period, six.string_types):
+		if isinstance(period, str):
 			period = dateutil.parse_timedelta(period)
 		log.info("Setting keepalive for %s", period)
 		pinger = functools.partial(connection.ping, 'keep-alive')
@@ -528,7 +527,7 @@ class RegexpHandler(ContainsHandler):
 
 	def __init__(self, *args, **kwargs):
 		super(RegexpHandler, self).__init__(*args, **kwargs)
-		if isinstance(self.pattern, six.string_types):
+		if isinstance(self.pattern, str):
 			self.pattern = re.compile(self.pattern, re.IGNORECASE)
 
 	def match(self, message, channel):
@@ -604,7 +603,7 @@ class ConfigMergeAction(argparse.Action):
 		def merge_dicts(a, b):
 			a.update(b)
 			return a
-		setattr(namespace, self.dest, six.moves.reduce(merge_dicts, values))
+		setattr(namespace, self.dest, functools.reduce(merge_dicts, values))
 
 
 def get_args(*args, **kwargs):
@@ -626,7 +625,7 @@ def run():
 
 def _setup_logging():
 	log_level = pmxbot.config['log level']
-	if isinstance(log_level, six.string_types):
+	if isinstance(log_level, str):
 		log_level = getattr(logging, log_level.upper())
 	logging.basicConfig(level=log_level, format="%(message)s")
 

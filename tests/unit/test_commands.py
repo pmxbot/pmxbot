@@ -2,7 +2,6 @@ import re
 import os
 import uuid
 
-import six
 import pytest
 
 import pmxbot.dictlib
@@ -374,7 +373,7 @@ class TestCommands(object):
 		Test the dictionary with the word keyboard.
 		"""
 		res = commands.define(c, e, "#test", "testrunner", "keyboard")
-		assert isinstance(res, six.text_type)
+		assert isinstance(res, str)
 		assert res == ("Wordnik says: A set of keys, as on a computer terminal, word processor, typewriter, or piano.")
 
 	@pytest.has_wordnik
@@ -383,7 +382,7 @@ class TestCommands(object):
 		Test the dictionary with the word IRC.
 		"""
 		res = commands.define(c, e, "#test", "testrunner", "  IRC \t")
-		assert isinstance(res, six.text_type)
+		assert isinstance(res, str)
 		assert res == (
 			"Wordnik says: An international computer network of "
 			"Internet servers, using its own protocol through which "
@@ -395,7 +394,7 @@ class TestCommands(object):
 		Test the dictionary with a nonsense word.
 		"""
 		res = commands.define(c, e, "#test", "testrunner", "notaword")
-		assert isinstance(res, six.text_type)
+		assert isinstance(res, str)
 		assert res == "Wordnik does not have a definition for that."
 
 	@pytest.has_internet
@@ -472,7 +471,7 @@ class TestCommands(object):
 		res = commands.rand_bot(c, e, '#test', 'testrunner', '')
 		if res is None:
 			return
-		if not isinstance(res, six.string_types):
+		if not isinstance(res, str):
 			res = ''.join(res)
 		assert len(res)
 

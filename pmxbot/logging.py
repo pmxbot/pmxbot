@@ -4,9 +4,9 @@ import datetime
 import itertools
 import struct
 import traceback
+import urllib.parse
 
 import pytz
-import six
 from jaraco.util.context import ExceptionTrap
 from more_itertools import recipes
 
@@ -425,7 +425,7 @@ def logs(client, event, channel, nick, rest):
 	base = pmxbot.config.get('logs URL')
 	logged_channel = channel in pmxbot.config.log_channels
 	path = '/channel/' + channel.lstrip('#') if logged_channel else '/'
-	return six.moves.urllib.parse.urljoin(base, path)
+	return urllib.parse.urljoin(base, path)
 
 
 @command()

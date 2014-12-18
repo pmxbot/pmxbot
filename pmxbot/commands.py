@@ -6,8 +6,8 @@ import re
 import functools
 import random
 import csv
+import urllib.parse
 
-from six.moves import urllib
 import pkg_resources
 from bs4 import BeautifulSoup
 import requests

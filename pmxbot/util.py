@@ -5,7 +5,6 @@ import re
 import warnings
 import itertools
 
-import six
 import requests
 import bs4
 import jaraco.util.functools
@@ -38,7 +37,7 @@ def wchoice(d):
 	target = random.random() * total
 	# elect the first item which pushes the count over target
 	count = 0
-	for word, proportion in six.iteritems(d):
+	for word, proportion in d.items():
 		count += proportion
 		if count > target:
 			return word
@@ -117,7 +116,7 @@ def lookup(word):
 	if not definitions:
 		return
 	definition = definitions[0]
-	return six.text_type(definition.text)
+	return str(definition.text)
 lookup.provider = 'Wordnik'
 
 
