@@ -49,6 +49,7 @@ def suppress_exceptions(callables, exceptions=Exception):
 	Suppress supplied exceptions (tuple or single exception)
 	encountered when a callable is invoked.
 	>>> five_over_n = lambda n: 5//n
+	>>> import functools
 	>>> callables = (functools.partial(five_over_n, n) for n in range(-3,3))
 	>>> safe_results = suppress_exceptions(callables, ZeroDivisionError)
 	>>> tuple(safe_results)
