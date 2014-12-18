@@ -37,6 +37,8 @@ def google(client, event, channel, nick, rest):
 	resp = requests.get(url)
 	resp.raise_for_status()
 	results = resp.json()
+	if not results['responseData']:
+		raise RuntimeError(results['responseDetails'])
 	hit1 = results['responseData']['results'][0]
 	return ' - '.join((
 		urllib.parse.unquote(hit1['url']),
