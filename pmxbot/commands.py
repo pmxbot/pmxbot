@@ -31,11 +31,12 @@ def google(client, event, channel, nick, rest):
 	BASE_URL = 'http://ajax.googleapis.com/ajax/services/search/web?'
 	params = dict(
 		v='1.0',
-		q=rest.encode('utf-8').strip(),
+		q=rest.strip(),
 	)
 	url = BASE_URL + urllib.parse.urlencode(params)
-	raw_res = urllib.request.urlopen(url).read()
-	results = json.loads(raw_res.decode('utf-8'))
+	resp = requests.get(url)
+	resp.raise_for_status()
+	results = resp.json()
 	hit1 = results['responseData']['results'][0]
 	return ' - '.join((
 		urllib.parse.unquote(hit1['url']),
