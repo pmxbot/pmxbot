@@ -232,9 +232,8 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		# get rid of 'the last !strike' too!
 		limit = count + 1
 		# don't delete anything beyond the past 18 hours
-		date_limit = storage.bson.objectid.ObjectId.from_datetime(
-			datetime.datetime.utcnow() - datetime.timedelta(hours=18)
-		)
+		cutoff = datetime.datetime.utcnow() - datetime.timedelta(hours=18)
+		date_limit = storage.bson.objectid.ObjectId.from_datetime(cutoff)
 		query = dict(channel=channel, nick=nick, _id={'$gt': date_limit})
 		cursor = self.db.find(query).sort('_id', storage.pymongo.DESCENDING)
 		cursor = cursor.limit(limit)
