@@ -56,6 +56,7 @@ class TestCommands(object):
 		path = os.path.dirname(os.path.abspath(__file__))
 		os.remove(os.path.join(path, 'pmxbot.sqlite'))
 
+	@pytest.mark.xfail(reason="https://bitbucket.org/yougov/pmxbot/issue/38")
 	@pytest.has_internet
 	def test_google(self):
 		"""
