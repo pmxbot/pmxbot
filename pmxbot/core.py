@@ -49,6 +49,14 @@ class WarnHistory(dict):
 	def _expired(self, last, now):
 		return now - last > self.warn_every
 
+	def warn(self, nick, connection):
+		if not self.needs_warning(nick):
+			return
+		msg = self.warn_message.format(
+			logged_channels_string=', '.join(pmxbot.config.log_channels))
+		for line in msg.splitlines():
+			connection.notice(nick, line)
+
 
 class AugmentableMessage(six.text_type):
 	"""
@@ -264,12 +272,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			return
 		if nick == self._nickname:
 			return
-		if not self.warn_history.needs_warning(nick):
-			return
-		msg = self.warn_history.warn_message.format(
-			logged_channels_string=', '.join(pmxbot.config.log_channels))
-		for line in msg.splitlines():
-			connection.notice(nick, line)
+		self.warn_history.warn(nick, connection)
 
 	def on_leave(self, connection, event):
 		nick = event.source.nick
