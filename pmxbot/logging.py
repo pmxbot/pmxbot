@@ -384,7 +384,7 @@ class FullTextMongoDBLogger(MongoDBLogger):
 		return self._generate_search_results(docs)
 
 
-@command(aliases=())
+@command()
 def strike(client, event, channel, nick, rest):
 	"Strike last <n> statements from the record"
 	yield NoLog
