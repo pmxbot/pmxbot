@@ -50,6 +50,8 @@ class WarnHistory(dict):
 		return now - last > self.warn_every
 
 	def warn(self, nick, connection):
+		if pmxbot.config.get('privacy warning') == 'suppress':
+			return
 		if not self.needs_warning(nick):
 			return
 		logged_channels_string = ', '.join(pmxbot.config.log_channels)
