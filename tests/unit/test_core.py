@@ -7,7 +7,7 @@ from mock import MagicMock, call, patch
 from pmxbot.core import LoggingCommandBot
 
 
-class DelayedCommandMatch(object):
+class DelayedCommandMatch:
     def __eq__(self, other):
         return isinstance(other, DelayedCommand)
 

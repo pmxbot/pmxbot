@@ -21,7 +21,7 @@ def pytest_generate_tests(metafunc):
 			metafunc.addcall(funcargs=dict(iter_=i))
 
 
-class Empty(object):
+class Empty:
 	"""
 	Passed in to the individual commands instead of a client/event because
 	we don't normally care about them
@@ -41,7 +41,7 @@ def onetrue(*args):
 	return len(truthiness) == 1
 
 
-class TestCommands(object):
+class TestCommands:
 	@classmethod
 	def setup_class(cls):
 		path = os.path.dirname(os.path.abspath(__file__))

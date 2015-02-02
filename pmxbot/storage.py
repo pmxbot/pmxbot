@@ -21,7 +21,7 @@ from jaraco.util.classutil import itersubclasses
 log = logging.getLogger(__name__)
 
 
-class SelectableStorage(object):
+class SelectableStorage:
 	"""
 	A mix-in for storage classes which will construct a suitable subclass based
 	on the URI.
@@ -58,7 +58,7 @@ class SelectableStorage(object):
 				log.exception("Error in finalizer %s", finalizer)
 
 
-class Storage(object):
+class Storage:
 	@classmethod
 	@abc.abstractmethod
 	def uri_matches(cls, uri):

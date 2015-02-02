@@ -79,7 +79,7 @@ class AugmentableMessage(str):
 		self.__dict__.update(**kwargs)
 
 
-class Sentinel(object):
+class Sentinel:
 	"""
 	A base Sentinel object which can be injected into a series of messages to
 	alter the properties of subsequent messages.
@@ -403,7 +403,7 @@ _join_registry = []
 _leave_registry = []
 
 
-class Handler(object):
+class Handler:
 	_registry = []
 
 	class_priority = 1

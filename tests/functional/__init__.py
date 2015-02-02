@@ -13,7 +13,7 @@ import jaraco.timing
 import pmxbot.dictlib
 
 
-class TestingClient(object):
+class TestingClient:
 	"""
 	A simple client simulating a user other than the pmxbot
 	"""
@@ -35,7 +35,7 @@ class TestingClient(object):
 		time.sleep(0.05)
 
 
-class PmxbotHarness(object):
+class PmxbotHarness:
 	config = pmxbot.dictlib.ConfigDict(
 		server_port=6668,
 		bot_nickname='pmxbotTest',

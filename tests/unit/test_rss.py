@@ -20,7 +20,7 @@ def history(db_uri, request):
 	return history
 
 
-class TestFeedHistory(object):
+class TestFeedHistory:
 
 	@pytest.mark.parametrize('entry', sample_feed_entries)
 	def test_add_seen_feed(self, history, entry):

@@ -1,7 +1,7 @@
 from pmxbot import logging
 
 
-class TestMongoDBLogging(object):
+class TestMongoDBLogging:
 	def setup_logging(self, mongodb_uri):
 		logger = logging.Logger.from_URI(mongodb_uri)
 		logger.db = logger.db.database.connection[

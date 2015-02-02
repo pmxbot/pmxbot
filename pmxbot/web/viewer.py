@@ -76,7 +76,7 @@ def pday(dayfmt):
 	)
 
 
-class ChannelPage(object):
+class ChannelPage:
 	month_ordinal = dict(
 		(calendar.month_name[m_ord], m_ord)
 		for m_ord in range(1, 13)
@@ -117,7 +117,7 @@ class ChannelPage(object):
 		return year, month_ord
 
 
-class DayPage(object):
+class DayPage:
 	@cherrypy.expose
 	def default(self, channel, day):
 		page = jenv.get_template('day.html')
@@ -145,7 +145,7 @@ class DayPage(object):
 		return page.render(**context).encode('utf-8')
 
 
-class KarmaPage(object):
+class KarmaPage:
 	@cherrypy.expose
 	def default(self, term=""):
 		page = jenv.get_template('karma.html')
@@ -175,7 +175,7 @@ class KarmaPage(object):
 		]
 
 
-class SearchPage(object):
+class SearchPage:
 	@cherrypy.expose
 	def default(self, term=''):
 		page = jenv.get_template('search.html')
@@ -196,7 +196,7 @@ class SearchPage(object):
 		return page.render(**context).encode('utf-8')
 
 
-class HelpPage(object):
+class HelpPage:
 
 	@cherrypy.expose
 	def default(self):
@@ -270,7 +270,7 @@ class LegacyPage():
 		)
 
 
-class PmxbotPages(object):
+class PmxbotPages:
 	channel = ChannelPage()
 	day = DayPage()
 	karma = KarmaPage()

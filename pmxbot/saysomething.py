@@ -88,7 +88,7 @@ def paragraph_from_words(words):
 	return ' '.join(result)
 
 
-class FastSayer(object):
+class FastSayer:
 	@classmethod
 	def init_in_thread(cls):
 		threading.Thread(target=cls.init_class).start()

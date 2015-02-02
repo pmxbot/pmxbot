@@ -7,7 +7,7 @@ import pytest
 from pmxbot import karma
 
 
-class TestMongoDBKarma(object):
+class TestMongoDBKarma:
 	def setup_karma(self, mongodb_uri):
 		k = karma.Karma.from_URI(mongodb_uri)
 		k.db = k.db.database.connection[
@@ -67,7 +67,7 @@ class TestMongoDBKarma(object):
 		assert k.lookup('foo') == k.lookup('bar') == 100
 
 
-class TestSQLiteKarma(object):
+class TestSQLiteKarma:
 	finalizers = []
 
 	@classmethod
