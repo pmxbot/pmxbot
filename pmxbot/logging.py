@@ -423,7 +423,7 @@ def where(client, event, channel, nick, rest):
 def logs(client, event, channel, nick, rest):
 	"Where can one find the logs?"
 	base = pmxbot.config.get('logs URL')
-	logged_channel = channel in pmxbot.config.log_channels
+	logged_channel = channel in pmxbot.config['log channels']
 	path = '/channel/' + channel.lstrip('#') if logged_channel else '/'
 	return urllib.parse.urljoin(base, path)
 
@@ -438,7 +438,7 @@ def log(client, event, channel, nick, rest):
 	if 'please' not in words:
 		return
 	include = 'stop' not in rest
-	existing = set(pmxbot.config.log_channels)
+	existing = set(pmxbot.config['log channels'])
 	# add the channel if include, otherwise remove the channel
 	op = existing.union if include else existing.difference
-	pmxbot.config.log_channels = list(op([channel]))
+	pmxbot.config['log channels'][:] = list(op([channel]))

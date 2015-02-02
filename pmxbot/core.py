@@ -24,6 +24,7 @@ from jaraco.util.itertools import always_iterable
 import pmxbot.itertools
 import pmxbot.dictlib
 import pmxbot.buffer
+import pmxbot.channels
 
 log = logging.getLogger('pmxbot')
 
@@ -53,7 +54,7 @@ class WarnHistory(dict):
 			return
 		if not self.needs_warning(nick):
 			return
-		logged_channels_string = ', '.join(pmxbot.config.log_channels)
+		logged_channels_string = ', '.join(pmxbot.config['log channels'])
 		msg = self.warn_message.format(**locals())
 		for line in msg.splitlines():
 			connection.notice(nick, line)
@@ -171,7 +172,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		sent = self._out(self._conn, channel, s)
 		log &= (
 			channel in self._channels
-			and channel in pmxbot.config.log_channels
+			and channel in pmxbot.config['log channels']
 			and not s.startswith('/me ')
 		)
 		if sent and log:
@@ -269,7 +270,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 					file=sys.stderr)
 				traceback.print_exc()
 
-		if channel not in pmxbot.config.log_channels:
+		if channel not in pmxbot.config['log channels']:
 			return
 		if nick == self._nickname:
 			return
@@ -294,7 +295,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			return
 		nick = event.source.nick
 		channel = event.target
-		if channel in pmxbot.config.log_channels:
+		if channel in pmxbot.config['log channels']:
 			pmxbot.logging.Logger.store.message(channel, nick, msg)
 		self.handle_action(connection, event, channel, nick, msg)
 
@@ -469,10 +470,10 @@ class ContainsHandler(Handler):
 			not self.channels and not self.exclude
 			or channel in self.channels
 			or self.exclude and channel not in self.exclude
-			or self.channels == "logged" and channel in pmxbot.config.log_channels
-			or self.channels == "unlogged" and channel not in pmxbot.config.log_channels
-			or self.exclude == "logged" and channel not in pmxbot.config.log_channels
-			or self.exclude == "unlogged" and channel in pmxbot.config.log_channels
+			or self.channels == "logged" and channel in pmxbot.config['log channels']
+			or self.channels == "unlogged" and channel not in pmxbot.config['log channels']
+			or self.exclude == "logged" and channel not in pmxbot.config['log channels']
+			or self.exclude == "unlogged" and channel in pmxbot.config['log channels']
 		)
 
 	def _rate_match(self):
@@ -643,14 +644,15 @@ def initialize(config):
 
 	class_ = SilentCommandBot if config.silent_bot else LoggingCommandBot
 
-	channels = config.log_channels + config.other_channels
-
 	log.info('Running with config')
 	log.info(pprint.pformat(config))
 
+	pmxbot.channels.ChannelList.initialize()
+
 	return class_(
-		config.server_host, config.server_port,
-		config.bot_nickname, channels=channels, password=config.password)
+		config.server_host, config.server_port, config.bot_nickname,
+		channels=config['member channels'], password=config.password
+	)
 
 
 def _load_library_extensions():
