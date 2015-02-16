@@ -1,4 +1,5 @@
 import abc
+import json
 
 import pmxbot
 from pmxbot import storage
@@ -65,3 +66,43 @@ class ChannelList(storage.SelectableStorage, list):
 	def insert(self, *args, **kwargs):
 		super().insert(*args, **kwargs)
 		self.save()
+
+
+class SQLiteChannels(ChannelList, storage.SQLiteStorage):
+
+	def init_tables(self):
+		CREATE_SQL = '''
+		CREATE TABLE IF NOT EXISTS channels (
+			aspect VARCHAR NOT NULL,
+			items VARCHAR NOT NULL,
+			PRIMARY KEY (aspect) )
+		'''
+		self.db.execute(CREATE_SQL)
+		self.db.commit()
+
+	def load(self):
+		SQL = 'SELECT items FROM channels WHERE aspect = ?'
+		res = next(self.db.execute(SQL, [self.aspect]), None)
+		if not res:
+			return
+		items, = res
+		self[:] = json.loads(items)
+
+	def save(self):
+		SQL = "INSERT or REPLACE INTO channels (aspect, items) values (?, ?)"
+		self.db.execute(SQL, [self.aspect, json.dumps(self)])
+
+
+class MongoDBChannels(ChannelList, storage.MongoDBStorage):
+	collection_name = 'channels'
+
+	def load(self):
+		spec = dict(aspect=self.aspect)
+		doc = self.db.find_one(spec) or {}
+		self[:] = doc.get('items', [])
+
+	def save(self):
+		spec = dict(aspect=self.aspect)
+		doc = dict(spec)
+		doc.update(items=self)
+		self.db.update(spec, doc, upsert=True)
