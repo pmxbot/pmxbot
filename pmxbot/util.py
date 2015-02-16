@@ -7,7 +7,7 @@ import itertools
 
 import requests
 import bs4
-import jaraco.util.functools
+import jaraco.functools
 import backports.method_request
 
 try:
@@ -146,7 +146,7 @@ def lookup_acronym(acronym, limit=3):
 	return [node.text for node in itertools.islice(nodes, limit)]
 
 
-@jaraco.util.functools.once
+@jaraco.functools.once
 def load_emergency_compliments():
 	compurl = (
 		'https://spreadsheets.google.com/feeds/list/'

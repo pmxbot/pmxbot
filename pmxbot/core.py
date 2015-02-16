@@ -18,8 +18,8 @@ import irc.bot
 import irc.client
 import irc.schedule
 import pkg_resources
-from jaraco import dateutil
-from jaraco.util.itertools import always_iterable
+import tempora
+from jaraco.itertools import always_iterable
 
 import pmxbot.itertools
 import pmxbot.dictlib
@@ -251,7 +251,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		if isinstance(period, numbers.Number):
 			period = datetime.timedelta(seconds=period)
 		if isinstance(period, str):
-			period = dateutil.parse_timedelta(period)
+			period = tempora.parse_timedelta(period)
 		log.info("Setting keepalive for %s", period)
 		pinger = functools.partial(connection.ping, 'keep-alive')
 		connection.execute_every(period, pinger)

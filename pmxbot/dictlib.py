@@ -1,5 +1,5 @@
 import yaml
-from jaraco.util.dictlib import ItemsAsAttributes
+from jaraco.collections import ItemsAsAttributes
 
 
 class ConfigDict(ItemsAsAttributes, dict):

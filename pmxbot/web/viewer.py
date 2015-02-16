@@ -11,7 +11,7 @@ import cherrypy
 import pkg_resources
 import jinja2.loaders
 import pytz
-from jaraco.util.numbers import ordinalth as th_it
+import inflect
 
 import pmxbot.core
 import pmxbot.logging
@@ -72,7 +72,7 @@ def pday(dayfmt):
 	year, month, day = map(int, dayfmt.split('-'))
 	return '{day} the {number}'.format(
 		day=calendar.day_name[calendar.weekday(year, month, day)],
-		number=th_it(day),
+		number=inflect.engine().ordinal(day),
 	)
 
 

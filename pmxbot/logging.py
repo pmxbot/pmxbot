@@ -7,7 +7,7 @@ import traceback
 import urllib.parse
 
 import pytz
-from jaraco.util.context import ExceptionTrap
+from jaraco.context import ExceptionTrap
 from more_itertools import recipes
 
 import pmxbot

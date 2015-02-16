@@ -1,4 +1,4 @@
-from jaraco.util.itertools import always_iterable
+from jaraco.itertools import always_iterable
 
 
 def generate_results(function):

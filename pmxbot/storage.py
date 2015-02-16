@@ -16,7 +16,7 @@ try:
 except ImportError:
 	pass
 
-from jaraco.util.classutil import itersubclasses
+from jaraco.classes.ancestry import iter_subclasses
 
 log = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ class SelectableStorage:
 
 	@classmethod
 	def from_URI(cls, URI):
-		candidates = reversed(list(itersubclasses(cls)))
+		candidates = reversed(list(iter_subclasses(cls)))
 		if hasattr(cls, 'scheme'):
 			candidates = itertools.chain([cls], candidates)
 		matches = (cls for cls in candidates if cls.uri_matches(URI))
