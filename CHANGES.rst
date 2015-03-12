@@ -1,4 +1,4 @@
-1110.4
+1110.7
 ======
 
 * Linking karma values will now always create both names in the
