@@ -1,3 +1,9 @@
+1110.4
+======
+
+* Linking karma values will now always create both names in the
+  Karma database if they don't already exist.
+
 1110.3
 ======
 
