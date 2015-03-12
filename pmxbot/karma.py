@@ -28,10 +28,17 @@ class Karma(storage.SelectableStorage):
 		del cls.store
 
 	def link(self, thing1, thing2):
+		"""
+		Link thing1 and thing2, adding the karma of each into
+		a single entry.
+		If any thing does not exist, it is created.
+		"""
 		thing1 = thing1.strip().lower()
 		thing2 = thing2.strip().lower()
 		if thing1 == thing2:
 			raise SameName("Attempted to link two of the same name")
+		self.change(thing1, 0)
+		self.change(thing2, 0)
 		return self._link(thing1, thing2)
 
 
@@ -118,15 +125,9 @@ class SQLiteKarma(Karma, storage.SQLiteStorage):
 
 	def _link(self, thing1, thing2):
 		GET_KARMAID_SQL = 'SELECT karmaid FROM karma_keys WHERE karmakey = ?'
-		try:
-			t1id = self.db.execute(GET_KARMAID_SQL, [thing1]).fetchone()[0]
-		except TypeError:
-			raise KeyError(thing1)
+		t1id = self.db.execute(GET_KARMAID_SQL, [thing1]).fetchone()[0]
 		t1value = self.lookup(thing1)
-		try:
-			t2id = self.db.execute(GET_KARMAID_SQL, [thing2]).fetchone()[0]
-		except TypeError:
-			raise KeyError(thing2)
+		t2id = self.db.execute(GET_KARMAID_SQL, [thing2]).fetchone()[0]
 		if t1id == t2id:
 			raise AlreadyLinked("Those two are already linked")
 		t2value = self.lookup(thing2)
@@ -199,17 +200,12 @@ class MongoDBKarma(Karma, storage.MongoDBStorage):
 		rec = self.db.find_one({'names': thing2})
 		if thing1 in rec['names']:
 			raise AlreadyLinked("Those two are already linked")
-		if not rec:
-			raise KeyError(thing2)
-		try:
-			query = {'names': thing1}
-			update = {
-				'$inc': {'value': rec['value']},
-				'$pushAll': {'names': rec['names']},
-			}
-			self.db.update(query, update, safe=True)
-		except Exception:
-			raise KeyError(thing1)
+		query = {'names': thing1}
+		update = {
+			'$inc': {'value': rec['value']},
+			'$pushAll': {'names': rec['names']},
+		}
+		self.db.update(query, update, safe=True)
 		self.db.remove(rec)
 
 	def search(self, term):
