@@ -250,7 +250,7 @@ class MongoDBKarma(Karma, storage.MongoDBStorage):
 				self.db.remove(duplicate)
 
 
-@command(aliases=("k",))
+@command(aliases="k")
 def karma(client, event, channel, nick, rest):
 	"Return or change the karma value for some(one|thing)"
 	karmee = rest.strip('++').strip('--').strip('~~')
