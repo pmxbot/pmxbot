@@ -3,6 +3,7 @@
 
 * Linking karma values will now always create both names in the
   Karma database if they don't already exist.
+* Fixed broken stock quotes.
 
 1110.3
 ======
