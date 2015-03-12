@@ -27,6 +27,13 @@ class Karma(storage.SelectableStorage):
 	def finalize(cls):
 		del cls.store
 
+	def link(self, thing1, thing2):
+		thing1 = thing1.strip().lower()
+		thing2 = thing2.strip().lower()
+		if thing1 == thing2:
+			raise SameName("Attempted to link two of the same name")
+		return self._link(thing1, thing2)
+
 
 class SQLiteKarma(Karma, storage.SQLiteStorage):
 	def init_tables(self):
@@ -109,9 +116,7 @@ class SQLiteKarma(Karma, storage.SQLiteStorage):
 			keysandkarma.append((keys, value))
 		return keysandkarma
 
-	def link(self, thing1, thing2):
-		if thing1 == thing2:
-			raise SameName("Attempted to link two of the same name")
+	def _link(self, thing1, thing2):
 		GET_KARMAID_SQL = 'SELECT karmaid FROM karma_keys WHERE karmakey = ?'
 		try:
 			t1id = self.db.execute(GET_KARMAID_SQL, [thing1]).fetchone()[0]
@@ -190,11 +195,7 @@ class MongoDBKarma(Karma, storage.MongoDBStorage):
 			for rec in selected
 		]
 
-	def link(self, thing1, thing2):
-		thing1 = thing1.strip().lower()
-		thing2 = thing2.strip().lower()
-		if thing1 == thing2:
-			raise SameName("Attempted to link two of the same name")
+	def _link(self, thing1, thing2):
 		rec = self.db.find_one({'names': thing2})
 		if thing1 in rec['names']:
 			raise AlreadyLinked("Those two are already linked")
