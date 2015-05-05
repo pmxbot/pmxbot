@@ -6,4 +6,4 @@ python:
   - 3.4
 # command to run tests
 script:
-  - python setup.py test
+  - python setup.py test --addopts='-rs'
