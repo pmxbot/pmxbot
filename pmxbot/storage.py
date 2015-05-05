@@ -99,7 +99,7 @@ class MongoDBStorage(Storage):
 		importlib.import_module('pymongo')
 		uri_p = pymongo.uri_parser.parse_uri(uri)
 		db_name = uri_p['database'] or 'pmxbot'
-		return pymongo.Connection(uri)[db_name][cls.collection_name]
+		return pymongo.MongoClient(uri)[db_name][cls.collection_name]
 
 
 def migrate_all(source, dest):
