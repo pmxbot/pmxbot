@@ -239,7 +239,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		cursor = cursor.limit(limit)
 		ids_to_delete = [row['_id'] for row in cursor]
 		if ids_to_delete:
-			self.db.remove({'_id': {'$in': ids_to_delete}}, safe=True)
+			self.db.remove({'_id': {'$in': ids_to_delete}})
 		rows_deleted = max(len(ids_to_delete) - 1, 0)
 		return rows_deleted
 
@@ -256,11 +256,11 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		pairs = recipes.pairwise(indexes)
 		skips = (b - a - 1 for a, b in pairs)
 		# scan through the _ids (in the index)
-		cur = self.db.find(fields=['_id']).sort([('_id', 1)])
+		cur = self.db.find(projection=['_id']).sort([('_id', 1)])
 		for skip in skips:
 			recipes.consume(itertools.islice(cur, skip))
 			query = next(cur)
-			yield self.db.find_one(query, fields=['message'])['message']
+			yield self.db.find_one(query, projection=['message'])['message']
 
 	def get_channel_days(self, channel):
 		query = dict(channel=channel)

@@ -166,4 +166,4 @@ class MongoDBFeedparserDB(FeedparserDB, storage.MongoDBStorage):
 
 	def clear(self):
 		"Clear all entries"
-		self.db.remove(safe=True)
+		self.db.remove()

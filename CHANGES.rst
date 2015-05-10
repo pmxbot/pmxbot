@@ -1,3 +1,8 @@
+1111.0
+======
+
+* MongoDB based deployments now require PyMongo 3.
+
 1110.7
 ======
 

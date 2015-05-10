@@ -72,7 +72,7 @@ setup_params = dict(
 		'pytest-runner>=2.1',
 	],
 	tests_require=[
-		'pymongo',
+		'pymongo>=3',
 		'pytest',
 		'jaraco.test>=2.0.4',
 		'mock',
