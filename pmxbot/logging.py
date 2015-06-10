@@ -220,7 +220,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 	def last_seen(self, nick):
 		fields = 'channel',
 		query = dict(nick=nick)
-		cursor = self.db.find(query, fields=fields)
+		cursor = self.db.find(query, projection=fields)
 		cursor = cursor.sort('_id', storage.pymongo.DESCENDING)
 		res = next(cursor, None)
 		return res and [res['_id'].generation_time, res['channel']]
@@ -264,7 +264,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 
 	def get_channel_days(self, channel):
 		query = dict(channel=channel)
-		return self.db.find(query, fields=['datetime.d']).distinct('datetime.d')
+		return self.db.find(query, projection=['datetime.d']).distinct('datetime.d')
 
 	def get_day_logs(self, channel, day):
 		query = {'channel': channel, 'datetime.d': day}

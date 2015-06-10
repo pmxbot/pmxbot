@@ -151,7 +151,7 @@ class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 			log_db = self.db.database.logs
 			logging.Logger.log_id_map = dict(
 				(logging.MongoDBLogger.extract_legacy_id(rec['_id']), rec['_id'])
-				for rec in log_db.find(fields=[])
+				for rec in log_db.find(projection=[])
 			)
 		return logging.Logger.log_id_map
 
