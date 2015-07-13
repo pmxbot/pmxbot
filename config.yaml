@@ -30,4 +30,4 @@ web_host: 0.0.0.0
 #logo: /pmxbot.png
 
 # ping the server every 30 seconds to recover from dropped connections
-TCP Keepalive: 30 seconds
+TCP keepalive: 30 seconds
