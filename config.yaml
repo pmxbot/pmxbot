@@ -1,7 +1,7 @@
 server_host: "irc.freenode.net"
 server_port: 6667
 bot_nickname: pmxbot
-log_channels: 
+log_channels:
     - "#pmxbot"
 other_channels:
     - "#pmxbot2"
@@ -28,3 +28,6 @@ web_base: /
 web_port: 8080
 web_host: 0.0.0.0
 #logo: /pmxbot.png
+
+# ping the server every 30 seconds to recover from dropped connections
+TCP Keepalive: 30 seconds
