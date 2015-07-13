@@ -183,6 +183,13 @@ class TestCommands:
 		res = int(res)
 		assert res >= 0 and res <= n
 
+	@staticmethod
+	def ticker_pattern(symbol):
+		return "^" + re.escape(symbol) + (
+			r" at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): "
+			r"\d{1,4}.\d{1,4} \([+-]\d{1,3}.\d{1,4}%\)$"
+		)
+
 	@pytest.has_internet
 	def test_ticker_goog(self):
 		"""
@@ -192,9 +199,7 @@ class TestCommands:
 		"""
 		res = commands.ticker(c, e, "#test", "testrunner", "goog")
 		print(res)
-		assert re.match(
-			r"^GOOG at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): "
-			r"\d{2,4}.\d{1,4} \([+-]\d{1,3}.\d{1,2}%\)$", res), res
+		assert re.match(self.ticker_pattern('GOOG'), res), res
 
 	@pytest.has_internet
 	def test_ticker_yougov(self):
@@ -205,9 +210,7 @@ class TestCommands:
 		"""
 		res = commands.ticker(c, e, "#test", "testrunner", "you.l")
 		print(res)
-		assert re.match(
-			r"^YOU.L at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): "
-			r"\d{1,4}.\d{2,4} \([+-]\d{1,3}.\d{1,2}%\)$", res), res
+		assert re.match(self.ticket_pattern('YOU.L'), res), res
 
 	@pytest.has_internet
 	def test_ticker_nasdaq(self):
@@ -218,9 +221,7 @@ class TestCommands:
 		"""
 		res = commands.ticker(c, e, "#test", "testrunner", "^ixic")
 		print(res)
-		assert re.match(
-			r"^\^IXIC at \d{1,2}:\d{2}(?:am|pm) \([A-z]{1,3}\): "
-			r"\d{4,5}.\d{2,4} \([+-]\d{1,3}.\d{1,2}%\)$", res), res
+		assert re.match(self.ticket_pattern('IXIC'), res), res
 
 	def test_pick_or(self):
 		"""
