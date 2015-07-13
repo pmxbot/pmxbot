@@ -253,8 +253,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		if isinstance(period, str):
 			period = tempora.parse_timedelta(period)
 		log.info("Setting keepalive for %s", period)
-		pinger = functools.partial(connection.ping, 'keep-alive')
-		connection.execute_every(period, pinger)
+		connection.set_keepalive(period)
 
 	def on_join(self, connection, event):
 		nick = event.source.nick
