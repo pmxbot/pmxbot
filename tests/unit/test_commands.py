@@ -210,7 +210,7 @@ class TestCommands:
 		"""
 		res = commands.ticker(c, e, "#test", "testrunner", "you.l")
 		print(res)
-		assert re.match(self.ticket_pattern('YOU.L'), res), res
+		assert re.match(self.ticker_pattern('YOU.L'), res), res
 
 	@pytest.has_internet
 	def test_ticker_nasdaq(self):
@@ -221,7 +221,7 @@ class TestCommands:
 		"""
 		res = commands.ticker(c, e, "#test", "testrunner", "^ixic")
 		print(res)
-		assert re.match(self.ticket_pattern('IXIC'), res), res
+		assert re.match(self.ticker_pattern('IXIC'), res), res
 
 	def test_pick_or(self):
 		"""
