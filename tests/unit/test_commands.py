@@ -221,7 +221,7 @@ class TestCommands:
 		"""
 		res = commands.ticker(c, e, "#test", "testrunner", "^ixic")
 		print(res)
-		assert re.match(self.ticker_pattern('IXIC'), res), res
+		assert re.match(self.ticker_pattern('^IXIC'), res), res
 
 	def test_pick_or(self):
 		"""
