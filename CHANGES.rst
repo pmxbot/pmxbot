@@ -1,3 +1,9 @@
+1111.1
+======
+
+* Added ability to rate-limit outgoing mesasges. Set ``message rate limit``
+  to a non-infinite value to restrict messages to that many per second.
+
 1111.0
 ======
 
