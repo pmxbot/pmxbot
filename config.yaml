@@ -31,3 +31,6 @@ web_host: 0.0.0.0
 
 # ping the server every 30 seconds to recover from dropped connections
 TCP keepalive: 30 seconds
+
+# set a rate limit on outgoing messages in messages per second
+message rate limit: 2.5

@@ -165,7 +165,14 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 	def connect(self, *args, **kwargs):
 		factory = irc.connection.Factory()
 		factory.from_legacy_params(ssl=pmxbot.config.use_ssl)
-		return irc.bot.SingleServerIRCBot.connect(self, connect_factory=factory, *args, **kwargs)
+		res = irc.bot.SingleServerIRCBot.connect(
+			self,
+			connect_factory=factory,
+			*args, **kwargs
+		)
+		limit = pmxbot.config.get('message rate limit', float('inf'))
+		self.connection.set_rate_limit(limit)
+		return res
 
 	def out(self, channel, s, log=True):
 		sent = self._out(self._conn, channel, s)
