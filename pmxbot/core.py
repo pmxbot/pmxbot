@@ -213,7 +213,8 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		if unique_task in self._scheduled_tasks:
 			return
 		self._scheduled_tasks.add(unique_task)
-		runner_func = functools.partial(self.background_runner, conn, channel, func, args)
+		runner_func = functools.partial(self.background_runner, conn, channel,
+			func, args)
 		if isinstance(when, datetime.date):
 			midnight = datetime.time(0, 0)
 			when = datetime.datetime.combine(when, midnight)
@@ -223,14 +224,16 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			return
 		if not isinstance(when, datetime.time):
 			raise ValueError("when must be datetime, date, or time")
-		cmd = irc.schedule.PeriodicCommandFixedDelay.daily_at(when, runner_func)
+		cmd = irc.schedule.PeriodicCommandFixedDelay.daily_at(when,
+			runner_func)
 		conn.reactor._schedule_command(cmd)
 
 	def on_welcome(self, connection, event):
 		# save the connection object so .out has something to call
 		self._conn = connection
 		if pmxbot.config.nickserv_password:
-			connection.privmsg('NickServ', 'identify %s' % pmxbot.config.nickserv_password)
+			msg = 'identify %s' % pmxbot.config.nickserv_password
+			connection.privmsg('NickServ', msg)
 
 		# join channels
 		for channel in self._channels:
