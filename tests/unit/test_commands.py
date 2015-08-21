@@ -1,8 +1,10 @@
 import re
 import os
 import uuid
+import urllib.error
 
 import pytest
+import requests
 
 import pmxbot.dictlib
 import pmxbot.storage
@@ -464,7 +466,13 @@ class TestCommands:
 
 	@pytest.mark.parametrize(["iter"], [[val] for val in range(100)])
 	def test_rand_bot(self, iter):
-		res = commands.rand_bot(c, e, '#test', 'testrunner', '')
+		network_excs = urllib.error.URLError, requests.exceptions.RequestException
+		try:
+			res = commands.rand_bot(c, e, '#test', 'testrunner', '')
+		except network_excs:
+			if not pytest.config.has_internet:
+				raise pytest.skip("Error suppressed for limited connectivity")
+			raise
 		if res is None:
 			return
 		if not isinstance(res, str):
