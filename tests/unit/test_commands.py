@@ -14,13 +14,6 @@ from pmxbot import quotes
 from pmxbot import system
 
 
-def pytest_generate_tests(metafunc):
-	# any test that takes the iter_ parameter should be executed 100 times
-	if "iter_" in metafunc.funcargnames:
-		for i in range(100):
-			metafunc.addcall(funcargs=dict(iter_=i))
-
-
 class Empty:
 	"""
 	Passed in to the individual commands instead of a client/event because
@@ -469,7 +462,8 @@ class TestCommands:
 		print(res)
 		assert res == ("Quiet bitching is useless, foo'. Do something about it.")
 
-	def test_rand_bot(self, iter_):
+	@pytest.mark.parametrize(["iter"], [[val] for val in range(100)])
+	def test_rand_bot(self, iter):
 		res = commands.rand_bot(c, e, '#test', 'testrunner', '')
 		if res is None:
 			return
