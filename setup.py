@@ -27,7 +27,7 @@ setup_params = dict(
 		],
 	),
 	install_requires=[
-		"irc>=12.1,<13dev",
+		"irc>=13,<14dev",
 		'requests',
 		"pyyaml",
 		"feedparser",

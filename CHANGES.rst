@@ -1,3 +1,8 @@
+1112.0
+======
+
+* Bump to IRC 13.0. Scheduled commands now must be timezone aware.
+
 1111.1
 ======
 

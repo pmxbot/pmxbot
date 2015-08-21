@@ -19,6 +19,7 @@ import irc.client
 import irc.schedule
 import pkg_resources
 import tempora
+import pytz
 from jaraco.itertools import always_iterable
 
 import pmxbot.itertools
@@ -216,7 +217,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		runner_func = functools.partial(self.background_runner, conn, channel,
 			func, args)
 		if isinstance(when, datetime.date):
-			midnight = datetime.time(0, 0)
+			midnight = datetime.time(0, 0, tzinfo=pytz.UTC)
 			when = datetime.datetime.combine(when, midnight)
 		if isinstance(when, datetime.datetime):
 			cmd = irc.schedule.DelayedCommand.at_time(when, runner_func)

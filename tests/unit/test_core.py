@@ -1,7 +1,7 @@
 import datetime
 from unittest import TestCase
 
-from irc.schedule import DelayedCommand
+from irc.schedule import DelayedCommand, now
 from mock import MagicMock, call, patch
 
 from pmxbot.core import LoggingCommandBot
@@ -22,7 +22,7 @@ class LoggingCommandBotTest(TestCase):
         conn = MagicMock()
         name = 'some name'
         channel = '#some-channel'
-        when = datetime.datetime.now()
+        when = now()
         func = lambda x: x
         args = [1, 2, 3]
         doc = 'some doc'
@@ -40,7 +40,7 @@ class LoggingCommandBotTest(TestCase):
         conn = MagicMock()
         name = 'some name'
         channel = '#some-channel'
-        when = datetime.datetime.now()
+        when = now()
         func = lambda x: x
         args = [1, 2, 3]
         doc = 'some doc'
@@ -58,7 +58,7 @@ class LoggingCommandBotTest(TestCase):
         conn = MagicMock()
         name = 'some name'
         channel = '#some-channel'
-        when = datetime.datetime.now()
+        when = now()
         func = lambda x: x
         args = [1, 2, 3]
         doc = 'some doc'
@@ -76,7 +76,7 @@ class LoggingCommandBotTest(TestCase):
         conn = MagicMock()
         name = 'some name'
         channel = '#some-channel'
-        when = datetime.datetime.now()
+        when = now()
         func = lambda x: x
         args = [1, 2, 3]
         doc = 'some doc'
@@ -94,7 +94,7 @@ class LoggingCommandBotTest(TestCase):
         conn = MagicMock()
         name = 'some name'
         channel = '#some-channel'
-        when = datetime.datetime.now()
+        when = now()
         future = when + datetime.timedelta(days=15)
         func = lambda x: x
         args = [1, 2, 3]
@@ -113,7 +113,7 @@ class LoggingCommandBotTest(TestCase):
         conn = MagicMock()
         name = 'some name'
         channel = '#some-channel'
-        when = datetime.datetime.now()
+        when = now()
         func = lambda x: x
         args = [1, 2, 3]
         doc = 'some doc'
