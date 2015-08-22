@@ -390,21 +390,23 @@ def password(client, event, channel, nick, rest):
 
 @command()
 def insult(client, event, channel, nick, rest):
-	"Generate a random insult from http://autoinsult.com/"
-	instype = random.randrange(4)
-	insurl = "http://autoinsult.com/webinsult.php?style=%s&r=0&sc=1" % instype
+	"Generate a random insult from datahamster"
+	# not supplying any style will automatically redirect to a random
+	url = 'http://datahamster.com/autoinsult/'
+	ins_type = random.randrange(4)
+	ins_url = url + "?style={ins_type}".format(**locals())
 	insre = re.compile('<div class="insult" id="insult">(.*?)</div>')
-	html = util.get_html(insurl)
+	html = util.get_html(ins_url)
 	insult = insre.search(html).group(1)
 	if not insult:
 		return
 	if rest:
 		insultee = rest.strip()
 		karma.Karma.store.change(insultee, -1)
-		if instype in (0, 2):
+		if ins_type in (0, 2):
 			cinsre = re.compile(r'\b(your)\b', re.IGNORECASE)
 			insult = cinsre.sub("%s's" % insultee, insult)
-		elif instype in (1, 3):
+		elif ins_type in (1, 3):
 			cinsre = re.compile(r'^([TY])')
 			insult = cinsre.sub(
 				lambda m: "%s, %s" % (
