@@ -366,6 +366,10 @@ class TestCommands:
 	def test_insult(self):
 		commands.insult(c, e, "#test", "testrunner", "")
 
+	@pytest.has_internet
+	def test_targeted_insult(self):
+		commands.insult(c, e, "#test", "testrunner", "enemy")
+
 	@pytest.has_wordnik
 	def test_define_keyboard(self):
 		"""
