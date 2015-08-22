@@ -362,6 +362,10 @@ class TestCommands:
 		print(res)
 		assert res.startswith("6.070566")
 
+	@pytest.has_internet
+	def test_insult(self):
+		commands.insult(c, e, "#test", "testrunner", "")
+
 	@pytest.has_wordnik
 	def test_define_keyboard(self):
 		"""
