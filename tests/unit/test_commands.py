@@ -255,10 +255,8 @@ class TestCommands:
 		Test the pick command with an intro followed by options with commas
 		and ors
 		"""
-		res = commands.pick(
-			c, e, "#test", "testrunner",
-			"how would you like to die, pmxbot: gun, fire, acid or "
-			"defenestration")
+		msg = "how would you like to die, pmxbot: gun, fire, acid or defenestration"
+		res = commands.pick(c, e, "#test", "testrunner", msg)
 		assert onetrue("gun" in res, "fire" in res, "acid" in res, "defenestration" in res)
 		assert "die" not in res and "pmxbot" not in res and " or " not in res
 
