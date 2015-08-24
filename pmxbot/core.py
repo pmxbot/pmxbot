@@ -251,7 +251,10 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			)
 			executor(howlong, self.background_runner, arguments)
 		for action in _at_registry:
-			self._schedule_at(connection, *action)
+			try:
+				self._schedule_at(connection, *action)
+			except Exception:
+				log.exception("Error scheduling", action)
 
 		self._set_keepalive(connection)
 
