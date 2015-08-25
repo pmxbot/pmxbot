@@ -254,7 +254,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			try:
 				self._schedule_at(connection, *action)
 			except Exception:
-				log.exception("Error scheduling", action)
+				log.exception("Error scheduling %s", action)
 
 		self._set_keepalive(connection)
 
