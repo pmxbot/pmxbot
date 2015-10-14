@@ -137,3 +137,29 @@ help, and check karma. You specify the host, port, base path, logo, title,
 etc with the same YAML config file. Just run like ``pmxbotweb config.yaml``
 and it will start up. Like pmxbot, use of a supervisor is recommended to
 restart the process following termination.
+
+pmxbot as a Slack bot
+=====================
+
+As Slack provides an IRC interface, it's easy to configure pmxbot for use
+in Slack. Here's how:
+
+1. `Enable the IRC Gateway <https://slack.zendesk.com/hc/en-us/articles/201727913-Connecting-to-Slack-over-IRC-and-XMPP>`.
+2. Create an e-mail for the bot.
+3. Create the account for the bot in Slack and activate its account.
+4. Log into Slack using that new account and `get the IRC gateway
+   password <https://my.slack.com/account/gateways>` for that
+   account.
+5. Configure the pmxbot as you would for an IRC server, but use these
+   settings for the connection:
+
+    message rate limit: 2.5
+    password: <gateway password>
+    server_host: <team name>.irc.slack.com
+    server_port: 6667
+
+   The rate limit is necessary because Slack will kick the bot if it issues more than 25 messages in 10 seconds, so throttling it to 2.5 messages per
+   second avoids hitting the limit.
+6. Consider leaving 'log_channels' and 'other_channels' empty, especially
+   if relying on Slack logging. Slack will automatically re-join pmxbot to
+   any channels to which it has been ``/invited``.
