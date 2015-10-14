@@ -5,7 +5,7 @@ import setuptools
 
 setup_params = dict(
 	name="pmxbot",
-	use_hg_version=True,
+	use_scm_version=True,
 	packages=setuptools.find_packages(),
 	include_package_data=True,
 	entry_points=dict(
@@ -68,7 +68,7 @@ setup_params = dict(
 	],
 	long_description=open('README.rst').read(),
 	setup_requires=[
-		'hgtools',
+		'setuptools_scm',
 		'pytest-runner>=2.1',
 	],
 	tests_require=[
