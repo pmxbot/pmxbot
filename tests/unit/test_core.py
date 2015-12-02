@@ -2,7 +2,7 @@ import datetime
 from unittest import TestCase
 
 from irc.schedule import DelayedCommand, now
-from mock import MagicMock, call, patch
+import mock
 
 from pmxbot.core import LoggingCommandBot
 
@@ -17,9 +17,9 @@ class LoggingCommandBotTest(TestCase):
         self.bot = LoggingCommandBot(
             'localhost', 1234, 'some-nick', ['#some-channel'])
 
-    @patch('functools.partial')
+    @mock.patch('functools.partial')
     def test_doesnt_schedule_same_command_twice(self, mock_partial):
-        conn = MagicMock()
+        conn = mock.MagicMock()
         name = 'some name'
         channel = '#some-channel'
         when = now()
@@ -35,9 +35,9 @@ class LoggingCommandBotTest(TestCase):
         mock_partial.assert_called_once_with(
             self.bot.background_runner, conn, channel, func, args)
 
-    @patch('functools.partial')
+    @mock.patch('functools.partial')
     def test_schedules_same_command_if_args_differ(self, mock_partial):
-        conn = MagicMock()
+        conn = mock.MagicMock()
         name = 'some name'
         channel = '#some-channel'
         when = now()
@@ -49,13 +49,13 @@ class LoggingCommandBotTest(TestCase):
         self.bot._schedule_at(conn, name, channel, when, func, args + [4], doc)
 
         self.assertEqual(conn.reactor._schedule_command.mock_calls, [
-            call(DelayedCommandMatch()),
-            call(DelayedCommandMatch()),
+            mock.call(DelayedCommandMatch()),
+            mock.call(DelayedCommandMatch()),
         ])
 
-    @patch('functools.partial')
+    @mock.patch('functools.partial')
     def test_schedules_same_command_if_names_differ(self, mock_partial):
-        conn = MagicMock()
+        conn = mock.MagicMock()
         name = 'some name'
         channel = '#some-channel'
         when = now()
@@ -67,13 +67,13 @@ class LoggingCommandBotTest(TestCase):
         self.bot._schedule_at(conn, 'other', channel, when, func, args, doc)
 
         self.assertEqual(conn.reactor._schedule_command.mock_calls, [
-            call(DelayedCommandMatch()),
-            call(DelayedCommandMatch()),
+            mock.call(DelayedCommandMatch()),
+            mock.call(DelayedCommandMatch()),
         ])
 
-    @patch('functools.partial')
+    @mock.patch('functools.partial')
     def test_schedules_same_command_if_channels_differ(self, mock_partial):
-        conn = MagicMock()
+        conn = mock.MagicMock()
         name = 'some name'
         channel = '#some-channel'
         when = now()
@@ -85,13 +85,13 @@ class LoggingCommandBotTest(TestCase):
         self.bot._schedule_at(conn, name, '#other', when, func, args, doc)
 
         self.assertEqual(conn.reactor._schedule_command.mock_calls, [
-            call(DelayedCommandMatch()),
-            call(DelayedCommandMatch()),
+            mock.call(DelayedCommandMatch()),
+            mock.call(DelayedCommandMatch()),
         ])
 
-    @patch('functools.partial')
+    @mock.patch('functools.partial')
     def test_schedules_same_command_if_datetimes_differ(self, mock_partial):
-        conn = MagicMock()
+        conn = mock.MagicMock()
         name = 'some name'
         channel = '#some-channel'
         when = now()
@@ -104,13 +104,13 @@ class LoggingCommandBotTest(TestCase):
         self.bot._schedule_at(conn, name, channel, future, func, args, doc)
 
         self.assertEqual(conn.reactor._schedule_command.mock_calls, [
-            call(DelayedCommandMatch()),
-            call(DelayedCommandMatch()),
+            mock.call(DelayedCommandMatch()),
+            mock.call(DelayedCommandMatch()),
         ])
 
-    @patch('functools.partial')
+    @mock.patch('functools.partial')
     def test_schedules_same_command_if_docs_differ(self, mock_partial):
-        conn = MagicMock()
+        conn = mock.MagicMock()
         name = 'some name'
         channel = '#some-channel'
         when = now()
@@ -122,6 +122,6 @@ class LoggingCommandBotTest(TestCase):
         self.bot._schedule_at(conn, name, channel, when, func, args, 'other')
 
         self.assertEqual(conn.reactor._schedule_command.mock_calls, [
-            call(DelayedCommandMatch()),
-            call(DelayedCommandMatch()),
+            mock.call(DelayedCommandMatch()),
+            mock.call(DelayedCommandMatch()),
         ])
