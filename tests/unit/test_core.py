@@ -1,8 +1,7 @@
 import datetime
-from unittest import TestCase
+from unittest import TestCase, mock
 
 from irc.schedule import DelayedCommand, now
-import mock
 
 from pmxbot.core import LoggingCommandBot
 

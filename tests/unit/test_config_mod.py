@@ -1,5 +1,4 @@
-
-import mock
+from unittest import mock
 
 import pmxbot.config_
 
