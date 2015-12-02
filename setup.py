@@ -62,7 +62,7 @@ setup_params = dict(
 	author_email="open.source@yougov.com",
 	maintainer='Jason R. Coombs',
 	maintainer_email='Jason.Coombs@YouGov.com',
-	url='http://bitbucket.org/yougov/pmxbot',
+	url='https://github.com/yougov/pmxbot',
 	classifiers=[
 		'Development Status :: 5 - Production/Stable',
 		'License :: OSI Approved :: MIT License',
