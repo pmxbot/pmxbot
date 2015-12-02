@@ -1,0 +1,151 @@
+== Welcome ==
+{{https://bitbucket.org/yougov/pmxbot/raw/8af8328a91ce/pmxbotweb/templates/pmxbot.png|pmxbot skynet logo}}{{https://bitbucket.org/yougov/pmxbot/raw/tip/horrible-logos-pmxbot.gif|pmxbot horrible logo}}
+
+Welcome to pmxbot!
+
+== Feature List ==
+While pmxbot's feature set is always growing and changing, here's a list of the current features included as part of version 1105.5b1.
+
+|= Command |= Aliases |= Description |
+| 8ball | '8' | Ask the magic 8ball a question |
+| acronym | 'ac' | Look up an acronym |
+| anchorman |  | Quote Anchorman. |
+| annoy | 'a', 'bother' | Annoy everyone with meaningless banter |
+| bender | 'bend' | Quote Bender, a la http://en.wikiquote.org/wiki/Futurama |
+| bitchingisuseless | 'qbiu' | It really is, ya know... |
+| blame |  | Pass the buck! |
+| bless |  | Bless the day! |
+| boo |  | Boo someone |
+| bottom10 | 'bottom' | Return the bottom n (default 10) lowest entities by Karmic value. Use negative numbers for the bottom N. |
+| calc |  | Perform a basic calculation |
+| chain |  | Chain some(one~|thing)down. |
+| cheer | 'c' | Cheer for something |
+| compliment | 'surreal' | Generate a random compliment from http://www.madsci.org/cgi-bin/cgiwrap/~lynn/jardin/SCG |
+| config |  | Change the running config, something like a=b or a+=b or a-=b |
+| ctlaltdel | 'controlaltdelete', 'controlaltdelete', 'cad', 'restart', 'quit' | Quits pmxbot. A supervisor should automatically restart it. |
+| curse |  | Curse the day! |
+| dance | 'd' | Do a little dance |
+| deal |  | Deal or No Deal? |
+| define | 'def' | Define a word |
+| demotivate | 'dm' | Demotivate someone |
+| disembowel | 'dis', 'eviscerate' | Disembowel some(one~|thing)! |
+| duck | 'ducky' | Display a helpful duck |
+| embowel | 'reembowel' | Embowel some(one~|thing)! |
+| emergencycompliment | 'ec', 'emercomp' | Return a random compliment from http://emergencycompliment.com/ |
+| excuse | 'e' | Provide a convenient excuse |
+| featurecreep | 'fc' | Generate feature creep (P+C http://www.dack.com/web/bullshit.html) |
+| fight |  | Pit two sworn enemies against each other (separate with 'vs.') |
+| flip |  | Flip a coin |
+| fml |  | A SFW version of fml. |
+| gettowork | 'gtw' | You really ought to, ya know... |
+| golfclap | 'clap' | Clap for something |
+| google | 'g' | Look a phrase up on google |
+| googlecalc | 'gc' | Calculate something using google |
+| grail |  | I questing baby |
+| hal | '2001' | HAL 9000 |
+| hangover |  | Quote hangover. |
+| help | 'h' | Help (this command) |
+| hire |  | When all else fails, pmxbot delivers the perfect employee. |
+| imotivate | 'im', 'ironicmotivate' | Ironically "Motivate" someone |
+| insult |  | Generate a random insult from http://autoinsult.com/ |
+| job | 'card' | Generate a job title, http://www.cubefigures.com/job.html |
+| karma | 'k' | Return or change the karma value for some(one~|thing) |
+| keelhaul | 'kh' | Inflict great pain and embarassment on some(one~|thing) |
+| klingon | 'klingonism' | Ask the magic klingon a question |
+| log |  | Enable or disable logging for a channel; use 'please' to start logging and 'stop please' to stop. |
+| logo |  | The pmxbot logo in ascii art.  Fixed-width font recommended! |
+| logs |  | Where can one find the logs? |
+| lunch | 'lunchpick', 'lunchpicker' | Pick where to go to lunch |
+| meaculpa | 'apology', 'apologize' | Sincerely apologize |
+| motivate | 'm', 'appreciate', 'thanks', 'thank' | Motivate someone |
+| murphy | 'law' | Look up one of Murphy's laws |
+| nailedit | 'nail', 'n' | Nail that interview |
+| nastygram | 'nerf', 'passive', 'bcc' | A random passive-agressive comment, optionally directed toward some(one~|thing). |
+| notify |  | notify <nick> <message> |
+| oregontrail | 'otrail' | It's edutainment! |
+| panic | 'pc' | Panic! |
+| password | 'pw', 'passwd' | Generate a random password, similar to http://www.pctools.com/guides/password |
+| paste |  | Drop a link to your latest paste |
+| pick | 'p', 'p:', 'pick:' | Pick between a few options |
+| progress |  | Display the progress of something: start~|end~|percent |
+| quote | 'q' | If passed with nothing then get a random quote. If passed with some string then search for that. If prepended with "add:" then add it to the db, eg "!quote add: drivers: I only work here because of pmxbot!" |
+| r | 'r' | Quote the R mailing list |
+| roll |  | Roll a die, default = 100. |
+| rubberstamp | 'approve' | Approve something |
+| saysomething |  | Generate a Markov Chain response based on past logs. Seed it with a starting word by adding that to the end, eg '!saysomething dowski:' |
+| simpsons | 'simp' | Quote the Simpsons, a la http://snpp.com/ |
+| stab | 'shank', 'shiv' | Stab, shank or shiv some(one~|thing)! |
+| storytime | 'story' | A story is about to be told. |
+| strategy |  | Social Media Strategy, courtsey of http://whatthefuckismysocialmediastrategy.com/ |
+| strike |  | Strike last <n> statements from the record |
+| tgif |  | Thanks for the words of wisdow, Mike. |
+| therethere | 'poor', 'comfort' | Sympathy for you. |
+| ticker | 't' | Look up a ticker symbol's current trading value |
+| time |  | What time is it in.... Similar to !weather |
+| tinytear | 'tt', 'tear', 'cry' | I cry a tiny tear for you. |
+| top10 | 'top' | Return the top n (default 10) highest entities by Karmic value. Use negative numbers for the bottom N. |
+| troutslap | 'slap', 'ts' | Slap some(one~|thing) with a fish |
+| urbandict | 'urb', 'ud', 'urbandictionary', 'urbandefine', 'urbandef', 'urbdef' | Define a word with Urban Dictionary |
+| weather | 'w' | Get weather for a place. All offices with "all", or a list of places separated by pipes. |
+| where | 'last', 'seen', 'lastseen' | When did pmxbot last see <nick> speak? |
+| zinger | 'zing' | ZING! |
+| zoidberg | 'zoid' | Quote Zoidberg, a la http://en.wikiquote.org/wiki/Futurama |
+
+== Example Session ==
+It's sometimes hard to get a sense of what pmxbot is like if you've never used it, so here's an example IRC discussion where we heavily use pmxbot.
+
+{{{
+< chmullig> cperry: in cologne?
+< cperry> !m chmullig
+<@pmxbot> you're doing good work, chmullig!
+< cperry> indeed
+< chmullig> awesome
+< cperry> yeah
+< chmullig> I'm recording a little chat for the pmxbot website
+< cperry> ooooo
+< cperry> is this getting recorded?
+< chmullig> !8ball is pmxbot awesome?
+<@pmxbot> Most likely.
+< chmullig> yes, yes it is
+< cperry> good thing I didn't insult the person I was going to insult
+< cperry> because I love everyone!
+< cperry> !bless
+< chmullig> !cheer everyone
+ * pmxbot blesses the day!
+ * pmxbot cheers for everyone!
+< cperry> !curse insulting people
+ * pmxbot curses insulting people!
+< chmullig> !w Washington, DC | Cologne
+<@pmxbot> Washington D.C., DC. Currently: 70F/21C, Cloudy.    Mon: 73F/22C, Thunderstorm
+<@pmxbot> Cologne, North Rhine-Westphalia. Currently: 43F/6C, Mostly Cloudy.    Mon: 46F/7C, Chance of Rain
+< cperry> in fact, every time I think about insulting people, I just want to
+< cperry> !dance
+<@pmxbot> O-\-<
+<@pmxbot> O-|-<
+<@pmxbot> O-/-<
+< chmullig> !def dancing
+<@pmxbot> Wikipedia says: Dance (from French danser, perhaps from Frankish) is an art form that generally
+          refers to movement of the body, usually rhythmic and to music, used as a form of expression,
+          social interaction or presented in a spiritual or performance setting.
+< cperry> hmm
+< cperry> !urb dancing
+<@pmxbot> Urban Dictionary says dancing: Formal term meaning: to move with unhindered grace around an area
+          with the presence of another enjoying the same activity.  Urban term: Humping someone in public
+          Sad world isn't it.
+< cperry> ewwww
+< chmullig> !g salsa dancing classes in washington, dc
+<@pmxbot> http://www.findoutdc.com/gym/dance.shtml - Dance Lessons and Studios - Latin Salsa Merengue
+          Tango Ballroom
+< cperry> !otrail dancing
+<@pmxbot> dancing made it to oregon. Time to party with schmichael.
+< chmullig> !ylunch Washington, DC 10m
+<@pmxbot> Tonic at Quigley's Pharmacy @ 2036 G St Nw -
+          http://local.yahoo.com/info-38772621-tonic-at-quigley-s-pharmacy-washington
+< cperry> yes! my favorite!
+< chmullig> Are you teaching the germans sql on rails?
+<@pmxbot> Only 76,417 lines...
+< cperry> nah, they prefer spss
+< chmullig> thank you, pmxbot
+<@pmxbot> I'm afraid that would violate the fire code.
+
+}}}
