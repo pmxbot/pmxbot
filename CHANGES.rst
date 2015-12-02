@@ -1,3 +1,15 @@
+1112.2
+======
+
+* Moved hosting to Github.
+* Restored support for installing to Python 3.2 by installing old
+  versions of Jinja2.
+
+1112.1
+======
+
+* Log an exception when failing to schedule an action.
+
 1112.0
 ======
 
