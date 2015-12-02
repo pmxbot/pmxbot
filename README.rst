@@ -4,13 +4,12 @@ pmxbot
 
 |BuildStatus|_
 
-.. |BuildStatus| image:: https://secure.travis-ci.org/jaraco/pmxbot.png
-.. _BuildStatus: http://travis-ci.org/jaraco/pmxbot
+.. |BuildStatus| image:: https://secure.travis-ci.org/yougov/pmxbot.png
+.. _BuildStatus: http://travis-ci.org/yougov/pmxbot
 
 pmxbot is an IRC bot written in python. Originally built for internal use,
 it's been sanitized and set free upon the world. You can find out more details
-on the website, http://bitbucket.org/yougov/pmxbot, and especially the wiki
-https://bitbucket.org/yougov/pmxbot/wiki/Home
+on `the project website <https://github.com/yougov/pmxbot>`_.
 
 
 Commands
