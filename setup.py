@@ -33,9 +33,6 @@ setup_params = dict(
 		"feedparser",
 		"pytz",
 		"beautifulsoup4",
-		# for viewer
-		"jinja2",
-		"cherrypy>=3.2.3,<4dev",
 		"jaraco.compat>=1.0.3",
 		"backports.method_request",
 		"wordnik-py3",
@@ -48,7 +45,17 @@ setup_params = dict(
 		"jaraco.classes",
 		"jaraco.functools",
 		"inflect",
+
+		# for viewer
+		"cherrypy>=3.2.3,<4dev",
 	],
+	extras_require={
+		':python_version==3.2': ['jinja2<2.7dev'],
+		':python_version==3.3': ['jinja2'],
+		':python_version==3.4': ['jinja2'],
+		':python_version==3.5': ['jinja2'],
+		':python_version==3.6': ['jinja2'],
+	},
 	description="IRC bot - full featured, yet extensible and customizable",
 	license='MIT',
 	author="YouGov, Plc.",

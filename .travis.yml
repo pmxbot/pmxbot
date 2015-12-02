@@ -1,9 +1,9 @@
 language: python
 python:
-  # disable 3.2 tests until Jinja is fixed (https://github.com/mitsuhiko/jinja2/pull/248)
-  # 3.2
+  - 3.2
   - 3.3
   - 3.4
+  - 3.5
 # command to run tests
 script:
   - python setup.py test --addopts='-rs'
