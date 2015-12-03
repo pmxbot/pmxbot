@@ -62,8 +62,9 @@ class TestFeedHistory:
 
 @pytest.has_internet
 def test_format_entry():
-	bitbucket = 'https://bitbucket.org'
-	feed_url = urllib.parse.urljoin(bitbucket, '/yougov/pmxbot/rss')
+	site = 'https://github.com'
+	path = '/yougov/pmxbot/commits/master.atom'
+	feed_url = urllib.parse.urljoin(site, path)
 	res = feedparser.parse(feed_url)
 	entry = res['entries'][0]
 	pmxbot.rss.RSSFeeds.format_entry(entry)
