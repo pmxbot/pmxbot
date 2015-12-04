@@ -1,2 +1,0 @@
-#!/bin/bash -e
-python3.4 setup.py test --addopts='--junitxml="test results.xml"'
