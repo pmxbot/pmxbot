@@ -25,6 +25,7 @@ from jaraco.itertools import always_iterable
 import pmxbot.itertools
 import pmxbot.dictlib
 import pmxbot.buffer
+import pmxbot.config_
 
 log = logging.getLogger('pmxbot')
 
@@ -616,7 +617,8 @@ class ConfigMergeAction(argparse.Action):
 		def merge_dicts(a, b):
 			a.update(b)
 			return a
-		setattr(namespace, self.dest, functools.reduce(merge_dicts, values))
+		merged = functools.reduce(merge_dicts, values, {})
+		setattr(namespace, self.dest, merged)
 
 
 def get_args(*args, **kwargs):
@@ -645,8 +647,7 @@ def _setup_logging():
 
 def initialize(config):
 	"Initialize the bot with a dictionary of config items"
-	pmxbot.config.update(config)
-	config = pmxbot.config
+	config = pmxbot.config_.initialize(config)
 
 	pmxbot.buffer.ErrorReportingBuffer.install()
 	_setup_logging()
