@@ -125,7 +125,7 @@ many examples in the pmxbot project itself or one of the popular third-party
 projects:
 
  - `motivation <https://bitbucket.org/yougov/motivation>`_.
- - `wolframalpha <https://bitbucket.org/yougov/pmxbot-wolframalpha>`_.
+ - `wolframalpha <https://github.com/jaraco/wolframalpha>`_.
  - `jaraco.translate <https://bitbucket.org/jaraco/jaraco.translate>`_.
  - `excuses <https://bitbucket.org/yougov/excuses>`_.
 
