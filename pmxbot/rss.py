@@ -21,7 +21,7 @@ class FeedHistory(set):
 	A database-backed set of feed entries that have been seen before.
 	"""
 	def __init__(self, db_uri=None):
-		super(FeedHistory, self).__init__()
+		super().__init__()
 		db_uri = db_uri or pmxbot.config.database
 		self.store = FeedparserDB.from_URI(db_uri)
 		timer = timing.Stopwatch()
@@ -81,7 +81,7 @@ class RSSFeeds(FeedHistory):
 	"""
 
 	def __init__(self):
-		super(RSSFeeds, self).__init__()
+		super().__init__()
 		self.feed_interval = pmxbot.config.feed_interval
 		self.feeds = pmxbot.config.feeds
 		for feed in self.feeds:

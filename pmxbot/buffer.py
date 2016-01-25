@@ -9,7 +9,7 @@ class ErrorReportingBuffer(irc.buffer.LineBuffer):
 	encoding = 'utf-8'
 
 	def lines(self):
-		lines = super(ErrorReportingBuffer, self).lines()
+		lines = super().lines()
 		for line in lines:
 			try:
 				yield line.decode(self.encoding)

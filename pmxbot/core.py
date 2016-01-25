@@ -72,7 +72,7 @@ class AugmentableMessage(str):
 	"""
 
 	def __new__(cls, other, **kwargs):
-		return super(AugmentableMessage, cls).__new__(cls, other)
+		return super().__new__(cls, other)
 
 	def __init__(self, other, **kwargs):
 		if hasattr(other, '__dict__'):
@@ -146,7 +146,7 @@ class SwitchChannel(str, Sentinel):
 	def __new__(cls, other):
 		if not other.startswith('#'):
 			other = '#' + other
-		return super(SwitchChannel, cls).__new__(cls, other)
+		return super().__new__(cls, other)
 
 	@property
 	def properties(self):
@@ -500,7 +500,7 @@ class CommandHandler(Handler):
 		self._set_doc(func)
 		for alias in self.aliases:
 			func = alias.decorate(func)
-		return super(CommandHandler, self).decorate(func)
+		return super().decorate(func)
 
 	def _set_doc(self, func):
 		"""
@@ -539,7 +539,7 @@ class RegexpHandler(ContainsHandler):
 	class_priority = 4
 
 	def __init__(self, *args, **kwargs):
-		super(RegexpHandler, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		if isinstance(self.pattern, str):
 			self.pattern = re.compile(self.pattern, re.IGNORECASE)
 

@@ -39,7 +39,7 @@ class SelectableStorage:
 
 	@classmethod
 	def uri_matches(cls, uri):
-		super_matches = super(SelectableStorage, cls).uri_matches(uri)
+		super_matches = super().uri_matches(uri)
 		return (urllib.parse.urlparse(uri).scheme == cls.scheme or super_matches)
 
 	@classmethod

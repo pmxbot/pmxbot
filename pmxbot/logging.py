@@ -360,7 +360,7 @@ class FullTextMongoDBLogger(MongoDBLogger):
 		is not available.
 		"""
 		return (
-			super(FullTextMongoDBLogger, cls).uri_matches(uri)
+			super().uri_matches(uri)
 			and cls._has_fulltext(uri)
 		)
 
