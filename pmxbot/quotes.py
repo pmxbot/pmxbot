@@ -143,7 +143,7 @@ class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 				{'$set': dict(log_id=last_message['_id'])})
 
 	def __iter__(self):
-		return self.db.find(library=self.lib)
+		return self.db.find(dict(library=self.lib))
 
 	def _build_log_id_map(self):
 		from . import logging
