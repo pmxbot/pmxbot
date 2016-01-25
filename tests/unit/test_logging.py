@@ -38,3 +38,7 @@ class TestMongoDBLogging:
 		channels = l.list_channels()
 		assert len(channels) == 2
 		assert set(channels) == set(['bar', 'inane'])
+
+	def test_search(self, mongodb_uri):
+		l = self.setup_logging(mongodb_uri)
+		l.search("foo")
