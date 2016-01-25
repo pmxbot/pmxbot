@@ -43,4 +43,12 @@ class TestMongoDBLogging:
 	def test_search_hit(self, mongodb_uri):
 		l = self.setup_logging(mongodb_uri)
 		l.message('#inane', 'joe', "who da foo?")
-		assert l.search("foo")
+		l.make_anchor = "anchor".format
+		result, = l.search("foo")
+		channel, date, anchor, msgs = result
+		msg_info, = msgs
+		time, nick, text = msg_info
+		assert channel == 'inane'
+		assert anchor == 'anchor'
+		assert nick == 'joe'
+		assert text == 'who da foo?'
