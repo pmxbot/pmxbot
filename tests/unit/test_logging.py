@@ -36,6 +36,11 @@ class TestMongoDBLogging:
 		assert len(channels) == 2
 		assert set(channels) == set(['bar', 'inane'])
 
-	def test_search(self, mongodb_uri):
+	def test_search_miss(self, mongodb_uri):
 		l = self.setup_logging(mongodb_uri)
-		l.search("foo")
+		assert not l.search("foo")
+
+	def test_search_hit(self, mongodb_uri):
+		l = self.setup_logging(mongodb_uri)
+		l.message('#inane', 'joe', "who da foo?")
+		assert l.search("foo")
