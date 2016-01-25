@@ -3,12 +3,9 @@ from pmxbot import logging
 
 class TestMongoDBLogging:
 	def setup_logging(self, mongodb_uri):
-		logger = logging.Logger.from_URI(mongodb_uri)
-		logger.db = logger.db.database.connection[
-			logger.db.database.name + '_test'
-		][logger.db.name]
-		self.logger = logger
-		return logger
+		mongodb_uri = mongodb_uri + '/pmxbot_test'
+		self.logger = logging.Logger.from_URI(mongodb_uri)
+		return self.logger
 
 	def teardown_method(self, method):
 		if hasattr(self, 'logger'):
