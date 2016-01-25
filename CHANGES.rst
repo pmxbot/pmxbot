@@ -1,3 +1,9 @@
+1113.0
+======
+
+* Fixed full text search on MongoDB 3.0 and later. For full text
+  support, pmxbot now requires MongoDB 2.6 or later.
+
 1112.2
 ======
 
