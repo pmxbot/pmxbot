@@ -382,6 +382,32 @@ class FullTextMongoDBLogger(MongoDBLogger):
 		return self._generate_search_results(resp)
 
 
+class LegacyFullTextMongoDBLogger(FullTextMongoDBLogger):
+	@classmethod
+	def uri_matches(cls, uri):
+		"""
+		override 'uri_matches' to prefer this logger when the server
+		version doesn't support $text (MongoDB 2.4 only).
+		"""
+		return (
+			super().uri_matches(uri)
+			and cls._is_mongodb_24(uri)
+		)
+
+	@classmethod
+	def _is_mongodb_24(cls, uri):
+		client = cls._get_collection(uri).database.client
+		return client.server_info()['version'].startswith('2.4.')
+
+	def search(self, *terms):
+		query = ' '.join(terms)
+		db = self.db.database
+		collection_name = self.db.name
+		resp = db.command('text', collection_name, search=query)
+		docs = (res['obj'] for res in resp['results'])
+		return self._generate_search_results(docs)
+
+
 @command()
 def strike(client, event, channel, nick, rest):
 	"Strike last <n> statements from the record"

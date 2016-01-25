@@ -1,3 +1,9 @@
+1113.1
+======
+
+* Restored support for versions of MongoDB earlier than 2.6
+  because we <3 #dcpython.
+
 1113.0
 ======
 
