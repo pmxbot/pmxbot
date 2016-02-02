@@ -5,6 +5,7 @@ python:
   - 3.3
   - 3.4
   - 3.5
-# command to run tests
+install:
+  - python -m pip install rwt
 script:
-  - python setup.py test --addopts='-rs'
+  - python -m rwt -r 'test requirements' -- -m pytest -rs

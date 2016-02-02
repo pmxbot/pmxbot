@@ -76,14 +76,6 @@ setup_params = dict(
 	long_description=open('README.rst').read(),
 	setup_requires=[
 		'setuptools_scm',
-		'pytest-runner>=2.1',
-	],
-	tests_require=[
-		'pymongo>=3',
-		'pytest',
-		'jaraco.test>=2.0.4',
-		'backports.unittest_mock',
-		'more_itertools',
 	],
 )
 
