@@ -1,3 +1,9 @@
+1113.3
+======
+
+* Remove use of 8ball delegator. Its responses are not nearly
+  as interesting (or correct) as pmxbot's own.
+
 1113.2
 ======
 
