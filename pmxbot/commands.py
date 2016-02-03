@@ -292,7 +292,13 @@ def demotivate(client, event, channel, nick, rest):
 @command(name="8ball", aliases="8")
 def eball(client, event, channel, nick, rest):
 	"Ask the magic 8ball a question"
-	return util.wchoice(phrases.ball8_opts)
+	try:
+		url = 'https://8ball.delegator.com/magic/JSON/'
+		url += rest
+		result = requests.get(url).json()['magic']['answer']
+	except Exception:
+		result = util.wchoice(phrases.ball8_opts)
+	return result
 
 
 @command(aliases='klingonism')

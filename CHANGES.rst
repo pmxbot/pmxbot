@@ -1,3 +1,9 @@
+1113.2
+======
+
+* Use `8ball delegator <https://8ball.delegator.com>`_ for
+  ``!8`` command.
+
 1113.1
 ======
 
