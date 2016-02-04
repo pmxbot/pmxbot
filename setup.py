@@ -47,7 +47,7 @@ setup_params = dict(
 		"inflect",
 
 		# for viewer
-		"cherrypy>=3.2.3,<4dev",
+		"cherrypy>=3.2.3",
 	],
 	extras_require={
 		':python_version=="3.2"': ['jinja2<2.7dev'],

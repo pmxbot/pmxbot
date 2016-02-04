@@ -1,3 +1,9 @@
+1113.4
+======
+
+* Unpin upper dependency on CherryPy, allowing later versions
+  to be used.
+
 1113.3
 ======
 
