@@ -164,8 +164,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		self._scheduled_tasks = set()
 
 	def connect(self, *args, **kwargs):
-		factory = irc.connection.Factory()
-		factory.from_legacy_params(ssl=pmxbot.config.use_ssl)
+		factory = irc.connection.Factory(wrapper=self._get_wrapper())
 		res = irc.bot.SingleServerIRCBot.connect(
 			self,
 			connect_factory=factory,
@@ -174,6 +173,15 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		limit = pmxbot.config.get('message rate limit', float('inf'))
 		self.connection.set_rate_limit(limit)
 		return res
+
+	@staticmethod
+	def _get_wrapper():
+		"""
+		Get a socket wrapper based on SSL config.
+		"""
+		if not pmxbot.config.use_ssl:
+			return lambda x: x
+		return importlib.import_module('ssl').wrap_socket
 
 	def out(self, channel, s, log=True):
 		sent = self._out(self._conn, channel, s)
