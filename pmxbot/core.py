@@ -1,6 +1,5 @@
 # vim:ts=4:sw=4:noexpandtab
 
-import sys
 import datetime
 import traceback
 import time
@@ -13,6 +12,7 @@ import itertools
 import pprint
 import re
 import numbers
+import importlib
 
 import irc.bot
 import irc.client
@@ -284,11 +284,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			try:
 				func(client=connection, event=event, nick=nick, channel=channel)
 			except Exception:
-				print(
-					datetime.datetime.now(),
-					"Error in on_join handler %s" % func,
-					file=sys.stderr)
-				traceback.print_exc()
+				log.exception("Error in on_join handler %s", func)
 
 		if channel not in pmxbot.config.log_channels:
 			return
@@ -303,11 +299,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			try:
 				func(client=connection, event=event, nick=nick, channel=channel)
 			except Exception:
-				print(
-					datetime.datetime.now(),
-					"Error in on_leave handler %s" % func,
-					file=sys.stderr)
-				traceback.print_exc()
+				log.exception("Error in on_leave handler %s", func)
 
 	def on_pubmsg(self, connection, event):
 		msg = ''.join(event.arguments)
