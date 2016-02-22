@@ -55,17 +55,17 @@ def words_from_file(f):
 	yield '\n'
 
 
-def words_from_logger(logger, max=100000):
+def words_from_logger(logger, max=1000):
 	return words_from_lines(logger.get_random_logs(max))
 
 
 def words_from_quotes(quotes):
-	return words_from_lines(quotes)
+	return words_from_lines(q['text'] for q in quotes)
 
 
 def words_from_lines(lines):
 	for line in lines:
-		words = line[0].strip().lower().split()
+		words = line.strip().lower().split()
 		for word in words:
 			yield word
 		yield '\n'

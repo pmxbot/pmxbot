@@ -8,7 +8,7 @@ import urllib.parse
 
 import pytz
 from jaraco.context import ExceptionTrap
-from more_itertools import recipes
+from more_itertools import chunked
 
 import pmxbot
 from . import storage
@@ -244,23 +244,13 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		return rows_deleted
 
 	def get_random_logs(self, limit):
-		length = self.db.count()
-		if limit < length // 1000:
-			# there are far more messages than are needed, so to simulate
-			# sampling by just selecting random integers.
-			indexes = [random.randint(0, length - 1) for n in range(limit)]
-		else:
-			indexes = random.sample(list(range(length)), limit)
-		indexes.sort()
-		indexes.insert(0, -1)
-		pairs = recipes.pairwise(indexes)
-		skips = (b - a - 1 for a, b in pairs)
-		# scan through the _ids (in the index)
-		cur = self.db.find(projection=['_id']).sort([('_id', 1)])
-		for skip in skips:
-			recipes.consume(itertools.islice(cur, skip))
-			query = next(cur)
-			yield self.db.find_one(query, projection=['message'])['message']
+		count = min(limit, self.db.count())
+		ids = self.db.find({}, {'_id': 1})
+		rand_ids = [r['_id'] for r in random.sample(list(ids), count)]
+		for rand_ids_chunk in chunked(rand_ids, 100):
+		    query = {'_id': {'$in': rand_ids_chunk}}
+		    for doc in self.db.find(query, {'message': 1}):
+			    yield doc['message']
 
 	def get_channel_days(self, channel):
 		query = dict(channel=channel)
