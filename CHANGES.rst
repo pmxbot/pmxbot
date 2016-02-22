@@ -1,3 +1,8 @@
+1113.5
+======
+
+* Fix `saysomething` command
+
 1113.4
 ======
 
