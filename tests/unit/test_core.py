@@ -3,7 +3,7 @@ from unittest import TestCase, mock
 
 from irc.schedule import DelayedCommand, now
 
-from pmxbot.core import LoggingCommandBot
+from pmxbot.irc import LoggingCommandBot
 
 
 class DelayedCommandMatch:
