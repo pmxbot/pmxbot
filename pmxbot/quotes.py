@@ -82,7 +82,8 @@ class SQLiteQuotes(Quotes, storage.SQLiteStorage):
 
 	def __iter__(self):
 		query = "SELECT quote FROM quotes WHERE library = ?"
-		return self.db.execute(query, [self.lib])
+		for row in self.db.execute(query, [self.lib]):
+			yield {'text': row[0]}
 
 	def export_all(self):
 		query = "SELECT quote, library, logid from quotes left outer join quote_log on quotes.quoteid = quote_log.quoteid"
