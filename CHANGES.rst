@@ -1,3 +1,9 @@
+1114.0
+======
+
+* Moved paste command to librarypaste package. You must
+  require it in your deployment to retain the paste command.
+
 1113.6
 ======
 
