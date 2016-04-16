@@ -4,6 +4,18 @@ import yaml
 
 import pmxbot
 from pmxbot.core import command
+from .dictlib import ConfigDict
+
+
+def init(overrides):
+	"""
+	Install the config dict as pmxbot.config, setting overrides,
+	and return the result.
+	"""
+	pmxbot.config = config = ConfigDict()
+	config.setdefault('bot_nickname', 'pmxbot')
+	config.update(overrides)
+	return config
 
 
 @command()

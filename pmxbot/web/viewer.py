@@ -16,6 +16,7 @@ import inflect
 import pmxbot.core
 import pmxbot.logging
 import pmxbot.util
+import pmxbot.config_
 
 jenv = jinja2.Environment(loader=jinja2.loaders.PackageLoader('pmxbot.web'))
 TIMEOUT = 10.0
@@ -326,8 +327,7 @@ def _init_config():
 def startup(config):
 	patch_compat(config)
 
-	pmxbot.config.update(config)
-	config = pmxbot.config
+	config = pmxbot.config_.init(config)
 
 	pmxbot.core._load_library_extensions()
 

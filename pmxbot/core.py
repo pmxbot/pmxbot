@@ -14,6 +14,7 @@ from jaraco.itertools import always_iterable
 
 import pmxbot.dictlib
 import pmxbot.buffer
+import pmxbot.config_
 
 
 log = logging.getLogger('pmxbot')
@@ -371,8 +372,7 @@ def _load_bot_class():
 
 def initialize(config):
 	"Initialize the bot with a dictionary of config items"
-	pmxbot.config.update(config)
-	config = pmxbot.config
+	config = pmxbot.config_.init(config)
 
 	pmxbot.buffer.ErrorReportingBuffer.install()
 	_setup_logging()
