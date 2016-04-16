@@ -361,6 +361,14 @@ def _setup_logging():
 	logging.basicConfig(level=log_level, format="%(message)s")
 
 
+def _load_bot_class():
+	default = 'pmxbot.irc:LoggingCommandBot'
+	class_spec = pmxbot.config.get('bot class', default)
+	mod_name, sep, name = class_spec.partition(':')
+	module = importlib.import_module(mod_name)
+	return eval(name, vars(module))
+
+
 def initialize(config):
 	"Initialize the bot with a dictionary of config items"
 	pmxbot.config.update(config)
@@ -372,8 +380,7 @@ def initialize(config):
 	if not Handler._registry:
 		raise RuntimeError("No handlers registered")
 
-	irc = importlib.import_module('pmxbot.irc')
-	class_ = irc.SilentCommandBot if config.silent_bot else irc.LoggingCommandBot
+	class_ = _load_bot_class()
 
 	channels = config.log_channels + config.other_channels
 

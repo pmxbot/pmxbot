@@ -1,8 +1,11 @@
 1114.0
 ======
 
-* Moved paste command to librarypaste package. You must
-  require it in your deployment to retain the paste command.
+* Moved paste command to librarypaste package.
+  Require it in your deployment to retain the paste command.
+* Removed support for 'silent_bot' config variable. Instead,
+  to override the default command bot, pass the path to the
+  class as ``"bot class": "pmxbot.irc:SilentCommandBot"``.
 
 1113.6
 ======

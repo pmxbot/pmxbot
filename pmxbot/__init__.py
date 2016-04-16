@@ -6,7 +6,6 @@ config = ConfigDict(
 	bot_nickname='pmxbot',
 	password=None,
 	nickserv_password=None,
-	silent_bot=False,
 	log_channels=[],
 	other_channels=[],
 )
