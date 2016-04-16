@@ -1,12 +1,12 @@
 import logging
 
-import irc.buffer
+from jaraco.stream import buffer
 import irc.client
 
 log = logging.getLogger(__name__)
 
 
-class ErrorReportingBuffer(irc.buffer.LineBuffer):
+class ErrorReportingBuffer(buffer.LineBuffer):
 	encoding = 'utf-8'
 
 	def lines(self):
