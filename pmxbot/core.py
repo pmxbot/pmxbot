@@ -394,8 +394,11 @@ def initialize(config):
 	port = config.get('server_port', 6667)
 
 	return class_(
-		host, port,
-		config.bot_nickname, channels=channels, password=config.password,
+		host,
+		port,
+		config.bot_nickname,
+		channels=channels,
+		password=config.get('password'),
 	)
 
 
