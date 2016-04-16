@@ -22,7 +22,6 @@ class FeedHistory(set):
 	"""
 	def __init__(self, db_uri=None):
 		super().__init__()
-		db_uri = db_uri or pmxbot.config.database
 		self.store = FeedparserDB.from_URI(db_uri)
 		timer = timing.Stopwatch()
 		self.update(self.store.get_seen_feeds())

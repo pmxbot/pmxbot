@@ -2,7 +2,6 @@
 
 import time
 
-import pmxbot
 from . import storage
 from .core import command, on_join
 
@@ -10,7 +9,7 @@ from .core import command, on_join
 class Notify(storage.SelectableStorage):
 	@classmethod
 	def init(cls):
-		cls.store = cls.from_URI(pmxbot.config.database)
+		cls.store = cls.from_URI()
 		cls._finalizers.append(cls.finalize)
 
 	@classmethod

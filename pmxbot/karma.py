@@ -4,7 +4,6 @@ import itertools
 import re
 import random
 
-import pmxbot
 from . import storage
 from .core import command
 
@@ -20,7 +19,7 @@ class AlreadyLinked(ValueError):
 class Karma(storage.SelectableStorage):
 	@classmethod
 	def initialize(cls):
-		cls.store = cls.from_URI(pmxbot.config.database)
+		cls.store = cls.from_URI()
 		cls._finalizers.append(cls.finalize)
 
 	@classmethod

@@ -15,7 +15,7 @@ class ParticipantLogger(storage.SelectableStorage):
 
 	@classmethod
 	def initialize(cls):
-		cls.store = cls.from_URI(pmxbot.config.database)
+		cls.store = cls.from_URI()
 		cls._finalizers.append(cls.finalize)
 
 	@classmethod
