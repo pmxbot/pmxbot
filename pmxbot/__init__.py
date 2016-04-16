@@ -16,7 +16,6 @@ config = ConfigDict(
 	silent_bot=False,
 	log_channels=[],
 	other_channels=[],
-	places=['London', 'Tokyo', 'New York'],
 	librarypaste='http://paste.jaraco.com',
 )
 config['logs URL'] = 'http://' + socket.getfqdn()
