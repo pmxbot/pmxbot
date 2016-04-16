@@ -4,7 +4,6 @@ from .dictlib import ConfigDict
 
 config = ConfigDict(
 	bot_nickname='pmxbot',
-	use_ssl=False,
 	password=None,
 	nickserv_password=None,
 	silent_bot=False,

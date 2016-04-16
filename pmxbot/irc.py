@@ -79,7 +79,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		"""
 		Get a socket wrapper based on SSL config.
 		"""
-		if not pmxbot.config.use_ssl:
+		if not pmxbot.config.get('use_ssl', False):
 			return lambda x: x
 		return importlib.import_module('ssl').wrap_socket
 
