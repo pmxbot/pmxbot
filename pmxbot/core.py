@@ -380,9 +380,13 @@ def initialize(config):
 	log.info('Running with config')
 	log.info(pprint.pformat(config))
 
+	host = config.get('server_host', 'localhost')
+	port = config.get('server_port', 6667)
+
 	return class_(
-		config.server_host, config.server_port,
-		config.bot_nickname, channels=channels, password=config.password)
+		host, port,
+		config.bot_nickname, channels=channels, password=config.password,
+	)
 
 
 def _load_library_extensions():
