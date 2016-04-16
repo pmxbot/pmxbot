@@ -1,3 +1,4 @@
+import os
 import random
 import calendar
 import datetime
@@ -16,7 +17,6 @@ import inflect
 import pmxbot.core
 import pmxbot.logging
 import pmxbot.util
-import pmxbot.config_
 
 jenv = jinja2.Environment(loader=jinja2.loaders.PackageLoader('pmxbot.web'))
 TIMEOUT = 10.0
@@ -312,8 +312,12 @@ def patch_compat(config):
 		config['port'] = config.pop('web_port')
 
 
-def _init_config():
-	config = pmxbot.config
+def init_config(config={}):
+	config.setdefault('web_base', '/')
+	config.setdefault('host', '::0')
+	config.setdefault('port', int(os.environ.get('PORT', 8080)))
+
+	config = pmxbot.core.init_config(config)
 
 	if not config.web_base.startswith('/'):
 		config['web_base'] = '/' + config.web_base
@@ -327,11 +331,9 @@ def _init_config():
 def startup(config):
 	patch_compat(config)
 
-	config = pmxbot.config_.init(config)
+	config = init_config(config)
 
 	pmxbot.core._load_library_extensions()
-
-	_init_config()
 
 	# Cherrypy configuration here
 	app_conf = {

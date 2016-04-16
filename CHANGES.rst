@@ -6,6 +6,9 @@
 * Removed support for 'silent_bot' config variable. Instead,
   to override the default command bot, pass the path to the
   class as ``"bot class": "pmxbot.irc:SilentCommandBot"``.
+* Removed implicit construction of ``pmxbot.config``. Instead,
+  that ConfigDict is constructed explicitly during initialization
+  of the bot or the viewer.
 
 1113.6
 ======
