@@ -57,7 +57,6 @@ setup_params = dict(
 		':python_version=="3.6"': ['jinja2'],
 	},
 	description="IRC bot - full featured, yet extensible and customizable",
-	license='MIT',
 	author="YouGov, Plc.",
 	author_email="open.source@yougov.com",
 	maintainer='Jason R. Coombs',
