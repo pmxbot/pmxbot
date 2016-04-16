@@ -629,7 +629,8 @@ def _request_friendly(auth):
 def paste(client, event, channel, nick, rest):
 	"Drop a link to your latest paste"
 	path = '/last/{nick}'.format(**vars())
-	url = urllib.parse.urljoin(pmxbot.config.librarypaste, path)
+	paste_root = pmxbot.config.get('librarypaste', 'http://paste.jaraco.com')
+	url = urllib.parse.urljoin(paste_root, path)
 	auth = pmxbot.config.get('librarypaste auth')
 	resp = requests.head(url, auth=_request_friendly(auth))
 	if not resp.ok:

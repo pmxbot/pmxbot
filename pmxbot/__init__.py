@@ -12,6 +12,5 @@ config = ConfigDict(
 	silent_bot=False,
 	log_channels=[],
 	other_channels=[],
-	librarypaste='http://paste.jaraco.com',
 )
 "The config object"
