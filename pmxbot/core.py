@@ -382,6 +382,9 @@ def initialize(config):
 
 	class_ = _load_bot_class()
 
+	config.setdefault('log_channels', [])
+	config.setdefault('other_channels', [])
+
 	channels = config.log_channels + config.other_channels
 
 	log.info('Running with config')
