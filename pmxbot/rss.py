@@ -78,12 +78,16 @@ class FeedHistory(set):
 class RSSFeeds(FeedHistory):
 	"""
 	Plugin for feedparser support.
+
+	Config values:
+	- feed_interval: minutes between feed checks
+	- feeds: list of dicts, each with name, channel, linkurl, and url
 	"""
 
 	def __init__(self):
 		super().__init__()
-		self.feed_interval = pmxbot.config.feed_interval
-		self.feeds = pmxbot.config.feeds
+		self.feed_interval = pmxbot.config.get('feed_interval', 15)
+		self.feeds = pmxbot.config.get('feeds', [])
 		for feed in self.feeds:
 			core.execdelay(
 				name='feedparser',

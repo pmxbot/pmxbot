@@ -17,13 +17,6 @@ config = ConfigDict(
 	log_channels=[],
 	other_channels=[],
 	places=['London', 'Tokyo', 'New York'],
-	feed_interval=15,  # minutes
-	feeds=[dict(
-		name='pmxbot bitbucket',
-		channel='#inane',
-		linkurl='http://bitbucket.org/yougov/pmxbot',
-		url='http://bitbucket.org/yougov/pmxbot',
-	)],
 	librarypaste='http://paste.jaraco.com',
 )
 config['logs URL'] = 'http://' + socket.getfqdn()
