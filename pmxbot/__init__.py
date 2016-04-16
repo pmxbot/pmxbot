@@ -1,8 +1,5 @@
 # vim:ts=4:sw=4:noexpandtab
 
-import socket
-import logging as _logging
-
 from .dictlib import ConfigDict
 
 config = ConfigDict(
@@ -18,7 +15,4 @@ config = ConfigDict(
 	other_channels=[],
 	librarypaste='http://paste.jaraco.com',
 )
-config['logs URL'] = 'http://' + socket.getfqdn()
-config['log level'] = _logging.INFO
-
 "The config object"

@@ -5,6 +5,7 @@ import itertools
 import struct
 import traceback
 import urllib.parse
+import socket
 
 import pytz
 from jaraco.context import ExceptionTrap
@@ -436,7 +437,8 @@ def where(client, event, channel, nick, rest):
 @command()
 def logs(client, event, channel, nick, rest):
 	"Where can one find the logs?"
-	base = pmxbot.config.get('logs URL')
+	default_url = 'http://' + socket.getfqdn()
+	base = pmxbot.config.get('logs URL', default_url)
 	logged_channel = channel in pmxbot.config.log_channels
 	path = '/channel/' + channel.lstrip('#') if logged_channel else '/'
 	return urllib.parse.urljoin(base, path)

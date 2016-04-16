@@ -355,7 +355,7 @@ def run():
 
 
 def _setup_logging():
-	log_level = pmxbot.config['log level']
+	log_level = pmxbot.config.get('log level', logging.INFO)
 	if isinstance(log_level, str):
 		log_level = getattr(logging, log_level.upper())
 	logging.basicConfig(level=log_level, format="%(message)s")
