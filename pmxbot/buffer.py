@@ -1,6 +1,7 @@
 import logging
 
 import irc.buffer
+import irc.client
 
 log = logging.getLogger(__name__)
 
