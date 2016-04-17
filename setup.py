@@ -48,13 +48,9 @@ setup_params = dict(
 
 		# for viewer
 		"cherrypy>=3.2.3",
+		"jinja2",
 	],
 	extras_require={
-		':python_version=="3.2"': ['jinja2<2.7dev'],
-		':python_version=="3.3"': ['jinja2'],
-		':python_version=="3.4"': ['jinja2'],
-		':python_version=="3.5"': ['jinja2'],
-		':python_version=="3.6"': ['jinja2'],
 	},
 	description="IRC bot - full featured, yet extensible and customizable",
 	author="YouGov, Plc.",

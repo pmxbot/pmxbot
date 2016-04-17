@@ -1,6 +1,10 @@
-1114.0
+1115.0
 ======
 
+* Dropped support for Python 3.2.
+
+1114.0
+======
 * Moved paste command to librarypaste package.
   Require it in your deployment to retain the paste command.
 * Removed support for 'silent_bot' config variable. Instead,
