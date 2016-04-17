@@ -22,7 +22,7 @@ class Quotes(storage.SelectableStorage):
 class SQLiteQuotes(Quotes, storage.SQLiteStorage):
 	def init_tables(self):
 		CREATE_QUOTES_TABLE = '''
-			CREATE TABLE IF NOT EXISTS quotes (quoteid INTEGER NOT NULL, library VARCHAR, quote TEXT, PRIMARY KEY (quoteid))
+			CREATE TABLE IF NOT EXISTS quotes (quoteid INTEGER NOT NULL, library VARCHAR NOT NULL, quote TEXT NOT NULL, PRIMARY KEY (quoteid))
 		'''
 		CREATE_QUOTES_INDEX = '''CREATE INDEX IF NOT EXISTS ix_quotes_library on quotes(library)'''
 		CREATE_QUOTE_LOG_TABLE = '''
@@ -71,6 +71,9 @@ class SQLiteQuotes(Quotes, storage.SQLiteStorage):
 	def quoteAdd(self, quote):
 		lib = self.lib
 		quote = quote.strip()
+		if not quote:
+			# Do not add empty quotes
+			return
 		ADD_QUOTE_SQL = 'INSERT INTO quotes (library, quote) VALUES (?, ?)'
 		res = self.db.execute(ADD_QUOTE_SQL, (lib, quote,))
 		quoteid = res.lastrowid
@@ -80,8 +83,10 @@ class SQLiteQuotes(Quotes, storage.SQLiteStorage):
 		self.db.commit()
 
 	def __iter__(self):
-		query = "SELECT quote FROM quotes WHERE library = ?"
-		return self.db.execute(query, [self.lib])
+		# Note: also filter on quote not null, for backward compatibility
+		query = "SELECT quote FROM quotes WHERE library = ? and quote is not null"
+		for row in self.db.execute(query, [self.lib]):
+			yield {'text': row[0]}
 
 	def export_all(self):
 		query = "SELECT quote, library, logid from quotes left outer join quote_log on quotes.quoteid = quote_log.quoteid"
