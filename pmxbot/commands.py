@@ -618,14 +618,30 @@ def blame(client, event, channel, nick, rest):
 
 @contains('pmxbot', channels='unlogged', rate=.3)
 def rand_bot(client, event, channel, nick, rest):
-	normal_functions = [
-		featurecreep, insult, motivate, compliment, cheer,
-		golfclap, nastygram, curse, bless, job, hire, oregontrail,
-		chain, tinytear, blame, panic, rubberstamp, dance, annoy, klingon,
-		storytime, murphy]
-	quote_functions = [quotes.quote]
-	func = random.choice(normal_functions + quote_functions)
-	nick = nick if func in normal_functions else ''
+	default_commands = [
+		'featurecreep', 'insult', 'motivate', 'compliment', 'cheer',
+		'golfclap', 'nastygram', 'curse', 'bless', 'job', 'hire',
+		'oregontrail',
+		'chain', 'tinytear', 'blame', 'panic', 'rubberstamp', 'dance',
+		'annoy', 'klingon',
+		'storytime', 'murphy', 'quote',
+	]
+
+	def lookup_command(cmd_name):
+		return next(
+			handler
+			for handler in pmxbot.core.CommandHandler._registry
+			if handler.match('!' + cmd_name + ' ', channel=None)
+		).func
+
+	functions = pmxbot.config.get('random commands', default_commands)
+	exclude_nick_functions = 'quote',
+	chosen = random.choice(functions)
+	func = lookup_command(chosen)
+
+	# Only use the relevant nick as the target in some cases
+	nick = nick if chosen not in exclude_nick_functions else ''
+
 	# save the func for troubleshooting
 	rand_bot.last_func = func
 	return func(client, event, channel, 'pmxbot', nick)
