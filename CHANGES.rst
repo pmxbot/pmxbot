@@ -1,6 +1,8 @@
 1116.1
 ======
 
+(should have been 1115.1, still backward-compatible)
+
 * ``rand_bot`` commands can now be configured in the
   ``random commands`` config variable. Because it now
   resolves commands by name, it's possible for rand_bot
