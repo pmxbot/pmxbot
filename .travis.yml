@@ -1,9 +1,18 @@
-language: python
 sudo: false
+language: python
 python:
-  - 3.3
-  - 3.4
-  - 3.5
-# command to run tests
+- 3.3
+- 3.4
+- 3.5
 script:
-  - python setup.py test --addopts='-rs'
+- pip install -U pytest
+- python setup.py test --addopts='-rs'
+deploy:
+  provider: pypi
+  on:
+    tags: true
+    all_branches: true
+    python: 3.5
+  user: jaraco
+  # supply password with `travis encrypt --add deploy.password`
+  distributions: release
