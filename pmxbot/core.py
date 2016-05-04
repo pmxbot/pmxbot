@@ -201,10 +201,6 @@ class ContainsHandler(Handler):
 			not self.channels and not self.exclude
 			or channel in self.channels
 			or self.exclude and channel not in self.exclude
-			or self.channels == "logged" and channel in pmxbot.config.log_channels
-			or self.channels == "unlogged" and channel not in pmxbot.config.log_channels
-			or self.exclude == "logged" and channel not in pmxbot.config.log_channels
-			or self.exclude == "unlogged" and channel in pmxbot.config.log_channels
 		)
 
 	def _rate_match(self):

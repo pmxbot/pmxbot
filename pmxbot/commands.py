@@ -14,7 +14,7 @@ import pmxbot
 from .core import command, contains
 from . import util
 from . import karma
-from . import quotes
+from . import logging
 from . import phrases
 
 
@@ -616,7 +616,7 @@ def blame(client, event, channel, nick, rest):
 		yield "/me cries and weeps in despair"
 
 
-@contains('pmxbot', channels='unlogged', rate=.3)
+@contains('pmxbot', channels=logging.UnloggedChannels(), rate=.3)
 def rand_bot(client, event, channel, nick, rest):
 	default_commands = [
 		'featurecreep', 'insult', 'motivate', 'compliment', 'cheer',

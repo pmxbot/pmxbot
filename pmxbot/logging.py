@@ -13,7 +13,7 @@ from more_itertools import chunked
 
 import pmxbot
 from . import storage
-from pmxbot.core import command, NoLog
+from pmxbot.core import command, NoLog, regexp
 
 
 class Logger(storage.SelectableStorage):
@@ -432,6 +432,21 @@ def where(client, event, channel, nick, rest):
 		return tmpl.format(tm=tm, chan=chan, onick=onick)
 	else:
 		return "Sorry!  I don't have any record of %s speaking" % onick
+
+
+class LoggedChannels:
+	def __contains__(self, channel):
+		return channel in pmxbot.config.log_channels
+
+
+class UnloggedChannels:
+	def __contains__(self, channel):
+		return channel not in pmxbot.config.log_channels
+
+
+@regexp(None, '.*', channels=LoggedChannels(), priority=99, allow_chain=True)
+def log_message(client, event, channel, nick, rest):
+	Logger.store.message(channel, nick, rest.group(0))
 
 
 @command()

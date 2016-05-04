@@ -87,7 +87,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		sent = self._out(self._conn, channel, s)
 		log &= (
 			channel in self._channels
-			and channel in pmxbot.config.log_channels
+			and channel in pmxbot.logging.LoggedChannels()
 			and not s.startswith('/me ')
 		)
 		if sent and log:
@@ -207,8 +207,6 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			return
 		nick = event.source.nick
 		channel = event.target
-		if channel in pmxbot.config.log_channels:
-			pmxbot.logging.Logger.store.message(channel, nick, msg)
 		self.handle_action(connection, event, channel, nick, msg)
 
 	def on_privmsg(self, connection, event):
