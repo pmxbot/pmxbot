@@ -632,6 +632,7 @@ def rand_bot(client, event, channel, nick, rest):
 			handler
 			for handler in pmxbot.core.CommandHandler._registry
 			if handler.match('!' + cmd_name + ' ', channel=None)
+			if isinstance(handler, pmxbot.core.CommandHandler)
 		).func
 
 	functions = pmxbot.config.get('random commands', default_commands)
