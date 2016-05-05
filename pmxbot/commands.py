@@ -628,12 +628,9 @@ def rand_bot(client, event, channel, nick, rest):
 	]
 
 	def lookup_command(cmd_name):
-		return next(
-			handler
-			for handler in pmxbot.core.CommandHandler._registry
-			if handler.match('!' + cmd_name + ' ', channel=None)
-			if isinstance(handler, pmxbot.core.CommandHandler)
-		).func
+		msg = '!' + cmd_name + ' '
+		res = pmxbot.core.CommandHandler.find_matching(msg, channel=None)
+		return next(res).func
 
 	functions = pmxbot.config.get('random commands', default_commands)
 	exclude_nick_functions = 'quote',

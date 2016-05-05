@@ -147,6 +147,18 @@ class Handler:
 	allow_chain = False
 	"allow subsequent handlers to also process the same message"
 
+	@classmethod
+	def find_matching(cls, message, channel):
+		"""
+		Yield ``cls`` subclasses that match message and channel
+		"""
+		return (
+			handler
+			for handler in cls._registry
+			if isinstance(handler, cls)
+			and handler.match(message, channel)
+		)
+
 	def __init__(self, **kwargs):
 		self.__dict__.update(kwargs)
 

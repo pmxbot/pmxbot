@@ -90,12 +90,8 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		# the bot has just said something, feed that
 		# message into the logging handler to be included
 		# in the logs.
-		handlers = (
-			handler
-			for handler in core.Handler._registry
-			if isinstance(handler, core.ContentHandler)
-		)
-		for handler in handlers:
+		res = core.ContentHandler.find_matching(message=sent, channel=channel)
+		for handler in res:
 			handler.func(self._conn, None, channel, self._nickname, sent)
 
 	@staticmethod
@@ -268,10 +264,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		"Core message parser and dispatcher"
 
 		messages = ()
-		matching_handlers = (
-			handler for handler in core.Handler._registry
-			if handler.match(msg, channel))
-		for handler in matching_handlers:
+		for handler in core.Handler.find_matching(msg, channel):
 			exception_handler = functools.partial(
 				self._handle_exception,
 				handler=handler,
