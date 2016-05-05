@@ -327,6 +327,8 @@ def init_config(config={}):
 		web_base = config.web_base or '/'
 		config['logo'] = urllib.parse.urljoin(web_base, 'pmxbot.png')
 
+	return config
+
 
 def startup(config):
 	patch_compat(config)

@@ -1,3 +1,8 @@
+1115.2.1
+========
+
+* Fix bug in log viewer startup.
+
 1115.2
 ======
 
