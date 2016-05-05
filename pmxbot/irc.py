@@ -16,7 +16,6 @@ import irc.client
 import tempora
 
 import pmxbot.itertools
-import pmxbot.logging
 from . import core
 
 
@@ -85,13 +84,19 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 
 	def out(self, channel, s, log=True):
 		sent = self._out(self._conn, channel, s)
-		log &= (
-			channel in self._channels
-			and channel in pmxbot.logging.LoggedChannels()
-			and not s.startswith('/me ')
+		if not sent or not log or s.startswith('/me'):
+			return
+
+		# the bot has just said something, feed that
+		# message into the logging handler to be included
+		# in the logs.
+		handlers = (
+			handler
+			for handler in core.Handler._registry
+			if handler.func.__name__ == 'log_message'
 		)
-		if sent and log:
-			pmxbot.logging.Logger.store.message(channel, self._nickname, sent)
+		for handler in handlers:
+			handler.func(self._conn, None, channel, self._nickname, sent)
 
 	@staticmethod
 	def _out(conn, channel, msg):
