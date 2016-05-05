@@ -1,3 +1,14 @@
+1115.2
+======
+
+* Moved most of the logging logic into the ``logging``
+  module, making it an optional module that could be
+  extracted to a separate package except for dependencies
+  in the viewer and saysomething modules.
+* Added a new ``core.ContentHandler`` message
+  handler, suitable for handling any messages that passes
+  through the bot.
+
 1115.1
 ======
 

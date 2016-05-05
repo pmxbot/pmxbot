@@ -13,6 +13,7 @@ from more_itertools import chunked
 
 import pmxbot
 from . import storage
+from . import core
 from pmxbot.core import command, NoLog
 
 
@@ -432,6 +433,25 @@ def where(client, event, channel, nick, rest):
 		return tmpl.format(tm=tm, chan=chan, onick=onick)
 	else:
 		return "Sorry!  I don't have any record of %s speaking" % onick
+
+
+class LoggedChannels:
+	def __contains__(self, channel):
+		return channel in pmxbot.config.log_channels
+
+
+class UnloggedChannels:
+	def __contains__(self, channel):
+		return channel not in pmxbot.config.log_channels
+
+
+# Create a content handler for capturing logged channels
+logging_handler = core.ContentHandler(channels=LoggedChannels())
+
+
+@logging_handler.decorate
+def log_message(client, event, channel, nick, rest):
+	Logger.store.message(channel, nick, rest)
 
 
 @command()

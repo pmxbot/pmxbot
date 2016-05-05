@@ -14,7 +14,7 @@ import pmxbot
 from .core import command, contains
 from . import util
 from . import karma
-from . import quotes
+from . import logging
 from . import phrases
 
 
@@ -616,7 +616,7 @@ def blame(client, event, channel, nick, rest):
 		yield "/me cries and weeps in despair"
 
 
-@contains('pmxbot', channels='unlogged', rate=.3)
+@contains('pmxbot', channels=logging.UnloggedChannels(), rate=.3)
 def rand_bot(client, event, channel, nick, rest):
 	default_commands = [
 		'featurecreep', 'insult', 'motivate', 'compliment', 'cheer',
@@ -628,11 +628,9 @@ def rand_bot(client, event, channel, nick, rest):
 	]
 
 	def lookup_command(cmd_name):
-		return next(
-			handler
-			for handler in pmxbot.core.CommandHandler._registry
-			if handler.match('!' + cmd_name + ' ', channel=None)
-		).func
+		msg = '!' + cmd_name + ' '
+		res = pmxbot.core.CommandHandler.find_matching(msg, channel=None)
+		return next(res).func
 
 	functions = pmxbot.config.get('random commands', default_commands)
 	exclude_nick_functions = 'quote',

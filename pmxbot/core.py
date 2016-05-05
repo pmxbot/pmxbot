@@ -147,6 +147,18 @@ class Handler:
 	allow_chain = False
 	"allow subsequent handlers to also process the same message"
 
+	@classmethod
+	def find_matching(cls, message, channel):
+		"""
+		Yield ``cls`` subclasses that match message and channel
+		"""
+		return (
+			handler
+			for handler in cls._registry
+			if isinstance(handler, cls)
+			and handler.match(message, channel)
+		)
+
 	def __init__(self, **kwargs):
 		self.__dict__.update(kwargs)
 
@@ -201,10 +213,6 @@ class ContainsHandler(Handler):
 			not self.channels and not self.exclude
 			or channel in self.channels
 			or self.exclude and channel not in self.exclude
-			or self.channels == "logged" and channel in pmxbot.config.log_channels
-			or self.channels == "unlogged" and channel not in pmxbot.config.log_channels
-			or self.exclude == "logged" and channel not in pmxbot.config.log_channels
-			or self.exclude == "unlogged" and channel in pmxbot.config.log_channels
 		)
 
 	def _rate_match(self):
@@ -267,6 +275,15 @@ class RegexpHandler(ContainsHandler):
 
 	def process(self, message):
 		return self.pattern.search(message)
+
+
+class ContentHandler(ContainsHandler):
+	"""
+	A custom handler that by default handles all messages.
+	"""
+	class_priority = 5
+	allow_chain = True
+	name = ''
 
 
 def contains(name, channels=(), exclude=(), rate=1.0, priority=1, doc=None, **kwargs):

@@ -16,7 +16,6 @@ import irc.client
 import tempora
 
 import pmxbot.itertools
-import pmxbot.logging
 from . import core
 
 
@@ -85,13 +84,15 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 
 	def out(self, channel, s, log=True):
 		sent = self._out(self._conn, channel, s)
-		log &= (
-			channel in self._channels
-			and channel in pmxbot.config.log_channels
-			and not s.startswith('/me ')
-		)
-		if sent and log:
-			pmxbot.logging.Logger.store.message(channel, self._nickname, sent)
+		if not sent or not log or s.startswith('/me'):
+			return
+
+		# the bot has just said something, feed that
+		# message into the logging handler to be included
+		# in the logs.
+		res = core.ContentHandler.find_matching(message=sent, channel=channel)
+		for handler in res:
+			handler.func(self._conn, None, channel, self._nickname, sent)
 
 	@staticmethod
 	def _out(conn, channel, msg):
@@ -207,8 +208,6 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			return
 		nick = event.source.nick
 		channel = event.target
-		if channel in pmxbot.config.log_channels:
-			pmxbot.logging.Logger.store.message(channel, nick, msg)
 		self.handle_action(connection, event, channel, nick, msg)
 
 	def on_privmsg(self, connection, event):
@@ -265,10 +264,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		"Core message parser and dispatcher"
 
 		messages = ()
-		matching_handlers = (
-			handler for handler in core.Handler._registry
-			if handler.match(msg, channel))
-		for handler in matching_handlers:
+		for handler in core.Handler.find_matching(msg, channel):
 			exception_handler = functools.partial(
 				self._handle_exception,
 				handler=handler,
