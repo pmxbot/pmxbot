@@ -445,13 +445,8 @@ class UnloggedChannels:
 		return channel not in pmxbot.config.log_channels
 
 
-# Create a high-priority contains handler for capturing logged channels
-logging_handler = core.ContainsHandler(
-	name='',
-	channels=LoggedChannels(),
-	allow_chain=True,
-	class_priority=5,
-)
+# Create a content handler for capturing logged channels
+logging_handler = core.ContentHandler(channels=LoggedChannels())
 
 
 @logging_handler.decorate

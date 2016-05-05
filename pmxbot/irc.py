@@ -93,7 +93,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 		handlers = (
 			handler
 			for handler in core.Handler._registry
-			if handler.func.__name__ == 'log_message'
+			if isinstance(handler, core.ContentHandler)
 		)
 		for handler in handlers:
 			handler.func(self._conn, None, channel, self._nickname, sent)

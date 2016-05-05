@@ -265,6 +265,15 @@ class RegexpHandler(ContainsHandler):
 		return self.pattern.search(message)
 
 
+class ContentHandler(ContainsHandler):
+	"""
+	A custom handler that by default handles all messages.
+	"""
+	class_priority = 5
+	allow_chain = True
+	name = ''
+
+
 def contains(name, channels=(), exclude=(), rate=1.0, priority=1, doc=None, **kwargs):
 	return ContainsHandler(
 		name=name,
