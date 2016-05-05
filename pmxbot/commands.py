@@ -26,21 +26,27 @@ def plaintext(html):
 @command(aliases='g')
 def google(client, event, channel, nick, rest):
 	"Look up a phrase on google"
-	BASE_URL = 'http://ajax.googleapis.com/ajax/services/search/web?'
+	API_URL = 'https://www.googleapis.com/customsearch/v1?'
+	try:
+		key = pmxbot.config['Google API key']
+	except KeyError:
+		return "Configure 'Google API key' in config"
+	# Use a custom search that searches everything normally
+	# http://stackoverflow.com/a/11206266/70170
+	custom_search = '001691716015206881191:uu1-mnv98um'
 	params = dict(
-		v='1.0',
+		key=key,
+		cx=custom_search,
 		q=rest.strip(),
 	)
-	url = BASE_URL + urllib.parse.urlencode(params)
+	url = API_URL + urllib.parse.urlencode(params)
 	resp = requests.get(url)
 	resp.raise_for_status()
 	results = resp.json()
-	if not results['responseData']:
-		raise RuntimeError(results['responseDetails'])
-	hit1 = results['responseData']['results'][0]
+	hit1 = next(iter(results['items']))
 	return ' - '.join((
-		urllib.parse.unquote(hit1['url']),
-		hit1['titleNoFormatting'],
+		urllib.parse.unquote(hit1['link']),
+		hit1['title'],
 	))
 
 

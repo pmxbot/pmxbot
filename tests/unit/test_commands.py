@@ -36,6 +36,14 @@ def onetrue(*args):
 	return len(truthiness) == 1
 
 
+@pytest.fixture
+def google_api_key(monkeypatch):
+	key = os.environ.get('GOOGLE_API_KEY')
+	if not key:
+		pytest.skip("Need GOOGLE_API_KEY environment variable")
+	monkeypatch.setitem(pmxbot.config, 'Google API key', key)
+
+
 class TestCommands:
 	@classmethod
 	def setup_class(cls):
@@ -51,9 +59,8 @@ class TestCommands:
 		path = os.path.dirname(os.path.abspath(__file__))
 		os.remove(os.path.join(path, 'pmxbot.sqlite'))
 
-	@pytest.mark.xfail(reason="https://bitbucket.org/yougov/pmxbot/issue/38")
 	@pytest.has_internet
-	def test_google(self):
+	def test_google(self, google_api_key):
 		"""
 		Basic google search for "pmxbot". Result must contain a link.
 		"""

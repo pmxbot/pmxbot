@@ -1,6 +1,10 @@
 1115.2
 ======
 
+* Google Search now works again, but requires
+  an API key. Request an API key for your deployment
+  and set the 'Google API key' config variable to that
+  value to restore the !g command.
 * Moved most of the logging logic into the ``logging``
   module, making it an optional module that could be
   extracted to a separate package except for dependencies
