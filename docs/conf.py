@@ -9,7 +9,7 @@ extensions = [
 ]
 
 # General information about the project.
-project = 'skeleton'
+project = 'pmxbot'
 copyright = '2016 Jason R. Coombs'
 
 # The short X.Y version.
@@ -28,7 +28,7 @@ link_files = {
 		replace=[
 			dict(
 				pattern=r"(Issue )?#(?P<issue>\d+)",
-				url='{GH}/jaraco/{project}/issues/{issue}',
+				url='{GH}/yougov/{project}/issues/{issue}',
 			),
 			dict(
 				pattern=r"^(?m)((?P<scm_version>v?\d+(\.\d+){1,2}))\n[-=]+\n",
