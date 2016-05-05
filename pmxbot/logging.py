@@ -13,7 +13,8 @@ from more_itertools import chunked
 
 import pmxbot
 from . import storage
-from pmxbot.core import command, NoLog, regexp
+from . import core
+from pmxbot.core import command, NoLog
 
 
 class Logger(storage.SelectableStorage):
@@ -444,9 +445,18 @@ class UnloggedChannels:
 		return channel not in pmxbot.config.log_channels
 
 
-@regexp(None, '.*', channels=LoggedChannels(), priority=99, allow_chain=True)
+# Create a high-priority contains handler for capturing logged channels
+logging_handler = core.ContainsHandler(
+	name='',
+	channels=LoggedChannels(),
+	allow_chain=True,
+	class_priority=5,
+)
+
+
+@logging_handler.decorate
 def log_message(client, event, channel, nick, rest):
-	Logger.store.message(channel, nick, rest.group(0))
+	Logger.store.message(channel, nick, rest)
 
 
 @command()
