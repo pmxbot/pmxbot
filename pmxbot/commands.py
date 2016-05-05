@@ -652,16 +652,13 @@ def rand_bot(client, event, channel, nick, rest):
 
 
 @contains("sqlonrails")
+@contains("sql on rails")
 def yay_sor(client, event, channel, nick, rest):
 	karma.Karma.store.change('sql on rails', 1)
 	return "Only 76,417 lines..."
 
 
-@contains("sql on rails")
-def other_sor(*args):
-	return yay_sor(*args)
-
-calc_exp = re.compile("^[0-9 \*/\-\+\)\(\.]+$")
+calc_exp = re.compile(r"^[0-9 \*/\-\+\)\(\.]+$")
 
 
 @command()
