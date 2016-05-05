@@ -1,7 +1,7 @@
 1115.2
 ======
 
-* Google Search now works again, but requires
+* Issue #38: Google Search now works again, but requires
   an API key. Request an API key for your deployment
   and set the 'Google API key' config variable to that
   value to restore the !g command.
