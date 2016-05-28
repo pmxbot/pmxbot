@@ -187,7 +187,7 @@ def quote(client, event, channel, nick, rest):
 		return 'Quote added!'
 	if rest.startswith('del: ') or rest.startswith('del '):
 		cmd, sep, lookup = rest.partition(' ')
-		Quotes.store.delete(rest)
+		Quotes.store.delete(lookup)
 		return 'Deleted the sole quote that matched'
 	qt, i, n = Quotes.store.lookup(rest)
 	if not qt:
