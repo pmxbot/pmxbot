@@ -26,9 +26,9 @@ class Quotes(storage.SelectableStorage):
 			return lookup, 0
 		return prefix, int(num)
 
-	def quoteLookupWNum(self, rest=''):
+	def lookup(self, rest=''):
 		rest = rest.strip()
-		return self.quoteLookup(*self.split_num(rest))
+		return self.lookup_with_num(*self.split_num(rest))
 
 
 class SQLiteQuotes(Quotes, storage.SQLiteStorage):
@@ -45,7 +45,7 @@ class SQLiteQuotes(Quotes, storage.SQLiteStorage):
 		self.db.execute(CREATE_QUOTE_LOG_TABLE)
 		self.db.commit()
 
-	def quoteLookup(self, thing='', num=0):
+	def lookup_with_num(self, thing='', num=0):
 		lib = self.lib
 		BASE_SEARCH_SQL = 'SELECT quoteid, quote FROM quotes WHERE library = ? %s order by quoteid'
 		thing = thing.strip().lower()
@@ -67,7 +67,7 @@ class SQLiteQuotes(Quotes, storage.SQLiteStorage):
 			quote = ''
 		return (quote, i + 1, n)
 
-	def quoteAdd(self, quote):
+	def add(self, quote):
 		lib = self.lib
 		quote = quote.strip()
 		if not quote:
@@ -109,7 +109,7 @@ class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 			if matches(row['text'])
 		]
 
-	def quoteLookup(self, thing='', num=0):
+	def lookup_with_num(self, thing='', num=0):
 		by_text = operator.itemgetter('text')
 		results = list(map(by_text, self.find_matches(thing)))
 
@@ -137,7 +137,7 @@ class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 			result, = self.find_matches(lookup)
 		self.db.delete_one(result)
 
-	def quoteAdd(self, quote):
+	def add(self, quote):
 		quote = quote.strip()
 		quote_id = self.db.insert(dict(library=self.lib, text=quote))
 		# see if the quote added is in the last IRC message logged
@@ -181,15 +181,15 @@ def quote(client, event, channel, nick, rest):
 	"""
 	rest = rest.strip()
 	if rest.startswith('add: ') or rest.startswith('add '):
-		quoteToAdd = rest.split(' ', 1)[1]
-		Quotes.store.quoteAdd(quoteToAdd)
+		quote_to_add = rest.split(' ', 1)[1]
+		Quotes.store.add(quote_to_add)
 		qt = False
 		return 'Quote added!'
 	if rest.startswith('del: ') or rest.startswith('del '):
 		cmd, sep, lookup = rest.partition(' ')
 		Quotes.store.delete(rest)
 		return 'Deleted the sole quote that matched'
-	qt, i, n = Quotes.store.quoteLookupWNum(rest)
+	qt, i, n = Quotes.store.lookup(rest)
 	if not qt:
 		return
 	return '(%s/%s): %s' % (i, n, qt)

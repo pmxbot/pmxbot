@@ -7,10 +7,10 @@ def test_MongoDBQuotes(mongodb_uri):
 	clean = lambda: q.db.remove({'library': 'test'})
 	clean()
 	try:
-		q.quoteAdd('who would ever say such a thing')
-		q.quoteAdd('go ahead, take my pay')
-		q.quoteAdd("let's do the Time Warp again")
-		q.quoteLookup('time warp')
-		q.quoteLookup('nonexistent')
+		q.add('who would ever say such a thing')
+		q.add('go ahead, take my pay')
+		q.add("let's do the Time Warp again")
+		q.lookup('time warp')
+		q.lookup('nonexistent')
 	finally:
 		clean()
