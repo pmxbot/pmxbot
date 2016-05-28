@@ -10,7 +10,11 @@ def test_MongoDBQuotes(mongodb_uri):
 		q.add('who would ever say such a thing')
 		q.add('go ahead, take my pay')
 		q.add("let's do the Time Warp again")
-		q.lookup('time warp')
+		qt, i, n = q.lookup('time warp')
+		assert qt.startswith("let's")
 		q.lookup('nonexistent')
+		q.delete('Time Warp')
+		qt, i, n = q.lookup('Time Warp')
+		assert qt == ''
 	finally:
 		clean()
