@@ -107,11 +107,7 @@ class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 
 	def quoteLookupWNum(self, rest=''):
 		rest = rest.strip()
-		if rest:
-			qt, i, n = self.quoteLookup(*self.split_num(rest))
-		else:
-			qt, i, n = self.quoteLookup()
-		return qt, i, n
+		return self.quoteLookup(*self.split_num(rest))
 
 	def find_matches(self, thing):
 		thing = thing.strip().lower()
