@@ -170,7 +170,7 @@ class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 		self.db.insert(quote)
 
 
-@command('quote', aliases=('q',))
+@command(aliases='q')
 def quote(client, event, channel, nick, rest):
 	"""
 	If passed with nothing then get a random quote. If passed with some
