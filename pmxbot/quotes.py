@@ -132,7 +132,7 @@ class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 		"""
 		lookup, num = self.split_num(lookup)
 		if num:
-			result = self.find_maches(lookup)[num-1]
+			result = self.find_matches(lookup)[num-1]
 		else:
 			result, = self.find_matches(lookup)
 		self.db.delete_one(result)
