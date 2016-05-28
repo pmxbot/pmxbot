@@ -7,6 +7,9 @@ python:
 script:
 - pip install -U pytest
 - python setup.py test --addopts='-rs'
+branches:
+  except:
+    - skeleton
 deploy:
   provider: pypi
   on:
