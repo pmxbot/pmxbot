@@ -19,6 +19,17 @@ class Quotes(storage.SelectableStorage):
 	def finalize(cls):
 		del cls.store
 
+	@staticmethod
+	def split_num(lookup):
+		prefix, sep, num = lookup.rpartition(' ')
+		if not prefix or not num.isdigit():
+			return lookup, 0
+		return prefix, int(num)
+
+	def quoteLookupWNum(self, rest=''):
+		rest = rest.strip()
+		return self.quoteLookup(*self.split_num(rest))
+
 
 class SQLiteQuotes(Quotes, storage.SQLiteStorage):
 	def init_tables(self):
@@ -33,19 +44,6 @@ class SQLiteQuotes(Quotes, storage.SQLiteStorage):
 		self.db.execute(CREATE_QUOTES_INDEX)
 		self.db.execute(CREATE_QUOTE_LOG_TABLE)
 		self.db.commit()
-
-	def quoteLookupWNum(self, rest=''):
-		rest = rest.strip()
-		if rest:
-			if rest.split()[-1].isdigit():
-				num = rest.split()[-1]
-				query = ' '.join(rest.split()[:-1])
-				qt, i, n = self.quoteLookup(query, num)
-			else:
-				qt, i, n = self.quoteLookup(rest)
-		else:
-			qt, i, n = self.quoteLookup()
-		return qt, i, n
 
 	def quoteLookup(self, thing='', num=0):
 		lib = self.lib
@@ -97,17 +95,6 @@ class SQLiteQuotes(Quotes, storage.SQLiteStorage):
 
 class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 	collection_name = 'quotes'
-
-	@staticmethod
-	def split_num(lookup):
-		prefix, sep, num = lookup.rpartition(' ')
-		if not prefix or not num.isdigit():
-			return lookup, 0
-		return prefix, int(num)
-
-	def quoteLookupWNum(self, rest=''):
-		rest = rest.strip()
-		return self.quoteLookup(*self.split_num(rest))
 
 	def find_matches(self, thing):
 		thing = thing.strip().lower()
