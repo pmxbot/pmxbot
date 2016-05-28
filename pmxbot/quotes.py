@@ -1,6 +1,7 @@
 # vim:ts=4:sw=4:noexpandtab
 
 import random
+import operator
 
 from . import storage
 from .core import command
@@ -97,32 +98,38 @@ class SQLiteQuotes(Quotes, storage.SQLiteStorage):
 class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 	collection_name = 'quotes'
 
+	@staticmethod
+	def split_num(lookup):
+		prefix, sep, num = lookup.rpartition(' ')
+		if not prefix or not num.isdigit():
+			return lookup, 0
+		return prefix, int(num)
+
 	def quoteLookupWNum(self, rest=''):
 		rest = rest.strip()
 		if rest:
-			if rest.split()[-1].isdigit():
-				num = rest.split()[-1]
-				query = ' '.join(rest.split()[:-1])
-				qt, i, n = self.quoteLookup(query, num)
-			else:
-				qt, i, n = self.quoteLookup(rest)
+			qt, i, n = self.quoteLookup(*self.split_num(rest))
 		else:
 			qt, i, n = self.quoteLookup()
 		return qt, i, n
 
-	def quoteLookup(self, thing='', num=0):
+	def find_matches(self, thing):
 		thing = thing.strip().lower()
-		num = int(num)
 		words = thing.split()
 
 		def matches(quote):
 			quote = quote.lower()
 			return all(word in quote for word in words)
-		results = [
-			row['text'] for row in
+		return [
+			row for row in
 			self.db.find(dict(library=self.lib)).sort('_id')
 			if matches(row['text'])
 		]
+
+	def quoteLookup(self, thing='', num=0):
+		by_text = operator.itemgetter('text')
+		results = list(map(by_text, self.find_matches(thing)))
+
 		n = len(results)
 		if n > 0:
 			if num:
@@ -134,6 +141,18 @@ class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 			i = 0
 			quote = ''
 		return (quote, i + 1, n)
+
+	def delete(self, lookup):
+		"""
+		If exactly one quote matches, delete it. Otherwise,
+		raise a ValueError.
+		"""
+		lookup, num = self.split_num(lookup)
+		if num:
+			result = self.find_maches(lookup)[num-1]
+		else:
+			result, = self.find_matches(lookup)
+		self.db.delete_one(result)
 
 	def quoteAdd(self, quote):
 		quote = quote.strip()
@@ -173,7 +192,9 @@ def quote(client, event, channel, nick, rest):
 	"""
 	If passed with nothing then get a random quote. If passed with some
 	string then search for that. If prepended with "add:" then add it to the
-	db, eg "!quote add: drivers: I only work here because of pmxbot!
+	db, eg "!quote add: drivers: I only work here because of pmxbot!".
+	Delete an individual quote by prepending "del:" and passing a search
+	matching exactly one query.
 	"""
 	rest = rest.strip()
 	if rest.startswith('add: ') or rest.startswith('add '):
@@ -181,6 +202,10 @@ def quote(client, event, channel, nick, rest):
 		Quotes.store.quoteAdd(quoteToAdd)
 		qt = False
 		return 'Quote added!'
+	if rest.startswith('del: ') or rest.startswith('del '):
+		cmd, sep, lookup = rest.partition(' ')
+		Quotes.store.delete(rest)
+		return 'Deleted the sole quote that matched'
 	qt, i, n = Quotes.store.quoteLookupWNum(rest)
 	if not qt:
 		return

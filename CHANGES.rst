@@ -1,3 +1,9 @@
+1115.3
+======
+
+* Add ``delete`` support to quotes command (currently
+  only for MongoDB storage).
+
 1115.2.1
 ========
 
