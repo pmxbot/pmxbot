@@ -52,7 +52,7 @@ class WarnHistory(dict):
 		for line in msg.splitlines():
 			connection.notice(nick, line)
 
-class LoggingCommandBot(irc.bot.SingleServerIRCBot):
+class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 	def __init__(self, server, port, nickname, channels, password=None):
 		server_list = [(server, port, password)]
 		irc.bot.SingleServerIRCBot.__init__(self, server_list, nickname, nickname)
@@ -82,25 +82,8 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			return lambda x: x
 		return importlib.import_module('ssl').wrap_socket
 
-	def out(self, channel, s, log=True):
-		sent = self._out(self._conn, channel, s)
-		if not sent or not log or s.startswith('/me'):
-			return
-
-		# the bot has just said something, feed that
-		# message into the logging handler to be included
-		# in the logs.
-		res = core.ContentHandler.find_matching(message=sent, channel=channel)
-		for handler in res:
-			handler.func(self._conn, None, channel, self._nickname, sent)
-
-	@staticmethod
-	def _out(conn, channel, msg):
-		"""
-		Transmit `msg` on irc.client.ServerConnection `conn` using
-		`channel`. If `msg` looks like an action, transmit it as such.
-		Suppress all exceptions (but log warnings for each).
-		"""
+	def transmit(self, channel, msg):
+		conn = self._conn
 		func = conn.privmsg
 		if msg.startswith('/me '):
 			func = conn.action
@@ -109,7 +92,7 @@ class LoggingCommandBot(irc.bot.SingleServerIRCBot):
 			func(channel, msg)
 			return msg
 		except irc.client.MessageTooLong:
-			# some messages will fail because they're too long
+			# some msgs will fail because they're too long
 			log.warning("Long message could not be transmitted: %s", msg)
 		except irc.client.InvalidCharacters:
 			log.warning(

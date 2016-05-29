@@ -8,6 +8,7 @@ import logging
 import pprint
 import re
 import importlib
+import abc
 
 import pkg_resources
 from jaraco.itertools import always_iterable
@@ -353,6 +354,29 @@ class ConfigMergeAction(argparse.Action):
 			a.update(b)
 			return a
 		setattr(namespace, self.dest, functools.reduce(merge_dicts, values))
+
+
+class Bot(metaclass=abc.ABCMeta):
+	def out(self, channel, s, log=True):
+		sent = self.transmit(channel, s)
+		if not sent or not log or s.startswith('/me'):
+			return
+
+		# the bot has just said something, feed that
+		# message into the logging handler to be included
+		# in the logs.
+		res = ContentHandler.find_matching(message=sent, channel=channel)
+		for handler in res:
+			handler.func(self._conn, None, channel, self._nickname, sent)
+
+	@abc.abstractmethod
+	def transmit(self, channel, message):
+		"""
+		Transmit `message` using
+		`channel`. If `message` looks like an action, transmit it as such.
+		Suppress all exceptions (but log warnings for each).
+		Return the message as sent.
+		"""
 
 
 def get_args(*args, **kwargs):
