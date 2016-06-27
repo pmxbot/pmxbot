@@ -1,5 +1,6 @@
 import re
 import os
+import string
 import uuid
 import urllib.error
 
@@ -485,3 +486,45 @@ class TestCommands:
 		result = ''.join(lines)
 		assert 'help' in result
 		assert result == '!help: Help (this command)'
+
+	def test_password(self):
+		"""
+		Test the default password command.
+
+		Result should include at least one ascii character, digit,
+		and punctuation character.
+		"""
+		res = commands.password(c, e, '#test', 'testrunner', '')
+		assert len(res) == 12
+		assert any(char in res for char in string.ascii_letters)
+		assert any(char in res for char in string.digits)
+		assert any(char in res for char in string.punctuation)
+
+	@pytest.mark.parametrize(["length"], [[val] for val in range(4, 100)])
+	def test_password_specific(self, length):
+		"""
+		Test the password command (with a length argument >= 4).
+		"""
+		res = commands.password(c, e, '#test', 'testrunner', str(length))
+		assert len(res) == int(length)
+		assert any(char in res for char in string.ascii_letters)
+		assert any(char in res for char in string.digits)
+		assert any(char in res for char in string.punctuation)
+
+	@pytest.mark.parametrize(["length"], [[val] for val in range(1, 4)])
+	def test_password_specific_short(self, length):
+		"""
+		Test the password command with a length argument < 4.
+
+		With passwords this short we can't guarantee they'll
+		contain one of each character set.
+		"""
+		res = commands.password(c, e, '#test', 'testrunner', str(length))
+		assert len(res) == int(length)
+
+	def test_password_nonint(self):
+		"""
+		Test the password command with a non-integer argument.
+		"""
+		res = commands.password(c, e, '#test', 'testrunner', 'test')
+		assert res == 'need an integer password length!'

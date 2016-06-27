@@ -3,6 +3,7 @@
 import sys
 import re
 import random
+import string
 import csv
 import urllib.parse
 
@@ -387,10 +388,29 @@ def password(client, event, channel, nick, rest):
 	Generate a random password, similar to
 	http://www.pctools.com/guides/password
 	"""
-	chars = '32547698ACBEDGFHKJMNQPSRUTWVYXZacbedgfhkjmnqpsrutwvyxz'
+	charsets = [
+		string.ascii_lowercase,
+		string.ascii_uppercase,
+		string.digits,
+		string.punctuation,
+	]
 	passwd = []
-	for i in range(8):
-		passwd.append(random.choice(chars))
+
+	try:
+		length = rest.strip() or 12
+		length = int(length)
+	except ValueError:
+		return 'need an integer password length!'
+
+	for i in range(length):
+		passwd.append(random.choice(''.join(charsets)))
+
+	if length >= len(charsets):
+		# Ensure we have at least one character from each charset
+		replacement_indices = random.sample(range(length), len(charsets))
+		for i, charset in zip(replacement_indices, charsets):
+			passwd[i] = random.choice(charset)
+
 	return ''.join(passwd)
 
 
