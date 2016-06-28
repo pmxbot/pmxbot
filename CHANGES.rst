@@ -1,3 +1,8 @@
+1115.4
+======
+
+* #47: !password now generates more secure passwords.
+
 1115.3
 ======
 
