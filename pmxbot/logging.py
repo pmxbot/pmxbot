@@ -6,6 +6,7 @@ import struct
 import traceback
 import urllib.parse
 import socket
+import operator
 
 import pytz
 from jaraco.context import ExceptionTrap
@@ -15,6 +16,9 @@ import pmxbot
 from . import storage
 from . import core
 from pmxbot.core import command, NoLog
+
+
+first = operator.itemgetter(0)
 
 
 class Logger(storage.SelectableStorage):
@@ -97,7 +101,7 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
 
 	def get_random_logs(self, limit):
 		query = "SELECT message FROM logs order by random() limit %(limit)s" % vars()
-		return self.db.execute(query)
+		return map(first, self.db.execute(query))
 
 	def get_channel_days(self, channel):
 		query = 'select distinct date(datetime) from logs where channel = ?'
