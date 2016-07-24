@@ -4,13 +4,11 @@ from pmxbot import logging
 
 
 class TestLogging:
-	@pytest.yield_fixture
-	def logger(self, db_uri):
+	@pytest.fixture
+	def logger(self, request, db_uri):
 		logger = logging.Logger.from_URI(db_uri)
-		try:
-			yield logger
-		finally:
-			logger.clear()
+		request.addfinalizer(logger.clear)
+		return logger
 
 	def test_get_random_logs(self, logger):
 		logger.message('#inane', 'nik', 'message one')
