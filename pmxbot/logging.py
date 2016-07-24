@@ -36,6 +36,11 @@ class Logger(storage.SelectableStorage):
 	def list_channels(self):
 		return self._list_channels()
 
+	def clear(self):
+		"""
+		Remove all messages from the database.
+		"""
+
 
 class SQLiteLogger(Logger, storage.SQLiteStorage):
 
@@ -169,6 +174,10 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
 		fields = 'id', 'datetime', 'nick', 'message', 'channel'
 		results = (dict(zip(fields, record)) for record in cursor)
 		return itertools.imap(parse_date, results)
+
+	def clear(self):
+		query = 'DELETE from logs'
+		self.db.execute(query)
 
 
 def parse_date(record):
@@ -342,6 +351,9 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		message['_id'] = oid
 		message['datetime'] = self._fmt_date(dt)
 		self.db.insert(message)
+
+	def clear(self):
+		self.db.delete_many({})
 
 
 class FullTextMongoDBLogger(MongoDBLogger):

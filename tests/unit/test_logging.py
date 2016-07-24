@@ -1,4 +1,23 @@
+import pytest
+
 from pmxbot import logging
+
+
+class TestLogging:
+	@pytest.yield_fixture
+	def logger(self, db_uri):
+		logger = logging.Logger.from_URI(db_uri)
+		try:
+			yield logger
+		finally:
+			logger.clear()
+
+	def test_get_random_logs(self, logger):
+		logger.message('#inane', 'nik', 'message one')
+		logger.message('#inane', 'nik', 'message two')
+		messages = list(logger.get_random_logs(2))
+		assert len(messages) == 2
+		assert set(messages) == set(['message one', 'message two'])
 
 
 class TestMongoDBLogging:
@@ -18,14 +37,6 @@ class TestMongoDBLogging:
 		l.message('#channel5', 'nik', 'something great happened today - the test passed')
 		assert l.db.count() == 1
 		assert 'test passed' in l.db.find_one()['message']
-
-	def test_get_random_logs(self, mongodb_uri):
-		l = self.setup_logging(mongodb_uri)
-		l.message('#inane', 'nik', 'message one')
-		l.message('#inane', 'nik', 'message two')
-		messages = list(l.get_random_logs(2))
-		assert len(messages) == 2
-		assert set(messages) == set(['message one', 'message two'])
 
 	def test_list_channels(self, mongodb_uri):
 		l = self.setup_logging(mongodb_uri)
