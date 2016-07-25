@@ -1,5 +1,15 @@
 # vim:ts=4:sw=4:noexpandtab
 
+r"""
+>>> import io
+>>> import itertools
+>>> f = io.StringIO("foo said one thing\n\nfoo said another thing\n\nbar said nothing\n")
+>>> data = markov_data_from_words(words_from_file(f))
+>>> words = words_from_markov_data(data)
+>>> paragraph_from_words(words)
+'...'
+"""
+
 import threading
 import random
 import logging
