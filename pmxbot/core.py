@@ -358,7 +358,7 @@ class ConfigMergeAction(argparse.Action):
 
 class Bot(metaclass=abc.ABCMeta):
 	def out(self, channel, s, log=True):
-		sent = self.transmit(channel, s)
+		sent = self.allow(channel, s) and self.transmit(channel, s)
 		if not sent or not log or s.startswith('/me'):
 			return
 
@@ -377,6 +377,15 @@ class Bot(metaclass=abc.ABCMeta):
 		Suppress all exceptions (but log warnings for each).
 		Return the message as sent.
 		"""
+
+	def allow(self, channel, message):
+		"""
+		Allow plugins to filter content.
+		"""
+		return all(
+			filter(channel, message)
+			for filter in _load_filters()
+		)
 
 
 def get_args(*args, **kwargs):
@@ -463,11 +472,11 @@ def _load_library_extensions():
 
 		entry_points = {
 			'pmxbot_handlers': [
-				'plugin_name = mylib.mymodule:initialize_func',
+				'plugin name = mylib.mymodule:initialize_func',
 			],
 		},
 
-	`plugin_name` can be anything, and is only used to display the name
+	`plugin name` can be anything, and is only used to display the name
 	of the plugin at initialization time.
 	"""
 	group = 'pmxbot_handlers'
@@ -480,3 +489,15 @@ def _load_library_extensions():
 				init_func()
 		except Exception:
 			log.exception("Error initializing plugin %s." % ep)
+
+
+@functools.lru_cache()
+def _load_filters():
+	"""
+	Locate all entry points by the name 'pmxbot_filters', each of
+	which should refer to a callable(channel, msg) that must return
+	True for the message not to be excluded.
+	"""
+	group = 'pmxbot_filters'
+	eps = pkg_resources.iter_entry_points(group=group)
+	return [ep.load() for ep in eps]

@@ -1,3 +1,13 @@
+1115.5
+======
+
+* Add a pluggable filter system. Now any library can
+  expose any number of "pmxbot_filters" entry points,
+  each pointing to a callable accepting
+  ``(channel, message)``. If any filter returns
+  anything other than a truthy value, the message will
+  not be transmitted.
+
 1115.4.1
 ========
 
