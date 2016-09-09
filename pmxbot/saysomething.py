@@ -132,8 +132,8 @@ class FastSayer:
 			raise RuntimeError("Timeout waiting for stores to be initialized")
 
 
-@pmxbot.core.command("saysomething")
-def saysomething(client, event, channel, nick, rest):
+@pmxbot.core.command()
+def saysomething(rest):
 	"""
 	Generate a Markov Chain response based on past logs. Seed it with
 	a starting word by adding that to the end, eg

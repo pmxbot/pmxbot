@@ -14,7 +14,7 @@ from pmxbot.core import command, Handler
 
 
 @command(aliases='h')
-def help(client, event, channel, nick, rest):
+def help(rest):
 	"""Help (this command)"""
 	rs = rest.strip()
 	if rs:
@@ -46,7 +46,7 @@ def help(client, event, channel, nick, rest):
 
 
 @command(aliases=('controlaltdelete', 'controlaltdelete', 'cad', 'restart', 'quit',))
-def ctlaltdel(client, event, channel, nick, rest):
+def ctlaltdel(rest):
 	"""Quits pmxbot. A supervisor should automatically restart it."""
 	if 'real' in rest.lower():
 		sys.exit()
@@ -54,7 +54,7 @@ def ctlaltdel(client, event, channel, nick, rest):
 
 
 @command()
-def logo(client, event, channel, nick, rest):
+def logo():
 	"""The pmxbot logo in ascii art.  Fixed-width font recommended!"""
 	logo_txt = pkg_resources.resource_stream('pmxbot', 'asciilogo.txt')
 	for line in logo_txt:

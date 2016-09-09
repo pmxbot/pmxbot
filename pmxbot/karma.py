@@ -247,7 +247,7 @@ class MongoDBKarma(Karma, storage.MongoDBStorage):
 
 
 @command(aliases="k")
-def karma(client, event, channel, nick, rest):
+def karma(nick, rest):
 	"Return or change the karma value for some(one|thing)"
 	karmee = rest.strip('++').strip('--').strip('~~')
 	if '++' in rest:
@@ -281,7 +281,7 @@ def karma(client, event, channel, nick, rest):
 
 
 @command("top10", aliases=("top",))
-def top10(client, event, channel, nick, rest):
+def top10(rest):
 	"""
 	Return the top n (default 10) highest entities by Karmic value.
 	Use negative numbers for the bottom N.
@@ -296,7 +296,7 @@ def top10(client, event, channel, nick, rest):
 
 
 @command(aliases=("bottom",))
-def bottom10(client, event, channel, nick, rest):
+def bottom10(rest):
 	"""
 	Return the bottom n (default 10) lowest entities by Karmic value.
 	Use negative numbers for the bottom N.

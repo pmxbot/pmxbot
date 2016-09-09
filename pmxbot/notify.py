@@ -64,7 +64,7 @@ class MongoDBNotify(Notify, storage.MongoDBStorage):
 
 
 @command("notify")
-def donotify(client, event, channel, nick, rest):
+def donotify(nick, rest):
 	"notify <nick> <message>"
 	opts = rest.split(' ')
 	to = opts[0]

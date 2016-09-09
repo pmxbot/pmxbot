@@ -171,7 +171,7 @@ class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 
 
 @command(aliases='q')
-def quote(client, event, channel, nick, rest):
+def quote(rest):
 	"""
 	If passed with nothing then get a random quote. If passed with some
 	string then search for that. If prepended with "add:" then add it to the

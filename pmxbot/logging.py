@@ -466,12 +466,12 @@ logging_handler = core.ContentHandler(channels=LoggedChannels())
 
 
 @logging_handler.decorate
-def log_message(client, event, channel, nick, rest):
+def log_message(channel, nick, rest):
 	Logger.store.message(channel, nick, rest)
 
 
 @command()
-def logs(client, event, channel, nick, rest):
+def logs(channel):
 	"Where can one find the logs?"
 	default_url = 'http://' + socket.getfqdn()
 	base = pmxbot.config.get('logs URL', default_url)
@@ -481,7 +481,7 @@ def logs(client, event, channel, nick, rest):
 
 
 @command()
-def log(client, event, channel, nick, rest):
+def log(channel, rest):
 	"""
 	Enable or disable logging for a channel;
 	use 'please' to start logging and 'stop please' to stop.

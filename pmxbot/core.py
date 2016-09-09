@@ -207,12 +207,16 @@ class Handler:
 
 	def attach(self, params):
 		"""
-		Attach relevant params to self.func, returning a callable
+		Attach relevant params to func, returning a callable
 		that takes no parameters.
 		"""
-		sig = inspect.signature(self.func)
-		params = Projection(sig.parameters.keys(), params)
-		return functools.partial(self.func, **params)
+		return attach(self.func, params)
+
+
+def attach(func, params):
+	sig = inspect.signature(func)
+	params = Projection(sig.parameters.keys(), params)
+	return functools.partial(func, **params)
 
 
 class ContainsHandler(Handler):
