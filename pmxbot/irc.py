@@ -252,7 +252,9 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 				self._handle_exception,
 				handler=handler,
 			)
-			f = functools.partial(handler.func, connection, event, channel, nick, handler.process(msg))
+			rest = handler.process(msg)
+			client = connection
+			f = handler.attach(locals())
 			results = pmxbot.itertools.generate_results(f)
 			clean_results = pmxbot.itertools.trap_exceptions(results, exception_handler)
 			messages = itertools.chain(messages, clean_results)

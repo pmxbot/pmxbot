@@ -46,7 +46,7 @@ setup_params = dict(
 		"more_itertools",
 		"jaraco.timing",
 		"tempora",
-		"jaraco.collections",
+		"jaraco.collections>=1.5",
 		"jaraco.itertools",
 		"jaraco.context",
 		"jaraco.classes",

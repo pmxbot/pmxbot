@@ -9,9 +9,11 @@ import pprint
 import re
 import importlib
 import abc
+import inspect
 
 import pkg_resources
 from jaraco.itertools import always_iterable
+from jaraco.collections import Projection
 
 import pmxbot.dictlib
 import pmxbot.buffer
@@ -168,6 +170,16 @@ class Handler:
 		self._registry.sort()
 
 	def decorate(self, func):
+		"""
+		Decorate a handler function. The handler should accept keyword
+		parameters for values supplied by the bot, a subset of:
+		- client
+		- connection (alias for client)
+		- event
+		- channel
+		- nick
+		- rest
+		"""
 		self.func = func
 		self._set_implied_name()
 		self.register()
@@ -192,6 +204,15 @@ class Handler:
 
 	def process(self, message):
 		return message
+
+	def attach(self, params):
+		"""
+		Attach relevant params to self.func, returning a callable
+		that takes no parameters.
+		"""
+		sig = inspect.signature(self.func)
+		params = Projection(sig.parameters.keys(), params)
+		return functools.partial(self.func, **params)
 
 
 class ContainsHandler(Handler):

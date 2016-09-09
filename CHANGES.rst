@@ -1,3 +1,20 @@
+1116.0
+======
+
+* Handler functions no longer solicit positional arguments
+  but instead should solicit whatever parameters they
+  require. Functions using the following names will
+  continue to work as before::
+
+    def handler(client, event, channel, nick, rest)
+
+  But handlers not needing all of those parameters should
+  remove the unused names, e.g.::
+
+    @pmxbot.command
+    def handler(nick):
+        return "Hello, " + nick
+
 1115.5
 ======
 
