@@ -132,11 +132,6 @@ class FinalRegistry:
 			except:
 				pass
 
-_delay_registry = []
-_at_registry = []
-_join_registry = []
-_leave_registry = []
-
 
 class Handler:
 	_registry = []
@@ -312,6 +307,28 @@ class ContentHandler(ContainsHandler):
 	name = ''
 
 
+class DelayHandler(Handler):
+	_registry = []
+
+
+class AtHandler(Handler):
+	_registry = []
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		date_types = datetime.date, datetime.datetime, datetime.time
+		if not isinstance(self.when, date_types):
+			raise TypeError("when must be a date or time object")
+
+
+class JoinHandler(Handler):
+	_registry = []
+
+
+class LeaveHandler(Handler):
+	_registry = []
+
+
 def contains(name, channels=(), exclude=(), rate=1.0, priority=1, doc=None, **kwargs):
 	return ContainsHandler(
 		name=name,
@@ -343,34 +360,32 @@ def regexp(name, regexp, doc=None, **kwargs):
 
 
 def execdelay(name, channel, howlong, args=[], doc=None, repeat=False):
-	def deco(func):
-		_delay_registry.append((name.lower(), channel, howlong, func, args, doc, repeat))
-		return func
-	return deco
+	return DelayHandler(
+		name=name.lower(),
+		channel=channel,
+		duration=howlong,
+		args=args,
+		doc=doc,
+		repeat=repeat,
+	).decorate
 
 
 def execat(name, channel, when, args=[], doc=None):
-	def deco(func):
-		date_types = datetime.date, datetime.datetime, datetime.time
-		if not isinstance(when, date_types):
-			raise TypeError("when must be a date or time object")
-		_at_registry.append((name.lower(), channel, when, func, args, doc))
-		return func
-	return deco
+	return AtHandler(
+		name=name.lower(),
+		channel=channel,
+		when=when,
+		args=args,
+		doc=doc,
+	).decorate
 
 
 def on_join(doc=None):
-	def deco(func):
-		_join_registry.append(func)
-		return func
-	return deco
+	return JoinHandler(doc=doc).decorate
 
 
 def on_leave(doc=None):
-	def deco(func):
-		_leave_registry.append(func)
-		return func
-	return deco
+	return LeaveHandler(doc=doc).decorate
 
 
 class ConfigMergeAction(argparse.Action):

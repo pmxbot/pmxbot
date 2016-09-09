@@ -135,18 +135,27 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 			connection.join(channel)
 
 		# set up delayed tasks
-		for name, channel, howlong, func, args, doc, repeat in core._delay_registry:
-			arguments = connection, channel, func, args
+		for handler in core.DelayHandler._registry:
+			arguments = connection, handler.channel, handler.func, handler.args
 			executor = (
-				connection.execute_every if repeat
+				connection.execute_every if handler.repeat
 				else connection.execute_delayed
 			)
-			executor(howlong, self.background_runner, arguments)
-		for action in core._at_registry:
+			runner = functools.partial(self.background_runner, arguments)
+			executor(handler.duration, runner)
+		for handler in core.AtHandler._registry:
+			action = (
+				handler.name,
+				handler.channel,
+				handler.when,
+				handler.func,
+				handler.args,
+				handler.doc,
+			)
 			try:
 				self._schedule_at(connection, *action)
 			except Exception:
-				log.exception("Error scheduling %s", action)
+				log.exception("Error scheduling %s", handler)
 
 		self._set_keepalive(connection)
 
@@ -164,11 +173,12 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 	def on_join(self, connection, event):
 		nick = event.source.nick
 		channel = event.target
-		for func in core._join_registry:
+		client = connection
+		for handler in core.JoinHandler._registry:
 			try:
-				func(client=connection, event=event, nick=nick, channel=channel)
+				handler.attach(locals())()
 			except Exception:
-				log.exception("Error in on_join handler %s", func)
+				log.exception("Error in %s", handler)
 
 		if channel not in pmxbot.config.log_channels:
 			return
@@ -179,11 +189,12 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 	def on_leave(self, connection, event):
 		nick = event.source.nick
 		channel = event.target
-		for func in core._leave_registry:
+		client = connection
+		for handler in core.JoinHandler._registry:
 			try:
-				func(client=connection, event=event, nick=nick, channel=channel)
+				handler.attach(locals())()
 			except Exception:
-				log.exception("Error in on_leave handler %s", func)
+				log.exception("Error in %s", handler)
 
 	def on_pubmsg(self, connection, event):
 		msg = ''.join(event.arguments)

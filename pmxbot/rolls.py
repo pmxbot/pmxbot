@@ -33,14 +33,14 @@ class ParticipantLogger(storage.SelectableStorage):
 
 
 @on_join()
-def log_join(nick, channel, **kwargs):
+def log_join(nick, channel):
 	if channel not in pmxbot.config.log_channels:
 		return
 	ParticipantLogger.store.log_join(nick, channel)
 
 
 @on_leave()
-def log_leave(nick, channel, **kwargs):
+def log_leave(nick, channel):
 	if channel not in pmxbot.config.log_channels:
 		return
 	ParticipantLogger.store.log_leave(nick, channel)
