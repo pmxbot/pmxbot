@@ -98,8 +98,6 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 			log.warning(
 				"Message contains carriage returns,"
 				"which aren't allowed in IRC messages: %r", msg)
-		except Exception:
-			log.exception("Unhandled exception transmitting message: %r", msg)
 
 	def _schedule_at(self, conn, name, channel, when, func, args, doc):
 		unique_task = (func, tuple(args), name, channel, when, doc)

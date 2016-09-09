@@ -358,7 +358,11 @@ class ConfigMergeAction(argparse.Action):
 
 class Bot(metaclass=abc.ABCMeta):
 	def out(self, channel, s, log=True):
-		sent = self.allow(channel, s) and self.transmit(channel, s)
+		try:
+			sent = self.allow(channel, s) and self.transmit(channel, s)
+		except Exception:
+			log.exception("Unhandled exception transmitting message: %r", s)
+
 		if not sent or not log or s.startswith('/me'):
 			return
 
