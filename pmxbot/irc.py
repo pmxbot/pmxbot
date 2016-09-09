@@ -95,9 +95,11 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 			# some msgs will fail because they're too long
 			log.warning("Long message could not be transmitted: %s", msg)
 		except irc.client.InvalidCharacters:
-			log.warning(
-				"Message contains carriage returns,"
-				"which aren't allowed in IRC messages: %r", msg)
+			tmpl = (
+				"Message contains carriage returns, "
+				"which aren't allowed in IRC messages: %r"
+			)
+			log.warning(tmpl, msg)
 
 	def _schedule_at(self, conn, name, channel, when, func, args, doc):
 		unique_task = (func, tuple(args), name, channel, when, doc)
