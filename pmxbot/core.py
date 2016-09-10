@@ -10,6 +10,8 @@ import re
 import importlib
 import abc
 import inspect
+import traceback
+import itertools
 
 import pkg_resources
 from jaraco.itertools import always_iterable
@@ -430,6 +432,46 @@ class Bot(metaclass=abc.ABCMeta):
 			filter(channel, message)
 			for filter in _load_filters()
 		)
+
+	def _handle_exception(self, exception, handler):
+		expletives = ['Yikes!', 'Zoiks!', 'Ouch!']
+		res = [
+			"{expletive} An error occurred: {exception}".format(
+				expletive=random.choice(expletives),
+				**vars())
+		]
+		res.append('!{name} {doc}'.format(name=handler.name, doc=handler.doc))
+		print(datetime.datetime.now(), "Error with command {handler}".format(handler=handler))
+		traceback.print_exc()
+		return res
+
+	def _handle_output(self, channel, output):
+		"""
+		Given an initial channel and a sequence of messages or sentinels,
+		output the messages.
+		"""
+		augmented_messages = Sentinel.augment_items(output, channel=channel, secret=False)
+		for message in augmented_messages:
+			self.out(message.channel, message, not message.secret)
+
+	def handle_action(self, channel, nick, msg):
+		"Core message parser and dispatcher"
+
+		messages = ()
+		for handler in Handler.find_matching(msg, channel):
+			exception_handler = functools.partial(
+				self._handle_exception,
+				handler=handler,
+			)
+			rest = handler.process(msg)
+			client = connection = event = None
+			f = handler.attach(locals())
+			results = pmxbot.itertools.generate_results(f)
+			clean_results = pmxbot.itertools.trap_exceptions(results, exception_handler)
+			messages = itertools.chain(messages, clean_results)
+			if not handler.allow_chain:
+				break
+		self._handle_output(channel, messages)
 
 
 def get_args(*args, **kwargs):
