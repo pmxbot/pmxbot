@@ -19,6 +19,7 @@ from jaraco.collections import Projection
 
 import pmxbot.dictlib
 import pmxbot.buffer
+import pmxbot.itertools
 from .dictlib import ConfigDict
 
 

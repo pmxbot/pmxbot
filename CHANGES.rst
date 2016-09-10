@@ -1,6 +1,12 @@
 1117.0
 ======
 
+* Preliminary Slack support is now available. Simply
+  set following in the config:
+
+  - slack token: <your bot auth token>
+  - bot class: pmxbot.slack:Bot
+
 * Handler functions now are only ever passed None
   for the client, connection, and event parameters.
   Plugins are adviced to rely only on channel, nick,
