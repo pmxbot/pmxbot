@@ -17,17 +17,6 @@ from pmxbot import quotes
 from pmxbot import system
 
 
-class Empty:
-	"""
-	Passed in to the individual commands instead of a client/event because
-	we don't normally care about them
-	"""
-	pass
-
-c = Empty()
-e = Empty()
-
-
 def logical_xor(a, b):
 	return bool(a) ^ bool(b)
 

@@ -417,7 +417,7 @@ class LegacyFullTextMongoDBLogger(FullTextMongoDBLogger):
 
 
 @command()
-def strike(client, event, channel, nick, rest):
+def strike(channel, nick, rest):
 	"Strike last <n> statements from the record"
 	yield NoLog
 	rest = rest.strip()
@@ -439,7 +439,7 @@ def strike(client, event, channel, nick, rest):
 
 
 @command(aliases=('last', 'seen', 'lastseen'))
-def where(client, event, channel, nick, rest):
+def where(channel, nick, rest):
 	"When did pmxbot last see <nick> speak?"
 	onick = rest.strip()
 	last = Logger.store.last_seen(onick)
