@@ -15,6 +15,10 @@
     def handler(nick):
         return "Hello, " + nick
 
+* RSS support has been moved to the
+  `pmxbot.rss <https://pypi.org/project/pmxbot.rss>`_
+  plugin.
+
 1115.5
 ======
 
