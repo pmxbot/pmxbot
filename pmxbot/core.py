@@ -407,11 +407,11 @@ class Bot(metaclass=abc.ABCMeta):
 			return
 
 		# the bot has just said something, feed that
-		# message into the logging handler to be included
-		# in the logs.
+		# message into the content handlers.
+		params = dict(channel=channel, nick=self._nickname, rest=sent)
 		res = ContentHandler.find_matching(message=sent, channel=channel)
 		for handler in res:
-			handler.func(self._conn, None, channel, self._nickname, sent)
+			handler.attach(params)()
 
 	@abc.abstractmethod
 	def transmit(self, channel, message):
