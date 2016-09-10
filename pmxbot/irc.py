@@ -202,7 +202,7 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 			return
 		nick = event.source.nick
 		channel = event.target
-		self.handle_action(connection, event, channel, nick, msg)
+		self.handle_action(channel, nick, msg)
 
 	def on_privmsg(self, connection, event):
 		msg = ''.join(event.arguments)
@@ -210,7 +210,7 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 			return
 		nick = event.source.nick
 		channel = nick
-		self.handle_action(connection, event, channel, nick, msg)
+		self.handle_action(channel, nick, msg)
 
 	def on_invite(self, connection, event):
 		nick = event.source.nick
@@ -254,7 +254,7 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 		traceback.print_exc()
 		return res
 
-	def handle_action(self, connection, event, channel, nick, msg):
+	def handle_action(self, channel, nick, msg):
 		"Core message parser and dispatcher"
 
 		messages = ()
@@ -264,7 +264,7 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 				handler=handler,
 			)
 			rest = handler.process(msg)
-			client = connection
+			client = connection = event = None
 			f = handler.attach(locals())
 			results = pmxbot.itertools.generate_results(f)
 			clean_results = pmxbot.itertools.trap_exceptions(results, exception_handler)

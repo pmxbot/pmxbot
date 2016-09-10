@@ -1,3 +1,11 @@
+1117.0
+======
+
+* Handler functions now are only ever passed None
+  for the client, connection, and event parameters.
+  Plugins are adviced to rely only on channel, nick,
+  and rest.
+
 1116.0
 ======
 
