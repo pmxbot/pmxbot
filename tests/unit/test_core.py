@@ -23,34 +23,15 @@ class LoggingCommandBotTest(TestCase):
         channel = '#some-channel'
         when = now()
         func = lambda x: x
-        args = [1, 2, 3]
         doc = 'some doc'
 
-        self.bot._schedule_at(conn, name, channel, when, func, args, doc)
-        self.bot._schedule_at(conn, name, channel, when, func, args, doc)
+        self.bot._schedule_at(conn, name, channel, when, func, doc)
+        self.bot._schedule_at(conn, name, channel, when, func, doc)
 
         conn.reactor._schedule_command.assert_called_once_with(
             DelayedCommandMatch())
         mock_partial.assert_called_once_with(
-            self.bot.background_runner, conn, channel, func, args)
-
-    @mock.patch('functools.partial')
-    def test_schedules_same_command_if_args_differ(self, mock_partial):
-        conn = mock.MagicMock()
-        name = 'some name'
-        channel = '#some-channel'
-        when = now()
-        func = lambda x: x
-        args = [1, 2, 3]
-        doc = 'some doc'
-
-        self.bot._schedule_at(conn, name, channel, when, func, args, doc)
-        self.bot._schedule_at(conn, name, channel, when, func, args + [4], doc)
-
-        self.assertEqual(conn.reactor._schedule_command.mock_calls, [
-            mock.call(DelayedCommandMatch()),
-            mock.call(DelayedCommandMatch()),
-        ])
+            self.bot.background_runner, channel, func)
 
     @mock.patch('functools.partial')
     def test_schedules_same_command_if_names_differ(self, mock_partial):
@@ -59,11 +40,10 @@ class LoggingCommandBotTest(TestCase):
         channel = '#some-channel'
         when = now()
         func = lambda x: x
-        args = [1, 2, 3]
         doc = 'some doc'
 
-        self.bot._schedule_at(conn, name, channel, when, func, args, doc)
-        self.bot._schedule_at(conn, 'other', channel, when, func, args, doc)
+        self.bot._schedule_at(conn, name, channel, when, func, doc)
+        self.bot._schedule_at(conn, 'other', channel, when, func, doc)
 
         self.assertEqual(conn.reactor._schedule_command.mock_calls, [
             mock.call(DelayedCommandMatch()),
@@ -77,11 +57,10 @@ class LoggingCommandBotTest(TestCase):
         channel = '#some-channel'
         when = now()
         func = lambda x: x
-        args = [1, 2, 3]
         doc = 'some doc'
 
-        self.bot._schedule_at(conn, name, channel, when, func, args, doc)
-        self.bot._schedule_at(conn, name, '#other', when, func, args, doc)
+        self.bot._schedule_at(conn, name, channel, when, func, doc)
+        self.bot._schedule_at(conn, name, '#other', when, func, doc)
 
         self.assertEqual(conn.reactor._schedule_command.mock_calls, [
             mock.call(DelayedCommandMatch()),
@@ -96,11 +75,10 @@ class LoggingCommandBotTest(TestCase):
         when = now()
         future = when + datetime.timedelta(days=15)
         func = lambda x: x
-        args = [1, 2, 3]
         doc = 'some doc'
 
-        self.bot._schedule_at(conn, name, channel, when, func, args, doc)
-        self.bot._schedule_at(conn, name, channel, future, func, args, doc)
+        self.bot._schedule_at(conn, name, channel, when, func, doc)
+        self.bot._schedule_at(conn, name, channel, future, func, doc)
 
         self.assertEqual(conn.reactor._schedule_command.mock_calls, [
             mock.call(DelayedCommandMatch()),
@@ -114,11 +92,10 @@ class LoggingCommandBotTest(TestCase):
         channel = '#some-channel'
         when = now()
         func = lambda x: x
-        args = [1, 2, 3]
         doc = 'some doc'
 
-        self.bot._schedule_at(conn, name, channel, when, func, args, doc)
-        self.bot._schedule_at(conn, name, channel, when, func, args, 'other')
+        self.bot._schedule_at(conn, name, channel, when, func, doc)
+        self.bot._schedule_at(conn, name, channel, when, func, 'other')
 
         self.assertEqual(conn.reactor._schedule_command.mock_calls, [
             mock.call(DelayedCommandMatch()),

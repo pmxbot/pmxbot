@@ -99,13 +99,13 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 			)
 			log.warning(tmpl, msg)
 
-	def _schedule_at(self, conn, name, channel, when, func, args, doc):
-		unique_task = (func, tuple(args), name, channel, when, doc)
+	def _schedule_at(self, conn, name, channel, when, func, doc):
+		unique_task = (func, name, channel, when, doc)
 		if unique_task in self._scheduled_tasks:
 			return
 		self._scheduled_tasks.add(unique_task)
-		runner_func = functools.partial(self.background_runner, conn, channel,
-			func, args)
+		runner_func = functools.partial(self.background_runner, channel,
+			func)
 		if isinstance(when, datetime.date):
 			midnight = datetime.time(0, 0, tzinfo=pytz.UTC)
 			when = datetime.datetime.combine(when, midnight)
@@ -134,7 +134,7 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 
 		# set up delayed tasks
 		for handler in core.DelayHandler._registry:
-			arguments = connection, handler.channel, handler.func
+			arguments = handler.channel, handler.func
 			executor = (
 				connection.execute_every if handler.repeat
 				else connection.execute_delayed
@@ -220,12 +220,11 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 		time.sleep(1)
 		connection.privmsg(channel, "You summoned me, master %s?" % nick)
 
-	def background_runner(self, connection, channel, func):
+	def background_runner(self, channel, func):
 		"Wrapper to run scheduled type tasks cleanly."
 		def on_error(exception):
 			print(datetime.datetime.now(), "Error in background runner for ", func)
 			traceback.print_exc()
-		func = functools.partial(func, connection, None)
 		results = pmxbot.itertools.generate_results(func)
 		clean_results = pmxbot.itertools.trap_exceptions(results, on_error)
 		self._handle_output(channel, clean_results)
