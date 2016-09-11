@@ -134,7 +134,7 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 
 		# set up delayed tasks
 		for handler in core.DelayHandler._registry:
-			arguments = connection, handler.channel, handler.func, handler.args
+			arguments = connection, handler.channel, handler.func
 			executor = (
 				connection.execute_every if handler.repeat
 				else connection.execute_delayed
@@ -147,7 +147,6 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 				handler.channel,
 				handler.when,
 				handler.func,
-				handler.args,
 				handler.doc,
 			)
 			try:
@@ -221,12 +220,12 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 		time.sleep(1)
 		connection.privmsg(channel, "You summoned me, master %s?" % nick)
 
-	def background_runner(self, connection, channel, func, args):
+	def background_runner(self, connection, channel, func):
 		"Wrapper to run scheduled type tasks cleanly."
 		def on_error(exception):
 			print(datetime.datetime.now(), "Error in background runner for ", func)
 			traceback.print_exc()
-		func = functools.partial(func, connection, None, *args)
+		func = functools.partial(func, connection, None)
 		results = pmxbot.itertools.generate_results(func)
 		clean_results = pmxbot.itertools.trap_exceptions(results, on_error)
 		self._handle_output(channel, clean_results)

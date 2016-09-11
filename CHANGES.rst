@@ -12,6 +12,9 @@
   Plugins are adviced to rely only on channel, nick,
   and rest.
 
+* ``execdelay`` and ``execat`` no longer accept ``args``
+  parameters.
+
 1116.0
 ======
 

@@ -362,23 +362,21 @@ def regexp(name, regexp, doc=None, **kwargs):
 	).decorate
 
 
-def execdelay(name, channel, howlong, args=[], doc=None, repeat=False):
+def execdelay(name, channel, howlong, doc=None, repeat=False):
 	return DelayHandler(
 		name=name.lower(),
 		channel=channel,
 		duration=howlong,
-		args=args,
 		doc=doc,
 		repeat=repeat,
 	).decorate
 
 
-def execat(name, channel, when, args=[], doc=None):
+def execat(name, channel, when, doc=None):
 	return AtHandler(
 		name=name.lower(),
 		channel=channel,
 		when=when,
-		args=args,
 		doc=doc,
 	).decorate
 
