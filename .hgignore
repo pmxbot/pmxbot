@@ -1,5 +1,0 @@
-.*\.pyc
-.*\.egg
-MongoDBInstance
-.*\.sqlite
-tests/functional/testconf.yaml
