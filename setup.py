@@ -34,7 +34,7 @@ setup_params = dict(
 	include_package_data=True,
 	namespace_packages=name.split('.')[:-1],
 	install_requires=[
-		"irc>=14.2,<15dev",
+		"irc>=15.0,<16dev",
 		"requests",
 		"pyyaml",
 		"feedparser",

@@ -16,6 +16,7 @@ import itertools
 import pkg_resources
 from jaraco.itertools import always_iterable
 from jaraco.collections import Projection
+from tempora import schedule
 
 import pmxbot.dictlib
 import pmxbot.buffer
@@ -164,6 +165,8 @@ class Handler:
 		self.__dict__.update(kwargs)
 
 	def register(self):
+		if self in self._registry:
+			return
 		self._registry.append(self)
 		self._registry.sort()
 
@@ -195,6 +198,9 @@ class Handler:
 
 	def __gt__(self, other):
 		return self.sort_key > other.sort_key
+
+	def __eq__(self, other):
+		return vars(self) == vars(other)
 
 	def match(self, message, channel):
 		"Return True if the message is matched by this handler."
@@ -310,18 +316,40 @@ class ContentHandler(ContainsHandler):
 	name = ''
 
 
-class DelayHandler(Handler):
+class Scheduled(Handler):
 	_registry = []
 
 
-class AtHandler(Handler):
-	_registry = []
+class DelayHandler(Scheduled):
+	def build_command(self):
+		cls = (
+			schedule.PeriodicCommand
+			if self.repeat else
+			schedule.DelayedCommand
+		)
+		client = connection = event = None
+		channel = self.channel
+		runner = self.attach(locals())
+		cmd = cls.after(self.duration, runner)
+		cmd.handler = self
+		return cmd
 
+
+class AtHandler(Scheduled):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		date_types = datetime.date, datetime.datetime, datetime.time
 		if not isinstance(self.when, date_types):
 			raise TypeError("when must be a date or time object")
+
+	def install(self, scheduler):
+		factory = (
+			schedule.PeriodicCommandFixedDelay.daily_at
+			if isinstance(self.when, datetime.time) else
+			schedule.DelayedCommand.at_time
+		)
+		cmd = factory(self.when, self)
+		scheduler.add(cmd)
 
 
 class JoinHandler(Handler):
@@ -471,6 +499,25 @@ class Bot(metaclass=abc.ABCMeta):
 			if not handler.allow_chain:
 				break
 		self._handle_output(channel, messages)
+
+	def init_schedule(self, scheduler):
+		for handler in Scheduled._registry:
+			handler.install(scheduler)
+
+	def handle_scheduled(self, handler):
+		"""
+		handler is a Scheduled
+		"""
+		exception_handler = functools.partial(
+			self._handle_exception,
+			handler=handler,
+		)
+		channel = handler.channel
+		client = connection = event = None
+		f = handler.attach(locals())
+		results = pmxbot.itertools.generate_results(f)
+		clean_results = pmxbot.itertools.trap_exceptions(results, exception_handler)
+		self._handle_output(handler.channel, clean_results)
 
 
 def get_args(*args, **kwargs):

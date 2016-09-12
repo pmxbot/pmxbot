@@ -50,15 +50,24 @@ class WarnHistory(dict):
 		for line in msg.splitlines():
 			connection.notice(nick, line)
 
+
+class Scheduler(tempora.schedule.CallbackScheduler, irc.schedule.IScheduler):
+	# implement abstract methods that will never get called
+	def execute_every(self, *args, **kwargs):
+		pass
+	execute_after = execute_at = execute_every
+
+
+
 class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 	def __init__(self, server, port, nickname, channels, password=None):
 		server_list = [(server, port, password)]
 		irc.bot.SingleServerIRCBot.__init__(self, server_list, nickname, nickname)
+		self.reactor.scheduler = Scheduler(dispatch=self.handle_scheduled)
 		self.nickname = nickname
 		self._channels = channels
 		self._nickname = nickname
 		self.warn_history = WarnHistory()
-		self._scheduled_tasks = set()
 
 	def connect(self, *args, **kwargs):
 		factory = irc.connection.Factory(wrapper=self._get_wrapper())
@@ -99,26 +108,6 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 			)
 			log.warning(tmpl, msg)
 
-	def _schedule_at(self, conn, name, channel, when, func, doc):
-		unique_task = (func, name, channel, when, doc)
-		if unique_task in self._scheduled_tasks:
-			return
-		self._scheduled_tasks.add(unique_task)
-		runner_func = functools.partial(self.background_runner, channel,
-			func)
-		if isinstance(when, datetime.date):
-			midnight = datetime.time(0, 0, tzinfo=pytz.UTC)
-			when = datetime.datetime.combine(when, midnight)
-		if isinstance(when, datetime.datetime):
-			cmd = irc.schedule.DelayedCommand.at_time(when, runner_func)
-			conn.reactor._schedule_command(cmd)
-			return
-		if not isinstance(when, datetime.time):
-			raise ValueError("when must be datetime, date, or time")
-		cmd = irc.schedule.PeriodicCommandFixedDelay.daily_at(when,
-			runner_func)
-		conn.reactor._schedule_command(cmd)
-
 	def on_welcome(self, connection, event):
 		# save the connection object so .out has something to call
 		self._conn = connection
@@ -132,27 +121,7 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 				channel = '#' + channel
 			connection.join(channel)
 
-		# set up delayed tasks
-		for handler in core.DelayHandler._registry:
-			arguments = handler.channel, handler.func
-			executor = (
-				connection.execute_every if handler.repeat
-				else connection.execute_delayed
-			)
-			runner = functools.partial(self.background_runner, arguments)
-			executor(handler.duration, runner)
-		for handler in core.AtHandler._registry:
-			action = (
-				handler.name,
-				handler.channel,
-				handler.when,
-				handler.func,
-				handler.doc,
-			)
-			try:
-				self._schedule_at(connection, *action)
-			except Exception:
-				log.exception("Error scheduling %s", handler)
+		self.init_schedule(self.reactor.scheduler)
 
 		self._set_keepalive(connection)
 
@@ -219,15 +188,6 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 		connection.join(channel)
 		time.sleep(1)
 		connection.privmsg(channel, "You summoned me, master %s?" % nick)
-
-	def background_runner(self, channel, func):
-		"Wrapper to run scheduled type tasks cleanly."
-		def on_error(exception):
-			print(datetime.datetime.now(), "Error in background runner for ", func)
-			traceback.print_exc()
-		results = pmxbot.itertools.generate_results(func)
-		clean_results = pmxbot.itertools.trap_exceptions(results, on_error)
-		self._handle_output(channel, clean_results)
 
 
 class SilentCommandBot(LoggingCommandBot):
