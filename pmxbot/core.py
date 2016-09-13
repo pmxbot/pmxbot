@@ -321,18 +321,13 @@ class Scheduled(Handler):
 
 
 class DelayHandler(Scheduled):
-	def build_command(self):
+	def as_cmd(self):
 		cls = (
 			schedule.PeriodicCommand
 			if self.repeat else
 			schedule.DelayedCommand
 		)
-		client = connection = event = None
-		channel = self.channel
-		runner = self.attach(locals())
-		cmd = cls.after(self.duration, runner)
-		cmd.handler = self
-		return cmd
+		return cls.after(self.duration, self)
 
 
 class AtHandler(Scheduled):
@@ -342,14 +337,13 @@ class AtHandler(Scheduled):
 		if not isinstance(self.when, date_types):
 			raise TypeError("when must be a date or time object")
 
-	def install(self, scheduler):
+	def as_cmd(self):
 		factory = (
 			schedule.PeriodicCommandFixedDelay.daily_at
 			if isinstance(self.when, datetime.time) else
 			schedule.DelayedCommand.at_time
 		)
-		cmd = factory(self.when, self)
-		scheduler.add(cmd)
+		return factory(self.when, self)
 
 
 class JoinHandler(Handler):
@@ -502,7 +496,7 @@ class Bot(metaclass=abc.ABCMeta):
 
 	def init_schedule(self, scheduler):
 		for handler in Scheduled._registry:
-			handler.install(scheduler)
+			scheduler.add(handler.as_cmd())
 
 	def handle_scheduled(self, handler):
 		"""
