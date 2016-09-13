@@ -486,6 +486,8 @@ class Bot(metaclass=abc.ABCMeta):
 			)
 			rest = handler.process(msg)
 			client = connection = event = None
+			# for regexp handlers
+			match = rest
 			f = handler.attach(locals())
 			results = pmxbot.itertools.generate_results(f)
 			clean_results = pmxbot.itertools.trap_exceptions(results, exception_handler)
