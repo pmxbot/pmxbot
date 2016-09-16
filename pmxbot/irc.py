@@ -1,13 +1,10 @@
 import textwrap
 import datetime
 import importlib
-import functools
 import logging
 import numbers
-import traceback
 import time
 
-import pytz
 import irc.bot
 import irc.schedule
 import irc.client
