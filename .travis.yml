@@ -8,4 +8,4 @@ python:
 install:
   - python -m pip install rwt
 script:
-  - python -m rwt -r 'test requirements' -- -m pytest -rs
+  - python -m rwt -r tests/requirements.txt -- -m pytest -rs
