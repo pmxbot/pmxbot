@@ -1,9 +1,10 @@
 import datetime
-from unittest import TestCase, mock
+import copy
 
-from irc.schedule import DelayedCommand, now
+import pytest
+from tempora.schedule import DelayedCommand, now
 
-from pmxbot.core import LoggingCommandBot
+from pmxbot.core import AtHandler, Scheduled
 
 
 class DelayedCommandMatch:
@@ -11,116 +12,64 @@ class DelayedCommandMatch:
         return isinstance(other, DelayedCommand)
 
 
-class LoggingCommandBotTest(TestCase):
-    def setUp(self):
-        self.bot = LoggingCommandBot(
-            'localhost', 1234, 'some-nick', ['#some-channel'])
+@pytest.fixture
+def patch_scheduled_registry(monkeypatch):
+    """
+    Ensure Scheduled._registry is not mutated by these tests.
+    """
+    monkeypatch.setattr(Scheduled, '_registry', [])
 
-    @mock.patch('functools.partial')
-    def test_doesnt_schedule_same_command_twice(self, mock_partial):
-        conn = mock.MagicMock()
-        name = 'some name'
-        channel = '#some-channel'
-        when = now()
-        func = lambda x: x
-        args = [1, 2, 3]
-        doc = 'some doc'
 
-        self.bot._schedule_at(conn, name, channel, when, func, args, doc)
-        self.bot._schedule_at(conn, name, channel, when, func, args, doc)
+@pytest.mark.usefixtures("patch_scheduled_registry")
+class TestScheduledHandlerUniqueness:
+    @pytest.fixture
+    def handler(self):
+        return AtHandler(
+            name='some name',
+            channel='#some-channel',
+            when=now(),
+            func=lambda x: x,
+            doc='some doc',
+        )
 
-        conn.reactor._schedule_command.assert_called_once_with(
-            DelayedCommandMatch())
-        mock_partial.assert_called_once_with(
-            self.bot.background_runner, conn, channel, func, args)
+    def test_doesnt_schedule_same_command_twice(self, handler):
+        handler.register()
+        copy.copy(handler).register()
 
-    @mock.patch('functools.partial')
-    def test_schedules_same_command_if_args_differ(self, mock_partial):
-        conn = mock.MagicMock()
-        name = 'some name'
-        channel = '#some-channel'
-        when = now()
-        func = lambda x: x
-        args = [1, 2, 3]
-        doc = 'some doc'
+        assert len(Scheduled._registry) == 1
 
-        self.bot._schedule_at(conn, name, channel, when, func, args, doc)
-        self.bot._schedule_at(conn, name, channel, when, func, args + [4], doc)
+    def test_schedules_same_command_if_names_differ(self, handler):
+        handler.register()
 
-        self.assertEqual(conn.reactor._schedule_command.mock_calls, [
-            mock.call(DelayedCommandMatch()),
-            mock.call(DelayedCommandMatch()),
-        ])
+        handler2 = copy.copy(handler)
+        handler2.name = 'other'
+        handler2.register()
 
-    @mock.patch('functools.partial')
-    def test_schedules_same_command_if_names_differ(self, mock_partial):
-        conn = mock.MagicMock()
-        name = 'some name'
-        channel = '#some-channel'
-        when = now()
-        func = lambda x: x
-        args = [1, 2, 3]
-        doc = 'some doc'
+        assert len(Scheduled._registry) == 2
 
-        self.bot._schedule_at(conn, name, channel, when, func, args, doc)
-        self.bot._schedule_at(conn, 'other', channel, when, func, args, doc)
+    def test_schedules_same_command_if_channels_differ(self, handler):
+        handler.register()
 
-        self.assertEqual(conn.reactor._schedule_command.mock_calls, [
-            mock.call(DelayedCommandMatch()),
-            mock.call(DelayedCommandMatch()),
-        ])
+        handler2 = copy.copy(handler)
+        handler2.channel = '#other'
+        handler2.register()
 
-    @mock.patch('functools.partial')
-    def test_schedules_same_command_if_channels_differ(self, mock_partial):
-        conn = mock.MagicMock()
-        name = 'some name'
-        channel = '#some-channel'
-        when = now()
-        func = lambda x: x
-        args = [1, 2, 3]
-        doc = 'some doc'
+        assert len(Scheduled._registry) == 2
 
-        self.bot._schedule_at(conn, name, channel, when, func, args, doc)
-        self.bot._schedule_at(conn, name, '#other', when, func, args, doc)
+    def test_schedules_same_command_if_datetimes_differ(self, handler):
+        handler.register()
 
-        self.assertEqual(conn.reactor._schedule_command.mock_calls, [
-            mock.call(DelayedCommandMatch()),
-            mock.call(DelayedCommandMatch()),
-        ])
+        handler2 = copy.copy(handler)
+        handler2.when = handler.when + datetime.timedelta(days=15)
+        handler2.register()
 
-    @mock.patch('functools.partial')
-    def test_schedules_same_command_if_datetimes_differ(self, mock_partial):
-        conn = mock.MagicMock()
-        name = 'some name'
-        channel = '#some-channel'
-        when = now()
-        future = when + datetime.timedelta(days=15)
-        func = lambda x: x
-        args = [1, 2, 3]
-        doc = 'some doc'
+        assert len(Scheduled._registry) == 2
 
-        self.bot._schedule_at(conn, name, channel, when, func, args, doc)
-        self.bot._schedule_at(conn, name, channel, future, func, args, doc)
+    def test_schedules_same_command_if_docs_differ(self, handler):
+        handler.register()
 
-        self.assertEqual(conn.reactor._schedule_command.mock_calls, [
-            mock.call(DelayedCommandMatch()),
-            mock.call(DelayedCommandMatch()),
-        ])
+        handler2 = copy.copy(handler)
+        handler2.doc = 'other'
+        handler2.register()
 
-    @mock.patch('functools.partial')
-    def test_schedules_same_command_if_docs_differ(self, mock_partial):
-        conn = mock.MagicMock()
-        name = 'some name'
-        channel = '#some-channel'
-        when = now()
-        func = lambda x: x
-        args = [1, 2, 3]
-        doc = 'some doc'
-
-        self.bot._schedule_at(conn, name, channel, when, func, args, doc)
-        self.bot._schedule_at(conn, name, channel, when, func, args, 'other')
-
-        self.assertEqual(conn.reactor._schedule_command.mock_calls, [
-            mock.call(DelayedCommandMatch()),
-            mock.call(DelayedCommandMatch()),
-        ])
+        assert len(Scheduled._registry) == 2

@@ -18,6 +18,9 @@ except ImportError:
 
 from jaraco.classes.ancestry import iter_subclasses
 
+import pmxbot
+
+
 log = logging.getLogger(__name__)
 
 
@@ -30,7 +33,8 @@ class SelectableStorage:
 	_finalizers = []
 
 	@classmethod
-	def from_URI(cls, URI):
+	def from_URI(cls, URI=None):
+		URI = URI or pmxbot.config.get('database', 'sqlite:pmxbot.sqlite')
 		candidates = reversed(list(iter_subclasses(cls)))
 		if hasattr(cls, 'scheme'):
 			candidates = itertools.chain([cls], candidates)

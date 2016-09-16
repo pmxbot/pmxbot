@@ -1,3 +1,4 @@
+import os
 import random
 import calendar
 import datetime
@@ -311,8 +312,12 @@ def patch_compat(config):
 		config['port'] = config.pop('web_port')
 
 
-def _init_config():
-	config = pmxbot.config
+def init_config(config={}):
+	config.setdefault('web_base', '/')
+	config.setdefault('host', '::0')
+	config.setdefault('port', int(os.environ.get('PORT', 8080)))
+
+	config = pmxbot.core.init_config(config)
 
 	if not config.web_base.startswith('/'):
 		config['web_base'] = '/' + config.web_base
@@ -322,16 +327,15 @@ def _init_config():
 		web_base = config.web_base or '/'
 		config['logo'] = urllib.parse.urljoin(web_base, 'pmxbot.png')
 
+	return config
+
 
 def startup(config):
 	patch_compat(config)
 
-	pmxbot.config.update(config)
-	config = pmxbot.config
+	config = init_config(config)
 
 	pmxbot.core._load_library_extensions()
-
-	_init_config()
 
 	# Cherrypy configuration here
 	app_conf = {

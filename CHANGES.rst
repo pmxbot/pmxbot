@@ -1,3 +1,139 @@
+1117.1
+======
+
+* Bot defaults to Slack if 'slack token' appears in the
+  config.
+
+1117.0
+======
+
+* Preliminary Slack support is now available. Simply
+  set following in the config:
+
+  - slack token: <your bot auth token>
+  - bot class: pmxbot.slack:Bot
+
+* Handler functions now are only ever passed None
+  for the client, connection, and event parameters.
+  Plugins are adviced to rely only on channel, nick,
+  and rest.
+
+* ``execdelay`` and ``execat`` no longer accept ``args``
+  parameters.
+
+1116.0
+======
+
+* Handler functions no longer solicit positional arguments
+  but instead should solicit whatever parameters they
+  require. Functions using the following names will
+  continue to work as before::
+
+    def handler(client, event, channel, nick, rest)
+
+  But handlers not needing all of those parameters should
+  remove the unused names, e.g.::
+
+    @pmxbot.command
+    def handler(nick):
+        return "Hello, " + nick
+
+* RSS support has been moved to the
+  `pmxbot.rss <https://pypi.org/project/pmxbot.rss>`_
+  plugin.
+
+1115.5
+======
+
+* Add a pluggable filter system. Now any library can
+  expose any number of "pmxbot_filters" entry points,
+  each pointing to a callable accepting
+  ``(channel, message)``. If any filter returns
+  anything other than a truthy value, the message will
+  not be transmitted.
+
+1115.4.1
+========
+
+* Re-release for improper tag/merge.
+
+1115.4
+======
+
+* #47: !password now generates more secure passwords.
+
+1115.3
+======
+
+* Add ``delete`` support to quotes command (currently
+  only for MongoDB storage).
+
+1115.2.1
+========
+
+* Fix bug in log viewer startup.
+
+1115.2
+======
+
+* Issue #38: Google Search now works again, but requires
+  an API key. Request an API key for your deployment
+  and set the 'Google API key' config variable to that
+  value to restore the !g command.
+* Moved most of the logging logic into the ``logging``
+  module, making it an optional module that could be
+  extracted to a separate package except for dependencies
+  in the viewer and saysomething modules.
+* Added a new ``core.ContentHandler`` message
+  handler, suitable for handling any messages that passes
+  through the bot.
+
+1115.1
+======
+
+* ``rand_bot`` commands can now be configured in the
+  ``random commands`` config variable. Because it now
+  resolves commands by name, it's possible for rand_bot
+  to now respond with commands from other plugins.
+
+1115.0
+======
+
+* Dropped support for Python 3.2.
+
+1114.0
+======
+* Moved paste command to librarypaste package.
+  Require it in your deployment to retain the paste command.
+* Removed support for 'silent_bot' config variable. Instead,
+  to override the default command bot, pass the path to the
+  class as ``"bot class": "pmxbot.irc:SilentCommandBot"``.
+* Removed implicit construction of ``pmxbot.config``. Instead,
+  that ConfigDict is constructed explicitly during initialization
+  of the bot or the viewer.
+
+1113.6
+======
+
+* Add missing import
+
+1113.5
+======
+
+* Fix `saysomething` command
+
+1113.4
+======
+
+* Unpin upper dependency on CherryPy, allowing later versions
+  to be used.
+
+1113.3
+======
+
+* Remove use of 8ball delegator. Its responses are not nearly
+  as interesting (or correct) as pmxbot's own.
+
 1113.2
 ======
 

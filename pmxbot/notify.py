@@ -2,7 +2,6 @@
 
 import time
 
-import pmxbot
 from . import storage
 from .core import command, on_join
 
@@ -10,7 +9,7 @@ from .core import command, on_join
 class Notify(storage.SelectableStorage):
 	@classmethod
 	def init(cls):
-		cls.store = cls.from_URI(pmxbot.config.database)
+		cls.store = cls.from_URI()
 		cls._finalizers.append(cls.finalize)
 
 	@classmethod
@@ -65,7 +64,7 @@ class MongoDBNotify(Notify, storage.MongoDBStorage):
 
 
 @command("notify")
-def donotify(client, event, channel, nick, rest):
+def donotify(nick, rest):
 	"notify <nick> <message>"
 	opts = rest.split(' ')
 	to = opts[0]
@@ -74,6 +73,6 @@ def donotify(client, event, channel, nick, rest):
 
 
 @on_join()
-def notifier(client, nick, **kwargs):
+def notifier(client, nick):
 	for msg in Notify.store.lookup(nick):
 		client.notice(nick, '%s wanted to say %s' % (msg['fromnick'], msg['message']))

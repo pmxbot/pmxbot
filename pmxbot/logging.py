@@ -5,14 +5,20 @@ import itertools
 import struct
 import traceback
 import urllib.parse
+import socket
+import operator
 
 import pytz
 from jaraco.context import ExceptionTrap
-from more_itertools import recipes
+from more_itertools import chunked
 
 import pmxbot
 from . import storage
+from . import core
 from pmxbot.core import command, NoLog
+
+
+first = operator.itemgetter(0)
 
 
 class Logger(storage.SelectableStorage):
@@ -20,7 +26,7 @@ class Logger(storage.SelectableStorage):
 
 	@classmethod
 	def initialize(cls):
-		cls.store = cls.from_URI(pmxbot.config.database)
+		cls.store = cls.from_URI()
 		cls._finalizers.append(cls.finalize)
 
 	@classmethod
@@ -33,6 +39,11 @@ class Logger(storage.SelectableStorage):
 
 	def list_channels(self):
 		return self._list_channels()
+
+	def clear(self):
+		"""
+		Remove all messages from the database.
+		"""
 
 
 class SQLiteLogger(Logger, storage.SQLiteStorage):
@@ -90,7 +101,7 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
 
 	def get_random_logs(self, limit):
 		query = "SELECT message FROM logs order by random() limit %(limit)s" % vars()
-		return self.db.execute(query)
+		return map(first, self.db.execute(query))
 
 	def get_channel_days(self, channel):
 		query = 'select distinct date(datetime) from logs where channel = ?'
@@ -168,6 +179,10 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
 		results = (dict(zip(fields, record)) for record in cursor)
 		return itertools.imap(parse_date, results)
 
+	def clear(self):
+		query = 'DELETE from logs'
+		self.db.execute(query)
+
 
 def parse_date(record):
 	"Parse a date from sqlite. Assumes the date is in US/Pacific time zone."
@@ -244,23 +259,13 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		return rows_deleted
 
 	def get_random_logs(self, limit):
-		length = self.db.count()
-		if limit < length // 1000:
-			# there are far more messages than are needed, so to simulate
-			# sampling by just selecting random integers.
-			indexes = [random.randint(0, length - 1) for n in range(limit)]
-		else:
-			indexes = random.sample(list(range(length)), limit)
-		indexes.sort()
-		indexes.insert(0, -1)
-		pairs = recipes.pairwise(indexes)
-		skips = (b - a - 1 for a, b in pairs)
-		# scan through the _ids (in the index)
-		cur = self.db.find(projection=['_id']).sort([('_id', 1)])
-		for skip in skips:
-			recipes.consume(itertools.islice(cur, skip))
-			query = next(cur)
-			yield self.db.find_one(query, projection=['message'])['message']
+		count = min(limit, self.db.count())
+		ids = self.db.find({}, {'_id': 1})
+		rand_ids = [r['_id'] for r in random.sample(list(ids), count)]
+		for rand_ids_chunk in chunked(rand_ids, 100):
+		    query = {'_id': {'$in': rand_ids_chunk}}
+		    for doc in self.db.find(query, {'message': 1}):
+			    yield doc['message']
 
 	def get_channel_days(self, channel):
 		query = dict(channel=channel)
@@ -351,6 +356,9 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		message['datetime'] = self._fmt_date(dt)
 		self.db.insert(message)
 
+	def clear(self):
+		self.db.delete_many({})
+
 
 class FullTextMongoDBLogger(MongoDBLogger):
 	@classmethod
@@ -409,7 +417,7 @@ class LegacyFullTextMongoDBLogger(FullTextMongoDBLogger):
 
 
 @command()
-def strike(client, event, channel, nick, rest):
+def strike(channel, nick, rest):
 	"Strike last <n> statements from the record"
 	yield NoLog
 	rest = rest.strip()
@@ -431,7 +439,7 @@ def strike(client, event, channel, nick, rest):
 
 
 @command(aliases=('last', 'seen', 'lastseen'))
-def where(client, event, channel, nick, rest):
+def where(channel, nick, rest):
 	"When did pmxbot last see <nick> speak?"
 	onick = rest.strip()
 	last = Logger.store.last_seen(onick)
@@ -443,17 +451,37 @@ def where(client, event, channel, nick, rest):
 		return "Sorry!  I don't have any record of %s speaking" % onick
 
 
+class LoggedChannels:
+	def __contains__(self, channel):
+		return channel in pmxbot.config.log_channels
+
+
+class UnloggedChannels:
+	def __contains__(self, channel):
+		return channel not in pmxbot.config.log_channels
+
+
+# Create a content handler for capturing logged channels
+logging_handler = core.ContentHandler(channels=LoggedChannels())
+
+
+@logging_handler.decorate
+def log_message(channel, nick, rest):
+	Logger.store.message(channel, nick, rest)
+
+
 @command()
-def logs(client, event, channel, nick, rest):
+def logs(channel):
 	"Where can one find the logs?"
-	base = pmxbot.config.get('logs URL')
+	default_url = 'http://' + socket.getfqdn()
+	base = pmxbot.config.get('logs URL', default_url)
 	logged_channel = channel in pmxbot.config.log_channels
 	path = '/channel/' + channel.lstrip('#') if logged_channel else '/'
 	return urllib.parse.urljoin(base, path)
 
 
 @command()
-def log(client, event, channel, nick, rest):
+def log(channel, rest):
 	"""
 	Enable or disable logging for a channel;
 	use 'please' to start logging and 'stop please' to stop.

@@ -1,5 +1,15 @@
 # vim:ts=4:sw=4:noexpandtab
 
+r"""
+>>> import io
+>>> import itertools
+>>> f = io.StringIO("foo said one thing\n\nfoo said another thing\n\nbar said nothing\n")
+>>> data = markov_data_from_words(words_from_file(f))
+>>> words = words_from_markov_data(data)
+>>> paragraph_from_words(words)
+'...'
+"""
+
 import threading
 import random
 import logging
@@ -55,17 +65,17 @@ def words_from_file(f):
 	yield '\n'
 
 
-def words_from_logger(logger, max=100000):
+def words_from_logger(logger, max=1000):
 	return words_from_lines(logger.get_random_logs(max))
 
 
 def words_from_quotes(quotes):
-	return words_from_lines(quotes)
+	return words_from_lines(q['text'] for q in quotes)
 
 
 def words_from_lines(lines):
 	for line in lines:
-		words = line[0].strip().lower().split()
+		words = line.strip().lower().split()
 		for word in words:
 			yield word
 		yield '\n'
@@ -122,8 +132,8 @@ class FastSayer:
 			raise RuntimeError("Timeout waiting for stores to be initialized")
 
 
-@pmxbot.core.command("saysomething")
-def saysomething(client, event, channel, nick, rest):
+@pmxbot.core.command()
+def saysomething(rest):
 	"""
 	Generate a Markov Chain response based on past logs. Seed it with
 	a starting word by adding that to the end, eg

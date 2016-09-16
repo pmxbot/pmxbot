@@ -1,5 +1,6 @@
 import re
 import os
+import string
 import uuid
 import urllib.error
 
@@ -16,17 +17,6 @@ from pmxbot import quotes
 from pmxbot import system
 
 
-class Empty:
-	"""
-	Passed in to the individual commands instead of a client/event because
-	we don't normally care about them
-	"""
-	pass
-
-c = Empty()
-e = Empty()
-
-
 def logical_xor(a, b):
 	return bool(a) ^ bool(b)
 
@@ -34,6 +24,14 @@ def logical_xor(a, b):
 def onetrue(*args):
 	truthiness = list(filter(bool, args))
 	return len(truthiness) == 1
+
+
+@pytest.fixture
+def google_api_key(monkeypatch):
+	key = os.environ.get('GOOGLE_API_KEY')
+	if not key:
+		pytest.skip("Need GOOGLE_API_KEY environment variable")
+	monkeypatch.setitem(pmxbot.config, 'Google API key', key)
 
 
 class TestCommands:
@@ -52,11 +50,11 @@ class TestCommands:
 		os.remove(os.path.join(path, 'pmxbot.sqlite'))
 
 	@pytest.has_internet
-	def test_google(self):
+	def test_google(self, google_api_key):
 		"""
 		Basic google search for "pmxbot". Result must contain a link.
 		"""
-		res = commands.google(c, e, "#test", "testrunner", "pmxbot")
+		res = commands.google("pmxbot")
 		print(res)
 		assert "http" in res
 
@@ -66,7 +64,7 @@ class TestCommands:
 		"""
 		subject = "foo"
 		pre = karma.Karma.store.lookup(subject)
-		res = commands.boo(c, e, "#test", "testrunner", subject)
+		res = commands.boo(subject)
 		assert res == "/me BOOO %s!!! BOOO!!!" % subject
 		post = karma.Karma.store.lookup(subject)
 		assert post == pre - 1
@@ -77,7 +75,7 @@ class TestCommands:
 		"""
 		subject = "foo"
 		pre = karma.Karma.store.lookup(subject)
-		res = commands.troutslap(c, e, "#test", "testrunner", subject)
+		res = commands.troutslap(subject)
 		assert res == "/me slaps %s around a bit with a large trout" % subject
 		post = karma.Karma.store.lookup(subject)
 		assert post == pre - 1
@@ -88,7 +86,7 @@ class TestCommands:
 		"""
 		subject = "foo"
 		pre = karma.Karma.store.lookup(subject)
-		res = commands.keelhaul(c, e, "#test", "testrunner", subject)
+		res = commands.keelhaul(subject)
 		assert res == ("/me straps %s to a dirty rope, tosses 'em overboard and pulls with great speed. Yarrr!" % subject)
 		post = karma.Karma.store.lookup(subject)
 		assert post == pre - 1
@@ -99,7 +97,7 @@ class TestCommands:
 		"""
 		subject = "foo"
 		pre = karma.Karma.store.lookup(subject)
-		res = commands.motivate(c, e, "#test", "testrunner", subject)
+		res = commands.motivate(channel="#test", rest=subject)
 		assert res == "you're doing good work, %s!" % subject
 		post = karma.Karma.store.lookup(subject)
 		assert post == pre + 1
@@ -110,7 +108,7 @@ class TestCommands:
 		"""
 		subject = "foo"
 		pre = karma.Karma.store.lookup(subject)
-		res = commands.motivate(c, e, "#test", "testrunner", "   %s 	  " % subject)
+		res = commands.motivate(channel="#test", rest="   %s \t  " % subject)
 		assert res == "you're doing good work, %s!" % subject
 		post = karma.Karma.store.lookup(subject)
 		assert post == pre + 1
@@ -121,7 +119,7 @@ class TestCommands:
 		"""
 		subject = "foo"
 		pre = karma.Karma.store.lookup(subject)
-		res = commands.demotivate(c, e, "#test", "testrunner", subject)
+		res = commands.demotivate(rest=subject, channel="#test")
 		assert res == "you're doing horrible work, %s!" % subject
 		post = karma.Karma.store.lookup(subject)
 		assert post == pre - 1
@@ -132,7 +130,7 @@ class TestCommands:
 		"""
 		subject = "foo"
 		pre = karma.Karma.store.lookup(subject)
-		res = commands.imotivate(c, e, "#test", "testrunner", subject)
+		res = commands.imotivate(rest=subject, channel="#test")
 		assert res == """you're "doing" "good" "work", %s!""" % subject
 		post = karma.Karma.store.lookup(subject)
 		assert post == pre - 1
@@ -142,7 +140,7 @@ class TestCommands:
 		Try adding a quote
 		"""
 		quote = "And then she said %s" % str(uuid.uuid4())
-		res = quotes.quote(c, e, "#test", "testrunner", "add %s" % quote)
+		res = quotes.quote("add %s" % quote)
 		assert res == "Quote added!"
 		cursor = logging.Logger.store.db.cursor()
 		cursor.execute("select count(*) from quotes where library = 'pmx' and quote = ?", (quote,))
@@ -155,25 +153,25 @@ class TestCommands:
 		"""
 		id = str(uuid.uuid4())
 		quote = "So I says to Mabel, I says, %s" % id
-		res = quotes.quote(c, e, "#test", "testrunner", "add %s" % quote)
+		res = quotes.quote("add %s" % quote)
 		assert res == "Quote added!"
 		cursor = logging.Logger.store.db.cursor()
 		cursor.execute("select count(*) from quotes where library = 'pmx' and quote = ?", (quote,))
 		numquotes = cursor.fetchone()[0]
 		assert numquotes == 1
 
-		res = quotes.quote(c, e, "#test", "testrunner", id)
+		res = quotes.quote(id)
 		assert res == "(1/1): %s" % quote
 
 	def test_roll(self):
 		"""
 		Roll a die, both with no arguments and with some numbers
 		"""
-		res = int(commands.roll(c, e, "#test", "testrunner", "").split()[-1])
+		res = int(commands.roll(nick="testrunner", rest="").split()[-1])
 		assert res >= 0 and res <= 100
 		n = 6668
 
-		res = commands.roll(c, e, "#test", "testrunner", "%s" % n).split()[-1]
+		res = commands.roll(rest="%s" % n, nick="testrunner").split()[-1]
 		res = int(res)
 		assert res >= 0 and res <= n
 
@@ -191,7 +189,7 @@ class TestCommands:
 
 		GOOG at 4:00pm (ET): 484.81 (+1.5%)
 		"""
-		res = commands.ticker(c, e, "#test", "testrunner", "goog")
+		res = commands.ticker("goog")
 		print(res)
 		assert re.match(self.ticker_pattern('GOOG'), res), res
 
@@ -202,7 +200,7 @@ class TestCommands:
 
 		YOU.L at 10:37am (ET): 39.40 (0.4%)
 		"""
-		res = commands.ticker(c, e, "#test", "testrunner", "you.l")
+		res = commands.ticker("you.l")
 		print(res)
 		assert re.match(self.ticker_pattern('YOU.L'), res), res
 
@@ -213,7 +211,7 @@ class TestCommands:
 
 		^IXIC at 10:37am (ET): 3403.247 (0.0%)
 		"""
-		res = commands.ticker(c, e, "#test", "testrunner", "^ixic")
+		res = commands.ticker("^ixic")
 		print(res)
 		assert re.match(self.ticker_pattern('^IXIC'), res), res
 
@@ -221,7 +219,7 @@ class TestCommands:
 		"""
 		Test the pick command with a simple or expression
 		"""
-		res = commands.pick(c, e, "#test", "testrunner", "fire or acid")
+		res = commands.pick("fire or acid")
 		assert logical_xor("fire" in res, "acid" in res)
 		assert " or " not in res
 
@@ -229,7 +227,7 @@ class TestCommands:
 		"""
 		Test the pick command with an intro and a simple "or" expression
 		"""
-		res = commands.pick(c, e, "#test", "testrunner", "how would you like to die, pmxbot: fire or acid")
+		res = commands.pick("how would you like to die, pmxbot: fire or acid")
 		assert logical_xor("fire" in res, "acid" in res)
 		assert "die" not in res and "pmxbot" not in res and " or " not in res
 
@@ -237,7 +235,7 @@ class TestCommands:
 		"""
 		Test the pick command with two options separated by commas
 		"""
-		res = commands.pick(c, e, "#test", "testrunner", "fire, acid")
+		res = commands.pick("fire, acid")
 		assert logical_xor("fire" in res, "acid" in res)
 
 	def test_pick_comma_intro(self):
@@ -245,7 +243,7 @@ class TestCommands:
 		Test the pick command with an intro followed by two options separted
 		by commas
 		"""
-		res = commands.pick(c, e, "#test", "testrunner", "how would you like to die, pmxbot: fire, acid")
+		res = commands.pick("how would you like to die, pmxbot: fire, acid")
 		assert logical_xor("fire" in res, "acid" in res)
 		assert "die" not in res and "pmxbot" not in res
 
@@ -255,7 +253,7 @@ class TestCommands:
 		and ors
 		"""
 		msg = "how would you like to die, pmxbot: gun, fire, acid or defenestration"
-		res = commands.pick(c, e, "#test", "testrunner", msg)
+		res = commands.pick(msg)
 		assert onetrue("gun" in res, "fire" in res, "acid" in res, "defenestration" in res)
 		assert "die" not in res and "pmxbot" not in res and " or " not in res
 
@@ -263,7 +261,7 @@ class TestCommands:
 		"""
 		Test that the lunch command selects one of the list options
 		"""
-		res = commands.lunch(c, e, "#test", "testrunner", "PA")
+		res = commands.lunch("PA")
 		assert res in ["Pasta?", "Thaiphoon", "Pluto's", "Penninsula Creamery", "Kan Zeman"]
 
 	def test_karma_check_self_blank(self):
@@ -271,7 +269,7 @@ class TestCommands:
 		Determine your own, blank, karma.
 		"""
 		id = str(uuid.uuid4())[:15]
-		res = karma.karma(c, e, "#test", id, "")
+		res = karma.karma(nick=id, rest="")
 		assert re.match(r"^%s has 0 karmas$" % id, res)
 
 	def test_karma_check_other_blank(self):
@@ -279,7 +277,7 @@ class TestCommands:
 		Determine some else's blank/new karma.
 		"""
 		id = str(uuid.uuid4())
-		res = karma.karma(c, e, "#test", "testrunner", id)
+		res = karma.karma(nick="testrunner", rest=id)
 		assert re.match("^%s has 0 karmas$" % id, res)
 
 	def test_karma_set_and_check(self):
@@ -287,13 +285,13 @@ class TestCommands:
 		Take a new entity, give it some karma, check that it has more
 		"""
 		id = str(uuid.uuid4())
-		res = karma.karma(c, e, "#test", "testrunner", id)
+		res = karma.karma(nick="testrunner", rest=id)
 		assert re.match("^%s has 0 karmas$" % id, res)
-		res = karma.karma(c, e, "#test", "testrunner", "%s++" % id)
-		res = karma.karma(c, e, "#test", "testrunner", "%s++" % id)
-		res = karma.karma(c, e, "#test", "testrunner", "%s++" % id)
-		res = karma.karma(c, e, "#test", "testrunner", "%s--" % id)
-		res = karma.karma(c, e, "#test", "testrunner", id)
+		res = karma.karma(nick="testrunner", rest="%s++" % id)
+		res = karma.karma(nick="testrunner", rest="%s++" % id)
+		res = karma.karma(nick="testrunner", rest="%s++" % id)
+		res = karma.karma(nick="testrunner", rest="%s--" % id)
+		res = karma.karma(nick="testrunner", rest=id)
 		assert re.match(r"^%s has 2 karmas$" % id, res)
 
 	def test_karma_set_and_check_with_space(self):
@@ -302,13 +300,13 @@ class TestCommands:
 		check that it has more
 		"""
 		id = str(uuid.uuid4()).replace("-", " ")
-		res = karma.karma(c, e, "#test", "testrunner", id)
+		res = karma.karma(nick="testrunner", rest=id)
 		assert re.match("^%s has 0 karmas$" % id, res)
-		res = karma.karma(c, e, "#test", "testrunner", "%s++" % id)
-		res = karma.karma(c, e, "#test", "testrunner", "%s++" % id)
-		res = karma.karma(c, e, "#test", "testrunner", "%s++" % id)
-		res = karma.karma(c, e, "#test", "testrunner", "%s--" % id)
-		res = karma.karma(c, e, "#test", "testrunner", id)
+		res = karma.karma(nick="testrunner", rest="%s++" % id)
+		res = karma.karma(nick="testrunner", rest="%s++" % id)
+		res = karma.karma(nick="testrunner", rest="%s++" % id)
+		res = karma.karma(nick="testrunner", rest="%s--" % id)
+		res = karma.karma(nick="testrunner", rest=id)
 		assert re.match(r"^%s has 2 karmas$" % id, res)
 
 	def test_karma_randomchange(self):
@@ -321,23 +319,23 @@ class TestCommands:
 		i = 0
 		karmafetch = re.compile(r"^%s has (\-?\d+) karmas$" % id)
 		while len(flags) < 3 and i <= 30:
-			res = karma.karma(c, e, "#test", "testrunner", id)
+			res = karma.karma(nick="testrunner", rest=id)
 			prekarma = int(karmafetch.findall(res)[0])
-			change = karma.karma(c, e, "#test", "testrunner", "%s~~" % id)
+			change = karma.karma(nick="testrunner", rest="%s~~" % id)
 			assert change in ["%s karma++" % id, "%s karma--" % id, "%s karma shall remain the same" % id]
 			if change.endswith('karma++'):
 				flags['++'] = True
-				res = karma.karma(c, e, "#test", "testrunner", id)
+				res = karma.karma(nick="testrunner", rest=id)
 				postkarma = int(karmafetch.findall(res)[0])
 				assert postkarma == prekarma + 1
 			elif change.endswith('karma--'):
 				flags['--'] = True
-				res = karma.karma(c, e, "#test", "testrunner", id)
+				res = karma.karma(nick="testrunner", rest=id)
 				postkarma = int(karmafetch.findall(res)[0])
 				assert postkarma == prekarma - 1
 			elif change.endswith('karma shall remain the same'):
 				flags['same'] = True
-				res = karma.karma(c, e, "#test", "testrunner", id)
+				res = karma.karma(nick="testrunner", rest=id)
 				postkarma = int(karmafetch.findall(res)[0])
 				assert postkarma == prekarma
 			i += 1
@@ -348,7 +346,7 @@ class TestCommands:
 		"""
 		Test the built-in python calculator with a simple expression - 2+2
 		"""
-		res = commands.calc(c, e, "#test", "testrunner", "2+2")
+		res = commands.calc("2+2")
 		print(res)
 		assert res == "4"
 
@@ -357,24 +355,24 @@ class TestCommands:
 		Test the built-in python calculator with a more complicated formula
 		((((781**2)*5)/92835.3)+4)**0.5
 		"""
-		res = commands.calc(c, e, "#test", "testrunner", "((((781**2)*5)/92835.3)+4)**0.5")
+		res = commands.calc("((((781**2)*5)/92835.3)+4)**0.5")
 		print(res)
 		assert res.startswith("6.070566")
 
 	@pytest.has_internet
 	def test_insult(self):
-		commands.insult(c, e, "#test", "testrunner", "")
+		commands.insult("")
 
 	@pytest.has_internet
 	def test_targeted_insult(self):
-		commands.insult(c, e, "#test", "testrunner", "enemy")
+		commands.insult("enemy")
 
 	@pytest.has_wordnik
 	def test_define_keyboard(self):
 		"""
 		Test the dictionary with the word keyboard.
 		"""
-		res = commands.define(c, e, "#test", "testrunner", "keyboard")
+		res = commands.define("keyboard")
 		assert isinstance(res, str)
 		assert res == ("Wordnik says: A set of keys, as on a computer terminal, word processor, typewriter, or piano.")
 
@@ -383,7 +381,7 @@ class TestCommands:
 		"""
 		Test the dictionary with the word IRC.
 		"""
-		res = commands.define(c, e, "#test", "testrunner", "  IRC \t")
+		res = commands.define("  IRC \t")
 		assert isinstance(res, str)
 		assert res == (
 			"Wordnik says: An international computer network of "
@@ -395,7 +393,7 @@ class TestCommands:
 		"""
 		Test the dictionary with a nonsense word.
 		"""
-		res = commands.define(c, e, "#test", "testrunner", "notaword")
+		res = commands.define("notaword")
 		assert isinstance(res, str)
 		assert res == "Wordnik does not have a definition for that."
 
@@ -404,7 +402,7 @@ class TestCommands:
 		"""
 		Test the urban dictionary with the word IRC.
 		"""
-		res = commands.urbandict(c, e, "#test", "testrunner", "irc")
+		res = commands.urbandict("irc")
 		assert "Internet Relay Chat" in res
 
 	@pytest.has_internet
@@ -412,14 +410,14 @@ class TestCommands:
 		"""
 		Test acronym finder with the word IRC.
 		"""
-		res = commands.acit(c, e, "#test", "testrunner", "irc")
+		res = commands.acit("irc")
 		assert "|" in res
 
 	def test_progress(self):
 		"""
 		Test the progress bar
 		"""
-		res = commands.progress(c, e, "#test", "testrunner", "1|98123|30")
+		res = commands.progress("1|98123|30")
 		print(res)
 		assert res == "1 [===       ] 98123"
 
@@ -427,37 +425,16 @@ class TestCommands:
 		"""
 		Test the social strategy thingie
 		"""
-		res = commands.strategy(c, e, "#test", "testrunner", "")
+		res = commands.strategy()
 		print(res)
 		assert res != ""
-
-	@pytest.has_internet
-	def test_paste_newuser(self):
-		"""
-		Test the pastebin with an unknown user
-		"""
-		pytest.xfail("a.libpa.st is down")
-		person = str(uuid.uuid4())[:9]
-		res = commands.paste(c, e, '#test', person, '')
-		print(res)
-		assert res == ("hmm.. I didn't find a recent paste of yours, %s. Checkout http://a.libpa.st/" % person)
-
-	@pytest.has_internet
-	def test_paste_real_user(self):
-		"""
-		Test the pastebin with a valid user with an existing paste
-		"""
-		pytest.xfail("a.libpa.st is down")
-		person = 'vbSptH3ByfQQ6h'
-		res = commands.paste(c, e, '#test', person, '')
-		assert res == "http://a.libpa.st/40a4345a-4e4b-40d8-ad06-c0a22a26b282"
 
 	def test_qbiu_person(self):
 		"""
 		Test the qbiu function with a specified person.
 		"""
 		bitcher = "all y'all"
-		res = commands.bitchingisuseless(c, e, '#test', 'testrunner', bitcher)
+		res = commands.bitchingisuseless('testrunner', bitcher)
 		print(res)
 		assert res == ("Quiet bitching is useless, all y'all. Do something about it.")
 
@@ -465,7 +442,7 @@ class TestCommands:
 		"""
 		Test the qbiu function with a specified person.
 		"""
-		res = commands.bitchingisuseless(c, e, '#test', 'testrunner', '')
+		res = commands.bitchingisuseless('testrunner', '')
 		print(res)
 		assert res == ("Quiet bitching is useless, foo'. Do something about it.")
 
@@ -473,7 +450,7 @@ class TestCommands:
 	def test_rand_bot(self, iter):
 		network_excs = urllib.error.URLError, requests.exceptions.RequestException
 		try:
-			res = commands.rand_bot(c, e, '#test', 'testrunner', '')
+			res = commands.rand_bot('#test', 'testrunner', '')
 		except network_excs:
 			if not pytest.config.has_internet:
 				raise pytest.skip("Error suppressed for limited connectivity")
@@ -485,16 +462,58 @@ class TestCommands:
 		assert len(res)
 
 	def test_logo(self):
-		lines = list(system.logo(c, e, '#test', 'testrunner', ''))
+		lines = list(system.logo())
 		assert len(lines)
 
 	def test_help(self):
-		help = system.help(c, e, '#test', 'testrunner', '')
+		help = system.help(rest='')
 		result = ''.join(help)
 		assert 'help' in result
 
 	def test_help_specific(self):
-		lines = system.help(c, e, '#test', 'testrunner', 'help')
+		lines = system.help(rest='help')
 		result = ''.join(lines)
 		assert 'help' in result
 		assert result == '!help: Help (this command)'
+
+	def test_password(self):
+		"""
+		Test the default password command.
+
+		Result should include at least one ascii character, digit,
+		and punctuation character.
+		"""
+		res = commands.password('')
+		assert len(res) == 12
+		assert any(char in res for char in string.ascii_letters)
+		assert any(char in res for char in string.digits)
+		assert any(char in res for char in string.punctuation)
+
+	@pytest.mark.parametrize(["length"], [[val] for val in range(4, 100)])
+	def test_password_specific(self, length):
+		"""
+		Test the password command (with a length argument >= 4).
+		"""
+		res = commands.password(str(length))
+		assert len(res) == int(length)
+		assert any(char in res for char in string.ascii_letters)
+		assert any(char in res for char in string.digits)
+		assert any(char in res for char in string.punctuation)
+
+	@pytest.mark.parametrize(["length"], [[val] for val in range(1, 4)])
+	def test_password_specific_short(self, length):
+		"""
+		Test the password command with a length argument < 4.
+
+		With passwords this short we can't guarantee they'll
+		contain one of each character set.
+		"""
+		res = commands.password(str(length))
+		assert len(res) == int(length)
+
+	def test_password_nonint(self):
+		"""
+		Test the password command with a non-integer argument.
+		"""
+		res = commands.password('test')
+		assert res == 'need an integer password length!'

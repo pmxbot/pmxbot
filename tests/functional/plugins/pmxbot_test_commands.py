@@ -1,17 +1,20 @@
 from pmxbot import core
 
 
-@core.command("crashnow", doc="Crash now!")
-def crash_immediately(client, event, channel, nick, rest):
+@core.command("crashnow")
+def crash_immediately():
+	"Crash now!"
 	raise TypeError("You should never call this!")
 
 
-@core.command("crashiter", doc="Crash in iterator!")
-def crash_in_iterator(client, event, channel, nick, rest):
+@core.command("crashiter")
+def crash_in_iterator():
+	"Crash in iterator!"
 	raise TypeError("You should never call this!")
 	yield "You can't touch this"
 
 
-@core.command("echo", doc="echo")
-def echo(client, event, channel, nick, rest):
+@core.command()
+def echo(rest):
+	"echo"
 	return rest
