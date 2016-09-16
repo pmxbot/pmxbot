@@ -12,6 +12,7 @@ import irc.bot
 import irc.schedule
 import irc.client
 import tempora
+from jaraco.stream import buffer
 
 import pmxbot.itertools
 from . import core
@@ -61,6 +62,7 @@ class Scheduler(tempora.schedule.CallbackScheduler, irc.schedule.IScheduler):
 
 class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 	def __init__(self, server, port, nickname, channels, password=None):
+		ErrorReportingBuffer.install()
 		server_list = [(server, port, password)]
 		irc.bot.SingleServerIRCBot.__init__(self, server_list, nickname, nickname)
 		self.reactor.scheduler = Scheduler(dispatch=self.handle_scheduled)
@@ -200,3 +202,19 @@ class SilentCommandBot(LoggingCommandBot):
 
 	def on_join(self, *args, **kwargs):
 		"Do nothing"
+
+
+class ErrorReportingBuffer(buffer.LineBuffer):
+	encoding = 'utf-8'
+
+	def lines(self):
+		lines = super().lines()
+		for line in lines:
+			try:
+				yield line.decode(self.encoding)
+			except UnicodeDecodeError:
+				log.error("Unable to decode line: {line!r}".format(line=line))
+
+	@classmethod
+	def install(cls):
+		irc.client.ServerConnection.buffer_class = cls

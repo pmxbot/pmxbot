@@ -19,7 +19,6 @@ from jaraco.collections import Projection
 from tempora import schedule
 
 import pmxbot.dictlib
-import pmxbot.buffer
 import pmxbot.itertools
 from .dictlib import ConfigDict
 
@@ -565,7 +564,6 @@ def initialize(config):
 	"Initialize the bot with a dictionary of config items"
 	config = init_config(config)
 
-	pmxbot.buffer.ErrorReportingBuffer.install()
 	_setup_logging()
 	_load_library_extensions()
 	if not Handler._registry:
