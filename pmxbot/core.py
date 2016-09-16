@@ -542,6 +542,8 @@ def _setup_logging():
 
 def _load_bot_class():
 	default = 'pmxbot.irc:LoggingCommandBot'
+	if 'slack token' in pmxbot.config:
+		default = 'pmxbot.slack:Bot'
 	class_spec = pmxbot.config.get('bot class', default)
 	mod_name, sep, name = class_spec.partition(':')
 	module = importlib.import_module(mod_name)

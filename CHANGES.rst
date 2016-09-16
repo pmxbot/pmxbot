@@ -1,3 +1,9 @@
+1117.1
+======
+
+* Bot defaults to Slack if 'slack token' appears in the
+  config.
+
 1117.0
 ======
 
