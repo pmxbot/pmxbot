@@ -312,6 +312,12 @@ def patch_compat(config):
 		config['port'] = config.pop('web_port')
 
 
+def _setup_logging():
+	cherrypy.log.error_log.propagate = False
+	cherrypy.log.access_log.propagate = False
+	pmxbot.core._setup_logging()
+
+
 def init_config(config={}):
 	config.setdefault('web_base', '/')
 	config.setdefault('host', '::0')
@@ -334,6 +340,8 @@ def startup(config):
 	patch_compat(config)
 
 	config = init_config(config)
+
+	_setup_logging()
 
 	pmxbot.core._load_library_extensions()
 

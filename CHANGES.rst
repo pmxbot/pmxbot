@@ -1,3 +1,8 @@
+1117.2.2
+========
+
+* Fix error logging in web viewer.
+
 1117.2.1
 ========
 
