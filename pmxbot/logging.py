@@ -7,6 +7,7 @@ import traceback
 import urllib.parse
 import socket
 import operator
+import logging
 
 import pytz
 from jaraco.context import ExceptionTrap
@@ -21,6 +22,9 @@ from pmxbot.core import command, NoLog
 first = operator.itemgetter(0)
 
 
+_log = logging.getLogger(__name__)
+
+
 class Logger(storage.SelectableStorage):
 	"Base Logger class"
 
@@ -28,7 +32,7 @@ class Logger(storage.SelectableStorage):
 	def initialize(cls):
 		cls.store = cls.from_URI()
 		tmpl = "Logging with {cls.store.__class__.__name__}"
-		log.info(tmpl.format_map(locals()))
+		_log.info(tmpl.format_map(locals()))
 		cls._finalizers.append(cls.finalize)
 
 	@classmethod

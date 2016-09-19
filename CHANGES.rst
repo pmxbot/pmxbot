@@ -1,3 +1,9 @@
+1117.2.1
+========
+
+* Fix error where ``log`` meant two things in the logging
+  module.
+
 1117.2
 ======
 
