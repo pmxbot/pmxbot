@@ -1,3 +1,9 @@
+1117.2
+======
+
+* During logging initialization, log which logger class
+  is being used.
+
 1117.1
 ======
 
