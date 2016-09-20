@@ -1,3 +1,8 @@
+1117.2.4
+========
+
+* Fix error in FullTextMongoDBLogger sort.
+
 1117.2.3
 ========
 
