@@ -392,7 +392,8 @@ class FullTextMongoDBLogger(MongoDBLogger):
 	def search(self, *terms):
 		query = ' '.join(terms)
 		filter = {'$text': {'$search': query}}
-		resp = self.db.find(filter)
+		score = dict(score={'$meta': 'textScore'})
+		resp = self.db.find(filter, projection=score).sort(score).limit(200)
 		return self._generate_search_results(resp)
 
 

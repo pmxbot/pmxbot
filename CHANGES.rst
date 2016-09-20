@@ -1,3 +1,9 @@
+1117.2.3
+========
+
+* In FullTextMongoDBLogger, sort results by relevance and
+  limit results to 200.
+
 1117.2.2
 ========
 
