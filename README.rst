@@ -77,19 +77,22 @@ something similar to the following in the package's setup.py::
 
     entry_points = {
         'pmxbot_handlers': [
-            'plugin name = mylib.mymodule',
+            'plugin name = pmxbot.mymodule',
         ],
     },
 
 During startup,
-pmxbot will load `mylib.mymodule`. `plugin name` can be anything, but should
+pmxbot will load `pmxbot.mymodule`. `plugin name` can be anything, but should
 be a name suitable to identify the plugin (and it will be displayed during
 pmxbot startup).
+
+Note that the ``pmxbot`` package is a namespace package, and you're welcome
+to use that namespace for your plugin.
 
 If your plugin requires any initialization, specify an initialization function
 (or class method) in the entry point. For example::
 
-    'plugin name = mylib.mymodule:initialize_func'
+    'plugin name = pmxbot.mymodule:initialize_func'
 
 On startup, pmxbot will call `initialize_func` with no parameters.
 
