@@ -5,8 +5,8 @@
 
 .. image:: https://img.shields.io/pypi/dm/pmxbot.svg
 
-.. image:: https://img.shields.io/travis/jaraco/pmxbot/master.svg
-   :target: http://travis-ci.org/jaraco/pmxbot
+.. image:: https://img.shields.io/travis/yougov/pmxbot/master.svg
+   :target: http://travis-ci.org/yougov/pmxbot
 
 pmxbot is an IRC bot written in python. Originally built for internal use,
 it's been sanitized and set free upon the world. You can find out more details
