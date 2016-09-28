@@ -4,11 +4,8 @@ python:
 - 3.3
 - 3.4
 - 3.5
-install:
-- python -m pip install rwt
 script:
-- pip install -U pytest
-- python -m rwt -r tests/requirements.txt -- -m pytest -rs
+- tox
 branches:
   except:
   - skeleton

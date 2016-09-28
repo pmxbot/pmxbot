@@ -1,4 +1,3 @@
-.
 pymongo>=3
 pytest>=2.8
 jaraco.test>=2.0.4
