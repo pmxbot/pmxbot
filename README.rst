@@ -42,9 +42,8 @@ Testing
 =======
 
 `pmxbot` includes a test suite that does some functional tests written against
-the Python IRC server and quite a few unit tests as well. Just run them
-from the pmxbot root directory using "py.test"
-(requires pytest) and it should do it all for you.
+the Python IRC server and quite a few unit tests as well. Install
+`tox <https://pypi.org/project/tox>`_ and run ``tox`` to invoke the tests.
 
 Configuration
 =============
