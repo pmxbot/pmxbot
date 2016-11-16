@@ -840,7 +840,11 @@ def version(rest):
 
 
 _TIMEZONES = (pytz.timezone(name) for name in pytz.all_timezones)
-TZINFOS = {zone._tzname: zone for zone in _TIMEZONES}
+TZINFOS = {}
+for tz in _TIMEZONES:
+	# Add entry for long and short tz names
+	# E.g. Europe/Rome and RMT
+	TZINFOS[tz._tzname] = TZINFOS[tz.zone] = tz
 # Add tzones not defined in pytz mainly from
 # http://users.telenet.be/mm011/time%20zone%20abbreviations.html
 TZINFOS.update({
@@ -904,7 +908,7 @@ def timezone(rest):
 	dt = dateutil.parser.parse(dstr, tzinfos=TZINFOS)
 	if dt.tzinfo is None:
 		dt = pytz.UTC.localize(dt)
-		res = dt.astimezone(tzobj)
+	res = dt.astimezone(tzobj)
 	return '{} {} -> {} {}'.format(
 		dt.strftime('%H:%M'), dt.tzname() or dt.strftime('%z'),
 		res.strftime('%H:%M'), tzname)
