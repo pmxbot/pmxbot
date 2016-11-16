@@ -7,9 +7,11 @@ import string
 import csv
 import urllib.parse
 
+import dateutil.parser
 import pkg_resources
 from bs4 import BeautifulSoup
 import requests
+import pytz
 
 import pmxbot
 from .core import command, contains, attach
@@ -835,3 +837,74 @@ def version(rest):
 	if pkg.lower() == 'python':
 		return sys.version.split()[0]
 	return pkg_resources.require(pkg)[0].version
+
+
+_TIMEZONES = (pytz.timezone(name) for name in pytz.all_timezones)
+TZINFOS = {zone._tzname: zone for zone in _TIMEZONES}
+# Add tzones not defined in pytz mainly from
+# http://users.telenet.be/mm011/time%20zone%20abbreviations.html
+TZINFOS.update({
+	# Europe
+	'BST': pytz.FixedOffset(60),
+	'IST': pytz.FixedOffset(60),
+	'WEST': pytz.FixedOffset(60),
+	'CEST': pytz.FixedOffset(60),
+	'EEST': pytz.FixedOffset(180),
+	'MSK': pytz.FixedOffset(180),
+	'MSD': pytz.FixedOffset(240),
+	'LDN': pytz.timezone('Europe/London'),
+	# America
+	'CT': pytz.timezone('US/Central'),
+	'ET': pytz.timezone('US/Eastern'),
+	'MT': pytz.timezone('US/Mountain'),
+	'PT': pytz.timezone('US/Pacific'),
+	'AST': pytz.FixedOffset(-240),
+	'ADT': pytz.FixedOffset(-180),
+	'EDT': pytz.FixedOffset(-240),
+	'CST': pytz.FixedOffset(-360),
+	'CDT': pytz.FixedOffset(-300),
+	'MDT': pytz.FixedOffset(-360),
+	'PST': pytz.FixedOffset(-480),
+	'PDT': pytz.FixedOffset(-420),
+	'AKST': pytz.FixedOffset(-540),
+	'AKDT': pytz.FixedOffset(-480),
+	# Australia
+	'AEST': pytz.FixedOffset(600),
+	'AEDT': pytz.FixedOffset(660),
+	'ACST': pytz.FixedOffset(570),
+	'ACDT': pytz.FixedOffset(630),
+	'AWST': pytz.FixedOffset(480),
+})
+
+
+@command(aliases=('timezone', 'tz'))
+def tz(rest):
+        """Convert date between timezones.
+
+        Example:
+        > !tz 11:00am UTC in PDT
+        11:00 UTC -> 4:00 PDT
+
+        UTC is implicit
+
+        > !tz 11:00am in PDT
+        11:00 UTC -> 4:00 PDT
+
+        > !tz 11:00am PDT
+        11:00 PDT -> 18:00 UTC
+
+        """
+
+        if ' in ' in rest:
+                dstr, tzname = rest.split(' in ', 1)
+        else:
+                dstr, tzname = rest, 'UTC'
+
+        tzobj = TZINFOS[tzname.strip()]
+        dt = dateutil.parser.parse(dstr, tzinfos=TZINFOS)
+        if dt.tzinfo is None:
+                dt = pytz.UTC.localize(dt)
+        res = dt.astimezone(tzobj)
+        return '{} {} -> {} {}'.format(
+                dt.strftime('%H:%M'), dt.tzname() or dt.strftime('%z'),
+                res.strftime('%H:%M'), tzname)
