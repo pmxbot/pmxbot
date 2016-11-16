@@ -877,34 +877,34 @@ TZINFOS.update({
 })
 
 
-@command(aliases=('timezone', 'tz'))
-def tz(rest):
-        """Convert date between timezones.
+@command(aliases=('tz'))
+def timezone(rest):
+	"""Convert date between timezones.
 
-        Example:
-        > !tz 11:00am UTC in PDT
-        11:00 UTC -> 4:00 PDT
+	Example:
+	> !tz 11:00am UTC in PDT
+	11:00 UTC -> 4:00 PDT
 
-        UTC is implicit
+	UTC is implicit
 
-        > !tz 11:00am in PDT
-        11:00 UTC -> 4:00 PDT
+	> !tz 11:00am in PDT
+	11:00 UTC -> 4:00 PDT
 
-        > !tz 11:00am PDT
-        11:00 PDT -> 18:00 UTC
+	> !tz 11:00am PDT
+	11:00 PDT -> 18:00 UTC
 
-        """
+	"""
 
-        if ' in ' in rest:
-                dstr, tzname = rest.split(' in ', 1)
-        else:
-                dstr, tzname = rest, 'UTC'
+	if ' in ' in rest:
+		dstr, tzname = rest.split(' in ', 1)
+	else:
+		dstr, tzname = rest, 'UTC'
 
-        tzobj = TZINFOS[tzname.strip()]
-        dt = dateutil.parser.parse(dstr, tzinfos=TZINFOS)
-        if dt.tzinfo is None:
-                dt = pytz.UTC.localize(dt)
-        res = dt.astimezone(tzobj)
-        return '{} {} -> {} {}'.format(
-                dt.strftime('%H:%M'), dt.tzname() or dt.strftime('%z'),
-                res.strftime('%H:%M'), tzname)
+	tzobj = TZINFOS[tzname.strip()]
+	dt = dateutil.parser.parse(dstr, tzinfos=TZINFOS)
+	if dt.tzinfo is None:
+		dt = pytz.UTC.localize(dt)
+		res = dt.astimezone(tzobj)
+	return '{} {} -> {} {}'.format(
+		dt.strftime('%H:%M'), dt.tzname() or dt.strftime('%z'),
+		res.strftime('%H:%M'), tzname)
