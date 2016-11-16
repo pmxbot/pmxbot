@@ -58,4 +58,4 @@ def logo():
 	"""The pmxbot logo in ascii art.  Fixed-width font recommended!"""
 	logo_txt = pkg_resources.resource_stream('pmxbot', 'asciilogo.txt')
 	for line in logo_txt:
-		yield line.rstrip()
+		yield line.rstrip().decode('utf-8')
