@@ -266,6 +266,17 @@ class CommandHandler(Handler):
 		if not self.doc and func.__doc__:
 			self.doc = func.__doc__.strip().replace('\n', ' ')
 
+	def __eq__(self, other):
+		def rem_alias(ob):
+			"""
+			When comparing for equality, remove the 'aliases'
+			attribute to avoid infinite recursion when comparing.
+			"""
+			copy = dict(vars(ob))
+			copy.pop('aliases', None)
+			return copy
+		return rem_alias(self) == rem_alias(other)
+
 	def match(self, message, channel):
 		cmd, _, cmd_args = message.partition(' ')
 		return cmd.lower() == '!{name}'.format(name=self.name)
