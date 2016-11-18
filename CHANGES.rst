@@ -1,3 +1,9 @@
+1117.3.2
+========
+
+* #49: Fix infinitite recursion when comparing a command
+  and its aliases.
+
 1117.2.4
 ========
 
