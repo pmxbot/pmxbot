@@ -4,7 +4,7 @@ import copy
 import pytest
 from tempora.schedule import DelayedCommand, now
 
-from pmxbot.core import AtHandler, Scheduled
+from pmxbot.core import AtHandler, Scheduled, command, Handler
 
 
 class DelayedCommandMatch:
@@ -18,6 +18,30 @@ def patch_scheduled_registry(monkeypatch):
     Ensure Scheduled._registry is not mutated by these tests.
     """
     monkeypatch.setattr(Scheduled, '_registry', [])
+
+
+@pytest.fixture
+def patch_handler_registry(monkeypatch):
+    """
+    Ensure Handler._registry is not mutated by these tests.
+    """
+    monkeypatch.setattr(Handler, '_registry', [])
+
+
+@pytest.mark.usefixtures("patch_handler_registry")
+class TestCommandHandlerUniqueness:
+    def test_command_with_aliases(self):
+        @command(aliases='mc')
+        def my_cmd():
+            "help for my command"
+
+        assert len(Handler._registry) == 2
+
+        # attempt to re-registor both the command and its alias
+        for handler in Handler._registry:
+            copy.deepcopy(handler).register()
+
+        assert len(Handler._registry) == 2
 
 
 @pytest.mark.usefixtures("patch_scheduled_registry")
