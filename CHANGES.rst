@@ -1,3 +1,8 @@
+1117.3.4
+========
+
+* #51: Restore insult command by updating URL for autoinsult.
+
 1117.3.3
 ========
 
