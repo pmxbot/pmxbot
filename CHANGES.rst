@@ -1,3 +1,9 @@
+1117.3.3
+========
+
+* Declare missing dependency on python-dateutil, introduced
+  in 1117.3.
+
 1117.3.2
 ========
 
