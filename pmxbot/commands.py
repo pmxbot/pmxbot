@@ -430,8 +430,9 @@ def insult(rest):
 	ins_type = random.randrange(4)
 	ins_url = url + "?style={ins_type}".format(**locals())
 	insre = re.compile('<div class="insult" id="insult">(.*?)</div>')
-	html = util.get_html(ins_url)
-	insult = insre.search(html).group(1)
+	resp = requests.get(ins_url)
+	resp.raise_for_status()
+	insult = insre.search(resp.text).group(1)
 	if not insult:
 		return
 	if rest:
