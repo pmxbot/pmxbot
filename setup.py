@@ -44,6 +44,7 @@ params = dict(
 		"jaraco.classes",
 		"jaraco.functools",
 		"inflect",
+		"python-dateutil",
 
 		# for viewer
 		"cherrypy>=3.2.3",
