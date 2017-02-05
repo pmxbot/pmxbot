@@ -8,10 +8,17 @@
 .. image:: https://img.shields.io/travis/yougov/pmxbot/master.svg
    :target: http://travis-ci.org/yougov/pmxbot
 
+
 pmxbot is an IRC bot written in python. Originally built for internal use,
 it's been sanitized and set free upon the world. You can find out more details
 on `the project website <https://github.com/yougov/pmxbot>`_.
 
+License
+=======
+
+License is indicated in the project metadata (typically one or more
+of the Trove classifiers). For more details, see `this explanation
+<https://github.com/jaraco/skeleton/issues/1>`_.
 
 Commands
 ========
