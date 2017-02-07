@@ -158,6 +158,16 @@ class SQLiteKarma(Karma, storage.SQLiteStorage):
 		return self.list()
 
 
+# copied from jaraco.mongodb 5.6
+def safe_upsert_27707(coll, query, op):
+	item = op.pop('$addToSet')
+	exists = bool(coll.find_one(query))
+	if not exists:
+		init = {field: [value] for field, value in item.items()}
+		coll.insert(init)
+	coll.update(query, op)
+
+
 class MongoDBKarma(Karma, storage.MongoDBStorage):
 	collection_name = 'karma'
 
@@ -171,14 +181,14 @@ class MongoDBKarma(Karma, storage.MongoDBStorage):
 		value = int(value)
 		query = {'names': {'$in': [thing]}}
 		oper = {'$set': {'value': value}, '$addToSet': {'names': thing}}
-		self.db.update(query, oper, upsert=True)
+		safe_upsert_27707(self.db, query, oper)
 
 	def change(self, thing, change):
 		thing = thing.strip().lower()
 		change = int(change)
 		query = {'names': {'$in': [thing]}}
 		oper = {'$inc': {'value': change}, '$addToSet': {'names': thing}}
-		self.db.update(query, oper, upsert=True)
+		safe_upsert_27707(self.db, query, oper)
 
 	def list(self, select=0):
 		res = list(self.db.find().sort('value', storage.pymongo.DESCENDING))
