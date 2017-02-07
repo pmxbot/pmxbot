@@ -15,6 +15,16 @@
 * #49: Fix infinitite recursion when comparing a command
   and its aliases.
 
+1117.3.1
+========
+
+* Support more timezones in the `timezones` command
+
+1117.3
+======
+
+* Add new `timezones` command
+
 1117.2.4
 ========
 
