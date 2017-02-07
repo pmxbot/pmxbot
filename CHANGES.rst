@@ -1,3 +1,8 @@
+1117.3.5
+========
+
+* #52: Added workaround for bug in MongoDB 3.4.
+
 1117.3.4
 ========
 
