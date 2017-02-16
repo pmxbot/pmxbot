@@ -147,8 +147,16 @@ etc with the same YAML config file. Just run like ``pmxbotweb config.yaml``
 and it will start up. Like pmxbot, use of a supervisor is recommended to
 restart the process following termination.
 
-pmxbot as a Slack bot
-=====================
+pmxbot as a Slack bot (native)
+==============================
+
+To use pmxbot as a Slack bot, just be sure to require the
+`slackclient <https://pypi.org/projects/slackclient>`_ package,
+and set ``slack token`` in your config to the token from your
+`Bot User <https://api.slack.com/bot-users>`_. Easy, peasy.
+
+pmxbot as a Slack bot (IRC)
+===========================
 
 As Slack provides an IRC interface, it's easy to configure pmxbot for use
 in Slack. Here's how:
