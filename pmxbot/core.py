@@ -217,6 +217,11 @@ class Handler:
 
 
 def attach(func, params):
+	"""
+	Given a function and a namespace of possible parameters,
+	bind any params matching the signature of the function
+	to that function.
+	"""
 	sig = inspect.signature(func)
 	params = Projection(sig.parameters.keys(), params)
 	return functools.partial(func, **params)
