@@ -1,3 +1,9 @@
+1117.3.7
+========
+
+* #56: Suppress errors and log warning when the bot receives
+  a Slack message with no user.
+
 1117.3.6
 ========
 

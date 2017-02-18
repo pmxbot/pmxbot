@@ -1,9 +1,13 @@
 import time
 import importlib
+import logging
 
 from tempora import schedule
 
 import pmxbot
+
+
+log = logging.getLogger(__name__)
 
 
 class Bot(pmxbot.core.Bot):
@@ -25,6 +29,9 @@ class Bot(pmxbot.core.Bot):
 
 	def handle_message(self, msg):
 		if msg.get('type') != 'message':
+			return
+		if not msg.get('user'):
+			log.warning("Unknown message %s", msg)
 			return
 		channel = self.client.server.channels.find(msg['channel']).name
 		nick = self.client.server.users.find(msg['user']).name
