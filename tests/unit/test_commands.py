@@ -461,6 +461,10 @@ class TestCommands:
 			res = ''.join(res)
 		assert len(res)
 
+	@pytest.mark.xfail(
+		'sys.version_info < (3, 5)',
+		reason="pkg_resources uses NullLoader for pmxbot",
+	)
 	def test_logo(self):
 		lines = list(system.logo())
 		assert len(lines)
