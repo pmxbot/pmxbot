@@ -24,7 +24,7 @@ params = dict(
 	url="https://github.com/yougov/" + name,
 	packages=setuptools.find_packages(),
 	include_package_data=True,
-	namespace_packages=name.split('.')[:-1],
+	namespace_packages=['pmxbot'],
 	install_requires=[
 		"irc>=15.0,<16dev",
 		"requests",

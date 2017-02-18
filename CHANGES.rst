@@ -1,3 +1,8 @@
+1117.3.6
+========
+
+* Restore namespace package declaration in package metadata.
+
 1117.3.5
 ========
 
