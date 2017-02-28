@@ -1,3 +1,11 @@
+1117.3.8
+========
+
+* #57: Remove `#` injection to SwitchChannel. I've scanned
+  Github and the only repository using this feature is
+  `jaraco.pmxbot <https://github.com/jaraco/jaraco.pmxbot>`_.
+  Sometimes less is more.
+
 1117.3.7
 ========
 

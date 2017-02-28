@@ -109,11 +109,6 @@ class NoLog(Sentinel):
 class SwitchChannel(str, Sentinel):
 	"A sentinel indicating a new channel for subsequent messages."
 
-	def __new__(cls, other):
-		if not other.startswith('#'):
-			other = '#' + other
-		return super().__new__(cls, other)
-
 	@property
 	def properties(self):
 		return dict(channel=self)
