@@ -26,7 +26,6 @@ params = dict(
 	include_package_data=True,
 	namespace_packages=['pmxbot'],
 	install_requires=[
-		"irc>=15.0,<16dev",
 		"requests",
 		"pyyaml",
 		"feedparser",
@@ -45,12 +44,12 @@ params = dict(
 		"jaraco.functools",
 		"inflect",
 		"python-dateutil",
-
-		# for viewer
-		"cherrypy>=3.2.3",
-		"jinja2",
 	],
 	extras_require={
+		'mongodb': ['pymongo>=3'],
+		'viewer': ['cherrypy>=3.2.3', 'jinja2'],
+		'slack': ['slackclient'],
+		'irc': ['irc>=15.0,<16dev'],
 	},
 	setup_requires=[
 		'setuptools_scm>=1.15.0',

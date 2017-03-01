@@ -42,10 +42,14 @@ Requirements
 ============
 
 `pmxbot` requires Python 3. It also requires a few python packages as defined
-in setup.py.
+in setup.py. Some optional dependencies are installed with
+`extras
+<https://packaging.python.org/installing/#installing-setuptools-extras>`_:
 
-If using the MongoDB backend, it requires pymongo (otherwise, sqlite will
-be used).
+- mongodb: Enable MongoDB persistence (instead of sqlite).
+- irc: IRC bot client.
+- slack: Slack bot client.
+- viewer: Enable the web viewer application.
 
 Testing
 =======
@@ -164,8 +168,7 @@ restart the process following termination.
 pmxbot as a Slack bot (native)
 ==============================
 
-To use pmxbot as a Slack bot, just be sure to require the
-`slackclient <https://pypi.org/projects/slackclient>`_ package,
+To use pmxbot as a Slack bot, install with ``pmxbot[slack]``,
 and set ``slack token`` in your config to the token from your
 `Bot User <https://api.slack.com/bot-users>`_. Easy, peasy.
 
@@ -175,6 +178,7 @@ pmxbot as a Slack bot (IRC)
 As Slack provides an IRC interface, it's easy to configure pmxbot for use
 in Slack. Here's how:
 
+0. Install with ``pmxbot[irc]``.
 1. `Enable the IRC Gateway <https://slack.zendesk.com/hc/en-us/articles/201727913-Connecting-to-Slack-over-IRC-and-XMPP>`.
 2. Create an e-mail for the bot.
 3. Create the account for the bot in Slack and activate its account.

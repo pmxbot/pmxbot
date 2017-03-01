@@ -1,7 +1,22 @@
+1118.0
+======
+
+* Moved select dependencies into extras, which you must
+  declare in your deployment::
+
+  - irc: for IRC bot
+  - slack: for Slack bot
+  - mongodb: for MongoDB persistence
+  - viewer: for web viewer
+
+  For example, to deploy Slack bot with MongoDB::
+
+    pip install pmxbot[slack,mongodb]
+
 1117.4.3
 ========
 
-# #57
+* #57
 
 1117.4.2
 ========
