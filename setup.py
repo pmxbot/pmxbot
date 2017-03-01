@@ -48,7 +48,7 @@ params = dict(
 	extras_require={
 		'mongodb': ['pymongo>=3'],
 		'viewer': ['cherrypy>=3.2.3', 'jinja2'],
-		'slack': ['slackclient'],
+		'slack': ['slackclient', 'slacker'],
 		'irc': ['irc>=15.0,<16dev'],
 	},
 	setup_requires=[

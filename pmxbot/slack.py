@@ -14,15 +14,18 @@ class Bot(pmxbot.core.Bot):
 	def __init__(self, server, port, nickname, channels, password=None):
 		token = pmxbot.config['slack token']
 		sc = importlib.import_module('slackclient')
-		self.client = sc.SlackClient(token)
+		self.slack = sc.SlackClient(token)
+		sr = importlib.import_module('slacker')
+		self.slacker = sr.Slacker(token)
+
 		self.scheduler = schedule.CallbackScheduler(self.handle_scheduled)
 
 	def start(self):
-		res = self.client.rtm_connect()
+		res = self.slack.rtm_connect()
 		assert res, "Error connecting"
 		self.init_schedule(self.scheduler)
 		while True:
-			for msg in self.client.rtm_read():
+			for msg in self.slack.rtm_read():
 				self.handle_message(msg)
 			self.scheduler.run_pending()
 			time.sleep(0.1)
@@ -33,26 +36,21 @@ class Bot(pmxbot.core.Bot):
 		if not msg.get('user'):
 			log.warning("Unknown message %s", msg)
 			return
-		channel = self.client.server.channels.find(msg['channel']).name
-		nick = self.client.server.users.find(msg['user']).name
+		channel = self.slack.server.channels.find(msg['channel']).name
+		nick = self.slack.server.users.find(msg['user']).name
 		self.handle_action(channel, nick, msg['text'])
 
 	def _find_user_channel(self, username):
 		"""
-		slackclient doesn't make it easy to send a message to a user.
+		Use slacker to resolve the username to an opened IM channel
 		"""
-		user = self.client.server.users.find(username)
-		items = (
-			im
-			for im in self.client.server.login_data['ims']
-			if user and im['user'] == user.id
-		)
-		im = next(items, None)
-		return im and self.client.server.channels.find(im['id'])
+		user_id = self.slacker.get_user_id(username)
+		im = user_id and self.slacker.im.open(user_id)['channel']['id']
+		return im and self.slack.server.channels.find(im['id'])
 
 	def transmit(self, channel, message):
 		target = (
-			self.client.server.channels.find(channel)
+			self.slack.server.channels.find(channel)
 			or self._find_user_channel(username=channel)
 		)
 		target.send_message(message)

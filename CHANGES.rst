@@ -13,6 +13,9 @@
 
     pip install pmxbot[slack,mongodb]
 
+* #58: Use ``slacker`` to open IMs when they're not already
+  open.
+
 1117.4.3
 ========
 
