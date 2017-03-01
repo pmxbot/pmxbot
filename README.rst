@@ -9,7 +9,9 @@
    :target: http://travis-ci.org/yougov/pmxbot
 
 
-pmxbot is an IRC bot written in python. Originally built for internal use,
+pmxbot is bot for IRC and Slack written in
+`Python <https://python.org>`_. Originally built for internal use
+at `YouGov <https://yougov.com/>`_,
 it's been sanitized and set free upon the world. You can find out more details
 on `the project website <https://github.com/yougov/pmxbot>`_.
 
@@ -54,17 +56,18 @@ the Python IRC server and quite a few unit tests as well. Install
 
 Configuration
 =============
+
 Configuration is based on very easy YAML files. Check out config.yaml in the
 source tree for an example.
 
 Usage
 =====
+
 Once you've setup a config file, you just need to call ``pmxbot config.yaml``
 and it will join and connect. We recommend running pmxbot under
-daemontools, upstart, supervisord, or your favorite supervisor to make it
+your favorite process supervisor to make it
 automatically restart if it crashes (or terminates due to a planned
 restart).
-
 
 Custom Features
 ===============
@@ -72,13 +75,13 @@ Custom Features
 Setuptools Entry Points Plugin
 ------------------------------
 
-`pmxbot` provides an extension mechanism for adding commands, and uses this
+``pmxbot`` provides an extension mechanism for adding commands, and uses this
 mechanism even for its own built-in commands.
 
-To create a setuptools (or distribute or compatible packaging tool)
+To create a setuptools
 entry point plugin, package your modules using
 the setuptools tradition and install it alongside pmxbot. Your package
-should define an entry point in the group `pmxbot_handlers` by including
+should define an entry point in the group ``pmxbot_handlers`` by including
 something similar to the following in the package's setup.py::
 
     entry_points = {
@@ -88,28 +91,32 @@ something similar to the following in the package's setup.py::
     },
 
 During startup,
-pmxbot will load `pmxbot.mymodule`. `plugin name` can be anything, but should
+pmxbot will load ``pmxbot.mymodule``. ``plugin name`` can be anything, but should
 be a name suitable to identify the plugin (and it will be displayed during
 pmxbot startup).
 
 Note that the ``pmxbot`` package is a namespace package, and you're welcome
-to use that namespace for your plugin.
+to use that namespace for your plugin (e.g.
+`pmxbot.nsfw <https://github.com/yougov/pmxbot.nsfw>`_).
 
 If your plugin requires any initialization, specify an initialization function
 (or class method) in the entry point. For example::
 
     'plugin name = pmxbot.mymodule:initialize_func'
 
-On startup, pmxbot will call `initialize_func` with no parameters.
+On startup, pmxbot will call ``initialize_func`` with no parameters.
 
-Within the script you'll want to import the decorates you need to use with:
-`from pmxbot.core import command, contains, regexp, execdelay, execat`. You'll
+Within the script you'll want to import the decorator(s) you need to use with::
+
+    from pmxbot.core import command, contains, regexp, execdelay, execat`.
+
+You'll
 then decorate each function with the appropriate line so pmxbot registers it.
 
 A command (!g) gets the @command decorator::
 
   @command(aliases=('tt', 'tear', 'cry'))
-  def tinytear(client, event, channel, nick, rest):
+  def tinytear(rest):
     "I cry a tiny tear for you."
     if rest:
       return "/me sheds a single tear for %s" % rest
@@ -119,28 +126,35 @@ A command (!g) gets the @command decorator::
 A response (when someone says something) uses the @contains decorator::
 
   @contains("sqlonrails")
-  def yay_sor(client, event, channel, nick, rest):
+  def yay_sor():
     karma.Karma.store.change('sql on rails', 1)
     return "Only 76,417 lines..."
+
+Each handler may solicit any of the following parameters:
+
+ - channel (the channel in which the message occurred)
+ - nick (the nickname that triggered the command or behavior)
+ - rest (any text after the command)
 
 A more complicated response (when you want to extract data from a message) uses
 the @regexp decorator::
 
-  @regexp("jira", r"(?<![a-zA-Z0-9/])(OPS|LIB|SALES|UX|GENERAL|SUPPORT)-\d\d+")
-  def jira(client, event, channel, nick, match_obj):
-    return "https://jira.example.com/browse/%s" % match_obj.group()
+    @regexp("jira", r"(?<![a-zA-Z0-9/])(OPS|LIB|SALES|UX|GENERAL|SUPPORT)-\d\d+")
+    def jira(client, event, channel, nick, match_obj):
+        return "https://jira.example.com/browse/%s" % match_obj.group()
 
 For an example of how to implement a setuptools-based plugin, see one of the
 many examples in the pmxbot project itself or one of the popular third-party
 projects:
 
- - `motivation <https://bitbucket.org/yougov/motivation>`_.
+ - `motivation <https://github.com/yougov/motivation>`_.
  - `wolframalpha <https://github.com/jaraco/wolframalpha>`_.
- - `jaraco.translate <https://bitbucket.org/jaraco/jaraco.translate>`_.
- - `excuses <https://bitbucket.org/yougov/excuses>`_.
+ - `jaraco.translate <https://github.com/jaraco/jaraco.translate>`_.
+ - `excuses <https://github.com/yougov/excuses>`_.
 
 Web Interface
 =============
+
 pmxbot includes a web server for allowing users to view the logs, read the
 help, and check karma. You specify the host, port, base path, logo, title,
 etc with the same YAML config file. Just run like ``pmxbotweb config.yaml``
