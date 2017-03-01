@@ -47,7 +47,8 @@ class Bot(pmxbot.core.Bot):
 			for im in self.client.server.login_data['ims']
 			if user and im['user'] == user.id
 		)
-		return next(items, None)
+		im = next(items, None)
+		return im and self.client.server.channels.find(im['id'])
 
 	def transmit(self, channel, message):
 		target = (
