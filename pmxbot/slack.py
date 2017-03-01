@@ -14,8 +14,17 @@ class Bot(pmxbot.core.Bot):
 	def __init__(self, server, port, nickname, channels, password=None):
 		token = pmxbot.config['slack token']
 		sc = importlib.import_module('slackclient')
+		self._patch_user(sc)
 		self.client = sc.SlackClient(token)
 		self.scheduler = schedule.CallbackScheduler(self.handle_scheduled)
+
+	@staticmethod
+	def _patch_user(sc):
+		"""
+		Slack User model doesn't support sending messages, but Channel
+		does so copy over the needed method.
+		"""
+		sc._user.User.send_message = sc._channel.Channel.send_message
 
 	def start(self):
 		res = self.client.rtm_connect()

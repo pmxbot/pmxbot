@@ -1,3 +1,9 @@
+1117.4.1
+========
+
+* Monkey-patch the slack client module to implement some
+  basic user message functionality.
+
 1117.4
 ======
 
