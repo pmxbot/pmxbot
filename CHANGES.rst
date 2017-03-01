@@ -1,3 +1,8 @@
+1117.3.9
+========
+
+* Fix error when logging exception.
+
 1117.3.8
 ========
 

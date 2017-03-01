@@ -434,7 +434,8 @@ class Bot(metaclass=abc.ABCMeta):
 		try:
 			sent = self.allow(channel, s) and self.transmit(channel, s)
 		except Exception:
-			log.exception("Unhandled exception transmitting message: %r", s)
+			msg = "Unhandled exception transmitting message: %r"
+			globals()['log'].exception(msg, s)
 
 		if not sent or not log or s.startswith('/me'):
 			return
