@@ -38,5 +38,8 @@ class Bot(pmxbot.core.Bot):
 		self.handle_action(channel, nick, msg['text'])
 
 	def transmit(self, channel, message):
-		channel = self.client.server.channels.find(channel)
-		channel.send_message(message)
+		target = (
+			self.client.server.channels.find(channel)
+			or self.client.server.users.find(channel)
+		)
+		target.send_message(message)

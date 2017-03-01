@@ -1,3 +1,9 @@
+1117.4
+======
+
+* #57: In Slack client, attempt to transmit the message to
+  the channel or the user.
+
 1117.3.9
 ========
 
