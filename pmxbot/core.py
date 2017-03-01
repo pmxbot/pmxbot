@@ -436,6 +436,7 @@ class Bot(metaclass=abc.ABCMeta):
 		except Exception:
 			msg = "Unhandled exception transmitting message: %r"
 			globals()['log'].exception(msg, s)
+			return
 
 		if not sent or not log or s.startswith('/me'):
 			return
