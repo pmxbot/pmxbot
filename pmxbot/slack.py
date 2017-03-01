@@ -14,17 +14,8 @@ class Bot(pmxbot.core.Bot):
 	def __init__(self, server, port, nickname, channels, password=None):
 		token = pmxbot.config['slack token']
 		sc = importlib.import_module('slackclient')
-		self._patch_user(sc)
 		self.client = sc.SlackClient(token)
 		self.scheduler = schedule.CallbackScheduler(self.handle_scheduled)
-
-	@staticmethod
-	def _patch_user(sc):
-		"""
-		Slack User model doesn't support sending messages, but Channel
-		does so copy over the needed method.
-		"""
-		sc._user.User.send_message = sc._channel.Channel.send_message
 
 	def start(self):
 		res = self.client.rtm_connect()
@@ -46,9 +37,21 @@ class Bot(pmxbot.core.Bot):
 		nick = self.client.server.users.find(msg['user']).name
 		self.handle_action(channel, nick, msg['text'])
 
+	def _find_user_channel(self, username):
+		"""
+		slackclient doesn't make it easy to send a message to a user.
+		"""
+		user = self.client.server.users.find(username)
+		items = (
+			im
+			for im in self.client.server.login_data['ims']
+			if user and im['user'] == user.id
+		)
+		return next(items, None)
+
 	def transmit(self, channel, message):
 		target = (
 			self.client.server.channels.find(channel)
-			or self.client.server.users.find(channel)
+			or self._find_user_channel(username=channel)
 		)
 		target.send_message(message)

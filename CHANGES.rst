@@ -1,3 +1,8 @@
+1117.4.2
+========
+
+* #57: Try another technique for resolving the DM channel.
+
 1117.4.1
 ========
 
