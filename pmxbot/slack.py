@@ -45,7 +45,7 @@ class Bot(pmxbot.core.Bot):
 		Use slacker to resolve the username to an opened IM channel
 		"""
 		user_id = self.slacker.users.get_user_id(username)
-		im = user_id and self.slacker.im.open(user_id)['channel']['id']
+		im = user_id and self.slacker.im.open(user_id).body['channel']['id']
 		return im and self.slack.server.channels.find(im['id'])
 
 	def transmit(self, channel, message):

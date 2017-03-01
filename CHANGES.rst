@@ -1,4 +1,4 @@
-1118.0.1
+1118.0.2
 ========
 
 * Fix usage in slacker client.
