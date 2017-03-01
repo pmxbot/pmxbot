@@ -46,7 +46,7 @@ class Bot(pmxbot.core.Bot):
 		"""
 		user_id = self.slacker.users.get_user_id(username)
 		im = user_id and self.slacker.im.open(user_id).body['channel']['id']
-		return im and self.slack.server.channels.find(im['id'])
+		return im and self.slack.server.channels.find(im)
 
 	def transmit(self, channel, message):
 		target = (
