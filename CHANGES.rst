@@ -1,3 +1,8 @@
+1118.0.1
+========
+
+* Fix usage in slacker client.
+
 1118.0
 ======
 
