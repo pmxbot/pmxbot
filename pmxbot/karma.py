@@ -169,14 +169,14 @@ class MongoDBKarma(Karma, storage.MongoDBStorage):
 	def set(self, thing, value):
 		thing = thing.strip().lower()
 		value = int(value)
-		query = {'names': {'$elemMatch': {'$eq': thing}}}
+		query = {'names': {'$elemMatch': {'$in': [thing]}}}
 		oper = {'$set': {'value': value}, '$addToSet': {'names': thing}}
 		self.db.update(query, oper, upsert=True)
 
 	def change(self, thing, change):
 		thing = thing.strip().lower()
 		change = int(change)
-		query = {'names': {'$elemMatch': {'$eq': thing}}}
+		query = {'names': {'$elemMatch': {'$in': [thing]}}}
 		oper = {'$inc': {'value': change}, '$addToSet': {'names': thing}}
 		self.db.update(query, oper, upsert=True)
 
