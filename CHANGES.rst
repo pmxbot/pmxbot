@@ -1,3 +1,10 @@
+1118.0.4
+========
+
+* #52: Updated usage in MongoDBKarma to follow
+  recommendation in `SERVER-27707
+  <https://jira.mongodb.org/browse/SERVER-27707>`_.
+
 1118.0.3
 ========
 
