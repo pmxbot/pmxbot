@@ -62,28 +62,20 @@ class TestMongoDBKarma:
 
 
 class TestSQLiteKarma:
-	finalizers = []
+	@pytest.fixture
+	def sqlite_karma(self, request, tmpdir):
+		filename = tmpdir / 'db.sqlite'
+		return karma.Karma.from_URI('sqlite://{filename}'.format(**locals()))
 
-	@classmethod
-	def teardown_class(cls):
-		for finalizer in cls.finalizers:
-			finalizer()
-
-	def setup_karma(self):
-		tf = tempfile.NamedTemporaryFile(delete=False)
-		tf.close()
-		self.finalizers.append(functools.partial(os.remove, tf.name))
-		return karma.Karma.from_URI('sqlite://{tf.name}'.format(**vars()))
-
-	def test_linking_same_does_nothing(self):
-		k = self.setup_karma()
+	def test_linking_same_does_nothing(self, sqlite_karma):
+		k = sqlite_karma
 		k.set('foo', 99)
 		with pytest.raises(karma.SameName):
 			k.link('foo', 'foo')
 		assert k.lookup('foo') == 99
 
-	def test_linking_similar(self):
-		k = self.setup_karma()
+	def test_linking_similar(self, sqlite_karma):
+		k = sqlite_karma
 		k.set('foo', 99)
 		k.set('foo|away', 1)
 		k.link('foo', 'foo|away')
@@ -93,8 +85,8 @@ class TestSQLiteKarma:
 		with pytest.raises(karma.AlreadyLinked):
 			k.link('foo|away', 'foo')
 
-	def test_already_linked_raises_error(self):
-		k = self.setup_karma()
+	def test_already_linked_raises_error(self, sqlite_karma):
+		k = sqlite_karma
 		k.set('foo', 50)
 		k.set('bar', 50)
 		k.link('foo', 'bar')
