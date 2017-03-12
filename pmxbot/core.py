@@ -430,9 +430,9 @@ class ConfigMergeAction(argparse.Action):
 
 
 class Bot(metaclass=abc.ABCMeta):
-	def out(self, channel, s, log=True):
+	def out(self, channel, s, log=True, context=None):
 		try:
-			sent = self.allow(channel, s) and self.transmit(channel, s)
+			sent = self.allow(channel, s) and self.transmit(channel, s, context)
 		except Exception:
 			msg = "Unhandled exception transmitting message: %r"
 			globals()['log'].exception(msg, s)
@@ -478,7 +478,7 @@ class Bot(metaclass=abc.ABCMeta):
 		traceback.print_exc()
 		return res
 
-	def _handle_output(self, channel, output):
+	def _handle_output(self, channel, output, context=None):
 		"""
 		Given an initial channel and a sequence of messages or sentinels,
 		output the messages.
@@ -487,7 +487,7 @@ class Bot(metaclass=abc.ABCMeta):
 		for message in augmented_messages:
 			self.out(message.channel, message, not message.secret)
 
-	def handle_action(self, channel, nick, msg):
+	def handle_action(self, channel, nick, msg, context=None):
 		"Core message parser and dispatcher"
 
 		messages = ()
@@ -506,7 +506,7 @@ class Bot(metaclass=abc.ABCMeta):
 			messages = itertools.chain(messages, clean_results)
 			if not handler.allow_chain:
 				break
-		self._handle_output(channel, messages)
+		self._handle_output(channel, messages, context)
 
 	def init_schedule(self, scheduler):
 		for handler in Scheduled._registry:
