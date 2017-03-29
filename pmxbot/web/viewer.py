@@ -260,15 +260,13 @@ class LegacyPage():
 		dt = datetime.datetime.combine(date, time.time())
 		loc_dt = self.timezone.localize(dt)
 		utc_dt = loc_dt.astimezone(pytz.utc)
-		url_fmt = '/day/{channel}/{target_date}#{target_time}.{nick}'
-		raise cherrypy.HTTPRedirect(
-			url_fmt.format(
-				target_date=utc_dt.date().isoformat(),
-				target_time=utc_dt.time().strftime('%H.%M.%S'),
-				**locals()
-			),
-			301,
+		url_tmpl = '/day/{channel}/{target_date}#{target_time}.{nick}'
+		url = url_tmpl.format(
+			target_date=utc_dt.date().isoformat(),
+			target_time=utc_dt.time().strftime('%H.%M.%S'),
+			**locals()
 		)
+		raise cherrypy.HTTPRedirect(url, 301)
 
 
 class PmxbotPages:
