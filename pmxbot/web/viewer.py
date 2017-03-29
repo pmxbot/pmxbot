@@ -265,7 +265,7 @@ class LegacyPage():
 			url_fmt.format(
 				target_date=utc_dt.date().isoformat(),
 				target_time=utc_dt.time().strftime('%H.%M.%S'),
-				**vars()
+				**locals()
 			),
 			301,
 		)

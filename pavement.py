@@ -12,7 +12,7 @@ def to_wiki(commands):
 	for command, doc, aliases in commands:
 		aliases = ', '.join(repr(alias.name) for alias in aliases)
 		doc = doc.replace('|', '~|')
-		yield '| {command} | {aliases} | {doc} |'.format(**vars())
+		yield '| {command} | {aliases} | {doc} |'.format(**locals())
 
 
 @task

@@ -430,6 +430,9 @@ class ConfigMergeAction(argparse.Action):
 
 
 class Bot(metaclass=abc.ABCMeta):
+	"""
+	The abstract interface for the bot.
+	"""
 	def out(self, channel, s, log=True):
 		try:
 			sent = self.allow(channel, s) and self.transmit(channel, s)
@@ -471,7 +474,7 @@ class Bot(metaclass=abc.ABCMeta):
 		res = [
 			"{expletive} An error occurred: {exception}".format(
 				expletive=random.choice(expletives),
-				**vars())
+				**locals())
 		]
 		res.append('!{name} {doc}'.format(name=handler.name, doc=handler.doc))
 		print(datetime.datetime.now(), "Error with command {handler}".format(handler=handler))

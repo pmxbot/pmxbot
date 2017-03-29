@@ -354,7 +354,7 @@ def ticker(rest):
 	format = ''.join((symbol, last_trade_time, last_trade_price, change_percent))
 	url = (
 		'http://finance.yahoo.com/d/quotes.csv?s=%(ticker)s&f=%(format)s'
-		% vars())
+		% locals())
 	stock_info = csv.reader(util.open_url(url).text.splitlines())
 	last_trade, = stock_info
 	ticker_given, time, price, diff = last_trade
@@ -713,7 +713,7 @@ def define(rest):
 	fmt = (
 		'{lookup.provider} says: {res}' if res else
 		"{lookup.provider} does not have a definition for that.")
-	return fmt.format(**dict(vars(), lookup=util.lookup))
+	return fmt.format(**dict(locals(), lookup=util.lookup))
 
 
 @command(aliases=("urb", 'ud', 'urbandictionary', 'urbandefine', 'urbandef', 'urbdef'))
@@ -723,7 +723,7 @@ def urbandict(rest):
 	definition = util.urban_lookup(word)
 	if not definition:
 		return "Arg!  I didn't find a definition for that."
-	return 'Urban Dictionary says {word}: {definition}'.format(**vars())
+	return 'Urban Dictionary says {word}: {definition}'.format(**locals())
 
 
 @command("acronym", aliases=("ac",))
@@ -810,7 +810,7 @@ def storytime(rest):
 	add = (
 		"{rest} is about to tell us a story!"
 		if rest else "A story is about to be told!")
-	return (gather + add).format(**vars())
+	return (gather + add).format(**locals())
 
 
 @command(aliases=('law',))
