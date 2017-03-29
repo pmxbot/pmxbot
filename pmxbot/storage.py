@@ -5,23 +5,18 @@ import logging
 import threading
 import urllib.parse
 
-try:
-	import sqlite3 as sqlite
-except ImportError:
-	pass
-
-try:
-	import pymongo
-	bson = importlib.import_module('bson')
-except ImportError:
-	pass
-
 from jaraco.classes.ancestry import iter_subclasses
 
 import pmxbot
 
 
 log = logging.getLogger(__name__)
+
+
+# DB implementations imported on demand
+pymongo = None
+sqlite = None
+bson = None
 
 
 class SelectableStorage:
@@ -77,7 +72,9 @@ class SQLiteStorage(Storage, threading.local):
 		return uri.endswith('.sqlite')
 
 	def __init__(self, uri):
-		importlib.import_module('sqlite3')
+		globals().update(
+			sqlite=importlib.import_module('sqlite3'),
+		)
 		self.uri = uri
 		self.filename = urllib.parse.urlparse(uri).path
 		self.db = sqlite.connect(self.filename, isolation_level=None, timeout=20.0)
@@ -95,6 +92,10 @@ class MongoDBStorage(Storage):
 		return uri.startswith('mongodb:')
 
 	def __init__(self, host_uri):
+		globals().update(
+			pymongo=importlib.import_module('pymongo'),
+			bson=importlib.import_module('bson'),
+		)
 		self.uri = host_uri
 		self.db = self._get_collection(host_uri)
 
