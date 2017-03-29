@@ -4,6 +4,7 @@ import importlib
 import logging
 import numbers
 import time
+import re
 
 import irc.bot
 import irc.schedule
@@ -84,12 +85,26 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 			return lambda x: x
 		return importlib.import_module('ssl').wrap_socket
 
+	action_pattern = re.compile(r'^(/me\s+)?(.*)$', flags=re.DOTALL)
+
 	def transmit(self, channel, msg):
+		r"""
+		Transmit the message (or action) and return what was transmitted.
+
+		>>> ap = LoggingCommandBot.action_pattern
+		>>> ap.match('foo').groups()
+		(None, 'foo')
+		>>> ap.match('foo\nbar\n').group(2)
+		'foo\nbar\n'
+		>>> is_action, msg = ap.match('/me  is feeling fine today').groups()
+		>>> bool(is_action)
+		True
+		>>> msg
+		'is feeling fine today'
+		"""
 		conn = self._conn
-		func = conn.privmsg
-		if msg.startswith('/me '):
-			func = conn.action
-			msg = msg.split(' ', 1)[-1].lstrip()
+		is_action, msg = self.action_pattern.match(msg).groups()
+		func = conn.action if is_action else conn.privmsg
 		try:
 			func(channel, msg)
 			return msg
