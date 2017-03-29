@@ -102,9 +102,8 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 		>>> msg
 		'is feeling fine today'
 		"""
-		conn = self._conn
 		is_action, msg = self.action_pattern.match(msg).groups()
-		func = conn.action if is_action else conn.privmsg
+		func = self._conn.action if is_action else self._conn.privmsg
 		try:
 			func(channel, msg)
 			return msg
