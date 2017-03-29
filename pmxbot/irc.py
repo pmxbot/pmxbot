@@ -61,7 +61,7 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 	def __init__(self, server, port, nickname, channels, password=None):
 		ErrorReportingBuffer.install()
 		server_list = [(server, port, password)]
-		irc.bot.SingleServerIRCBot.__init__(self, server_list, nickname, nickname)
+		super().__init__(server_list, nickname, nickname)
 		self.reactor.scheduler = Scheduler(dispatch=self.handle_scheduled)
 		self.nickname = nickname
 		self._channels = channels
@@ -70,11 +70,7 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 
 	def connect(self, *args, **kwargs):
 		factory = irc.connection.Factory(wrapper=self._get_wrapper())
-		res = irc.bot.SingleServerIRCBot.connect(
-			self,
-			connect_factory=factory,
-			*args, **kwargs
-		)
+		res = super().connect(connect_factory=factory, *args, **kwargs)
 		limit = pmxbot.config.get('message rate limit', float('inf'))
 		self.connection.set_rate_limit(limit)
 		return res
