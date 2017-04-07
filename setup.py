@@ -50,9 +50,11 @@ params = dict(
 		'viewer': ['cherrypy>=3.2.3', 'jinja2'],
 		'slack': ['slackclient', 'slacker'],
 		'irc': ['irc>=15.0,<16dev'],
+		'newrelic': ['yg.newrelic>=1.13,<2dev'],
 	},
 	setup_requires=[
 		'setuptools_scm>=1.15.0',
+		'wheel>=0.25.0',
 	],
 	classifiers=[
 		"Development Status :: 5 - Production/Stable",

@@ -50,6 +50,7 @@ in setup.py. Some optional dependencies are installed with
 - irc: IRC bot client.
 - slack: Slack bot client.
 - viewer: Enable the web viewer application.
+- newrelic: Integrate with New Relic (Currently only available for YouGov internal usage)
 
 Testing
 =======
