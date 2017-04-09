@@ -1,3 +1,9 @@
+1118.1.0
+========
+
+* #61: Thanks command now parses a reason and assigns
+  karma to the subject without the reason.
+
 1118.0.4
 ========
 
