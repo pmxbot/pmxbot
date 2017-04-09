@@ -102,6 +102,17 @@ class TestCommands:
 		post = karma.Karma.store.lookup(subject)
 		assert post == pre + 1
 
+	def test_motivate_with_reason(self):
+		"""
+		Test that motivate ignores the reason
+		"""
+		subject = "foo"
+		pre = karma.Karma.store.lookup(subject)
+		res = commands.motivate(channel="#test", rest=" %s\tfor some really incredible reason" % subject)
+		assert res == "you're doing good work, %s!" % subject
+		post = karma.Karma.store.lookup(subject)
+		assert post == pre + 1
+
 	def test_motivate_with_spaces(self):
 		"""
 		Test that motivate strips beginning and ending whitespace
