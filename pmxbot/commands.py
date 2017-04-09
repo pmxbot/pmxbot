@@ -257,11 +257,14 @@ def zinger(rest):
 	return "OH MAN!!! %s TOTALLY GOT ZING'D!" % (name.upper())
 
 
-@command(aliases=("m", "appreciate", "thanks", "thank", "gracias"))
+@command(aliases=("m", "appreciate", "thanks", "thank", "gracias", "grazie"))
 def motivate(channel, rest):
 	"Motivate someone"
 	if rest:
 		r = rest.strip()
+		m = re.match(r'^(.+)\s*\bfor\b\s*(.+)$', r)
+		if m:
+			r = m.groups()[0].strip()
 	else:
 		r = channel
 	karma.Karma.store.change(r, 1)
