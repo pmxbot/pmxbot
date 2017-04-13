@@ -16,8 +16,7 @@ def crash_in_iterator():
 @core.regexp('feck', r'\bfeck\b', doc="We don't use that sort of language around here")
 def foobar(client, event, channel, nick, match):
     if match:
-        yield "Clean up your language %s" % nick
-        yield repr(match)
+        return "Clean up your language %s" % nick
 
 @core.command()
 def echo(rest):
