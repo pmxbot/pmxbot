@@ -13,6 +13,10 @@ def crash_in_iterator():
 	raise TypeError("You should never call this!")
 	yield "You can't touch this"
 
+@core.regexp('feck', r'\bfeck\b', doc="We don't use that sort of language around here")
+def foobar(client, event, channel, nick, match):
+    if match:
+        return "Clean up your language %s" % nick
 
 @core.command()
 def echo(rest):
