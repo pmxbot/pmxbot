@@ -1,6 +1,0 @@
-pytest >= 2.8
-jaraco.test>=2.0.4
-backports.unittest_mock
-more_itertools
-jaraco.mongodb
-setuptools_scm

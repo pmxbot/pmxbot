@@ -25,6 +25,7 @@ params = dict(
 	packages=setuptools.find_packages(),
 	include_package_data=True,
 	namespace_packages=['pmxbot'],
+	python_requires='>=2.7',
 	install_requires=[
 		"requests",
 		"pyyaml",
@@ -50,6 +51,20 @@ params = dict(
 		'viewer': ['cherrypy>=3.2.3', 'jinja2'],
 		'slack': ['slackclient', 'slacker'],
 		'irc': ['irc>=15.0,<16dev'],
+		'testing': [
+			'pytest>=2.8',
+			'pytest-sugar',
+			'jaraco.test>=2.0.4',
+			'backports.unittest_mock',
+			'more_itertools',
+			'jaraco.mongodb',
+			'setuptools_scm',
+		],
+		'docs': [
+			'sphinx',
+			'jaraco.packaging>=3.2',
+			'rst.linker>=1.9',
+		],
 	},
 	setup_requires=[
 		'setuptools_scm>=1.15.0',
