@@ -515,10 +515,16 @@ class Bot(metaclass=abc.ABCMeta):
 		for handler in Scheduled._registry:
 			scheduler.add(handler.as_cmd())
 
-	def handle_scheduled(self, handler):
+	def handle_scheduled(self, target):
 		"""
-		handler is a Handler
+		target is a Handler or simple callable
 		"""
+		if not isinstance(target, Handler):
+			return target()
+
+		return self._handle_scheduled(target)
+
+	def _handle_scheduled(self, handler):
 		exception_handler = functools.partial(
 			self._handle_exception,
 			handler=handler,

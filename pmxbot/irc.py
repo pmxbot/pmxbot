@@ -50,12 +50,8 @@ class WarnHistory(dict):
 			connection.notice(nick, line)
 
 
-class Scheduler(tempora.schedule.CallbackScheduler, irc.schedule.IScheduler):
-	# implement abstract methods that will never get called
-	def execute_every(self, *args, **kwargs):
-		pass
-	execute_after = execute_at = execute_every
-
+class Scheduler(tempora.schedule.CallbackScheduler, irc.schedule.DefaultScheduler):
+	pass
 
 
 class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
