@@ -5,6 +5,7 @@ import logging
 from tempora import schedule
 
 import pmxbot
+from pmxbot import core
 
 
 log = logging.getLogger(__name__)
@@ -39,14 +40,9 @@ class Bot(pmxbot.core.Bot):
 		channel = self.slack.server.channels.find(msg['channel']).name
 		nick = self.slack.server.users.find(msg['user']).name
 
-		context = dict()
-		if msg.get('thread_ts'):
-			# If the 'thread_ts' attribute is present in the incoming
-			# message then we're part of a thread, and should reply in
-			# the same thread by including the parent thread ID in the reply.
-			context['thread_ts'] = msg['thread_ts']
+		channel = core.AugmentableMessage(channel, thread=msg.get('thread_ts'))
 
-		self.handle_action(channel, nick, msg['text'], context)
+		self.handle_action(channel, nick, msg['text'])
 
 	def _find_user_channel(self, username):
 		"""
@@ -56,7 +52,7 @@ class Bot(pmxbot.core.Bot):
 		im = user_id and self.slacker.im.open(user_id).body['channel']['id']
 		return im and self.slack.server.channels.find(im)
 
-	def transmit(self, channel, message, context=None):
+	def transmit(self, channel, message):
 		"""
 		Send the message to Slack.
 
@@ -65,13 +61,8 @@ class Bot(pmxbot.core.Bot):
 		:param dict context: optional dict containing extra details about
 			the message, such as the current 'thread' in Slack.
 		"""
-
-		kwargs = dict(message=message)
-		if context is not None:
-			kwargs['thread'] = context.get('thread_ts')
-
 		target = (
 			self.slack.server.channels.find(channel) or
 			self._find_user_channel(username=channel)
 		)
-		target.send_message(message, **kwargs)
+		target.send_message(message, thread=getattr(channel, 'thread', None))
