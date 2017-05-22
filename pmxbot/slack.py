@@ -57,9 +57,8 @@ class Bot(pmxbot.core.Bot):
 		Send the message to Slack.
 
 		:param channel: channel or user to whom the message should be sent.
+			If a ``thread`` attribute is present, that thread ID is used.
 		:param str message: message to send.
-		:param dict context: optional dict containing extra details about
-			the message, such as the current 'thread' in Slack.
 		"""
 		target = (
 			self.slack.server.channels.find(channel) or
