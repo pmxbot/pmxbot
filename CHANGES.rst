@@ -1,3 +1,8 @@
+1118.2.1
+========
+
+* #64: Restore support for TCP keepalives, broken in 1117.
+
 1118.2.0
 ========
 
