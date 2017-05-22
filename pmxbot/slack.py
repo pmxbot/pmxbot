@@ -5,6 +5,7 @@ import logging
 from tempora import schedule
 
 import pmxbot
+from pmxbot import core
 
 
 log = logging.getLogger(__name__)
@@ -38,6 +39,9 @@ class Bot(pmxbot.core.Bot):
 			return
 		channel = self.slack.server.channels.find(msg['channel']).name
 		nick = self.slack.server.users.find(msg['user']).name
+
+		channel = core.AugmentableMessage(channel, thread=msg.get('thread_ts'))
+
 		self.handle_action(channel, nick, msg['text'])
 
 	def _find_user_channel(self, username):
@@ -49,8 +53,15 @@ class Bot(pmxbot.core.Bot):
 		return im and self.slack.server.channels.find(im)
 
 	def transmit(self, channel, message):
+		"""
+		Send the message to Slack.
+
+		:param channel: channel or user to whom the message should be sent.
+			If a ``thread`` attribute is present, that thread ID is used.
+		:param str message: message to send.
+		"""
 		target = (
-			self.slack.server.channels.find(channel)
-			or self._find_user_channel(username=channel)
+			self.slack.server.channels.find(channel) or
+			self._find_user_channel(username=channel)
 		)
-		target.send_message(message)
+		target.send_message(message, thread=getattr(channel, 'thread', None))
