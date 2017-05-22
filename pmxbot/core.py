@@ -581,6 +581,7 @@ def initialize(config):
 	config = init_config(config)
 
 	_setup_logging()
+	_setup_newrelic(config)
 	_load_library_extensions()
 	if not Handler._registry:
 		raise RuntimeError("No handlers registered")
@@ -645,3 +646,23 @@ def _load_filters():
 	group = 'pmxbot_filters'
 	eps = pkg_resources.iter_entry_points(group=group)
 	return [ep.load() for ep in eps]
+
+
+def _setup_newrelic(config):
+	"""
+	Initialize yg.newrelic if the package is installed and the
+	New Relic license key is in the config.
+	"""
+	try:
+		import yg.newrelic
+	except ImportError:
+		log.info('New Relic not initialized, yg.newrelic not installed')
+		return
+
+	nr_key = config.get('newrelic_license_key')
+	app_name = config.get('newrelic_appname', 'pmxbot')
+	if nr_key:
+		yg.newrelic.initialize(app_name, nr_key, {})
+		log.info('New Relic initialized')
+	else:
+		log.info('Cannot initialize New Relic, config missing license key')

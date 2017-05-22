@@ -34,3 +34,5 @@ TCP keepalive: 30 seconds
 
 # set a rate limit on outgoing messages in messages per second
 message rate limit: 2.5
+
+newrelic_license_key: ''
