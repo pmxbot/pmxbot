@@ -517,7 +517,7 @@ class Bot(metaclass=abc.ABCMeta):
 
 	def handle_scheduled(self, handler):
 		"""
-		handler is a Scheduled
+		handler is a Handler
 		"""
 		exception_handler = functools.partial(
 			self._handle_exception,
