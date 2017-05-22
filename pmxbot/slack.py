@@ -38,7 +38,15 @@ class Bot(pmxbot.core.Bot):
 			return
 		channel = self.slack.server.channels.find(msg['channel']).name
 		nick = self.slack.server.users.find(msg['user']).name
-		self.handle_action(channel, nick, msg['text'])
+
+		context = dict()
+		if msg.get('thread_ts'):
+			# If the 'thread_ts' attribute is present in the incoming
+			# message then we're part of a thread, and should reply in
+			# the same thread by including the parent thread ID in the reply.
+			context['thread_ts'] = msg['thread_ts']
+
+		self.handle_action(channel, nick, msg['text'], context)
 
 	def _find_user_channel(self, username):
 		"""
@@ -48,9 +56,22 @@ class Bot(pmxbot.core.Bot):
 		im = user_id and self.slacker.im.open(user_id).body['channel']['id']
 		return im and self.slack.server.channels.find(im)
 
-	def transmit(self, channel, message):
+	def transmit(self, channel, message, context=None):
+		"""
+		Send the message to Slack.
+
+		:param channel: channel or user to whom the message should be sent.
+		:param str message: message to send.
+		:param dict context: optional dict containing extra details about
+			the message, such as the current 'thread' in Slack.
+		"""
+
+		kwargs = dict(message=message)
+		if context is not None:
+			kwargs['thread'] = context.get('thread_ts')
+
 		target = (
-			self.slack.server.channels.find(channel)
-			or self._find_user_channel(username=channel)
+			self.slack.server.channels.find(channel) or
+			self._find_user_channel(username=channel)
 		)
-		target.send_message(message)
+		target.send_message(message, **kwargs)
