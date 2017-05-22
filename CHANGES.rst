@@ -1,7 +1,8 @@
-1118.1.1
+1118.2.0
 ========
 
 * #62: Fixed error in regexp docs.
+* #50: [Slack] Added support for replying in a thread.
 
 1118.1.0
 ========
