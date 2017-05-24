@@ -1,5 +1,5 @@
 """
-Support for rolls, leave and join events (i.e. Roll Call).
+Support for rolls, quit and join events (i.e. Roll Call).
 """
 
 import datetime
@@ -7,7 +7,7 @@ import datetime
 import pmxbot
 from . import storage
 from . import logging
-from pmxbot.core import on_join, on_leave
+from pmxbot.core import on_join, on_quit
 
 
 class ParticipantLogger(storage.SelectableStorage):
@@ -28,8 +28,8 @@ class ParticipantLogger(storage.SelectableStorage):
 	def log_join(self, nick, channel):
 		self.log(nick, channel, 'join')
 
-	def log_leave(self, nick, channel):
-		self.log(nick, channel, 'leave')
+	def log_quit(self, nick, channel):
+		self.log(nick, channel, 'quit')
 
 
 @on_join()
@@ -39,11 +39,11 @@ def log_join(nick, channel):
 	ParticipantLogger.store.log_join(nick, channel)
 
 
-@on_leave()
-def log_leave(nick, channel):
+@on_quit()
+def log_quit(nick, channel):
 	if channel not in pmxbot.config.log_channels:
 		return
-	ParticipantLogger.store.log_leave(nick, channel)
+	ParticipantLogger.store.log_quit(nick, channel)
 
 
 class SQLiteLogger(ParticipantLogger, storage.SQLiteStorage):

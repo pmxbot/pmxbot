@@ -360,7 +360,7 @@ class JoinHandler(Handler):
 	_registry = []
 
 
-class LeaveHandler(Handler):
+class QuitHandler(Handler):
 	_registry = []
 
 
@@ -417,8 +417,8 @@ def on_join(doc=None):
 	return JoinHandler(doc=doc).decorate
 
 
-def on_leave(doc=None):
-	return LeaveHandler(doc=doc).decorate
+def on_quit(doc=None):
+	return QuitHandler(doc=doc).decorate
 
 
 class ConfigMergeAction(argparse.Action):

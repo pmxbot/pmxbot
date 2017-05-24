@@ -8,6 +8,11 @@
   <http://api.mongodb.com/python/current/api/pymongo/mongo_client.html>`_
   constructor.
 
+* #66: Renamed ``on_leave`` decorator and other references to
+  a "leave" event to instead honor ``on_quit``, the event
+  that an IRC server will actually transmit when a user leaves...
+  erm, quits a channel.
+
 1118.2.1
 ========
 

@@ -157,7 +157,7 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 			return
 		self.warn_history.warn(nick, connection)
 
-	def on_leave(self, connection, event):
+	def on_quit(self, connection, event):
 		nick = event.source.nick
 		channel = event.target
 		client = connection
