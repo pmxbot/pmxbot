@@ -81,7 +81,8 @@ class MongoDBLogger(ParticipantLogger, storage.MongoDBStorage):
 			('channel', storage.pymongo.ASCENDING),
 		])
 		now = datetime.datetime.utcnow()
-		self.db.insert(
-			dict(
-				channel=channel, nick=nick, change=change,
-				datetime=logging.MongoDBLogger._fmt_date(now)))
+		doc = dict(
+			channel=channel, nick=nick, change=change,
+			datetime=logging.MongoDBLogger._fmt_date(now),
+		)
+		self.db.insert(doc)
