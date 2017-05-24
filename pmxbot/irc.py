@@ -161,11 +161,13 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 		nick = event.source.nick
 		channel = event.target
 		client = connection
-		for handler in core.JoinHandler._registry:
+		for handler in core.LeaveHandler._registry:
 			try:
 				handler.attach(locals())()
 			except Exception:
 				log.exception("Error in %s", handler)
+
+	on_part = on_quit
 
 	def on_pubmsg(self, connection, event):
 		msg = ''.join(event.arguments)

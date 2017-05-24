@@ -7,7 +7,7 @@ import datetime
 import pmxbot
 from . import storage
 from . import logging
-from pmxbot.core import on_join, on_quit
+from pmxbot.core import on_join, on_leave
 
 
 class ParticipantLogger(storage.SelectableStorage):
@@ -39,11 +39,14 @@ def log_join(nick, channel):
 	ParticipantLogger.store.log_join(nick, channel)
 
 
-@on_quit()
-def log_quit(nick, channel):
+@on_leave()
+def log_leave(event, nick, channel):
+	"""
+	Log a quit or part event.
+	"""
 	if channel not in pmxbot.config.log_channels:
 		return
-	ParticipantLogger.store.log_quit(nick, channel)
+	ParticipantLogger.store.log(nick, channel, event.type)
 
 
 class SQLiteLogger(ParticipantLogger, storage.SQLiteStorage):

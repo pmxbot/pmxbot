@@ -1,3 +1,10 @@
+1118.3.1
+========
+
+* #66: It's not simply "quit" either. It's either part (left channel)
+  or quit (disconnecting). Restored ``on_leave`` as the decorator
+  handling either event.
+
 1118.3.0
 ========
 
@@ -8,7 +15,7 @@
   <http://api.mongodb.com/python/current/api/pymongo/mongo_client.html>`_
   constructor.
 
-* #66: Renamed ``on_leave`` decorator and other references to
+* #66: [IRC] Renamed ``on_leave`` decorator and other references to
   a "leave" event to instead honor ``on_quit``, the event
   that an IRC server will actually transmit when a user leaves...
   erm, quits a channel.
