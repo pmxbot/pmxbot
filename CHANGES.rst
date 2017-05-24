@@ -1,3 +1,13 @@
+1118.3.0
+========
+
+* A new configuration setting ``database params`` is
+  now honored for the MongoDB storage and any parameters
+  specified for that key will be passed directly to the
+  `MongoClient
+  <http://api.mongodb.com/python/current/api/pymongo/mongo_client.html>`_
+  constructor.
+
 1118.2.1
 ========
 
