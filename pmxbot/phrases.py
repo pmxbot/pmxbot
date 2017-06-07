@@ -1,5 +1,3 @@
-# vim:ts=4:sw=4:noexpandtab
-
 ball8_opts = {
 	"Signs point to yes.": 21,
 	"Yes.": 21,

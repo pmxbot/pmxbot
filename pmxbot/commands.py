@@ -1,5 +1,3 @@
-# vim:ts=4:sw=4:noexpandtab
-
 import sys
 import re
 import random
