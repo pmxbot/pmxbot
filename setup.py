@@ -90,7 +90,7 @@ params = dict(
 			'pmxbot rolls = pmxbot.rolls:ParticipantLogger.initialize',
 			'pmxbot config = pmxbot.config_',
 			'pmxbot system commands = pmxbot.system',
-			'pmxbot say something = pmxbot.saysomething:MarkovState.initialize',
+			'pmxbot say something = pmxbot.saysomething:Chains.initialize',
 		],
 	},
 )
