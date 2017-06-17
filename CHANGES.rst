@@ -1,3 +1,24 @@
+1119.0
+========
+
+* #54: ``!saysomething`` no longer relies on logged messages, but
+  instead relies on its own persistence mechanism, which draws from
+  all messages visible to pmxbot. This approach has several benefits:
+
+  - Startup is faster (not relying on a large database query to initialize
+    the Markov chains).
+  - The command can work in environments where logging is disabled
+    (e.g. Slack).
+  - The corpora is continuously updated with new content.
+
+  One big downside is that historical logs no longer affect the command,
+  so deployments relying on the prior behavior will no longer work.
+  The corpus will initialize empty. Enthusiastic users might decide
+  to feed the logs through the chains to include those historical messages.
+
+  Currently, there's no bound to the data collected, so the chains may
+  grow unweildy.
+
 1118.3.2
 ========
 
