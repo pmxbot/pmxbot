@@ -1,8 +1,10 @@
 import random
 import itertools
 import abc
+import operator
 
 from more_itertools.recipes import pairwise, consume
+import jaraco.collections
 
 import pmxbot.core
 import pmxbot.storage
@@ -67,7 +69,7 @@ class MongoDBChains(Chains, pmxbot.storage.MongoDBStorage):
 
 	{
 		'_id': <trigger word or None>,
-		'begets': <array of words that follow>
+		'begets': <dict of word:frequency>
 	}
 	"""
 	collection_name = 'chains'
@@ -77,12 +79,22 @@ class MongoDBChains(Chains, pmxbot.storage.MongoDBStorage):
 		Given two words, initial then follows, associate those words
 		"""
 		filter = dict(_id=initial)
-		oper = {'$push': {'begets': follows}}
+		key = 'begets.' + follows
+		oper = {'$inc': {key: 1}}
 		self.db.update(filter, oper, upsert=True)
 
 	def next(self, initial):
 		doc = self.db.find_one(dict(_id=initial))
-		return random.choice(doc['begets'])
+		words = doc['begets']
+
+		# Build a map of accumulated frequencies to words
+		acc = itertools.accumulate(words.values())
+		lookup = jaraco.collections.RangeMap(zip(acc,words))
+
+		# choose a random word proportional - to do that, pick a
+		# random index from 1 to the total.
+		_, total = lookup.bounds()
+		return lookup[random.randint(1, total)]
 
 
 class SQLiteChains(Chains, pmxbot.storage.SQLiteStorage):
