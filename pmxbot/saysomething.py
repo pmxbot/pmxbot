@@ -22,8 +22,8 @@ class Chains(pmxbot.storage.SelectableStorage,
 		del cls.store
 
 	def feed(self, message):
-		message = message.rstrip() + ' ' + self.term
-		words = message.split(' ')
+		message = message.rstrip()
+		words = message.split(' ') + [self.term]
 		self.save(words)
 
 	def save(self, words):
