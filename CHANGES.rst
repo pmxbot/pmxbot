@@ -1,5 +1,5 @@
 1119.0
-========
+======
 
 * #54: ``!saysomething`` no longer relies on logged messages, but
   instead relies on its own persistence mechanism, which draws from
