@@ -67,6 +67,14 @@ class MongoDBChains(Chains, pmxbot.storage.MongoDBStorage):
 		return ' '.join(p_words)
 
 
+class SQLiteChains(Chains, pmxbot.storage.SQLiteStorage):
+	def get_paragraph(self, seed=None):
+		"stubbed"
+
+	def save_message(self, message):
+		"stubbed"
+
+
 @pmxbot.core.command()
 def saysomething(rest):
 	"""
