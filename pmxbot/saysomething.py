@@ -48,6 +48,22 @@ class Chains(pmxbot.storage.SelectableStorage,
 		p_words = itertools.takewhile(lambda word: word != self.term, words)
 		return ' '.join(p_words)
 
+	@staticmethod
+	def choose(raw_freq):
+		"""
+		Given a dictionary of words and their frequencies,
+		return a random word weighted to a distribution of
+		those frequencies.
+		"""
+		# Build a map of accumulated frequencies to words
+		acc = itertools.accumulate(raw_freq.values())
+		lookup = jaraco.collections.RangeMap(zip(acc,raw_freq))
+
+		# choose a random word proportional - to do that, pick a
+		# random index from 1 to the total.
+		_, total = lookup.bounds()
+		return lookup[random.randint(1, total)]
+
 	@abc.abstractmethod
 	def update(self, initial, follows):
 		"""
@@ -85,25 +101,64 @@ class MongoDBChains(Chains, pmxbot.storage.MongoDBStorage):
 
 	def next(self, initial):
 		doc = self.db.find_one(dict(_id=initial))
-		words = doc['begets']
+		return self.choose(doc['begets'])
 
-		# Build a map of accumulated frequencies to words
-		acc = itertools.accumulate(words.values())
-		lookup = jaraco.collections.RangeMap(zip(acc,words))
-
-		# choose a random word proportional - to do that, pick a
-		# random index from 1 to the total.
-		_, total = lookup.bounds()
-		return lookup[random.randint(1, total)]
+	def purge(self):
+		self.db.drop()
 
 
 class SQLiteChains(Chains, pmxbot.storage.SQLiteStorage):
+	def init_tables(self):
+		create_table = """
+			CREATE TABLE IF NOT EXISTS chains (
+				initial varchar,
+				follows varchar,
+				count INTEGER
+			)
+			"""
+		self.db.execute(create_table)
+		self.db.commit()
+
+	@staticmethod
+	def _wrap_initial(initial, query):
+		"""
+		When 'initial' is None, sqlite requires a different syntax to
+		match. Patch queries accordingly.
+		"""
+		repl = query.replace('initial = ?', 'initial is ?')
+		return repl if initial is None else query
+
 	def update(self, initial, follows):
-		"stubbed"
+		lookup_q = self._wrap_initial(initial, """
+			SELECT count from chains where initial = ? and follows = ?
+			""")
+		try:
+			prior, = self.db.execute(lookup_q, [initial, follows]).fetchone()
+		except Exception:
+			prior = 0
+
+		value = prior + 1
+		update_q = self._wrap_initial(initial, """
+			UPDATE chains SET count = ? where initial = ? and follows = ?
+			""")
+		res = self.db.execute(update_q, (value, initial, follows))
+		if res.rowcount == 0:
+			insert_q = """
+				INSERT INTO chains (initial, follows, count) VALUES (?, ?, ?)
+				"""
+			self.db.execute(insert_q, (initial, follows, value))
+		self.db.commit()
 
 	def next(self, initial):
-		"stubbed"
-		return self.term
+		search_q = self._wrap_initial(initial, """
+			SELECT follows, count FROM chains WHERE initial = ?
+			""")
+		res = self.db.execute(search_q, [initial])
+		raw_freq = dict(res.fetchall())
+		return self.choose(raw_freq)
+
+	def purge(self):
+		self.db.execute('DELETE from chains')
 
 
 @pmxbot.core.command()
