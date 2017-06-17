@@ -1,5 +1,6 @@
 import random
 import itertools
+import abc
 
 from more_itertools.recipes import pairwise, consume
 
@@ -7,7 +8,10 @@ import pmxbot.core
 import pmxbot.storage
 
 
-class Chains(pmxbot.storage.SelectableStorage):
+class Chains(pmxbot.storage.SelectableStorage,
+		metaclass=abc.ABCMeta):
+	term = '\n'
+
 	@classmethod
 	def initialize(cls):
 		cls.store = cls.from_URI()
@@ -16,6 +20,45 @@ class Chains(pmxbot.storage.SelectableStorage):
 	@classmethod
 	def finalize(cls):
 		del cls.store
+
+	def feed(self, message):
+		message = message.rstrip() + ' ' + self.term
+		words = message.split(' ')
+		self.save(words)
+
+	def save(self, words):
+		"""
+		Save these words as encountered.
+		"""
+		# TODO: Need to cap the network, expire old words/phrases
+		initial = None,
+		all_words = itertools.chain(initial, words)
+		consume(itertools.starmap(self.update, pairwise(all_words)))
+
+	def _get_words(self, seed=None):
+		word = seed
+		while True:
+			word = self.next(word)
+			yield word
+
+	def get(self, seed=None):
+		words = self._get_words(seed)
+		p_words = itertools.takewhile(lambda word: word != self.term, words)
+		return ' '.join(p_words)
+
+	@abc.abstractmethod
+	def update(self, initial, follows):
+		"""
+		Associate the two words where initial immediately preceeds
+		follows.
+		"""
+
+	@abc.abstractmethod
+	def next(self, initial):
+		"""
+		Given initial, return a word that would have followed it,
+		proportional to the frequency encountered.
+		"""
 
 
 class MongoDBChains(Chains, pmxbot.storage.MongoDBStorage):
@@ -29,20 +72,6 @@ class MongoDBChains(Chains, pmxbot.storage.MongoDBStorage):
 	"""
 	collection_name = 'chains'
 
-	def save_message(self, message):
-		message = message.rstrip() + ' \n'
-		words = message.split(' ')
-		self.save_words(words)
-
-	def save_words(self, words):
-		"""
-		Save these words as encountered.
-		"""
-		# TODO: Need to cap the network, expire old words/phrases
-		initial = None,
-		all_words = itertools.chain(initial, words)
-		consume(itertools.starmap(self.update, pairwise(all_words)))
-
 	def update(self, initial, follows):
 		"""
 		Given two words, initial then follows, associate those words
@@ -55,24 +84,14 @@ class MongoDBChains(Chains, pmxbot.storage.MongoDBStorage):
 		doc = self.db.find_one(dict(_id=initial))
 		return random.choice(doc['begets'])
 
-	def get_paragraph_words(self, seed=None):
-		word = seed
-		while True:
-			word = self.next(word)
-			yield word
-
-	def get_paragraph(self, seed=None):
-		words = self.get_paragraph_words(seed)
-		p_words = itertools.takewhile(lambda word: word != '\n', words)
-		return ' '.join(p_words)
-
 
 class SQLiteChains(Chains, pmxbot.storage.SQLiteStorage):
-	def get_paragraph(self, seed=None):
+	def update(self, initial, follows):
 		"stubbed"
 
-	def save_message(self, message):
+	def next(self, initial):
 		"stubbed"
+		return self.term
 
 
 @pmxbot.core.command()
@@ -92,4 +111,4 @@ def capture_message(channel, nick, rest):
 	Capture messages the bot sees to enhance the Markov chains
 	"""
 	message = ': '.join((nick, rest))
-	Chains.store.save_message(message)
+	Chains.store.feed(message)
