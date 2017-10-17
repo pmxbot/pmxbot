@@ -427,7 +427,7 @@ class ConfigMergeAction(argparse.Action):
 		def merge_dicts(a, b):
 			a.update(b)
 			return a
-		setattr(namespace, self.dest, functools.reduce(merge_dicts, values))
+		setattr(namespace, self.dest, functools.reduce(merge_dicts, values, {}))
 
 
 class Bot(metaclass=abc.ABCMeta):
@@ -542,7 +542,8 @@ def get_args(*args, **kwargs):
 	parser = argparse.ArgumentParser()
 	parser.add_argument(
 		'config', type=pmxbot.dictlib.ConfigDict.from_yaml,
-		default={}, nargs='*', action=ConfigMergeAction)
+		nargs='*', action=ConfigMergeAction,
+	)
 	return parser.parse_args(*args, **kwargs)
 
 
