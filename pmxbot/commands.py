@@ -21,7 +21,7 @@ from . import phrases
 
 def plaintext(html):
 	"Extract the text from HTML."
-	return BeautifulSoup(html).text
+	return BeautifulSoup(html, 'html.parser').text
 
 
 @command(aliases='g')

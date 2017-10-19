@@ -141,7 +141,7 @@ def urban_lookup(word):
 def lookup_acronym(acronym, limit=3):
 	acronym = acronym.strip().upper().replace('.', '')
 	html = get_html('http://www.acronymfinder.com/%s.html' % acronym)
-	soup = bs4.BeautifulSoup(html)
+	soup = bs4.BeautifulSoup(html, 'html.parser')
 	nodes = soup.findAll(
 		name='td',
 		attrs={'class': 'result-list__body__meaning'},
