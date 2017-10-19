@@ -61,15 +61,25 @@ class SQLiteLogger(ParticipantLogger, storage.SQLiteStorage):
 			change TEXT,
 			PRIMARY KEY (id) )
 		'''
-		INDEX_DTC_CREATE_SQL = 'CREATE INDEX IF NOT EXISTS ix_rolls_datetime_channel ON rolls (datetime, channel)'
-		INDEX_DT_CREATE_SQL = 'CREATE INDEX IF NOT EXISTS ix_rolls_datetime ON rolls (datetime desc)'
+		INDEX_DTC_CREATE_SQL = """
+			CREATE INDEX IF NOT EXISTS ix_rolls_datetime_channel
+			ON rolls (datetime, channel)
+			"""
+		INDEX_DT_CREATE_SQL = """
+			CREATE INDEX IF NOT EXISTS ix_rolls_datetime
+			ON rolls (datetime desc)
+			"""
 		self.db.execute(LOG_CREATE_SQL)
 		self.db.execute(INDEX_DTC_CREATE_SQL)
 		self.db.execute(INDEX_DT_CREATE_SQL)
 		self.db.commit()
 
 	def log(self, nick, channel, change):
-		INSERT_LOG_SQL = 'INSERT INTO rolls (datetime, channel, nick, change) VALUES (?, ?, ?, ?)'
+		INSERT_LOG_SQL = """
+			INSERT INTO rolls
+			(datetime, channel, nick, change)
+			VALUES (?, ?, ?, ?)
+			"""
 		now = datetime.datetime.utcnow()
 		self.db.execute(INSERT_LOG_SQL, [now, channel, nick, change])
 		self.db.commit()
