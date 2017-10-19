@@ -76,7 +76,10 @@ def splitem(query):
 
 
 def open_url(url):
-	headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0'}
+	headers = {
+		'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) '
+		'Gecko/20100101 Firefox/12.0',
+	}
 	return requests.get(url, headers=headers)
 
 
@@ -115,6 +118,8 @@ def lookup(word):
 		return
 	definition = definitions[0]
 	return str(definition.text)
+
+
 lookup.provider = 'Wordnik'
 
 

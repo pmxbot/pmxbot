@@ -646,9 +646,15 @@ def blame(channel, rest, nick):
 	karma.Karma.store.change(nick, -1)
 	if random.randint(1, 10) == 1:
 		yield "/me jumps atop the chair and points back at %s." % nick
-		yield ("stop blaming the world for your problems, you bitter, two-faced sissified monkey!")
+		yield (
+			"stop blaming the world for your problems, you bitter, "
+			"two-faced sissified monkey!"
+		)
 	else:
-		yield ("I blame %s for everything!  it's your fault!  it's all your fault!!" % blamee)
+		yield (
+			"I blame %s for everything!  it's your fault!  "
+			"it's all your fault!!" % blamee
+		)
 		yield "/me cries and weeps in despair"
 
 
@@ -717,7 +723,9 @@ def define(rest):
 	return fmt.format(**dict(locals(), lookup=util.lookup))
 
 
-@command(aliases=("urb", 'ud', 'urbandictionary', 'urbandefine', 'urbandef', 'urbdef'))
+@command(
+	aliases=("urb", 'ud', 'urbandictionary', 'urbandefine', 'urbandef', 'urbdef')
+)
 def urbandict(rest):
 	"Define a word with Urban Dictionary"
 	word = rest.strip()

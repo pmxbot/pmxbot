@@ -32,12 +32,22 @@ class Quotes(storage.SelectableStorage):
 class SQLiteQuotes(Quotes, storage.SQLiteStorage):
 	def init_tables(self):
 		CREATE_QUOTES_TABLE = '''
-			CREATE TABLE IF NOT EXISTS quotes (quoteid INTEGER NOT NULL, library VARCHAR NOT NULL, quote TEXT NOT NULL, PRIMARY KEY (quoteid))
-		'''
-		CREATE_QUOTES_INDEX = '''CREATE INDEX IF NOT EXISTS ix_quotes_library on quotes(library)'''
+			CREATE TABLE
+			IF NOT EXISTS quotes (
+				quoteid INTEGER NOT NULL,
+				library VARCHAR NOT NULL,
+				quote TEXT NOT NULL,
+				PRIMARY KEY (quoteid)
+			)
+			'''
+		CREATE_QUOTES_INDEX = '''
+			CREATE INDEX
+			IF NOT EXISTS ix_quotes_library
+			on quotes(library)
+			'''
 		CREATE_QUOTE_LOG_TABLE = '''
 			CREATE TABLE IF NOT EXISTS quote_log (quoteid varchar, logid INTEGER)
-		'''
+			'''
 		self.db.execute(CREATE_QUOTES_TABLE)
 		self.db.execute(CREATE_QUOTES_INDEX)
 		self.db.execute(CREATE_QUOTE_LOG_TABLE)
@@ -45,11 +55,22 @@ class SQLiteQuotes(Quotes, storage.SQLiteStorage):
 
 	def lookup_with_num(self, thing='', num=0):
 		lib = self.lib
-		BASE_SEARCH_SQL = 'SELECT quoteid, quote FROM quotes WHERE library = ? %s order by quoteid'
+		BASE_SEARCH_SQL = """
+			SELECT quoteid, quote
+			FROM quotes
+			WHERE library = ? %s order by quoteid
+			"""
 		thing = thing.strip().lower()
 		num = int(num)
 		if thing:
-			SEARCH_SQL = BASE_SEARCH_SQL % (' AND %s' % (' AND '.join(["quote like '%%%s%%'" % x for x in thing.split()])))
+			wtf = (
+				' AND %s' % (
+					' AND '.join(
+						["quote like '%%%s%%'" % x for x in thing.split()]
+					)
+				)
+			)
+			SEARCH_SQL = BASE_SEARCH_SQL % wtf
 		else:
 			SEARCH_SQL = BASE_SEARCH_SQL % ''
 		results = [x[1] for x in self.db.execute(SEARCH_SQL, (lib,)).fetchall()]
@@ -74,9 +95,11 @@ class SQLiteQuotes(Quotes, storage.SQLiteStorage):
 		ADD_QUOTE_SQL = 'INSERT INTO quotes (library, quote) VALUES (?, ?)'
 		res = self.db.execute(ADD_QUOTE_SQL, (lib, quote,))
 		quoteid = res.lastrowid
-		log_id, log_message = self.db.execute('SELECT id, message FROM LOGS order by datetime desc limit 1').fetchone()
+		query = 'SELECT id, message FROM LOGS order by datetime desc limit 1'
+		log_id, log_message = self.db.execute(query).fetchone()
 		if quote in log_message:
-			self.db.execute('INSERT INTO quote_log (quoteid, logid) VALUES (?, ?)', (quoteid, log_id))
+			query = 'INSERT INTO quote_log (quoteid, logid) VALUES (?, ?)'
+			self.db.execute(query, (quoteid, log_id))
 		self.db.commit()
 
 	def __iter__(self):
@@ -86,7 +109,11 @@ class SQLiteQuotes(Quotes, storage.SQLiteStorage):
 			yield {'text': row[0]}
 
 	def export_all(self):
-		query = "SELECT quote, library, logid from quotes left outer join quote_log on quotes.quoteid = quote_log.quoteid"
+		query = """
+			SELECT quote, library, logid
+			from quotes
+			left outer join quote_log on quotes.quoteid = quote_log.quoteid
+			"""
 		fields = 'text', 'library', 'log_id'
 		return (dict(zip(fields, res)) for res in self.db.execute(query))
 
@@ -130,7 +157,7 @@ class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 		"""
 		lookup, num = self.split_num(lookup)
 		if num:
-			result = self.find_matches(lookup)[num-1]
+			result = self.find_matches(lookup)[num - 1]
 		else:
 			result, = self.find_matches(lookup)
 		self.db.delete_one(result)

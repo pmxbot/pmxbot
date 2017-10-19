@@ -114,7 +114,8 @@ class FastSayer:
 		log.info("Done initializing FastSayer in %s.", timer.split())
 
 	def saysomething(self, initial_word='\n'):
-		return paragraph_from_words(words_from_markov_data(self.markov_data, initial_word))
+		return paragraph_from_words(words_from_markov_data(
+			self.markov_data, initial_word))
 
 	@classmethod
 	def _wait_for_stores(cls, timer):

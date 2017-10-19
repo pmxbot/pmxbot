@@ -50,7 +50,10 @@ class WarnHistory(dict):
 			connection.notice(nick, line)
 
 
-class Scheduler(tempora.schedule.CallbackScheduler, irc.schedule.DefaultScheduler):
+class Scheduler(
+	tempora.schedule.CallbackScheduler,
+	irc.schedule.DefaultScheduler
+):
 	pass
 
 

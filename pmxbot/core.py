@@ -78,7 +78,7 @@ class Sentinel:
 		>>> [msg.secret for msg in res]
 		[False, True, True]
 
-		>>> res = tuple(Sentinel.augment_items(msgs, channel='#default', secret=False))
+		>>> res = Sentinel.augment_items(msgs, channel='#default', secret=False)
 		>>> consume(map(print, [msg.channel for msg in res]))
 		#default
 		#default
@@ -365,7 +365,9 @@ class LeaveHandler(Handler):
 	_registry = []
 
 
-def contains(name, channels=(), exclude=(), rate=1.0, priority=1, doc=None, **kwargs):
+def contains(
+	name, channels=(), exclude=(), rate=1.0, priority=1, doc=None, **kwargs
+):
 	return ContainsHandler(
 		name=name,
 		doc=doc,
@@ -478,7 +480,10 @@ class Bot(metaclass=abc.ABCMeta):
 				**locals())
 		]
 		res.append('!{name} {doc}'.format(name=handler.name, doc=handler.doc))
-		print(datetime.datetime.now(), "Error with command {handler}".format(handler=handler))
+		print(
+			datetime.datetime.now(),
+			"Error with command {handler}".format(handler=handler),
+		)
 		traceback.print_exc()
 		return res
 
@@ -487,8 +492,8 @@ class Bot(metaclass=abc.ABCMeta):
 		Given an initial channel and a sequence of messages or sentinels,
 		output the messages.
 		"""
-		augmented_messages = Sentinel.augment_items(output, channel=channel, secret=False)
-		for message in augmented_messages:
+		augmented = Sentinel.augment_items(output, channel=channel, secret=False)
+		for message in augmented:
 			self.out(message.channel, message, not message.secret)
 
 	def handle_action(self, channel, nick, msg):

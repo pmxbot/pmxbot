@@ -64,21 +64,37 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
 			message TEXT,
 			PRIMARY KEY (id) )
 		'''
-		INDEX_DTC_CREATE_SQL = 'CREATE INDEX IF NOT EXISTS ix_logs_datetime_channel ON logs (datetime, channel)'
-		INDEX_DT_CREATE_SQL = 'CREATE INDEX IF NOT EXISTS ix_logs_datetime ON logs (datetime desc)'
+		INDEX_DTC_CREATE_SQL = """
+			CREATE INDEX
+			IF NOT EXISTS ix_logs_datetime_channel
+			ON logs (datetime, channel)
+			"""
+		INDEX_DT_CREATE_SQL = """
+			CREATE INDEX IF NOT EXISTS ix_logs_datetime
+			ON logs (datetime desc)
+			"""
 		self.db.execute(LOG_CREATE_SQL)
 		self.db.execute(INDEX_DTC_CREATE_SQL)
 		self.db.execute(INDEX_DT_CREATE_SQL)
 		self.db.commit()
 
 	def _message(self, channel, nick, msg):
-		INSERT_LOG_SQL = 'INSERT INTO logs (datetime, channel, nick, message) VALUES (?, ?, ?, ?)'
+		INSERT_LOG_SQL = """
+			INSERT INTO logs
+			(datetime, channel, nick, message)
+			VALUES (?, ?, ?, ?)
+			"""
 		now = datetime.datetime.now()
 		self.db.execute(INSERT_LOG_SQL, [now, channel, nick, msg])
 		self.db.commit()
 
 	def last_seen(self, nick):
-		FIND_LAST_SQL = 'SELECT datetime, channel FROM logs WHERE nick = ? ORDER BY datetime DESC LIMIT 1'
+		FIND_LAST_SQL = """
+			SELECT datetime, channel
+			FROM logs
+			WHERE nick = ?
+			ORDER BY datetime DESC LIMIT 1
+			"""
 		res = list(self.db.execute(FIND_LAST_SQL, [nick]))
 		self.db.commit()
 		if not res:
@@ -90,11 +106,21 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
 		count += 1  # let's get rid of 'the last !strike' too!
 		if count > 20:
 			count = 20
-		LAST_N_IDS_SQL = '''select channel, nick, id from logs where channel = ? and nick = ? and date(datetime) = date('now','localtime') order by datetime desc limit ?'''
-		DELETE_LINE_SQL = '''delete from logs where channel = ? and nick = ? and id = ?'''
+		LAST_N_IDS_SQL = """
+			select channel, nick, id
+			from logs
+			where channel = ? and nick = ?
+			and date(datetime) = date('now','localtime')
+			order by datetime desc limit ?
+			"""
+		DELETE_LINE_SQL = """
+			delete from logs
+			where channel = ? and nick = ? and id = ?
+			"""
 		channel = channel.replace('#', '')
 
-		ids_to_delete = self.db.execute(LAST_N_IDS_SQL, [channel.lower(), nick, count]).fetchall()
+		cur = self.db.execute(LAST_N_IDS_SQL, [channel.lower(), nick, count])
+		ids_to_delete = cur.fetchall()
 		if ids_to_delete:
 			deleted = self.db.executemany(DELETE_LINE_SQL, ids_to_delete)
 			self.db.commit()
@@ -218,7 +244,12 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		self.db.ensure_index('datetime.d')
 		self.db.ensure_index('channel')
 		now = datetime.datetime.utcnow()
-		doc = dict(channel=channel, nick=nick, message=msg, datetime=self._fmt_date(now))
+		doc = dict(
+			channel=channel,
+			nick=nick,
+			message=msg,
+			datetime=self._fmt_date(now)
+		)
 		id = self.db.insert(doc)
 		self._add_recent(doc, id)
 
@@ -300,7 +331,11 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		for match in matched_entries:
 			channel = match['channel']
 			row_date = lambda row: row['_id'].generation_time.date()
-			to_line = lambda row: (row['_id'].generation_time.time(), row['nick'], row['message'])
+			to_line = lambda row: (
+				row['_id'].generation_time.time(),
+				row['nick'],
+				row['message'],
+			)
 			line = to_line(match)
 			if line in alllines:
 				# we've seen this line in the context of a previous hit
@@ -309,13 +344,13 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 			prev2 = self.db.find(
 				dict(
 					channel=match['channel'],
-					_id={'$lt': match['_id']}
+					_id={'$lt': match['_id']},
 				)).sort('_id', storage.pymongo.DESCENDING).limit(2)
 			prev2 = map(to_line, prev2)
 			next2 = self.db.find(
 				dict(
 					channel=match['channel'],
-					_id={'$gt': match['_id']}
+					_id={'$gt': match['_id']},
 				)).sort('_id', storage.pymongo.ASCENDING).limit(2)
 			next2 = map(to_line, next2)
 			context = list(itertools.chain(prev2, [line], next2))
@@ -438,9 +473,11 @@ def strike(channel, nick, rest):
 		count = int(rest)
 	try:
 		struck = Logger.store.strike(channel, nick, count)
-		yield (
-			"Isn't undo great?  Last %d statement%s by %s were stricken from the record." %
-			(struck, 's' if struck > 1 else '', nick))
+		tmpl = (
+			"Isn't undo great?  Last %d statement%s "
+			"by %s were stricken from the record."
+		)
+		yield tmpl % (struck, 's' if struck > 1 else '', nick)
 	except Exception:
 		traceback.print_exc()
 		yield "Hmm.. I didn't find anything of yours to strike!"

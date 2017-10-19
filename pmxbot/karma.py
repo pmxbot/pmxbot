@@ -69,7 +69,11 @@ class SQLiteKarma(Karma, storage.SQLiteStorage):
 
 	def lookup(self, thing):
 		thing = thing.strip().lower()
-		LOOKUP_SQL = 'SELECT karmavalue from karma_keys k join karma_values v on k.karmaid = v.karmaid where k.karmakey = ?'
+		LOOKUP_SQL = """
+			SELECT karmavalue
+			from karma_keys k
+			join karma_values v on k.karmaid = v.karmaid where k.karmakey = ?
+			"""
 		try:
 			karma = self.db.execute(LOOKUP_SQL, [thing]).fetchone()[0]
 		except:
@@ -81,7 +85,12 @@ class SQLiteKarma(Karma, storage.SQLiteStorage):
 	def set(self, thing, value):
 		thing = thing.strip().lower()
 		value = int(value)
-		UPDATE_SQL = 'UPDATE karma_values SET karmavalue = ? where karmaid = (select karmaid from karma_keys where karmakey = ?)'
+		UPDATE_SQL = """
+			UPDATE karma_values SET karmavalue = ?
+			where karmaid = (
+				select karmaid from karma_keys where karmakey = ?
+			)
+			"""
 		res = self.db.execute(UPDATE_SQL, (value, thing))
 		if res.rowcount == 0:
 			INSERT_VALUE_SQL = 'INSERT INTO karma_values (karmavalue) VALUES (?)'
@@ -93,7 +102,12 @@ class SQLiteKarma(Karma, storage.SQLiteStorage):
 	def change(self, thing, change):
 		thing = thing.strip().lower()
 		value = int(self.lookup(thing)) + int(change)
-		UPDATE_SQL = 'UPDATE karma_values SET karmavalue = ? where karmaid = (select karmaid from karma_keys where karmakey = ?)'
+		UPDATE_SQL = """
+			UPDATE karma_values SET karmavalue = ?
+			where karmaid = (
+				select karmaid from karma_keys where karmakey = ?
+			)
+			"""
 		res = self.db.execute(UPDATE_SQL, (value, thing))
 		if res.rowcount == 0:
 			INSERT_VALUE_SQL = 'INSERT INTO karma_values (karmavalue) VALUES (?)'
@@ -103,8 +117,13 @@ class SQLiteKarma(Karma, storage.SQLiteStorage):
 		self.db.commit()
 
 	def list(self, select=0):
-		KARMIC_VALUES_SQL = 'SELECT karmaid, karmavalue from karma_values order by karmavalue desc'
-		KARMA_KEYS_SQL = 'SELECT karmakey from karma_keys where karmaid = ?'
+		KARMIC_VALUES_SQL = """
+			SELECT karmaid, karmavalue
+			from karma_values order by karmavalue desc
+			"""
+		KARMA_KEYS_SQL = """
+			SELECT karmakey from karma_keys where karmaid = ?
+			"""
 
 		karmalist = self.db.execute(KARMIC_VALUES_SQL).fetchall()
 		karmalist.sort(key=lambda x: int(x[1]), reverse=True)
@@ -131,11 +150,13 @@ class SQLiteKarma(Karma, storage.SQLiteStorage):
 
 		newvalue = t1value + t2value
 		# update the keys so t2 points to t1s value
-		self.db.execute('UPDATE karma_keys SET karmaid = ? where karmaid = ?', (t1id, t2id))
+		query = 'UPDATE karma_keys SET karmaid = ? where karmaid = ?'
+		self.db.execute(query, (t1id, t2id))
 		# drop the old value row for neatness
 		self.db.execute('DELETE FROM karma_values WHERE karmaid = ?', (t2id,))
 		# set the new combined value
-		self.db.execute('UPDATE karma_values SET karmavalue = ? where karmaid = ?', (newvalue, t1id))
+		query = 'UPDATE karma_values SET karmavalue = ? where karmaid = ?'
+		self.db.execute(query, (newvalue, t1id))
 		self.db.commit()
 
 	def _get(self, id):
