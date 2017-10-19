@@ -300,7 +300,7 @@ def demotivate(channel, rest):
 
 
 @command(name="8ball", aliases="8")
-def eball():
+def eball(rest):
 	"Ask the magic 8ball a question"
 	try:
 		url = 'https://8ball.delegator.com/magic/JSON/'
