@@ -1,3 +1,8 @@
+1119.0.2
+========
+
+* Suppress all errors when feeding the chains.
+
 1119.0.1
 ========
 

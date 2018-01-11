@@ -1,6 +1,7 @@
 import random
 import itertools
 import abc
+import contextlib
 
 from more_itertools.recipes import pairwise, consume
 import jaraco.collections
@@ -180,4 +181,5 @@ def capture_message(channel, nick, rest):
 	Capture messages the bot sees to enhance the Markov chains
 	"""
 	message = ': '.join((nick, rest))
-	Chains.store.feed(message)
+	with contextlib.suppress(Exception):
+		Chains.store.feed(message)
