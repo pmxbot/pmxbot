@@ -1,3 +1,9 @@
+1119.0.3
+========
+
+* Encode and decode values for MongoDB Chains in saysomething,
+  better supporting saysomething.
+
 1119.0.2
 ========
 
