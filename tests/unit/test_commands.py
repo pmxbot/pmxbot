@@ -194,6 +194,7 @@ class TestCommands:
 		)
 
 	@pytest.has_internet
+	@pytest.mark.xfail(reason="#71")
 	def test_ticker_goog(self):
 		"""
 		Get the current stock price of Google.
@@ -205,6 +206,7 @@ class TestCommands:
 		assert re.match(self.ticker_pattern('GOOG'), res), res
 
 	@pytest.has_internet
+	@pytest.mark.xfail(reason="#71")
 	def test_ticker_yougov(self):
 		"""
 		Get the current stock price of YouGov.
@@ -216,6 +218,7 @@ class TestCommands:
 		assert re.match(self.ticker_pattern('YOU.L'), res), res
 
 	@pytest.has_internet
+	@pytest.mark.xfail(reason="#71")
 	def test_ticker_nasdaq(self):
 		"""
 		Get the current stock price of the NASDAQ.
