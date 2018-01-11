@@ -43,6 +43,9 @@ class TestMongoDBChains:
 		assert any('boys' in msg for msg in msgs)
 		assert not any('three' in msg for msg in msgs)
 
-	@pytest.mark.xfail(reason="periods in words cause problems on MongoDBChains")
 	def test_unusual_text(self, chains):
-		chains.feed('<this_thing .has html #3333 and $!@$%stuff.')
+		chains.feed('<this_thing .has html #3333 and $!@$%stuff. ☉')
+		assert chains.get('☉') == ''
+		assert chains.get('<this_thing').startswith('.has')
+		chains.feed('$foo bar')
+		assert chains.get('$foo') == 'bar'

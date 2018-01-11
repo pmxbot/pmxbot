@@ -5,6 +5,7 @@ import contextlib
 
 from more_itertools.recipes import pairwise, consume
 import jaraco.collections
+from jaraco.mongodb import fields
 
 import pmxbot.core
 import pmxbot.storage
@@ -96,13 +97,13 @@ class MongoDBChains(Chains, pmxbot.storage.MongoDBStorage):
 		Given two words, initial then follows, associate those words
 		"""
 		filter = dict(_id=initial)
-		key = 'begets.' + follows
+		key = 'begets.' + fields.encode(follows)
 		oper = {'$inc': {key: 1}}
 		self.db.update(filter, oper, upsert=True)
 
 	def next(self, initial):
 		doc = self.db.find_one(dict(_id=initial))
-		return self.choose(doc['begets'])
+		return fields.decode(self.choose(doc['begets']))
 
 	def purge(self):
 		self.db.drop()

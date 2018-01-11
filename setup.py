@@ -45,6 +45,7 @@ params = dict(
 		"jaraco.functools",
 		"inflect",
 		"python-dateutil",
+		'jaraco.mongodb>=7.3.1',
 	],
 	extras_require={
 		'mongodb': ['pymongo>=3'],
