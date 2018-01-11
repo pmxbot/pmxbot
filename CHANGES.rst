@@ -17,7 +17,7 @@
   to feed the logs through the chains to include those historical messages.
 
   Currently, there's no bound to the data collected, so the chains may
-  grow unweildy.
+  grow unwieldy.
 
 1118.3.2
 ========
