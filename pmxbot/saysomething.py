@@ -1,7 +1,6 @@
 import random
 import itertools
 import abc
-import operator
 
 from more_itertools.recipes import pairwise, consume
 import jaraco.collections
@@ -10,8 +9,9 @@ import pmxbot.core
 import pmxbot.storage
 
 
-class Chains(pmxbot.storage.SelectableStorage,
-		metaclass=abc.ABCMeta):
+class Chains(
+	pmxbot.storage.SelectableStorage,
+	metaclass=abc.ABCMeta):
 	term = '\n'
 
 	@classmethod
@@ -57,7 +57,7 @@ class Chains(pmxbot.storage.SelectableStorage,
 		"""
 		# Build a map of accumulated frequencies to words
 		acc = itertools.accumulate(raw_freq.values())
-		lookup = jaraco.collections.RangeMap(zip(acc,raw_freq))
+		lookup = jaraco.collections.RangeMap(zip(acc, raw_freq))
 
 		# choose a random word proportional - to do that, pick a
 		# random index from 1 to the total.
@@ -172,6 +172,8 @@ def saysomething(rest):
 
 
 handler = pmxbot.core.ContentHandler()
+
+
 @handler.decorate
 def capture_message(channel, nick, rest):
 	"""
