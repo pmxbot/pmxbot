@@ -1,134 +1,164 @@
-r"""
->>> import io
->>> import itertools
->>> f = io.StringIO("foo said one thing\n\nfoo said another thing\n\nbar said nothing\n")
->>> data = markov_data_from_words(words_from_file(f))
->>> words = words_from_markov_data(data)
->>> paragraph_from_words(words)
-'...'
-"""
-
-import threading
 import random
-import logging
-import time
-import datetime
-from itertools import chain
+import itertools
+import abc
 
-from jaraco import timing
+from more_itertools.recipes import pairwise, consume
+import jaraco.collections
 
 import pmxbot.core
-import pmxbot.logging
-import pmxbot.quotes
-
-log = logging.getLogger(__name__)
-
-nlnl = '\n', '\n'
+import pmxbot.storage
 
 
-def new_key(key, word):
-	if word == '\n':
-		return nlnl
-	else:
-		return (key[1], word)
+class Chains(
+	pmxbot.storage.SelectableStorage,
+	metaclass=abc.ABCMeta):
+	term = '\n'
 
+	@classmethod
+	def initialize(cls):
+		cls.store = cls.from_URI()
+		cls._finalizers.append(cls.finalize)
 
-def markov_data_from_words(words):
-	data = {}
-	key = nlnl
-	for word in words:
-		data.setdefault(key, []).append(word)
-		key = new_key(key, word)
-	return data
+	@classmethod
+	def finalize(cls):
+		del cls.store
 
+	def feed(self, message):
+		message = message.rstrip()
+		words = message.split(' ') + [self.term]
+		self.save(words)
 
-def words_from_markov_data(data, initial_word='\n'):
-	key = '\n', initial_word
-	if initial_word != '\n':
-		yield initial_word
-	while 1:
-		word = random.choice(data.get(key, nlnl))
-		key = new_key(key, word)
-		yield word
+	def save(self, words):
+		"""
+		Save these words as encountered.
+		"""
+		# TODO: Need to cap the network, expire old words/phrases
+		initial = None,
+		all_words = itertools.chain(initial, words)
+		consume(itertools.starmap(self.update, pairwise(all_words)))
 
-
-def words_from_file(f):
-	for line in f:
-		words = line.split()
-		if len(words):
-			for word in words:
-				yield word
-		else:
-			yield '\n'
-	yield '\n'
-
-
-def words_from_logger(logger, max=1000):
-	return words_from_lines(logger.get_random_logs(max))
-
-
-def words_from_quotes(quotes):
-	return words_from_lines(q['text'] for q in quotes)
-
-
-def words_from_lines(lines):
-	for line in lines:
-		words = line.strip().lower().split()
-		for word in words:
+	def _get_words(self, seed=None):
+		word = seed
+		while True:
+			word = self.next(word)
 			yield word
-		yield '\n'
+
+	def get(self, seed=None):
+		words = self._get_words(seed)
+		p_words = itertools.takewhile(lambda word: word != self.term, words)
+		return ' '.join(p_words)
+
+	@staticmethod
+	def choose(raw_freq):
+		"""
+		Given a dictionary of words and their frequencies,
+		return a random word weighted to a distribution of
+		those frequencies.
+		"""
+		# Build a map of accumulated frequencies to words
+		acc = itertools.accumulate(raw_freq.values())
+		lookup = jaraco.collections.RangeMap(zip(acc, raw_freq))
+
+		# choose a random word proportional - to do that, pick a
+		# random index from 1 to the total.
+		_, total = lookup.bounds()
+		return lookup[random.randint(1, total)]
+
+	@abc.abstractmethod
+	def update(self, initial, follows):
+		"""
+		Associate the two words where initial immediately preceeds
+		follows.
+		"""
+
+	@abc.abstractmethod
+	def next(self, initial):
+		"""
+		Given initial, return a word that would have followed it,
+		proportional to the frequency encountered.
+		"""
 
 
-def words_from_logger_and_quotes(logger, quotes):
-	return chain(
-		words_from_logger(logger),
-		words_from_quotes(quotes),
-		['\n'],
-	)
+class MongoDBChains(Chains, pmxbot.storage.MongoDBStorage):
+	"""
+	Store word associations in MongoDB with documents like so:
+
+	{
+		'_id': <trigger word or None>,
+		'begets': <dict of word:frequency>
+	}
+	"""
+	collection_name = 'chains'
+
+	def update(self, initial, follows):
+		"""
+		Given two words, initial then follows, associate those words
+		"""
+		filter = dict(_id=initial)
+		key = 'begets.' + follows
+		oper = {'$inc': {key: 1}}
+		self.db.update(filter, oper, upsert=True)
+
+	def next(self, initial):
+		doc = self.db.find_one(dict(_id=initial))
+		return self.choose(doc['begets'])
+
+	def purge(self):
+		self.db.drop()
 
 
-def paragraph_from_words(words):
-	result = []
-	for word in words:
-		if word == '\n':
-			break
-		result.append(word)
-	return ' '.join(result)
-
-
-class FastSayer:
-	@classmethod
-	def init_in_thread(cls):
-		threading.Thread(target=cls.init_class).start()
-
-	@classmethod
-	def init_class(cls):
-		log.info("Initializing FastSayer...")
-		timer = timing.Stopwatch()
-		cls._wait_for_stores(timer)
-		words = words_from_logger_and_quotes(
-			pmxbot.logging.Logger.store,
-			pmxbot.quotes.Quotes.store,
-		)
-		cls.markov_data = markov_data_from_words(words)
-		log.info("Done initializing FastSayer in %s.", timer.split())
-
-	def saysomething(self, initial_word='\n'):
-		return paragraph_from_words(words_from_markov_data(
-			self.markov_data, initial_word))
-
-	@classmethod
-	def _wait_for_stores(cls, timer):
-		while timer.elapsed < datetime.timedelta(seconds=30):
-			stores_initialized = (
-				hasattr(pmxbot.logging.Logger, 'store') and
-				hasattr(pmxbot.quotes.Quotes, 'store')
+class SQLiteChains(Chains, pmxbot.storage.SQLiteStorage):
+	def init_tables(self):
+		create_table = """
+			CREATE TABLE IF NOT EXISTS chains (
+				initial varchar,
+				follows varchar,
+				count INTEGER
 			)
-			if stores_initialized:
-				break
-			time.sleep(0.1)
-		else:
-			raise RuntimeError("Timeout waiting for stores to be initialized")
+			"""
+		self.db.execute(create_table)
+		self.db.commit()
+
+	@staticmethod
+	def _wrap_initial(initial, query):
+		"""
+		When 'initial' is None, sqlite requires a different syntax to
+		match. Patch queries accordingly.
+		"""
+		repl = query.replace('initial = ?', 'initial is ?')
+		return repl if initial is None else query
+
+	def update(self, initial, follows):
+		lookup_q = self._wrap_initial(initial, """
+			SELECT count from chains where initial = ? and follows = ?
+			""")
+		try:
+			prior, = self.db.execute(lookup_q, [initial, follows]).fetchone()
+		except Exception:
+			prior = 0
+
+		value = prior + 1
+		update_q = self._wrap_initial(initial, """
+			UPDATE chains SET count = ? where initial = ? and follows = ?
+			""")
+		res = self.db.execute(update_q, (value, initial, follows))
+		if res.rowcount == 0:
+			insert_q = """
+				INSERT INTO chains (initial, follows, count) VALUES (?, ?, ?)
+				"""
+			self.db.execute(insert_q, (initial, follows, value))
+		self.db.commit()
+
+	def next(self, initial):
+		search_q = self._wrap_initial(initial, """
+			SELECT follows, count FROM chains WHERE initial = ?
+			""")
+		res = self.db.execute(search_q, [initial])
+		raw_freq = dict(res.fetchall())
+		return self.choose(raw_freq)
+
+	def purge(self):
+		self.db.execute('DELETE from chains')
 
 
 @pmxbot.core.command()
@@ -138,10 +168,16 @@ def saysomething(rest):
 	a starting word by adding that to the end, eg
 	'!saysomething dowski:'
 	"""
-	sayer = FastSayer()
-	if not hasattr(sayer, 'markov_data'):
-		return "Sayer not yet initialized. Try again later."
-	if rest:
-		return sayer.saysomething(rest)
-	else:
-		return sayer.saysomething()
+	return Chains.store.get_paragraph(rest or None)
+
+
+handler = pmxbot.core.ContentHandler()
+
+
+@handler.decorate
+def capture_message(channel, nick, rest):
+	"""
+	Capture messages the bot sees to enhance the Markov chains
+	"""
+	message = ': '.join((nick, rest))
+	Chains.store.feed(message)
