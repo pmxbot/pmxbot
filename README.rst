@@ -3,24 +3,17 @@
 
 .. image:: https://img.shields.io/pypi/pyversions/pmxbot.svg
 
-.. image:: https://img.shields.io/pypi/dm/pmxbot.svg
-
 .. image:: https://img.shields.io/travis/yougov/pmxbot/master.svg
    :target: http://travis-ci.org/yougov/pmxbot
 
+.. image:: https://readthedocs.org/projects/pmxbot/badge/?version=latest
+   :target: https://pmxbot.readthedocs.io/en/latest/?badge=latest
 
 pmxbot is bot for IRC and Slack written in
 `Python <https://python.org>`_. Originally built for internal use
 at `YouGov <https://yougov.com/>`_,
 it's been sanitized and set free upon the world. You can find out more details
 on `the project website <https://github.com/yougov/pmxbot>`_.
-
-License
-=======
-
-License is indicated in the project metadata (typically one or more
-of the Trove classifiers). For more details, see `this explanation
-<https://github.com/jaraco/skeleton/issues/1>`_.
 
 Commands
 ========

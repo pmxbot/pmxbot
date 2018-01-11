@@ -55,6 +55,7 @@ params = dict(
 		'testing': [
 			'pytest>=2.8',
 			'pytest-sugar',
+            'collective.checkdocs',
 			'jaraco.test>=2.0.4',
 			'backports.unittest_mock',
 			'more_itertools',
@@ -72,6 +73,7 @@ params = dict(
 	],
 	classifiers=[
 		"Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Developers",
 		"License :: OSI Approved :: MIT License",
 		"Programming Language :: Python :: 3",
 		"Topic :: Communications :: Chat :: Internet Relay Chat",
