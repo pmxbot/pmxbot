@@ -1,3 +1,8 @@
+1118.3.2
+========
+
+* #72: Fixed Karma operations on MongoDB 3.6.
+
 1118.3.1
 ========
 

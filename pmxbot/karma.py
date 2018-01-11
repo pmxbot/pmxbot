@@ -221,7 +221,7 @@ class MongoDBKarma(Karma, storage.MongoDBStorage):
 		query = {'names': thing1}
 		update = {
 			'$inc': {'value': rec['value']},
-			'$pushAll': {'names': rec['names']},
+			'$push': {'names': {'$each': rec['names']}},
 		}
 		self.db.update(query, update)
 		self.db.remove(rec)
@@ -259,7 +259,7 @@ class MongoDBKarma(Karma, storage.MongoDBStorage):
 				query = {'_id': main_doc['_id']}
 				update = {
 					'$inc': {'value': duplicate['value']},
-					'$pushAll': {'names': duplicate['names']},
+					'$push': {'names': {'$each': duplicate['names']}},
 				}
 				self.db.update(query, update)
 				self.db.remove(duplicate)
