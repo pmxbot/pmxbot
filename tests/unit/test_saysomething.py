@@ -42,3 +42,6 @@ class TestMongoDBChains:
 		assert any('hen' in msg for msg in msgs)
 		assert any('boys' in msg for msg in msgs)
 		assert not any('three' in msg for msg in msgs)
+
+	def test_unusual_text(self, chains):
+		chains.feed('<this_thing .has html #3333 and $!@$%stuff.')
