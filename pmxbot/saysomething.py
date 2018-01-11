@@ -168,7 +168,7 @@ def saysomething(rest):
 	a starting word by adding that to the end, eg
 	'!saysomething dowski:'
 	"""
-	return Chains.store.get_paragraph(rest or None)
+	return Chains.store.get(rest or None)
 
 
 handler = pmxbot.core.ContentHandler()

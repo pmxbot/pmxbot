@@ -1,3 +1,8 @@
+1119.0.1
+========
+
+* Fix AttributeError in saysomething.
+
 1119.0
 ======
 
