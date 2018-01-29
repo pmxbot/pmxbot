@@ -1,3 +1,8 @@
+1120.0
+======
+
+* Removed saysomething (moved to pmxbot.saysomething library).
+
 1119.0.3
 ========
 

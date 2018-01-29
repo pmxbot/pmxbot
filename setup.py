@@ -55,7 +55,7 @@ params = dict(
 		'testing': [
 			'pytest>=2.8',
 			'pytest-sugar',
-            'collective.checkdocs',
+			'collective.checkdocs',
 			'jaraco.test>=2.0.4',
 			'backports.unittest_mock',
 			'more_itertools',
@@ -73,7 +73,7 @@ params = dict(
 	],
 	classifiers=[
 		"Development Status :: 5 - Production/Stable",
-        "Intended Audience :: Developers",
+		"Intended Audience :: Developers",
 		"License :: OSI Approved :: MIT License",
 		"Programming Language :: Python :: 3",
 		"Topic :: Communications :: Chat :: Internet Relay Chat",
@@ -93,7 +93,6 @@ params = dict(
 			'pmxbot rolls = pmxbot.rolls:ParticipantLogger.initialize',
 			'pmxbot config = pmxbot.config_',
 			'pmxbot system commands = pmxbot.system',
-			'pmxbot say something = pmxbot.saysomething:Chains.initialize',
 		],
 	},
 )
