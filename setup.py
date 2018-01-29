@@ -94,6 +94,9 @@ params = dict(
 			'pmxbot config = pmxbot.config_',
 			'pmxbot system commands = pmxbot.system',
 		],
+		'pytest11': [
+			'pmxbot core = pmxbot.testing.fixtures',
+		],
 	},
 )
 if __name__ == '__main__':

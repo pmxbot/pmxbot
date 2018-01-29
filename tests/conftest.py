@@ -30,10 +30,3 @@ def pytest_configure(config):
 	open_google = functools.partial(pmxbot.util.get_html, 'http://www.google.com')
 	config.has_internet = not throws_exception(open_google)
 	config.has_wordnik = config.has_internet and 'wordnik' in dir(pmxbot.util)
-
-
-@pytest.fixture(params=['mongodb', 'sqlite'])
-def db_uri(request):
-	if request.param == 'mongodb':
-		return request.getfuncargvalue('mongodb_uri')
-	return 'sqlite:pmxbot.sqlite'

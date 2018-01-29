@@ -1,3 +1,9 @@
+1121.0
+======
+
+* Package now offers pytest plugin fixtures to facilitate testing
+  in other libraries (see pmxbot.testing.fixtures).
+
 1120.0
 ======
 
