@@ -12,7 +12,7 @@ import requests
 import pytz
 
 import pmxbot
-from .core import command, contains, attach
+from .core import command, contains, attach, log
 from . import util
 from . import karma
 from . import logging
@@ -660,6 +660,7 @@ def blame(channel, rest, nick):
 
 @contains('pmxbot', channels=logging.UnloggedChannels(), rate=.3)
 def rand_bot(channel, nick, rest):
+	log.debug('I was mentioned in %s: %s', channel, rest)
 	default_commands = [
 		'featurecreep', 'insult', 'motivate', 'compliment', 'cheer',
 		'golfclap', 'nastygram', 'curse', 'bless', 'job', 'hire',

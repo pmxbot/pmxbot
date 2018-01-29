@@ -1,3 +1,11 @@
+1121.1
+======
+
+* In debug logs, log any messages in which pmxbot was
+  mentioned for the purpose of diagnosing the cause of
+  #68.
+
+
 1121.0
 ======
 
