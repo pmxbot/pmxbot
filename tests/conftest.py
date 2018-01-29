@@ -32,11 +32,6 @@ def pytest_configure(config):
 	config.has_wordnik = config.has_internet and 'wordnik' in dir(pmxbot.util)
 
 
-def pytest_runtest_setup(item):
-	if 'slow' in item.keywords and not item.config.getvalue("runslow"):
-		pytest.skip("need --runslow option to run")
-
-
 @pytest.fixture(params=['mongodb', 'sqlite'])
 def db_uri(request):
 	if request.param == 'mongodb':
