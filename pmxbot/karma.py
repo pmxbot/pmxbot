@@ -76,7 +76,7 @@ class SQLiteKarma(Karma, storage.SQLiteStorage):
 			"""
 		try:
 			karma = self.db.execute(LOOKUP_SQL, [thing]).fetchone()[0]
-		except:
+		except Exception:
 			karma = 0
 		if karma is None:
 			karma = 0
@@ -208,9 +208,11 @@ class MongoDBKarma(Karma, storage.MongoDBStorage):
 			selected = res[select:]
 		else:
 			selected = res
-		aslist = lambda val: val if isinstance(val, list) else [val]
+
+		def as_list(val):
+			return val if isinstance(val, list) else [val]
 		return [
-			(aslist(rec['names']), rec['value'])
+			(as_list(rec['names']), rec['value'])
 			for rec in selected
 		]
 

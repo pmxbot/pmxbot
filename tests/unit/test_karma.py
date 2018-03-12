@@ -1,7 +1,3 @@
-import os
-import tempfile
-import functools
-
 import pytest
 
 from pmxbot import karma

@@ -125,7 +125,7 @@ class FinalRegistry:
 		for callback in cls._finalizers:
 			try:
 				callback()
-			except:
+			except Exception:
 				pass
 
 

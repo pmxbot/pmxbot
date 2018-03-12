@@ -1,3 +1,5 @@
+import functools
+
 import pytest
 
 from pmxbot import quotes
@@ -7,7 +9,8 @@ from pmxbot import quotes
 def clean_quotes(mongodb_uri):
 	q = quotes.Quotes.from_URI(mongodb_uri)
 	q.lib = 'test'
-	clean = lambda: q.db.remove({'library': 'test'})
+
+	clean = functools.partial(q.db.remove, dict(library='test'))
 	clean()
 	try:
 		yield q

@@ -106,7 +106,7 @@ class PmxbotHarness:
 			try:
 				cls.check_logs('#check')
 				return
-			except:
+			except Exception:
 				# short-circuit if the bot has stopped
 				if cls.bot.poll() is not None:
 					return

@@ -31,29 +31,29 @@ class TestMongoDBLogging:
 
 	def test_message(self, mongodb_uri):
 		self.setup_logging(mongodb_uri)
-		l = self.logger
-		l.message('#channel5', 'nik', 'something great happened today - the test passed')
-		assert l.db.count() == 1
-		assert 'test passed' in l.db.find_one()['message']
+		self.logger.message(
+			'#channel5', 'nik', 'something great happened today - the test passed')
+		assert self.logger.db.count() == 1
+		assert 'test passed' in self.logger.db.find_one()['message']
 
 	def test_list_channels(self, mongodb_uri):
-		l = self.setup_logging(mongodb_uri)
-		l.message('#inane', 'nik', 'message one')
-		l.message('#inane', 'sam', 'message two')
-		l.message('#bar', 'nik', 'in walk two olives')
-		channels = l.list_channels()
+		logger = self.setup_logging(mongodb_uri)
+		logger.message('#inane', 'nik', 'message one')
+		logger.message('#inane', 'sam', 'message two')
+		logger.message('#bar', 'nik', 'in walk two olives')
+		channels = logger.list_channels()
 		assert len(channels) == 2
 		assert set(channels) == set(['bar', 'inane'])
 
 	def test_search_miss(self, mongodb_uri):
-		l = self.setup_logging(mongodb_uri)
-		assert not l.search("foo")
+		logger = self.setup_logging(mongodb_uri)
+		assert not logger.search("foo")
 
 	def test_search_hit(self, mongodb_uri):
-		l = self.setup_logging(mongodb_uri)
-		l.message('#inane', 'joe', "who da foo?")
-		l.make_anchor = "anchor".format
-		result, = l.search("foo")
+		logger = self.setup_logging(mongodb_uri)
+		logger.message('#inane', 'joe', "who da foo?")
+		logger.make_anchor = "anchor".format
+		result, = logger.search("foo")
 		channel, date, anchor, msgs = result
 		msg_info, = msgs
 		time, nick, text = msg_info

@@ -9,5 +9,6 @@ def run():
 		importlib.import_module(mod)
 	pmxbot.storage.migrate_all('sqlite:pmxbot.sqlite', 'mongodb://localhost')
 
+
 if __name__ == '__main__':
 	run()

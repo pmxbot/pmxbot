@@ -12,5 +12,6 @@ def run():
 		spec = dict(channel=entry['channel'])
 		db.recent.update(spec, entry, upsert=True)
 
+
 if __name__ == '__main__':
 	run()

@@ -11,5 +11,6 @@ def run():
 		entry['names'] = list(set(entry['names']))
 		db.karma.save(entry)
 
+
 if __name__ == '__main__':
 	run()

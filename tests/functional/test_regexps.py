@@ -2,6 +2,7 @@ import time
 
 from tests.functional import PmxbotHarness
 
+
 class TestPmxbotRegexp(PmxbotHarness):
 	def test_feck(self):
 		"""
@@ -10,4 +11,5 @@ class TestPmxbotRegexp(PmxbotHarness):
 		"""
 		self.client.send_message('#logged', 'What the feck?!')
 		time.sleep(0.2)
-		assert self.check_logs('#logged', nick="pmxbotTest", message="Clean up your language testingbot")
+		assert self.check_logs(
+			'#logged', nick="pmxbotTest", message="Clean up your language testingbot")

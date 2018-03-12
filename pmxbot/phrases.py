@@ -1,3 +1,8 @@
+import codecs
+
+import pkg_resources
+
+
 ball8_opts = {
 	"Signs point to yes.": 21,
 	"Yes.": 21,
@@ -174,10 +179,20 @@ holger_dawg = [
 	"wassup, my dawg brotha?",
 	"you be trippin', my homey dawg",
 	"you be comin' to liberate, holger the dane dawg?",
-	"you can put my dawg holger into da hood, but you'll never put da hood into my dawg holger",
+	(
+		"you can put my dawg holger into da hood, but "
+		"you'll never put da hood into my dawg holger"
+	),
 ]
 
-yuckvl = ['grinds teeth', 'shudders', 'gags', 'blinks away tears', 'coughs', 'stares', 'drops to the ground curled in the fetal position', 'spits', 'wards off the evil eye', 'dies a little more inside', 'contemplates suicide', 'cackles maniacally and slowly goes mad', 'starts to reread Ecclesiastes', 'blames this fiasco on Carl Friedrich Gauss', 'ponders a career change', 'twitches', 'considers alcoholism', 'remains very, very still', 'hisses', 'groans']
+yuckvl = [
+	'grinds teeth', 'shudders', 'gags', 'blinks away tears', 'coughs',
+	'stares', 'drops to the ground curled in the fetal position', 'spits',
+	'wards off the evil eye', 'dies a little more inside', 'contemplates suicide',
+	'cackles maniacally and slowly goes mad', 'starts to reread Ecclesiastes',
+	'blames this fiasco on Carl Friedrich Gauss', 'ponders a career change',
+	'twitches', 'considers alcoholism', 'remains very, very still', 'hisses',
+	'groans']
 
 clapvl = ['slowly', 'sadly', 'quietly', 'briefly', 'halfheartedly']
 
@@ -185,105 +200,91 @@ advl = ['clearly', 'likely', 'utterly', 'deeply', 'profoundly']
 
 adjl = ['unimpressed', 'overwhelmed', 'verklemmt', 'distracted', 'awed']
 
-fcverbs = ['aggregate', 'architect', 'benchmark', 'brand', 'cultivate', 'deliver', 'deploy', 'disintermediate', 'drive', 'e-enable', 'embrace', 'empower', 'enable', 'engage', 'engineer', 'enhance', 'envisioneer', 'evolve', 'expedite', 'exploit', 'extend', 'facilitate', 'generate', 'grow', 'harness', 'implement', 'incentivize', 'incubate', 'innovate', 'integrate', 'iterate', 'leverage', 'matrix', 'maximize', 'mesh', 'monetize', 'morph', 'optimize', 'orchestrate', 'productize', 'recontextualize', 'redefine', 'reintermediate', 'reinvent', 'repurpose', 'revolutionize', 'scale', 'seize', 'strategize', 'streamline', 'syndicate', 'synergize', 'synthesize', 'target', 'transform', 'transition', 'unleash', 'utilize', 'visualize', 'whiteboard']
+fcverbs = [
+	'aggregate', 'architect', 'benchmark', 'brand', 'cultivate', 'deliver',
+	'deploy', 'disintermediate', 'drive', 'e-enable', 'embrace', 'empower',
+	'enable', 'engage', 'engineer', 'enhance', 'envisioneer', 'evolve',
+	'expedite', 'exploit', 'extend', 'facilitate', 'generate', 'grow', 'harness',
+	'implement', 'incentivize', 'incubate', 'innovate', 'integrate', 'iterate',
+	'leverage', 'matrix', 'maximize', 'mesh', 'monetize', 'morph', 'optimize',
+	'orchestrate', 'productize', 'recontextualize', 'redefine', 'reintermediate',
+	'reinvent', 'repurpose', 'revolutionize', 'scale', 'seize', 'strategize',
+	'streamline', 'syndicate', 'synergize', 'synthesize', 'target', 'transform',
+	'transition', 'unleash', 'utilize', 'visualize', 'whiteboard']
 
-fcadjectives = ['24/365', '24/7', 'B2B', 'B2C', 'back-end', 'best-of-breed', 'bleeding-edge', 'bricks-and-clicks', 'clicks-and-mortar', 'collaborative', 'compelling', 'cross-platform', 'cross-media', 'customized', 'cutting-edge', 'distributed', 'dot-com', 'dynamic', 'e-business', 'efficient', 'end-to-end', 'enterprise', 'extensible', 'frictionless', 'front-end', 'global', 'granular', 'holistic', 'impactful', 'innovative', 'integrated', 'interactive', 'intuitive', 'killer', 'leading-edge', 'magnetic', 'mission-critical', 'next-generation', 'one-to-one', 'open-source', 'out-of-the-box', 'plug-and-play', 'proactive', 'real-time', 'revolutionary', 'rich', 'robust', 'scalable', 'seamless', 'sexy', 'sticky', 'strategic', 'synergistic', 'transparent', 'turn-key', 'ubiquitous', 'user-centric', 'value-added', 'vertical', 'viral', 'virtual', 'visionary', 'web-enabled', 'wireless', 'world-class']
+fcadjectives = [
+	'24/365', '24/7', 'B2B', 'B2C', 'back-end', 'best-of-breed', 'bleeding-edge',
+	'bricks-and-clicks', 'clicks-and-mortar', 'collaborative', 'compelling',
+	'cross-platform', 'cross-media', 'customized', 'cutting-edge', 'distributed',
+	'dot-com', 'dynamic', 'e-business', 'efficient', 'end-to-end', 'enterprise',
+	'extensible', 'frictionless', 'front-end', 'global', 'granular', 'holistic',
+	'impactful', 'innovative', 'integrated', 'interactive', 'intuitive', 'killer',
+	'leading-edge', 'magnetic', 'mission-critical', 'next-generation',
+	'one-to-one', 'open-source', 'out-of-the-box', 'plug-and-play', 'proactive',
+	'real-time', 'revolutionary', 'rich', 'robust', 'scalable', 'seamless',
+	'sexy', 'sticky', 'strategic', 'synergistic', 'transparent', 'turn-key',
+	'ubiquitous', 'user-centric', 'value-added', 'vertical', 'viral', 'virtual',
+	'visionary', 'web-enabled', 'wireless', 'world-class']
 
-fcnouns = ['action-items', 'applications', 'architectures', 'bandwidth', 'channels', 'communities', 'content', 'convergence', 'deliverables', 'e-business', 'e-commerce', 'e-markets', 'e-services', 'e-tailers', 'experiences', 'eyeballs', 'functionalities', 'infomediaries', 'infrastructures', 'initiatives', 'interfaces', 'markets', 'methodologies', 'metrics', 'mindshare', 'models', 'networks', 'niches', 'paradigms', 'partnerships', 'platforms', 'portals', 'relationships', 'ROI', 'synergies', 'web-readiness', 'schemas', 'solutions', 'supply-chains', 'systems', 'technologies', 'users', 'portals', 'web services']
+fcnouns = [
+	'action-items', 'applications', 'architectures', 'bandwidth', 'channels',
+	'communities', 'content', 'convergence', 'deliverables', 'e-business',
+	'e-commerce', 'e-markets', 'e-services', 'e-tailers', 'experiences',
+	'eyeballs', 'functionalities', 'infomediaries', 'infrastructures',
+	'initiatives', 'interfaces', 'markets', 'methodologies', 'metrics',
+	'mindshare', 'models', 'networks', 'niches', 'paradigms', 'partnerships',
+	'platforms', 'portals', 'relationships', 'ROI', 'synergies', 'web-readiness',
+	'schemas', 'solutions', 'supply-chains', 'systems', 'technologies', 'users',
+	'portals', 'web services']
 
-jobs1 = ["Assistant", "Internal", "External", "Foreign", "Domestic", "Deputy", "Junior", "Senior", "Regional", "Level B", "Level C", "Inter", "Intra", "YouGov", "Executive", "Special", "Polimetrix", "Primary", "Lead", "Backup", "Chief"]
+jobs1 = [
+	"Assistant", "Internal", "External", "Foreign", "Domestic", "Deputy",
+	"Junior", "Senior", "Regional", "Level B", "Level C", "Inter", "Intra",
+	"YouGov", "Executive", "Special", "Polimetrix", "Primary", "Lead",
+	"Backup", "Chief"]
 
-jobs2 = ["Project", "Systems", "Marketing", "Purchasing", "Communications", "Sales", "Financial", "Accounting", "Personnel", "Engineering", "Information", "Customer Service", "Operations", "Development", "Surveys", "Panel", "Database", "Projects", "Analytics"]
+jobs2 = [
+	"Project", "Systems", "Marketing", "Purchasing", "Communications",
+	"Sales", "Financial", "Accounting", "Personnel", "Engineering", "Information",
+	"Customer Service", "Operations", "Development", "Surveys", "Panel",
+	"Database", "Projects", "Analytics"]
 
-jobs3 = ["Manager", "Specialist", "Coordinator", "Administrator", "Analyst", "Planner", "Processor", "Consultant", "Clerk", "Officer", "Monitor", "Associate", "Trainee", "I", "II", "III", "IV", "V", "VP", "EVP", "SVP", "Director", "Developer", "Trainer", "Contractor", "Consultant", "Executive"]
+jobs3 = [
+	"Manager", "Specialist", "Coordinator", "Administrator", "Analyst", "Planner",
+	"Processor", "Consultant", "Clerk", "Officer", "Monitor", "Associate",
+	"Trainee", "I", "II", "III", "IV", "V", "VP", "EVP", "SVP", "Director",
+	"Developer", "Trainer", "Contractor", "Consultant", "Executive"]
 
-otrail_actions = ['has'] * 6 + ['has died from'] * 6 + ['lost the trail. Lose 3 days.', 'took the ferry across the river safely.', 'forded the river safely.', 'capsized while floating across the river.', 'drowned.', 'killed a bear.', 'killed a buffalo.', 'lost an ox.', 'made it to oregon. Time to party with schmichael.', 'finds wild fruit.', 'traded with Indians.', 'passes a gravesite.', 'had no trouble floating the wagon across.', 'is taking the rapids.', 'is attacked by ninjas. Lose 8 days.', 'is attacked by reavers and dies.']
+otrail_actions = ['has'] * 6 + ['has died from'] * 6 + [
+	'lost the trail. Lose 3 days.',
+	'took the ferry across the river safely.',
+	'forded the river safely.',
+	'capsized while floating across the river.',
+	'drowned.', 'killed a bear.', 'killed a buffalo.', 'lost an ox.',
+	'made it to oregon. Time to party with schmichael.',
+	'finds wild fruit.', 'traded with Indians.', 'passes a gravesite.',
+	'had no trouble floating the wagon across.',
+	'is taking the rapids.', 'is attacked by ninjas. Lose 8 days.',
+	'is attacked by reavers and dies.']
 
-otrail_issues = ['a fever', 'dysentery', 'measles', 'cholera', 'typhoid', 'exhaustion', 'a snake bite', 'a broken leg', 'a broken arm', 'swine flu']
-
-klingonisms = [
-	"I have challenged the entire ISO-9000 review team to a round of Bat-Leth practice on the holodeck. They will not concern us again.",
-	"A TRUE Klingon warrior does not comment his code!",
-	"Behold, the keyboard of Kalis! The greatest Klingon code warrior that ever lived!",
-	"By filing this bug report you have challenged the honour of my family. Prepare to die! ",
-	"C++? That is for children. A Klingon Warrior uses only machine code, keyed in on the front panel switches in raw binary.",
-	"Debugging? Klingons do not debug. Bugs are good for building character in the user.",
-	"Debugging? Klingons do not debug. Our software does not coddle the weak.",
-	"Defensive programming? Never! Klingon programs are always on the offense. Yes, Offensive programming is what we do best.",
-	"I am without honor...my children are without honor... My father coded at the Battle of Kittimer...and...and...he... HE ALLOWED HIMSELF TO BE MICROMANAGED. <shudder>",
-	"I have challenged the entire testing team to a Bat-Leth contest. They will not concern us again.",
-	"Indentation?! - I will show you how to indent when I indent your skull!",
-	"Klingon function calls do not have 'parameters' - they have 'arguments' - and they ALWAYS WIN THEM.",
-	"Klingon multitasking systems do not support 'time-sharing'. When a Klingon program wants to run, it challenges the scheduler in hand-to-hand combat and owns the machine.",
-	"Klingon programs don't do accountancy. For that, you need a Farengi programmer.",
-	"Klingon software does NOT have BUGS. It has FEATURES, and those features are too sophisticated for a Romulan pig like you to understand.",
-	"Klingons do not believe in indentation - except perhaps in the skulls of their project managers.",
-	"Klingons do not make software 'releases'. Our software 'escapes'. Typically leaving a trail of wounded programmers in it's wake.",
-	"Microsoft is actually a secret Farengi-Klingon alliance designed to cripple the Federation. The Farengi are doing the marketing and the Klingons are writing the code.",
-	"My program has just dumped Stova Core!",
-	"Our competitors are without honor!",
-	"Our users will know fear and cower before our software! Ship it! Ship it and let them flee like the dogs they are! ",
-	"Perhaps it IS a good day to Die! I say we ship it!",
-	"Python? That is for children. A Klingon Warrior uses only machine code, keyed in on the front panel switches in raw binary. ",
-	"Specs are for the weak and timid!",
-	"This code is a piece of crap! You have no honor!",
-	"This machine is a piece of GAGH! I need dual Pentium processors if I am to do battle with this code!",
-	"What is this talk of 'release'? Klingons do not make software 'releases'. Our software 'escapes' leaving a bloody trail of designers and quality assurance people in its wake.",
-	"You cannot truly appreciate Dilbert unless you've read it in the original Klingon.",
-	"You humans call this thing a 'cursor' and you move it with 'mouse'! Bah! A Klingon would not use such a device. We have a Karaghht-Gnot - which is best translated as 'An Aiming Daggar of 16x16 pixels' and we move it using a Gshnarrrf which is a creature from the Klingon homeworld which posesses just one, (disproportionately large) testicle...which it rubs along the ground.....uh do we really need to talk about this?",
-	"You question the worthiness of my code? I should kill you where you stand!",
+otrail_issues = [
+	'a fever', 'dysentery', 'measles', 'cholera', 'typhoid',
+	'exhaustion', 'a snake bite', 'a broken leg', 'a broken arm', 'swine flu',
 ]
 
-murphys_laws = [
-	"In any field of scientific endeavor, anything that can go wrong, will.",
-	"If the possibility exists of several things going wrong, the one that will go wrong is the one that will do the most damage.",
-	"Everything will go wrong at one time - That time is always when you least expect it.",
-	"If nothing can go wrong, something will.",
-	"Nothing is as easy as it looks.",
-	"Everything takes longer than you think.",
-	"Left to themselves, things always go from bad to worse.",
-	"Nature always sides with the hidden flaw.",
-	"Given the most inappropriate time for something to go wrong, that's when it will occur.",
-	"Mother Nature is a bitch.",
-	"The universe is not indifferent to intelligence, it is actively hostile to it.",
-	"If everything seems to be going well, you have obviously overlooked something.",
-	"If in any problem you find yourself doing an immense amount of work, the answer can be obtained by simple inspection.",
-	"Never make anything simple and efficient when a way can be found to make it complex and wonderful.",
-	"If it doesn't fit, use a bigger hammer.",
-	"In an instrument or device characterized by a number of plus-or-minus errors, the total error will be the sum of all the errors adding in the same direction.",
-	"In any given calculation, the fault will never be placed if more than one person is involved.",
-	"In any given discovery, the credit will never be properly placed if more than one person is involved.",
-	"All warranty and guarantee clauses become invalid upon payment of the final invoice.",
-	"If there are two or more ways to do something, and one of those ways can result in a catastrophe, then someone will do it.",
-	"Never attribute to malice that which can be adequately explained by stupidity.",
-	"Sufficiently advanced incompetence is indistinguishable from malice.",
-	"Hofstadter's Law: It always takes longer than you expect, even when you take into account Hofstadter's Law.",
-	"Ninety percent of everything is crap",
-]
 
-socialstrategies = [
-	"Facilitate audience conversations and drive engagement with social currency",
-	"Maximise breakthrough by leveraging influencers",
-	"Amplify word of mouth by motivating influencers",
-	"Humanise the brand by driving the audience conversations",
-	"Harness social currency to drive buzz",
-	"Drive break through conversations with an engaging viral",
-	"Utilise social currency to amplify experiences and drive conversations",
-	"Maximise buzz by driving word of mouth from relevant influencers",
-	"Increase organic growth by exposing audiences to the brand through breakthrough viral communications",
-	"Encourage positive conversations to drive advocacy",
-	"Target influencers with engaging assets to act as platforms for conversation",
-	"Provide brand ambassadors with compelling conversation hooks to enter into communities and fuel advocacy",
-	"Expose new and relevant communities to the brand by providing assets to encourage brand evangelism",
-	"Enhance the customer experience by facilitating authentic conversations",
-	"Expose new users to the brand through organic conversations",
-	"Build loyalty & increased engagement through ongoing conversation and brand experience",
-	"Strengthen the emotional connection with the brand by building relationship",
-	"Maximise the customer experience, driving engagement and bringing the brand alive",
-	"Ignite the existing community and attract new members by amplifying the experience with relevant and engaging content",
-	"Identify relevant and compelling hooks for the audience, create content around the hooks and integrate it into their social repertoires",
-	"Activate audience by giving them compelling social experiences, encouraging advocacy"
-]
+def text_lines(name):
+	filename = '{name}.txt'.format_map(locals())
+	raw_lines = pkg_resources.resource_stream(__name__, filename)
+	lines = codecs.getreader('utf-8')(raw_lines)
+	return list(lines)
+
+
+klingonisms = text_lines('klingonisms')
+
+murphys_laws = text_lines("murphy's laws")
+
+socialstrategies = text_lines("social strategies")
 
 # passive-aggresive statement generator
 adj_intros = [
@@ -328,25 +329,46 @@ farewells = [
 direct_apologies = [
 	"%(a)s profusely apologizes to %(b)s",
 	"%(a)s sincerely apologizes to %(b)s",
-	"%(a)s would like to apologize to %(b)s for any physical, emotional, or mental anguish %(a)s's action, justified as they may have been, caused.",
-	"%(a)s would like to apologize to %(b)s for any physical, emotional, or mental anguish %(a)s's action, caused.",
+	(
+		"%(a)s would like to apologize to %(b)s for any physical, "
+		"emotional, or mental anguish %(a)s's action, justified as "
+		"they may have been, caused."
+	),
+	(
+		"%(a)s would like to apologize to %(b)s for any physical, "
+		"emotional, or mental anguish %(a)s's action, caused."
+	),
 	"%(b)s: %(a)s is like sorry or something.",
 ]
 
 apologies = [
 	"%(a)s is sorry.",
-	"%(a)s would like to tearfully apologize to everyone in a widely publicized press conference.",
+	(
+		"%(a)s would like to tearfully apologize to everyone in "
+		"a widely publicized press conference."
+	),
 	"%(a)s profusely apologizes.",
 	"%(a)s sincerely apologizes.",
-	"%(a)s would like to apologize for any physical, emotional, or mental anguish that %(a)s's actions may have caused.",
-	"%(a)s apologizes and would like to point out there is no reason legal action to be taken.",
+	(
+		"%(a)s would like to apologize for any physical, emotional, "
+		"or mental anguish that %(a)s's actions may have caused."
+	),
+	(
+		"%(a)s apologizes and would like to point out there is no "
+		"reason legal action to be taken."
+	),
 	"%(a)s is sorry or something.",
 ]
 
 interview_excuses = [
 	"I need to go to the Dentist",
 	"I have a Doctor's appointment",
-	"my little brother got his arm stuck in the microwave, and my mom had to take him to the hospital and my grandma freaked out and dropped acid and hijacked a busload of penguins, so it's kind of a family crisis.",
+	(
+		"my little brother got his arm stuck in the microwave, and my "
+		"mom had to take him to the hospital and my grandma freaked out "
+		"and dropped acid and hijacked a busload of penguins, so it's kind "
+		"of a family crisis."
+	),
 	"I need to go car shopping",
 	"I have an appointment with an attorney to make a will",
 	"my grandmother's funeral is today",
@@ -358,7 +380,10 @@ interview_excuses = [
 	'''I'm getting lunch with a "friend"''',
 	"I'm heading off to a concert",
 	'''It looks like I'll be "working" from "home" today''',
-	"I've been maliciously sunburned, and need to stay home and get jumped by my chihuahuas",
+	(
+		"I've been maliciously sunburned, and need to stay home and "
+		"get jumped by my chihuahuas"
+	),
 	"I need to go get a haircut",
 	"I stepped out to get my marriage license",
 	"I, um...",

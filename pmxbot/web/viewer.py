@@ -5,6 +5,7 @@ import datetime
 import textwrap
 import cgi
 import urllib.parse
+import operator
 
 from py31compat.functools import lru_cache
 
@@ -210,7 +211,7 @@ class HelpPage:
 		context = get_context()
 		commands = []
 		contains = []
-		by_name = lambda handler: handler.name
+		by_name = operator.attrgetter('name')
 		for handler in sorted(pmxbot.core.Handler._registry, key=by_name):
 			if type(handler) is pmxbot.core.CommandHandler:
 				commands.append(handler)
@@ -283,8 +284,7 @@ class PmxbotPages:
 		db = pmxbot.logging.Logger.store
 		context = get_context()
 		chans = []
-		lower_case = lambda string: string.lower()
-		for chan in sorted(db.list_channels(), key=lower_case):
+		for chan in sorted(db.list_channels(), key=str.lower):
 			last = db.last_message(chan)
 			summary = [
 				chan,

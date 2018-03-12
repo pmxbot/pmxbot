@@ -87,7 +87,9 @@ class TestCommands:
 		subject = "foo"
 		pre = karma.Karma.store.lookup(subject)
 		res = commands.keelhaul(subject)
-		assert res == ("/me straps %s to a dirty rope, tosses 'em overboard and pulls with great speed. Yarrr!" % subject)
+		assert res == (
+			"/me straps %s to a dirty rope, tosses 'em overboard and "
+			"pulls with great speed. Yarrr!" % subject)
 		post = karma.Karma.store.lookup(subject)
 		assert post == pre - 1
 
@@ -108,7 +110,9 @@ class TestCommands:
 		"""
 		subject = "foo"
 		pre = karma.Karma.store.lookup(subject)
-		res = commands.motivate(channel="#test", rest=" %s\tfor some really incredible reason" % subject)
+		res = commands.motivate(
+			channel="#test",
+			rest=" %s\tfor some really incredible reason" % subject)
 		assert res == "you're doing good work, %s!" % subject
 		post = karma.Karma.store.lookup(subject)
 		assert post == pre + 1
@@ -154,7 +158,8 @@ class TestCommands:
 		res = quotes.quote("add %s" % quote)
 		assert res == "Quote added!"
 		cursor = logging.Logger.store.db.cursor()
-		cursor.execute("select count(*) from quotes where library = 'pmx' and quote = ?", (quote,))
+		cursor.execute(
+			"select count(*) from quotes where library = 'pmx' and quote = ?", (quote,))
 		numquotes = cursor.fetchone()[0]
 		assert numquotes == 1
 
@@ -167,7 +172,8 @@ class TestCommands:
 		res = quotes.quote("add %s" % quote)
 		assert res == "Quote added!"
 		cursor = logging.Logger.store.db.cursor()
-		cursor.execute("select count(*) from quotes where library = 'pmx' and quote = ?", (quote,))
+		cursor.execute(
+			"select count(*) from quotes where library = 'pmx' and quote = ?", (quote,))
 		numquotes = cursor.fetchone()[0]
 		assert numquotes == 1
 
@@ -268,7 +274,12 @@ class TestCommands:
 		"""
 		msg = "how would you like to die, pmxbot: gun, fire, acid or defenestration"
 		res = commands.pick(msg)
-		assert onetrue("gun" in res, "fire" in res, "acid" in res, "defenestration" in res)
+		assert onetrue(
+			"gun" in res,
+			"fire" in res,
+			"acid" in res,
+			"defenestration" in res,
+		)
 		assert "die" not in res and "pmxbot" not in res and " or " not in res
 
 	def test_lunch(self):
@@ -276,7 +287,10 @@ class TestCommands:
 		Test that the lunch command selects one of the list options
 		"""
 		res = commands.lunch("PA")
-		assert res in ["Pasta?", "Thaiphoon", "Pluto's", "Penninsula Creamery", "Kan Zeman"]
+		assert res in [
+			"Pasta?", "Thaiphoon", "Pluto's", "Penninsula Creamery",
+			"Kan Zeman",
+		]
 
 	def test_karma_check_self_blank(self):
 		"""
@@ -336,7 +350,11 @@ class TestCommands:
 			res = karma.karma(nick="testrunner", rest=id)
 			prekarma = int(karmafetch.findall(res)[0])
 			change = karma.karma(nick="testrunner", rest="%s~~" % id)
-			assert change in ["%s karma++" % id, "%s karma--" % id, "%s karma shall remain the same" % id]
+			assert change in [
+				"%s karma++" % id,
+				"%s karma--" % id,
+				"%s karma shall remain the same" % id,
+			]
 			if change.endswith('karma++'):
 				flags['++'] = True
 				res = karma.karma(nick="testrunner", rest=id)
@@ -388,7 +406,10 @@ class TestCommands:
 		"""
 		res = commands.define("keyboard")
 		assert isinstance(res, str)
-		assert res == ("Wordnik says: A set of keys, as on a computer terminal, word processor, typewriter, or piano.")
+		assert res == (
+			"Wordnik says: A set of keys, as on a computer terminal, word "
+			"processor, typewriter, or piano."
+		)
 
 	@pytest.has_wordnik
 	def test_define_irc(self):
@@ -450,7 +471,8 @@ class TestCommands:
 		bitcher = "all y'all"
 		res = commands.bitchingisuseless('testrunner', bitcher)
 		print(res)
-		assert res == ("Quiet bitching is useless, all y'all. Do something about it.")
+		assert res == (
+			"Quiet bitching is useless, all y'all. Do something about it.")
 
 	def test_qbiu_blank(self):
 		"""

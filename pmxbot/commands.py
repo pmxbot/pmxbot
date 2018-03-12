@@ -495,9 +495,11 @@ def gettowork(channel, nick, rest):
 	suggestions = [
 		"Um, might I suggest working now",
 		"Get to work",
-		"Between the coffee break, the smoking break, the lunch break, "
+		(
+			"Between the coffee break, the smoking break, the lunch break, "
 			"the tea break, the bagel break, and the water cooler break, "
-			"may I suggest a work break.  It’s when you do some work",
+			"may I suggest a work break.  It’s when you do some work"
+		),
 		"Work faster",
 		"I didn’t realize we paid people for doing that",
 		"You aren't being paid to believe in the power of your dreams",
@@ -707,7 +709,7 @@ def calc(rest):
 	if mo:
 		try:
 			return str(eval(rest))
-		except:
+		except Exception:
 			return "eval failed... check your syntax"
 	else:
 		return "misformatted arithmetic!"
