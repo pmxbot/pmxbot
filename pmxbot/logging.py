@@ -300,9 +300,9 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		ids = self.db.find({}, {'_id': 1})
 		rand_ids = [r['_id'] for r in random.sample(list(ids), count)]
 		for rand_ids_chunk in chunked(rand_ids, 100):
-		    query = {'_id': {'$in': rand_ids_chunk}}
-		    for doc in self.db.find(query, {'message': 1}):
-			    yield doc['message']
+			query = {'_id': {'$in': rand_ids_chunk}}
+			for doc in self.db.find(query, {'message': 1}):
+				yield doc['message']
 
 	def get_channel_days(self, channel):
 		query = dict(channel=channel)
@@ -330,12 +330,17 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		alllines = []
 		for match in matched_entries:
 			channel = match['channel']
-			row_date = lambda row: row['_id'].generation_time.date()
-			to_line = lambda row: (
-				row['_id'].generation_time.time(),
-				row['nick'],
-				row['message'],
-			)
+
+			def row_date(row):
+				return row['_id'].generation_time.date()
+
+			def to_line(row):
+				return (
+					row['_id'].generation_time.time(),
+					row['nick'],
+					row['message'],
+				)
+
 			line = to_line(match)
 			if line in alllines:
 				# we've seen this line in the context of a previous hit
