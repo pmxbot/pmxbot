@@ -6,6 +6,9 @@
 .. image:: https://img.shields.io/travis/yougov/pmxbot/master.svg
    :target: http://travis-ci.org/yougov/pmxbot
 
+.. .. image:: https://img.shields.io/appveyor/ci/jaraco/skeleton/master.svg
+..    :target: https://ci.appveyor.com/project/jaraco/skeleton/branch/master
+
 .. image:: https://readthedocs.org/projects/pmxbot/badge/?version=latest
    :target: https://pmxbot.readthedocs.io/en/latest/?badge=latest
 

@@ -53,9 +53,13 @@ params = dict(
 		'slack': ['slackclient', 'slacker'],
 		'irc': ['irc>=15.0,<16dev'],
 		'testing': [
+			# upstream
 			'pytest>=2.8',
-			'pytest-sugar',
+			'pytest-sugar>=0.9.1',
 			'collective.checkdocs',
+			'pytest-flake8',
+
+			# local
 			'jaraco.test>=2.0.4',
 			'backports.unittest_mock',
 			'more_itertools',
@@ -63,9 +67,12 @@ params = dict(
 			'setuptools_scm',
 		],
 		'docs': [
+			# upstream
 			'sphinx',
 			'jaraco.packaging>=3.2',
 			'rst.linker>=1.9',
+
+			# local
 		],
 	},
 	setup_requires=[
