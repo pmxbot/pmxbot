@@ -62,8 +62,8 @@ class Bot(pmxbot.core.Bot):
 		:param str message: message to send.
 		"""
 		target = (
-			self.slack.server.channels.find(channel) or
-			self._find_user_channel(username=channel)
+			self.slack.server.channels.find(channel)
+			or self._find_user_channel(username=channel)
 		)
 		message = self._expand_slack_references(message)
 
