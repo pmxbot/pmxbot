@@ -83,6 +83,7 @@ params = dict(
 		"Intended Audience :: Developers",
 		"License :: OSI Approved :: MIT License",
 		"Programming Language :: Python :: 3",
+		"Programming Language :: Python :: 3 :: Only",
 		"Topic :: Communications :: Chat :: Internet Relay Chat",
 		"Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
 	],
