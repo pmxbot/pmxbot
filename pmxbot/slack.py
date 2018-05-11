@@ -65,11 +65,11 @@ class Bot(pmxbot.core.Bot):
 			self.slack.server.channels.find(channel)
 			or self._find_user_channel(username=channel)
 		)
-		message = self._expand_slack_references(message)
+		message = self._expand_references(message)
 
 		target.send_message(message, thread=getattr(channel, 'thread', None))
 
-	def _expand_slack_references(self, message):
+	def _expand_references(self, message):
 
 		def _fetch_slack_reference(match_type, match_name):
 			if match_type == '@':  # user
