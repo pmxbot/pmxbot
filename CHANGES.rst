@@ -1,3 +1,9 @@
+1122.1
+======
+
+* Fixes bug that produced references like <@None> when an
+  invalid reference is passed.
+
 1122.0
 ======
 
