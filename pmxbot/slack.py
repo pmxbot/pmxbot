@@ -70,20 +70,17 @@ class Bot(pmxbot.core.Bot):
 		target.send_message(message, thread=getattr(channel, 'thread', None))
 
 	def _expand_references(self, message):
-
-		def _fetch_slack_reference(match_type, match_name):
-			if match_type == '@':  # user
-				return self.slacker.users.get_user_id(match_name)
-
-			elif match_type == '#':  # channel
-				return self.slacker.channels.get_channel_id(match_name)
+		resolvers = {
+			'@': self.slacker.users.get_user_id,
+			'#': self.slacker.channels.get_channel_id,
+		}
 
 		def _expand(match):
 			match_type = match.groupdict()['type']
 			match_name = match.groupdict()['name']
 
 			try:
-				ref = _fetch_slack_reference(match_type, match_name)
+				ref = resolvers[match_type](match_name)
 			except Exception as e:
 				# capture any exception, fallback to original text
 				log.exception("Error resolving slack reference")
