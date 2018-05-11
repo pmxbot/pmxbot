@@ -1,3 +1,9 @@
+1121.2
+======
+
+* #76: In @mentions and #channel mentions are translated
+  to proper object references.
+
 1121.1
 ======
 
