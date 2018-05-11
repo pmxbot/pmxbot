@@ -88,7 +88,7 @@ class Bot(pmxbot.core.Bot):
 
 			if ref is not None:
 				return '<{match_type}{ref}>'.format_map(locals())
-			
+
 			return '{match_type}{match_name}'.format_map(locals())
 
 		regex = r'(?P<type>[@|#])(?P<name>[\w\d\.\-_]*)'
