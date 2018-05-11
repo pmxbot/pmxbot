@@ -86,14 +86,9 @@ class Bot(pmxbot.core.Bot):
 				ref = _fetch_slack_reference(match_type, match_name)
 			except Exception as e:
 				# capture any exception, fallback to original text
-				ref = None
-				log.exception(e)
-
-			if ref:
-				# found the correct reference
-				return '<{}{}>'.format(match_type, ref)
-			else:
-				return '{}{}'.format(match_type, match_name)
+				log.exception("Error resolving slack reference")
+				return match.group(0)
+			return '<{match_type}{ref}>'.format_map(locals())
 
 		regex = r'(?P<type>[@|#])(?P<name>[\w\d\.\-_]*)'
 		slack_refs = re.compile(regex)
