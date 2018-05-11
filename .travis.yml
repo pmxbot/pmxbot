@@ -5,6 +5,7 @@ language: python
 python:
 - 3.4
 - &latest_py3 3.6
+- 3.7-dev
 
 jobs:
   fast_finish: true
