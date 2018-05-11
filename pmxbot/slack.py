@@ -84,7 +84,8 @@ class Bot(pmxbot.core.Bot):
 			except Exception as e:
 				# capture any exception, fallback to original text
 				log.exception("Error resolving slack reference")
-				return match.group(0)
+				return '{match_type}{match_name}'.format_map(locals())
+
 			return '<{match_type}{ref}>'.format_map(locals())
 
 		regex = r'(?P<type>[@|#])(?P<name>[\w\d\.\-_]*)'
