@@ -54,7 +54,7 @@ params = dict(
 		'irc': ['irc>=15.0,<16dev'],
 		'testing': [
 			# upstream
-			'pytest>=2.8',
+			'pytest>=3.5',
 			'pytest-sugar>=0.9.1',
 			'collective.checkdocs',
 			'pytest-flake8',
