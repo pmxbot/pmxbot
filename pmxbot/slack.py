@@ -97,4 +97,4 @@ class Bot(pmxbot.core.Bot):
 
 		regex = r'(?P<type>[@|#])(?P<name>[\w\d\.\-_]*)'
 		slack_refs = re.compile(regex)
-		return slack_refs .sub(_expand, message)
+		return slack_refs.sub(_expand, message)
