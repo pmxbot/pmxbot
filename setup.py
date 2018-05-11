@@ -25,7 +25,7 @@ params = dict(
 	packages=setuptools.find_packages(),
 	include_package_data=True,
 	namespace_packages=['pmxbot'],
-	python_requires='>=2.7',
+	python_requires='>=3.3',
 	install_requires=[
 		"requests",
 		"pyyaml",
