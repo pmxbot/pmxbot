@@ -1,8 +1,9 @@
-1121.2
+1122.0
 ======
 
 * #76: In @mentions and #channel mentions are translated
   to proper object references.
+* Drop support for Python 3.4.
 
 1121.1
 ======
