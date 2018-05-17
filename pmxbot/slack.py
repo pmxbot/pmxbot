@@ -35,7 +35,7 @@ class Bot(pmxbot.core.Bot):
 	def handle_message(self, msg):
 		if msg.get('type') != 'message':
 			return
-		
+
 		if msg.get('user'):
 			nick = self.slack.server.users.find(msg['user']).name
 		elif msg.get('username'):
@@ -43,7 +43,7 @@ class Bot(pmxbot.core.Bot):
 		else:
 			log.warning("Unknown message %s", msg)
 			return
-		
+
 		channel = self.slack.server.channels.find(msg['channel']).name
 		channel = core.AugmentableMessage(channel, thread=msg.get('thread_ts'))
 
