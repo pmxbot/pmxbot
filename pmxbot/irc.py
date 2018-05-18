@@ -188,6 +188,8 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 		channel = nick
 		self.handle_action(channel, nick, msg)
 
+	on_action = on_privmsg
+
 	def on_invite(self, connection, event):
 		nick = event.source.nick
 		channel = event.arguments[0]

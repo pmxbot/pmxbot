@@ -1,3 +1,9 @@
+1122.3
+======
+
+* #75: In IRC, now include ``/me`` actions in message
+  handling.
+
 1122.2
 ======
 
