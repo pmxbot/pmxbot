@@ -1,3 +1,9 @@
+1122.2
+======
+
+* #77: In Slack message handling, nicks are now resolved
+  for the bot_message subtype.
+
 1122.1
 ======
 
