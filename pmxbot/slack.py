@@ -36,19 +36,30 @@ class Bot(pmxbot.core.Bot):
 		if msg.get('type') != 'message':
 			return
 
-		if msg.get('user'):
-			nick = self.slack.server.users.find(msg['user']).name
-		elif msg.get('username'):
-			nick = msg['username']
-		else:
-			log.warning("Unknown message %s", msg)
+		# resolve nick based on message subtype
+		# https://api.slack.com/events/message
+		method_name = '_resolve_nick_{subtype}'.format_map(
+			collections.defaultdict(lambda: 'standard', msg),
+		)
+		resolve_nick = getattr(self, method_name, None)
+		if not resolve_nick:
+			log.debug('Unhandled message %s', msg)
 			return
-
+		nick = resolve_nick(msg)
+		
 		channel = self.slack.server.channels.find(msg['channel']).name
 		channel = core.AugmentableMessage(channel, thread=msg.get('thread_ts'))
 
 		self.handle_action(channel, nick, msg['text'])
 
+	def _resolve_nick_standard(self, msg):
+		return self.slack.server.users.find(msg['user']).name
+	
+	_resolve_nick_me_message = _resolve_nick_standard
+	
+	def _resolve_nick_bot_message(self, msg):
+		return msg['username']
+	
 	def _find_user_channel(self, username):
 		"""
 		Use slacker to resolve the username to an opened IM channel
