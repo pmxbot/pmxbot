@@ -2,6 +2,7 @@ import time
 import importlib
 import logging
 import re
+import collections
 
 from tempora import schedule
 
@@ -46,7 +47,7 @@ class Bot(pmxbot.core.Bot):
 			log.debug('Unhandled message %s', msg)
 			return
 		nick = resolve_nick(msg)
-		
+
 		channel = self.slack.server.channels.find(msg['channel']).name
 		channel = core.AugmentableMessage(channel, thread=msg.get('thread_ts'))
 
@@ -54,12 +55,12 @@ class Bot(pmxbot.core.Bot):
 
 	def _resolve_nick_standard(self, msg):
 		return self.slack.server.users.find(msg['user']).name
-	
+
 	_resolve_nick_me_message = _resolve_nick_standard
-	
+
 	def _resolve_nick_bot_message(self, msg):
 		return msg['username']
-	
+
 	def _find_user_channel(self, username):
 		"""
 		Use slacker to resolve the username to an opened IM channel
