@@ -97,15 +97,13 @@ class Bot(pmxbot.core.Bot):
 
 			try:
 				ref = resolvers[match_type](match_name)
+				assert ref is not None
 			except Exception as e:
 				# capture any exception, fallback to original text
 				log.exception("Error resolving slack reference")
-				ref = None
+				return match.group(0)
 
-			if ref is not None:
-				return '<{match_type}{ref}>'.format_map(locals())
-
-			return match.group(0)
+			return '<{match_type}{ref}>'.format_map(locals())
 
 		regex = r'(?P<type>[@|#])(?P<name>[\w\d\.\-_]*)'
 		slack_refs = re.compile(regex)
