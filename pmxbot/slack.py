@@ -105,7 +105,7 @@ class Bot(pmxbot.core.Bot):
 			if ref is not None:
 				return '<{match_type}{ref}>'.format_map(locals())
 
-			return '{match_type}{match_name}'.format_map(locals())
+			return match.group(0)
 
 		regex = r'(?P<type>[@|#])(?P<name>[\w\d\.\-_]*)'
 		slack_refs = re.compile(regex)
