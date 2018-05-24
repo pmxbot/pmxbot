@@ -59,7 +59,7 @@ class Bot(pmxbot.core.Bot):
 	_resolve_nick_me_message = _resolve_nick_standard
 
 	def _resolve_nick_bot_message(self, msg):
-		return msg['username']
+		return msg.get('username') or msg.get('bot_id') or 'Anonymous Bot'
 
 	def _find_user_channel(self, username):
 		"""
