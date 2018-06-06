@@ -1,3 +1,8 @@
+1122.4
+======
+
+* #81: Unescape HTML in the messages from Slack.
+
 1122.3
 ======
 

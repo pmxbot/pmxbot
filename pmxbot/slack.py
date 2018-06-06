@@ -3,6 +3,7 @@ import importlib
 import logging
 import re
 import collections
+import html
 
 from tempora import schedule
 
@@ -51,7 +52,7 @@ class Bot(pmxbot.core.Bot):
 		channel = self.slack.server.channels.find(msg['channel']).name
 		channel = core.AugmentableMessage(channel, thread=msg.get('thread_ts'))
 
-		self.handle_action(channel, nick, msg['text'])
+		self.handle_action(channel, nick, html.unescape(msg['text']))
 
 	def _resolve_nick_standard(self, msg):
 		return self.slack.server.users.find(msg['user']).name
