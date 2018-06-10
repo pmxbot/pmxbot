@@ -116,7 +116,7 @@ import re
 from . import storage
 from .core import command
 
-debug = False
+debug = True
 
 
 class Stack(storage.SelectableStorage):
@@ -201,8 +201,13 @@ def parse_index(index, items):
 
     """
     indices = []
+    if index is None:
+        return indices
+
     for atom in index.split(","):
         atom = atom.strip()
+        if not atom:
+            continue
 
         if (
             (atom.startswith("'") and atom.endswith("'")) or
@@ -268,7 +273,7 @@ def stack(nick, rest):
         index = None
         new_item = rest.strip()
     if debug:
-        print("SUBCOMMAND", subcommand.ljust(7), "TOPIC", topic, "INDEX", str(index).ljust(12), "ITEM", new_item)
+        print("SUBCOMMAND", subcommand.ljust(8), "TOPIC", topic.ljust(8), "INDEX", str(index).ljust(12), "ITEM", new_item)
 
     if subcommand == "add":
         if not new_item:
@@ -276,10 +281,10 @@ def stack(nick, rest):
 
         items = Stack.store.get_items(topic)
 
-        if index is None:
+        indices = set(parse_index(index, items))
+        if not indices:
             items.insert(0, new_item)
         else:
-            indices = set(parse_index(index, items))
             for i in reversed(sorted(indices)):
                 if i >= len(items):
                     items.append(new_item)
@@ -302,19 +307,19 @@ def stack(nick, rest):
         Stack.store.save_items(topic, items)
 
         return " | ".join(["-: %s" % (item,) for item in reversed(popped_items)]) or "(none popped)"
-    elif subcommand == "show" and not rest:
+    elif subcommand == "show" and not new_item:
         items = Stack.store.get_items(topic)
         return " | ".join(["%d: %s" % (i, item) for i, item in enumerate(items, 1)]) or "(empty)"
     elif subcommand == "shuffle":
         items = Stack.store.get_items(topic)
 
-        if index is None:
+        try:
+            indices = parse_index(index, items)
+        except ValueError:
+            return helpstr
+        if not indices:
             random.shuffle(items)
         else:
-            try:
-                indices = parse_index(index, items)
-            except ValueError:
-                return helpstr
             items = [items[i] for i in indices if len(items) > i >= 0]
 
         Stack.store.save_items(topic, items)
@@ -543,9 +548,9 @@ class TestStackShuffle(unittest.TestCase):
     def test_stack_shuffle_random(self):
         self.make_colors()
 
-        oldkeys = set(Stack.store.table.keys())
+        olditems = set(Stack.store.table["fumanchu"])
         self.assertEqual(stack("fumanchu", "shuffle"), None)
-        self.assertEqual(set(Stack.store.table.keys()), oldkeys)
+        self.assertEqual(set(Stack.store.table["fumanchu"]), olditems)
 
     def test_stack_shuffle_explicit(self):
         self.make_colors()
@@ -554,4 +559,56 @@ class TestStackShuffle(unittest.TestCase):
         self.assertEqual(
             stack("fumanchu", "show"),
             "1: yellow | 2: green | 3: blue | 4: violet | 5: red"
+        )
+
+    def test_stack_shuffle_topic(self):
+        self.make_colors()
+
+        self.assertEqual(stack("fumanchu", "shuffle fumanchu[3:5, last, 1]"), None)
+        self.assertEqual(
+            stack("fumanchu", "show"),
+            "1: yellow | 2: green | 3: blue | 4: violet | 5: red"
+        )
+
+        olditems = set(Stack.store.table["fumanchu"])
+        self.assertEqual(stack("fumanchu", "shuffle fumanchu[]"), None)
+        self.assertEqual(set(Stack.store.table["fumanchu"]), olditems)
+
+
+class TestStackTopics(unittest.TestCase):
+
+    def setUp(self):
+        if debug:
+            print("")
+
+    def make_colors(self):
+        """Set Store.stack to a dummy with ROYGBIV color names as items."""
+        Stack.store = DummyStorage({
+            "fumanchu": ["red", "orange", "yellow", "green", "blue", "indigo", "violet"]
+        })
+        self.assertEqual(
+            stack("fumanchu", "show"),
+            "1: red | 2: orange | 3: yellow | 4: green | 5: blue | 6: indigo | 7: violet"
+        )
+
+    def test_stack_topic_as_nick(self):
+        self.make_colors()
+        self.assertEqual(stack("sarah", ""), "(empty)")
+        self.assertEqual(stack("sarah", "add write tests"), None)
+        self.assertEqual(stack("sarah", "show"), "1: write tests")
+        # Working on sarah's topic shouldn't alter fumanchu's
+        self.assertEqual(
+            stack("fumanchu", "show"),
+            "1: red | 2: orange | 3: yellow | 4: green | 5: blue | 6: indigo | 7: violet"
+        )
+
+    def test_stack_explicit_topics(self):
+        self.make_colors()
+        self.assertEqual(stack("fumanchu", "show project1[]"), "(empty)")
+        self.assertEqual(stack("fumanchu", "add project1[] write tests"), None)
+        self.assertEqual(stack("fumanchu", "show project1[]"), "1: write tests")
+        # Working on project1's topic shouldn't alter fumanchu's
+        self.assertEqual(
+            stack("fumanchu", "show"),
+            "1: red | 2: orange | 3: yellow | 4: green | 5: blue | 6: indigo | 7: violet"
         )
