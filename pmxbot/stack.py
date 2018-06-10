@@ -328,6 +328,7 @@ def stack(nick, rest):
             items = [items[i] for i in indices if len(items) > i >= 0]
 
         Stack.store.save_items(topic, items)
+        return " | ".join(["%d: %s" % (i, item) for i, item in enumerate(items, 1)]) or "(empty)"
     else:
         return helpstr
 
@@ -578,29 +579,27 @@ class TestStackShuffle(unittest.TestCase):
         self.make_colors()
 
         olditems = set(Stack.store.table["fumanchu"])
-        self.assertEqual(stack("fumanchu", "shuffle"), None)
+        stack("fumanchu", "shuffle")
         self.assertEqual(set(Stack.store.table["fumanchu"]), olditems)
 
     def test_stack_shuffle_explicit(self):
         self.make_colors()
 
-        self.assertEqual(stack("fumanchu", "shuffle [3:5, last, 1]"), None)
         self.assertEqual(
-            stack("fumanchu", "show"),
+            stack("fumanchu", "shuffle [3:5, last, 1]"),
             "1: yellow | 2: green | 3: blue | 4: violet | 5: red"
         )
 
     def test_stack_shuffle_topic(self):
         self.make_colors()
 
-        self.assertEqual(stack("fumanchu", "shuffle fumanchu[3:5, last, 1]"), None)
         self.assertEqual(
-            stack("fumanchu", "show"),
+            stack("fumanchu", "shuffle fumanchu[3:5, last, 1]"),
             "1: yellow | 2: green | 3: blue | 4: violet | 5: red"
         )
 
         olditems = set(Stack.store.table["fumanchu"])
-        self.assertEqual(stack("fumanchu", "shuffle fumanchu[]"), None)
+        stack("fumanchu", "shuffle fumanchu[]")
         self.assertEqual(set(Stack.store.table["fumanchu"]), olditems)
 
 
