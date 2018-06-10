@@ -98,6 +98,7 @@ params = dict(
 			'pmxbot quotes = pmxbot.quotes:Quotes.initialize',
 			'pmxbot core commands = pmxbot.commands',
 			'pmxbot notifier = pmxbot.notify:Notify.init',
+			'pmxbot stack = pmxbot.stack:Stack.init',
 			'pmxbot rolls = pmxbot.rolls:ParticipantLogger.initialize',
 			'pmxbot config = pmxbot.config_',
 			'pmxbot system commands = pmxbot.system',

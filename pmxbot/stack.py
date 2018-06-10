@@ -90,6 +90,9 @@ an "index" argument may be any of the following:
 Subcommands
 -----------
 
+!stack show        topic[index]
+    Returns the list of items for the given topic.
+
 !stack add         topic[index] <item>
     Adds the given item to the given topic before the given index(es).
     If no index is given, the default is [1] which adds to the front.
@@ -116,7 +119,7 @@ import re
 from . import storage
 from .core import command
 
-debug = True
+debug = False
 
 
 class Stack(storage.SelectableStorage):
@@ -295,21 +298,36 @@ def stack(nick, rest):
     elif subcommand == "pop":
         items = Stack.store.get_items(topic)
 
-        if index is None:
+        try:
+            indices = set(parse_index(index, items))
+        except ValueError:
+            return helpstr
+        if not indices:
             indices = [0]
-        else:
-            try:
-                indices = set(parse_index(index, items))
-            except ValueError:
-                return helpstr
-        popped_items = [items.pop(i) for i in reversed(sorted(indices)) if len(items) > i >= 0]
+        popped_items = [items.pop(i) for i in reversed(sorted(indices))
+                        if len(items) > i >= 0]
 
         Stack.store.save_items(topic, items)
 
         return " | ".join(["-: %s" % (item,) for item in reversed(popped_items)]) or "(none popped)"
-    elif subcommand == "show" and not new_item:
+    elif subcommand == "show":
+        sep = " | "
+        if new_item:
+            if "multiline".startswith(new_item):
+                sep = "\n"
+            else:
+                return helpstr
+
         items = Stack.store.get_items(topic)
-        return " | ".join(["%d: %s" % (i, item) for i, item in enumerate(items, 1)]) or "(empty)"
+
+        try:
+            indices = set(parse_index(index, items))
+        except ValueError:
+            return helpstr
+        if not indices:
+            indices = range(len(items))
+
+        return sep.join(["%d: %s" % (i + 1, items[i]) for i in indices if len(items) > i >= 0]) or "(empty)"
     elif subcommand == "shuffle":
         items = Stack.store.get_items(topic)
 
@@ -380,6 +398,18 @@ class TestStackAdd(unittest.TestCase):
             stack("fumanchu", ""),
             "1: bar | 2: an interruption | 3: a Distraction | 4: lunch | 5: foo | 6: cleanup"
         )
+
+    def test_stack_add_multiple(self):
+        Stack.store = DummyStorage()
+        self.assertEqual(stack("fumanchu", ""), "(empty)")
+        stack("fumanchu", "add foo")
+        self.assertEqual(stack("fumanchu", ""), "1: foo")
+        stack("fumanchu", "add foo")
+        self.assertEqual(stack("fumanchu", ""), "1: foo | 2: foo")
+        stack("fumanchu", "add foo")
+        self.assertEqual(stack("fumanchu", ""), "1: foo | 2: foo | 3: foo")
+        stack("fumanchu", "add ['foo'] bar")
+        self.assertEqual(stack("fumanchu", ""), "1: foo | 2: bar | 3: foo | 4: bar | 5: foo | 6: bar")
 
 
 class TestStackPop(unittest.TestCase):
@@ -508,6 +538,18 @@ class TestStackPop(unittest.TestCase):
             "1: red | 2: green | 3: blue | 4: violet"
         )
 
+    def test_stack_pop_duplicate_indices(self):
+        self.make_colors()
+
+        self.assertEqual(
+            stack("fumanchu", "pop [6, 6, 6]"),
+            "-: indigo"
+        )
+        self.assertEqual(
+            stack("fumanchu", "show"),
+            "1: red | 2: orange | 3: yellow | 4: green | 5: blue | 6: violet"
+        )
+
     def test_stack_pop_combo(self):
         self.make_colors()
 
@@ -573,6 +615,41 @@ class TestStackShuffle(unittest.TestCase):
         olditems = set(Stack.store.table["fumanchu"])
         self.assertEqual(stack("fumanchu", "shuffle fumanchu[]"), None)
         self.assertEqual(set(Stack.store.table["fumanchu"]), olditems)
+
+
+class TestStackShow(unittest.TestCase):
+
+    def setUp(self):
+        if debug:
+            print("")
+
+    def make_colors(self):
+        """Set Store.stack to a dummy with ROYGBIV color names as items."""
+        Stack.store = DummyStorage({
+            "fumanchu": ["red", "orange", "yellow", "green", "blue", "indigo", "violet"]
+        })
+
+    def test_stack_show_no_index(self):
+        self.make_colors()
+        self.assertEqual(
+            stack("fumanchu", "show"),
+            "1: red | 2: orange | 3: yellow | 4: green | 5: blue | 6: indigo | 7: violet"
+        )
+
+    def test_stack_show_integer_index(self):
+        self.make_colors()
+
+        self.assertEqual(stack("fumanchu", 'show [2]'), "2: orange")
+        self.assertEqual(stack("fumanchu", 'show [-1]'), "7: violet")
+        self.assertEqual(stack("fumanchu", 'show [0]'), "(empty)")
+        self.assertEqual(stack("fumanchu", 'show [-1200]'), "(empty)")
+
+    def test_stack_show_multiline(self):
+        self.make_colors()
+        self.assertEqual(
+            stack("fumanchu", "show m"),
+            "1: red\n2: orange\n3: yellow\n4: green\n5: blue\n6: indigo\n7: violet"
+        )
 
 
 class TestStackTopics(unittest.TestCase):
