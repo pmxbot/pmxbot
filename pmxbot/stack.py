@@ -275,20 +275,24 @@ def stack(nick, rest):
         topic = nick
         index = None
         new_item = rest.strip()
+
+    items = Stack.store.get_items(topic)
+    try:
+        indices = parse_index(index, items)
+    except ValueError:
+        return helpstr
+
     if debug:
-        print("SUBCOMMAND", subcommand.ljust(8), "TOPIC", topic.ljust(8), "INDEX", str(index).ljust(12), "ITEM", new_item)
+        print("SUBCOMMAND", subcommand.ljust(8), "TOPIC", topic.ljust(8), "INDICES", str(indices).ljust(12), "ITEM", new_item)
 
     if subcommand == "add":
         if not new_item:
             return helpstr
 
-        items = Stack.store.get_items(topic)
-
-        indices = set(parse_index(index, items))
         if not indices:
             items.insert(0, new_item)
         else:
-            for i in reversed(sorted(indices)):
+            for i in reversed(sorted(set(indices))):
                 if i >= len(items):
                     items.append(new_item)
                 else:
@@ -296,15 +300,10 @@ def stack(nick, rest):
 
         Stack.store.save_items(topic, items)
     elif subcommand == "pop":
-        items = Stack.store.get_items(topic)
-
-        try:
-            indices = set(parse_index(index, items))
-        except ValueError:
-            return helpstr
         if not indices:
             indices = [0]
-        popped_items = [items.pop(i) for i in reversed(sorted(indices))
+
+        popped_items = [items.pop(i) for i in reversed(sorted(set(indices)))
                         if len(items) > i >= 0]
 
         Stack.store.save_items(topic, items)
@@ -318,23 +317,11 @@ def stack(nick, rest):
             else:
                 return helpstr
 
-        items = Stack.store.get_items(topic)
-
-        try:
-            indices = set(parse_index(index, items))
-        except ValueError:
-            return helpstr
         if not indices:
             indices = range(len(items))
 
         return sep.join(["%d: %s" % (i + 1, items[i]) for i in indices if len(items) > i >= 0]) or "(empty)"
     elif subcommand == "shuffle":
-        items = Stack.store.get_items(topic)
-
-        try:
-            indices = parse_index(index, items)
-        except ValueError:
-            return helpstr
         if not indices:
             random.shuffle(items)
         else:
