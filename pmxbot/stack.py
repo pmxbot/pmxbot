@@ -78,6 +78,7 @@ an "index" argument may be any of the following:
       item containing the text.
     * Any /text/ surrounded by forward-slashes, a regular expression
       to match item content.
+    * The sentinel values first and last.
     * Any combination of the above, separated by commas; for example,
       given a stack of items
       "1: red | 2: orange | 3: yellow | 4: green | 5: blue | 6: indigo | 7: violet",
@@ -90,7 +91,9 @@ Subcommands
 -----------
 
 !stack add         topic[index] <item>
-    Adds the given item to the given topic at the given index(es).
+    Adds the given item to the given topic before the given index(es).
+    If no index is given, the default is [1] which adds to the front.
+    Any index higher than the number of items adds to the end of the stack.
 
 !stack pop         topic[index] <item>
     Removes items from the given topic at the given index(es).
@@ -107,8 +110,13 @@ Subcommands
 
 """
 
+import random
+import re
+
 from . import storage
 from .core import command
+
+debug = False
 
 
 class Stack(storage.SelectableStorage):
@@ -139,12 +147,13 @@ class SQLiteStack(Stack, storage.SQLiteStorage):
     def get_items(self, topic):
         rows = self.db.execute("SELECT items FROM stack WHERE topic = ?", [topic])
         if not rows:
-            return None
+            return []
         else:
-            return rows[0][0]
+            return rows[0][0].split("\n")
 
     def save_items(self, topic, items):
-        if self.get_items(topic) is None:
+        items = "\n".join(items)
+        if not self.db.execute("SELECT items FROM stack WHERE topic = ?", [topic]):
             return self.db.execute(
                 "INSERT INTO stack (topic, items) VALUES (?, ?)", [topic, items])
         else:
@@ -156,24 +165,21 @@ class MongoDBStack(Stack, storage.MongoDBStorage):
     collection_name = 'stack'
 
     def get_items(self, topic):
-        rows = [doc["items"] for doc in self.db.find({'topic': topic})]
-        if not rows:
-            return None
+        doc = self.db.find_one({'topic': topic})
+        if doc is None:
+            return []
         else:
-            return rows[0]
+            return doc["items"]
 
     def save_items(self, topic, items):
-        if self.get_items(topic) is None:
-            return self.db.insert({"topic": topic, "items": items})
-        else:
-            return self.db.update({"topic": topic}, {"items": items})
+        return self.db.update_one({"topic": topic}, {"$set": {"items": items}}, upsert=True)
 
 
 helpstr = '!stack <subcommand> <topic[index]> <item> | subcommand: show, add, pop, shuffle | index: [2, 4:-3 (inclusive), "foo", /ba.*r/]'
 
 
-def parse_index(index):
-    """Parse the given string `index` param and return an ordered list of index numbers.
+def parse_index(index, items):
+    """Return a list of 0-based index numbers from the given (1-based) `index`.
 
     * A single item index, like `[3]`. Negative indices count backward from
       the bottom; that is, the bottom-most item in a 3-item stack can be
@@ -182,7 +188,7 @@ def parse_index(index):
       like `[3:5]`. Either number may be negative, or omitted to mean 1 or -1,
       respectively. If both are omitted as `[:]` then all items match.
     * Any "text" surrounded by single or double-quotes, which matches any
-      item containing the text.
+      item containing the text (case-insensitive).
     * Any /text/ surrounded by forward-slashes, a regular expression
       to match item content.
     * Any combination of the above, separated by commas; for example,
@@ -194,62 +200,124 @@ def parse_index(index):
       been included.
 
     """
+    indices = []
+    for atom in index.split(","):
+        atom = atom.strip()
+
+        if (
+            (atom.startswith("'") and atom.endswith("'")) or
+            (atom.startswith('"') and atom.endswith('"'))
+        ):
+            atom = atom[1:-1].lower()
+            for i, item in enumerate(items):
+                if atom in item.lower():
+                    indices.append(i)
+        elif atom.startswith('/') and atom.endswith('/'):
+            atom = atom[1:-1]
+            for i, item in enumerate(items):
+                if re.search(atom, item):
+                    indices.append(i)
+        elif ":" in atom:
+            start, end = [x.strip() for x in atom.split(":", 1)]
+            start = int(start) if start else 1
+            if start < 0:
+                start += len(items) + 1
+            end = int(end) if end else len(items)
+            if end < 0:
+                end += len(items) + 1
+            start -= 1  # Shift to Python 0-based indices
+            end -= 1    # Shift to Python 0-based indices
+            for i in range(start, end + 1):
+                indices.append(i)
+        elif atom == "first":
+            indices.append(0)
+        elif atom == "last":
+            indices.append(len(items) - 1)
+        else:
+            index = int(atom)
+            if index < 0:
+                index += len(items) + 1
+            index -= 1  # Shift to Python 0-based indices
+            indices.append(index)
+
+    return indices
 
 
 @command()
 def stack(nick, rest):
-    if not rest:
+    atoms = [atom.strip() for atom in rest.split(' ', 1) if atom.strip()]
+    if len(atoms) == 0:
         subcommand = "show"
+        rest = ""
+    elif len(atoms) == 1:
+        subcommand = atoms[0]
+        rest = ""
     else:
-        try:
-            subcommand, rest = [atom.strip() for atom in rest.split(' ', 1)]
-        except ValueError:
-            subcommand = "show"
+        subcommand, rest = atoms
 
     start = rest.find("[")
-    finish = rest.find("]")
+    finish = rest.rfind("]")
     sp = rest.find(" ")
-    if start != -1 and finish != -1 and start < sp and start < finish:
+    if start != -1 and finish != -1 and start < finish and (sp == -1 or start < sp):
         topic, index = [atom.strip() for atom in rest[:finish].split("[", 1)]
-        new_item = rest[finish:].strip()
+        if not topic:
+            topic = nick
+        new_item = rest[finish + 1:].strip()
     else:
         topic = nick
         index = None
         new_item = rest.strip()
+    if debug:
+        print("SUBCOMMAND", subcommand.ljust(7), "TOPIC", topic, "INDEX", str(index).ljust(12), "ITEM", new_item)
 
     if subcommand == "add":
         if not new_item:
             return helpstr
 
-        items = (Stack.store.get_items(topic) or "").split("\n")
+        items = Stack.store.get_items(topic)
 
         if index is None:
             items.insert(0, new_item)
         else:
-            indices = parse_index(index, items)
-            for i in reversed(indices):
-                items.insert(i, new_item)
+            indices = set(parse_index(index, items))
+            for i in reversed(sorted(indices)):
+                if i >= len(items):
+                    items.append(new_item)
+                else:
+                    items.insert(i + 1, new_item)
 
         Stack.store.save_items(topic, items)
     elif subcommand == "pop":
-        items = (Stack.store.get_items(topic) or "").split("\n")
+        items = Stack.store.get_items(topic)
 
-        popped_items = []
         if index is None:
-            p = items.pop(0, None)
-            if p is not None:
-                popped_items.append(p)
+            indices = [0]
         else:
-            indices = parse_index(index, items)
-            for i in reversed(indices):
-                popped_items.append(items.pop(i))
+            try:
+                indices = set(parse_index(index, items))
+            except ValueError:
+                return helpstr
+        popped_items = [items.pop(i) for i in reversed(sorted(indices)) if len(items) > i >= 0]
 
-        return " | ".join(["-: %s" % (item,) for item in popped_items]) or "(none popped)"
+        Stack.store.save_items(topic, items)
+
+        return " | ".join(["-: %s" % (item,) for item in reversed(popped_items)]) or "(none popped)"
     elif subcommand == "show" and not rest:
-        items = (Stack.store.get_items(topic) or "").split("\n")
-        return " | ".join(["%d: %s" % (i, item) for i, item in enumerate(items)]) or "(empty)"
+        items = Stack.store.get_items(topic)
+        return " | ".join(["%d: %s" % (i, item) for i, item in enumerate(items, 1)]) or "(empty)"
     elif subcommand == "shuffle":
-        choke
+        items = Stack.store.get_items(topic)
+
+        if index is None:
+            random.shuffle(items)
+        else:
+            try:
+                indices = parse_index(index, items)
+            except ValueError:
+                return helpstr
+            items = [items[i] for i in indices if len(items) > i >= 0]
+
+        Stack.store.save_items(topic, items)
     else:
         return helpstr
 
@@ -261,18 +329,229 @@ import unittest
 
 class DummyStorage():
 
-    def __init__(self):
-        self.table = {}
+    def __init__(self, table=None):
+        self.table = table or {}
 
     def get_items(self, topic):
-        return self.table.get(topic, None)
+        return self.table.get(topic, [])
 
     def save_items(self, topic, items):
-        self.table.setdefault(topic, items)
+        self.table[topic] = items
 
 
-class TestStackCommand(unittest.TestCase):
+class TestStackAdd(unittest.TestCase):
+
+    def setUp(self):
+        if debug:
+            print("")
 
     def test_stack_add(self):
-        self.assertEqual(stack("fumanchu", "add foo"), None)
+        Stack.store = DummyStorage()
+        self.assertEqual(stack("fumanchu", ""), "(empty)")
+        stack("fumanchu", "add foo")
         self.assertEqual(stack("fumanchu", ""), "1: foo")
+        stack("fumanchu", "add an interruption")
+        self.assertEqual(
+            stack("fumanchu", ""),
+            "1: an interruption | 2: foo"
+        )
+        stack("fumanchu", "add [-1] cleanup")
+        self.assertEqual(
+            stack("fumanchu", ""),
+            "1: an interruption | 2: foo | 3: cleanup"
+        )
+        stack("fumanchu", "add [1] a Distraction")
+        self.assertEqual(
+            stack("fumanchu", ""),
+            "1: an interruption | 2: a Distraction | 3: foo | 4: cleanup"
+        )
+        stack("fumanchu", "add ['distract'] lunch")
+        self.assertEqual(
+            stack("fumanchu", ""),
+            "1: an interruption | 2: a Distraction | 3: lunch | 4: foo | 5: cleanup"
+        )
+        stack("fumanchu", "add [0] bar")
+        self.assertEqual(
+            stack("fumanchu", ""),
+            "1: bar | 2: an interruption | 3: a Distraction | 4: lunch | 5: foo | 6: cleanup"
+        )
+
+
+class TestStackPop(unittest.TestCase):
+
+    def setUp(self):
+        if debug:
+            print("")
+
+    def make_colors(self):
+        """Set Store.stack to a dummy with ROYGBIV color names as items."""
+        Stack.store = DummyStorage({
+            "fumanchu": ["red", "orange", "yellow", "green", "blue", "indigo", "violet"]
+        })
+        self.assertEqual(
+            stack("fumanchu", "show"),
+            "1: red | 2: orange | 3: yellow | 4: green | 5: blue | 6: indigo | 7: violet"
+        )
+
+    def test_stack_pop_no_index(self):
+        self.make_colors()
+        self.assertEqual(stack("fumanchu", "pop"), "-: red")
+        self.assertEqual(
+            stack("fumanchu", "show"),
+            "1: orange | 2: yellow | 3: green | 4: blue | 5: indigo | 6: violet"
+        )
+
+    def test_stack_pop_integer_index(self):
+        self.make_colors()
+
+        self.assertEqual(stack("fumanchu", 'pop [2]'), "-: orange")
+        self.assertEqual(
+            stack("fumanchu", "show"),
+            "1: red | 2: yellow | 3: green | 4: blue | 5: indigo | 6: violet"
+        )
+
+        self.assertEqual(stack("fumanchu", 'pop [-1]'), "-: violet")
+        self.assertEqual(
+            stack("fumanchu", "show"),
+            "1: red | 2: yellow | 3: green | 4: blue | 5: indigo"
+        )
+
+        self.assertEqual(stack("fumanchu", 'pop [0]'), "(none popped)")
+        self.assertEqual(
+            stack("fumanchu", "show"),
+            "1: red | 2: yellow | 3: green | 4: blue | 5: indigo"
+        )
+
+        self.assertEqual(stack("fumanchu", 'pop [-1200]'), "(none popped)")
+        self.assertEqual(
+            stack("fumanchu", "show"),
+            "1: red | 2: yellow | 3: green | 4: blue | 5: indigo"
+        )
+
+        self.assertEqual(stack("fumanchu", 'pop [7346]'), "(none popped)")
+        self.assertEqual(
+            stack("fumanchu", "show"),
+            "1: red | 2: yellow | 3: green | 4: blue | 5: indigo"
+        )
+
+    def test_stack_pop_integer_range(self):
+        self.make_colors()
+
+        self.assertEqual(stack("fumanchu", 'pop [2:4]'), "-: orange | -: yellow | -: green")
+        self.assertEqual(
+            stack("fumanchu", "show"),
+            "1: red | 2: blue | 3: indigo | 4: violet"
+        )
+
+        self.assertEqual(stack("fumanchu", 'pop [-2:]'), "-: indigo | -: violet")
+        self.assertEqual(
+            stack("fumanchu", "show"),
+            "1: red | 2: blue"
+        )
+
+        self.assertEqual(stack("fumanchu", 'pop [-2123:]'), "-: red | -: blue")
+        self.assertEqual(
+            stack("fumanchu", "show"),
+            "(empty)"
+        )
+
+    def test_stack_pop_text_match(self):
+        self.make_colors()
+
+        self.assertEqual(stack("fumanchu", 'pop ["re"]'), "-: red | -: green")
+        self.assertEqual(
+            stack("fumanchu", "show"),
+            "1: orange | 2: yellow | 3: blue | 4: indigo | 5: violet"
+        )
+
+    def test_stack_pop_regex(self):
+        self.make_colors()
+
+        self.assertEqual(stack("fumanchu", 'pop [/r.*e/]'), "-: red | -: orange | -: green")
+        self.assertEqual(
+            stack("fumanchu", "show"),
+            "1: yellow | 2: blue | 3: indigo | 4: violet"
+        )
+
+    def test_stack_pop_first(self):
+        self.make_colors()
+
+        self.assertEqual(stack("fumanchu", "pop [first]"), "-: red")
+        self.assertEqual(
+            stack("fumanchu", "show"),
+            "1: orange | 2: yellow | 3: green | 4: blue | 5: indigo | 6: violet"
+        )
+
+    def test_stack_pop_last(self):
+        self.make_colors()
+
+        self.assertEqual(stack("fumanchu", "pop [last]"), "-: violet")
+        self.assertEqual(
+            stack("fumanchu", "show"),
+            "1: red | 2: orange | 3: yellow | 4: green | 5: blue | 6: indigo"
+        )
+
+    def test_stack_pop_multiple_indices(self):
+        self.make_colors()
+
+        self.assertEqual(
+            stack("fumanchu", "pop [3, -2, 2]"),
+            "-: orange | -: yellow | -: indigo"
+        )
+        self.assertEqual(
+            stack("fumanchu", "show"),
+            "1: red | 2: green | 3: blue | 4: violet"
+        )
+
+    def test_stack_pop_combo(self):
+        self.make_colors()
+
+        self.assertEqual(
+            stack("fumanchu", "pop [last, /r.*e/, 5]"),
+            "-: red | -: orange | -: green | -: blue | -: violet"
+        )
+        self.assertEqual(
+            stack("fumanchu", "show"),
+            "1: yellow | 2: indigo"
+        )
+
+    def test_stack_pop_illegal_combo(self):
+        self.make_colors()
+
+        self.assertEqual(
+            stack("fumanchu", "pop [3, 'stray, comma', 7]"),
+            helpstr
+        )
+
+
+class TestStackShuffle(unittest.TestCase):
+
+    def setUp(self):
+        if debug:
+            print("")
+
+    def make_colors(self):
+        """Set Store.stack to a dummy with ROYGBIV color names as items."""
+        Stack.store = DummyStorage({
+            "fumanchu": ["red", "orange", "yellow", "green", "blue", "indigo", "violet"]
+        })
+        self.assertEqual(
+            stack("fumanchu", "show"),
+            "1: red | 2: orange | 3: yellow | 4: green | 5: blue | 6: indigo | 7: violet"
+        )
+
+    def test_stack_shuffle_random(self):
+        self.make_colors()
+
+        oldkeys = set(Stack.store.table.keys())
+        self.assertEqual(stack("fumanchu", "shuffle"), None)
+        self.assertEqual(set(Stack.store.table.keys()), oldkeys)
+
+    def test_stack_shuffle_explicit(self):
+        self.make_colors()
+
+        self.assertEqual(stack("fumanchu", "shuffle [3:5, last, 1]"), None)
+        self.assertEqual(
+            stack("fumanchu", "show"),
+            "1: yellow | 2: green | 3: blue | 4: violet | 5: red"
+        )
