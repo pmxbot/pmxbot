@@ -141,17 +141,23 @@ class SQLiteStack(Stack, storage.SQLiteStorage):
 
     def save_items(self, topic, items):
         items = "\n".join(items)
-        if not self.db.execute(
+        has_entry = self.db.execute(
             "SELECT items FROM stack WHERE topic = ?", [topic]
-        ):
+        )
+        if has_entry:
+            if items:
+                return self.db.execute(
+                    "UPDATE stack SET items = ? WHERE topic = ?",
+                    [items, topic]
+                )
+            else:
+                return self.db.execute(
+                    "DELETE FROM stack WHERE topic = ?", [topic]
+                )
+        else:
             return self.db.execute(
                 "INSERT INTO stack (topic, items) VALUES (?, ?)",
                 [topic, items]
-            )
-        else:
-            return self.db.execute(
-                "UPDATE stack SET items = ? WHERE topic = ?",
-                [items, topic]
             )
 
 
@@ -170,10 +176,13 @@ class MongoDBStack(Stack, storage.MongoDBStorage):
             return doc["items"]
 
     def save_items(self, topic, items):
-        return self.db.update_one(
-            {"topic": topic}, {"$set": {"items": items}},
-            upsert=True
-        )
+        if items:
+            return self.db.update_one(
+                {"topic": topic}, {"$set": {"items": items}},
+                upsert=True
+            )
+        else:
+            return self.db.delete_one({"topic": topic})
 
 
 helpdoc = {
