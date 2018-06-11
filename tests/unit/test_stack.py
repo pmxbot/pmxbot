@@ -1,6 +1,6 @@
 import unittest
 
-from pmxbot.stack import stack, Stack
+from pmxbot.stack import stack, Stack, help
 
 
 class DummyStorage():
