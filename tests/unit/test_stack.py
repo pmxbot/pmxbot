@@ -290,11 +290,23 @@ class TestStackShow(StackTestCase):
 
     def test_stack_show_multiline(self):
         self.make_colors()
+        stack("fumanchu", "add [//] a big thing to work on")
         self.assertEqual(
-            stack("fumanchu", "show m"),
-            "1: red\n2: orange\n3: yellow\n4: green\n"
-            "5: blue\n6: indigo\n7: violet"
-        )
+            stack("fumanchu", "show"),
+            """1: red
+2: a big thing to work on
+3: orange
+4: a big thing to work on
+5: yellow
+6: a big thing to work on
+7: green
+8: a big thing to work on
+9: blue
+10: a big thing to work on
+11: indigo
+12: a big thing to work on
+13: violet
+14: a big thing to work on""")
 
 
 class TestStackTopics(StackTestCase):

@@ -1,7 +1,7 @@
 """!stack, a crunchbot command for managing short lists.
 
-Extended Example
-----------------
+Example
+-------
 
 !stack
     (empty)
@@ -10,43 +10,20 @@ Extended Example
     1: drop partitions
 !stack add fix up join diagrams
 !stack
-    1: fix up join diagrams
-    2: drop partitions
-!stack add review frank's ticket
+    1: fix up join diagrams | 2: drop partitions
+!stack add [-1] review frank's ticket
 !stack
-    1: review frank's ticket
-    2: fix up join diagrams
-    3: drop partitions
-!stack add [-1] crunchbot stack command
-!stack
-    1: review frank's ticket
-    2: fix up join diagrams
-    3: drop partitions
-    4: crunchbot stack command
-!stack add [2] review kim's ticket
-!stack
-    1: review frank's ticket
-    2: review kim's ticket
-    3: fix up join diagrams
-    4: drop partitions
-    5: crunchbot stack command
+    1: fix up join diagrams | 2: drop partitions | 3: review frank's ticket
 !stack pop
+    -: fix up join diagrams
+!stack
+    1: drop partitions | 2: review frank's ticket
+!stack pop [-1]
     -: review frank's ticket
 !stack
-    1: review kim's ticket
-    2: fix up join diagrams
-    3: drop partitions
-    4: crunchbot stack command
-!stack pop [-1]
-    -: crunchbot stack command
-!stack
-    1: review kim's ticket
-    2: fix up join diagrams
-    3: drop partitions
+    1: drop partitions
 !stack pop [:]
     -: drop partitions
-    -: fix up join diagrams
-    -: review kim's ticket
 !stack
     (empty)
 
@@ -199,7 +176,7 @@ helpdoc = {
             "given topic before the given (1-based) index (default: 1)",
     "pop": "!stack pop <topic[index]>: Pop any items from the given topic "
             "at the given (1-based) index(es) (default: 1)",
-    "show": "!stack show <topic[index]> <multiline>: Show items from the "
+    "show": "!stack show <topic[index]>: Show items from the "
             "given topic at the given (1-based) indexes (default: all)",
     "shuffle": "!stack shuffle <topic[index]>: Shuffle items from the given "
                "topic into the the given (1-based) index order "
@@ -281,6 +258,14 @@ def parse_index(index, items):
     return indices
 
 
+def output(indexed_items, default="(empty)", pop=False):
+    output = ["%s: %s" % (i, item) for i, item in indexed_items]
+    joined_output = " | ".join(output)
+    if len(joined_output) > 100:
+        joined_output = "\n".join(output)
+    return joined_output or default
+
+
 @command()
 def stack(nick, rest):
     atoms = [atom.strip() for atom in rest.split(' ', 1) if atom.strip()]
@@ -343,24 +328,18 @@ def stack(nick, rest):
 
         Stack.store.save_items(topic, items)
 
-        return " | ".join([
-            "-: %s" % (item,) for item in reversed(popped_items)
-        ]) or "(none popped)"
+        return output([("-", item) for item in reversed(popped_items)],
+                      "(none popped)", pop=True)
     elif subcommand == "show":
-        sep = " | "
         if new_item:
-            if "multiline".startswith(new_item):
-                sep = "\n"
-            else:
-                return helpdoc["show"]
+            return helpdoc["show"]
 
         if not indices:
             indices = range(len(items))
 
-        return sep.join([
-            "%d: %s" % (i + 1, items[i]) for i in indices
-            if len(items) > i >= 0
-        ]) or "(empty)"
+        return output(
+            [(i + 1, items[i]) for i in indices if len(items) > i >= 0]
+        )
     elif subcommand == "shuffle":
         if not indices:
             random.shuffle(items)
@@ -368,9 +347,8 @@ def stack(nick, rest):
             items = [items[i] for i in indices if len(items) > i >= 0]
 
         Stack.store.save_items(topic, items)
-        return " | ".join([
-            "%d: %s" % (i, item) for i, item in enumerate(items, 1)
-        ]) or "(empty)"
+
+        return output(enumerate(items, 1))
     elif subcommand == "help":
         return helpdoc.get(new_item, helpdoc["help"])
     else:
