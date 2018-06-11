@@ -53,20 +53,20 @@ Extended Example
 Topic and Index Parameters
 --------------------------
 
-Topic and index parameters are specified immediately after the !stack subcommand,
-and take the form: `topic[index]`; for example, "meetup[3]". The square brackets
-must always be included, even if no index is given. For example, "meetup[]"
-identifies the "meetup" topic but gives no index parameter--what that means
-depends on the subcommand. Similarly, you can specify "[3]" to give an index
-with no topic.
+Topic and index parameters are specified immediately after the !stack
+subcommand, and take the form: `topic[index]`; for example, "meetup[3]".
+The square brackets must always be included, even if no index is given.
+For example, "meetup[]" identifies the "meetup" topic but gives no index
+parameter--what that means depends on the subcommand. Similarly, you can
+specify "[3]" to give an index with no topic.
 
 If no topic is given, the user's nick is used as the topic.
 This allows the most common use as a personal stack of work items.
 
-The items in each topic are organized as a stack. Each item in the stack has
-an index number; the top-most item is 1 and the bottom-most item is always
-the length of the stack. With some restrictions depending on the command,
-an "index" argument may be any of the following:
+The items in each topic are organized as a stack. Each item in the stack
+has an index number; the top-most item is 1 and the bottom-most item is
+always the length of the stack. With some restrictions depending on the
+command, an "index" argument may be any of the following:
 
     * A single item index, like `[3]`. Negative indices count backward from
       the bottom; that is, the bottom-most item in a 3-item stack can be
@@ -80,9 +80,9 @@ an "index" argument may be any of the following:
       to match item content.
     * The sentinel values first and last.
     * Any combination of the above, separated by commas; for example,
-      given a stack of items
-      "1: red | 2: orange | 3: yellow | 4: green | 5: blue | 6: indigo | 7: violet",
-      the index `[6, :2, "i"]` identifies "6: indigo | 1: red | 2: orange | 7: violet".
+      given a stack of items "1: red | 2: orange | 3: yellow | 4: green |
+      5: blue | 6: indigo | 7: violet", the index `[6, :2, "i"]` identifies
+      "6: indigo | 1: red | 2: orange | 7: violet".
       Note that "indigo" matches both `[6]` and `["i"]`, but is only included
       once. However, if the stack had another "8: indigo" entry, it would have
       been included.
@@ -108,8 +108,9 @@ Subcommands
 
     If the `index` argument is omitted, the topic is shuffled in random order.
     Otherwise, it must be a valid index and the topic is reordered to match.
-    For example, with stack "1: a | 2: b | 3: c", the command `!stack shuffle [3, 1]`
-    reorders the stack to "1: c | 2: a", and the "b" item is dropped.
+    For example, with stack "1: a | 2: b | 3: c", the command
+    `!stack shuffle [3, 1]` reorders the stack to "1: c | 2: a",
+    and the "b" item is dropped.
 
 """
 
@@ -148,7 +149,8 @@ class SQLiteStack(Stack, storage.SQLiteStorage):
         self.db.commit()
 
     def get_items(self, topic):
-        rows = self.db.execute("SELECT items FROM stack WHERE topic = ?", [topic])
+        rows = self.db.execute(
+            "SELECT items FROM stack WHERE topic = ?", [topic])
         if not rows:
             return []
         else:
@@ -156,12 +158,18 @@ class SQLiteStack(Stack, storage.SQLiteStorage):
 
     def save_items(self, topic, items):
         items = "\n".join(items)
-        if not self.db.execute("SELECT items FROM stack WHERE topic = ?", [topic]):
+        if not self.db.execute(
+            "SELECT items FROM stack WHERE topic = ?", [topic]
+        ):
             return self.db.execute(
-                "INSERT INTO stack (topic, items) VALUES (?, ?)", [topic, items])
+                "INSERT INTO stack (topic, items) VALUES (?, ?)",
+                [topic, items]
+            )
         else:
             return self.db.execute(
-                "UPDATE stack SET items = ? WHERE topic = ?", [items, topic])
+                "UPDATE stack SET items = ? WHERE topic = ?",
+                [items, topic]
+            )
 
 
 class MongoDBStack(Stack, storage.MongoDBStorage):
@@ -175,22 +183,36 @@ class MongoDBStack(Stack, storage.MongoDBStorage):
             return doc["items"]
 
     def save_items(self, topic, items):
-        return self.db.update_one({"topic": topic}, {"$set": {"items": items}}, upsert=True)
+        return self.db.update_one(
+            {"topic": topic}, {"$set": {"items": items}},
+            upsert=True
+        )
 
 
-help = {
-    "stack": '!stack <subcommand> <topic[index]> <item> | subcommand: show, add, pop, shuffle, help | index: [2, 4:-3 (inclusive), "foo", /ba.*r/]',
-    "help": "!stack help <show, add, pop, shuffle, help, stack, index>: Show help for the given subcommand or feature (default: help)",
-    "add": "!stack add <topic[index]> item: Add the given item to the given topic before the given (1-based) index (default: 1)",
-    "pop": "!stack pop <topic[index]>: Pop any items from the given topic at the given (1-based) index(es) (default: 1)",
-    "show": "!stack show <topic[index]> <multiline>: Show items from the given topic at the given (1-based) indexes (default: all)",
-    "shuffle": "!stack shuffle <topic[index]>: Shuffle items from the given topic into the the given (1-based) index order (default: random)",
-    "index": '!stack indexes must be integers `[2]`, start:end slices (inclusive) `[4:-3]`, `"text"` or a `/regex/` to match, `first` or `last`, or any combination of those separated by commas.'
+helpdoc = {
+    "stack": '!stack <subcommand> <topic[index]> <item> '
+             '| subcommand: show, add, pop, shuffle, help '
+             '| index: [2, 4:-3 (inclusive), "foo", /ba.*r/]',
+    "help": "!stack help <show, add, pop, shuffle, help, stack, index>"
+            ": Show help for the given subcommand or feature (default: help)",
+    "add": "!stack add <topic[index]> item: Add the given item to the "
+            "given topic before the given (1-based) index (default: 1)",
+    "pop": "!stack pop <topic[index]>: Pop any items from the given topic "
+            "at the given (1-based) index(es) (default: 1)",
+    "show": "!stack show <topic[index]> <multiline>: Show items from the "
+            "given topic at the given (1-based) indexes (default: all)",
+    "shuffle": "!stack shuffle <topic[index]>: Shuffle items from the given "
+               "topic into the the given (1-based) index order "
+               "(default: random)",
+    "index": '!stack indexes must be integers `[2]`, start:end slices '
+             '(inclusive) `[4:-3]`, `"text"` or a `/regex/` to match, '
+             '`first` or `last`, or any combination of those '
+             'separated by commas.'
 }
 
 
 def parse_index(index, items):
-    """Return a list of 0-based index numbers from the given (1-based) `index`.
+    """Return a list of 0-based index numbers from a (1-based) `index` str.
 
     * A single item index, like `[3]`. Negative indices count backward from
       the bottom; that is, the bottom-most item in a 3-item stack can be
@@ -204,12 +226,11 @@ def parse_index(index, items):
       to match item content.
     * The values "first" or "last" (without quotes).
     * Any combination of the above, separated by commas; for example,
-      given a stack of items
-      "1: red | 2: orange | 3: yellow | 4: green | 5: blue | 6: indigo | 7: violet",
-      the index `[6, :2, "i"]` identifies "6: indigo | 1: red | 2: orange | 7: violet".
-      Note that "indigo" matches both `[6]` and `["i"]`, but is only included
-      once. However, if the stack had another "8: indigo" entry, it would have
-      been included.
+      given a stack of items "1: red | 2: orange | 3: yellow | 4: green |
+      5: blue | 6: indigo | 7: violet", the index `[6, :2, "i"]` identifies
+      "6: indigo | 1: red | 2: orange | 7: violet". Note that "indigo"
+      matches both `[6]` and `["i"]`, but is only included once. However,
+      if the stack had another "8: indigo" entry, it would have been included.
 
     """
     indices = []
@@ -275,7 +296,10 @@ def stack(nick, rest):
     start = rest.find("[")
     finish = rest.rfind("]")
     sp = rest.find(" ")
-    if start != -1 and finish != -1 and start < finish and (sp == -1 or start < sp):
+    if (
+        start != -1 and finish != -1 and start < finish and
+        (sp == -1 or start < sp)
+    ):
         topic, index = [atom.strip() for atom in rest[:finish].split("[", 1)]
         if not topic:
             topic = nick
@@ -289,14 +313,16 @@ def stack(nick, rest):
     try:
         indices = parse_index(index, items)
     except ValueError:
-        return help["index"]
+        return helpdoc["index"]
 
     if debug:
-        print("SUBCOMMAND", subcommand.ljust(8), "TOPIC", topic.ljust(8), "INDICES", str(indices).ljust(12), "ITEM", new_item)
+        print("SUBCOMMAND", subcommand.ljust(8), "TOPIC", topic.ljust(8),
+              "INDICES", str(indices).ljust(12), "ITEM", new_item)
 
     if subcommand == "add":
         if not new_item:
-            return '!stack add <topic[index]> item: You must provide an item to add.'
+            return ('!stack add <topic[index]> item: '
+                    'You must provide an item to add.')
 
         if not indices:
             items.insert(0, new_item)
@@ -317,19 +343,24 @@ def stack(nick, rest):
 
         Stack.store.save_items(topic, items)
 
-        return " | ".join(["-: %s" % (item,) for item in reversed(popped_items)]) or "(none popped)"
+        return " | ".join([
+            "-: %s" % (item,) for item in reversed(popped_items)
+        ]) or "(none popped)"
     elif subcommand == "show":
         sep = " | "
         if new_item:
             if "multiline".startswith(new_item):
                 sep = "\n"
             else:
-                return '!stack show <topic[index]> <multiline>: Show items from the given topic at the given (1-based) indexes (default: all)'
+                return helpdoc["show"]
 
         if not indices:
             indices = range(len(items))
 
-        return sep.join(["%d: %s" % (i + 1, items[i]) for i in indices if len(items) > i >= 0]) or "(empty)"
+        return sep.join([
+            "%d: %s" % (i + 1, items[i]) for i in indices
+            if len(items) > i >= 0
+        ]) or "(empty)"
     elif subcommand == "shuffle":
         if not indices:
             random.shuffle(items)
@@ -337,8 +368,10 @@ def stack(nick, rest):
             items = [items[i] for i in indices if len(items) > i >= 0]
 
         Stack.store.save_items(topic, items)
-        return " | ".join(["%d: %s" % (i, item) for i, item in enumerate(items, 1)]) or "(empty)"
+        return " | ".join([
+            "%d: %s" % (i, item) for i, item in enumerate(items, 1)
+        ]) or "(empty)"
     elif subcommand == "help":
-        return help.get(new_item, help["help"])
+        return helpdoc.get(new_item, helpdoc["help"])
     else:
-        return help["stack"]
+        return helpdoc["stack"]
