@@ -89,6 +89,8 @@ Subcommands
     `!stack shuffle [3, 1]` reorders the stack to "1: c | 2: a",
     and the "b" item is dropped.
 
+!stack topics [index]
+    Return a list of topics, numbered in alphabetical order.
 """
 
 import random
@@ -125,6 +127,10 @@ class SQLiteStack(Stack, storage.SQLiteStorage):
         self.db.execute(CREATE_STACK_TABLE)
         self.db.commit()
 
+    def get_topics(self):
+        rows = self.db.execute("SELECT topic FROM stack")
+        return [row[0] for row in rows]
+
     def get_items(self, topic):
         rows = self.db.execute(
             "SELECT items FROM stack WHERE topic = ?", [topic])
@@ -152,6 +158,10 @@ class SQLiteStack(Stack, storage.SQLiteStorage):
 class MongoDBStack(Stack, storage.MongoDBStorage):
     collection_name = 'stack'
 
+    def get_topics(self):
+        docs = self.db.find_all({}, {'topic': True})
+        return [doc['topic'] for doc in docs]
+
     def get_items(self, topic):
         doc = self.db.find_one({'topic': topic})
         if doc is None:
@@ -168,7 +178,7 @@ class MongoDBStack(Stack, storage.MongoDBStorage):
 
 helpdoc = {
     "stack": '!stack <subcommand> <topic[index]> <item> '
-             '| subcommand: show, add, pop, shuffle, help '
+             '| subcommand: add, pop, show, shuffle, topics, help '
              '| index: [2, 4:-3 (inclusive), "foo", /ba.*r/]',
     "help": "!stack help <show, add, pop, shuffle, help, stack, index>"
             ": Show help for the given subcommand or feature (default: help)",
@@ -181,6 +191,8 @@ helpdoc = {
     "shuffle": "!stack shuffle <topic[index]>: Shuffle items from the given "
                "topic into the the given (1-based) index order "
                "(default: random)",
+    "topics": "!stack topics <[index]>: Show topic names, numbered in "
+              "alphabetical order.",
     "index": '!stack indexes must be integers `[2]`, start:end slices '
              '(inclusive) `[4:-3]`, `"text"` or a `/regex/` to match, '
              '`first` or `last`, or any combination of those '
@@ -294,7 +306,11 @@ def stack(nick, rest):
         index = None
         new_item = rest.strip()
 
-    items = Stack.store.get_items(topic)
+    if subcommand == "topics":
+        items = Stack.store.get_topics()
+        items.sort()
+    else:
+        items = Stack.store.get_items(topic)
     try:
         indices = parse_index(index, items)
     except ValueError:
@@ -349,6 +365,16 @@ def stack(nick, rest):
         Stack.store.save_items(topic, items)
 
         return output(enumerate(items, 1))
+    elif subcommand == "topics":
+        if new_item:
+            return helpdoc["topics"]
+
+        if not indices:
+            indices = range(len(items))
+
+        return output(
+            [(i + 1, items[i]) for i in indices if len(items) > i >= 0]
+        )
     elif subcommand == "help":
         return helpdoc.get(new_item, helpdoc["help"])
     else:

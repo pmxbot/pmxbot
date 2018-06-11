@@ -8,6 +8,9 @@ class DummyStorage():
     def __init__(self, table=None):
         self.table = table or {}
 
+    def get_topics(self):
+        return list(self.table.keys())
+
     def get_items(self, topic):
         return self.table.get(topic, [])
 
@@ -340,6 +343,19 @@ class TestStackTopics(StackTestCase):
             "1: red | 2: orange | 3: yellow | 4: green | "
             "5: blue | 6: indigo | 7: violet"
         )
+
+    def test_stack_topics_command(self):
+        self.make_colors()
+        stack("sarah", "add bar")
+        stack("fumanchu", "add project1[] foo")
+        self.assertEqual(
+            stack("fumanchu", "topics"),
+            "1: fumanchu | 2: project1 | 3: sarah"
+        )
+        self.assertEqual(stack("fumanchu", 'topics [2]'), "2: project1")
+        self.assertEqual(stack("fumanchu", 'topics [-1]'), "3: sarah")
+        self.assertEqual(stack("fumanchu", 'topics [0]'), "(empty)")
+        self.assertEqual(stack("fumanchu", 'topics [-1200]'), "(empty)")
 
 
 class TestStackHelp(StackTestCase):
