@@ -178,7 +178,15 @@ class MongoDBStack(Stack, storage.MongoDBStorage):
         return self.db.update_one({"topic": topic}, {"$set": {"items": items}}, upsert=True)
 
 
-helpstr = '!stack <subcommand> <topic[index]> <item> | subcommand: show, add, pop, shuffle | index: [2, 4:-3 (inclusive), "foo", /ba.*r/]'
+help = {
+    "stack": '!stack <subcommand> <topic[index]> <item> | subcommand: show, add, pop, shuffle, help | index: [2, 4:-3 (inclusive), "foo", /ba.*r/]',
+    "help": "!stack help <show, add, pop, shuffle, help, stack, index>: Show help for the given subcommand or feature (default: help)",
+    "add": "!stack add <topic[index]> item: Add the given item to the given topic before the given (1-based) index (default: 1)",
+    "pop": "!stack pop <topic[index]>: Pop any items from the given topic at the given (1-based) index(es) (default: 1)",
+    "show": "!stack show <topic[index]> <multiline>: Show items from the given topic at the given (1-based) indexes (default: all)",
+    "shuffle": "!stack shuffle <topic[index]>: Shuffle items from the given topic into the the given (1-based) index order (default: random)",
+    "index": '!stack indexes must be integers `[2]`, start:end slices (inclusive) `[4:-3]`, `"text"` or a `/regex/` to match, `first` or `last`, or any combination of those separated by commas.'
+}
 
 
 def parse_index(index, items):
@@ -194,6 +202,7 @@ def parse_index(index, items):
       item containing the text (case-insensitive).
     * Any /text/ surrounded by forward-slashes, a regular expression
       to match item content.
+    * The values "first" or "last" (without quotes).
     * Any combination of the above, separated by commas; for example,
       given a stack of items
       "1: red | 2: orange | 3: yellow | 4: green | 5: blue | 6: indigo | 7: violet",
@@ -280,14 +289,14 @@ def stack(nick, rest):
     try:
         indices = parse_index(index, items)
     except ValueError:
-        return helpstr
+        return help["index"]
 
     if debug:
         print("SUBCOMMAND", subcommand.ljust(8), "TOPIC", topic.ljust(8), "INDICES", str(indices).ljust(12), "ITEM", new_item)
 
     if subcommand == "add":
         if not new_item:
-            return helpstr
+            return '!stack add <topic[index]> item: You must provide an item to add.'
 
         if not indices:
             items.insert(0, new_item)
@@ -315,7 +324,7 @@ def stack(nick, rest):
             if "multiline".startswith(new_item):
                 sep = "\n"
             else:
-                return helpstr
+                return '!stack show <topic[index]> <multiline>: Show items from the given topic at the given (1-based) indexes (default: all)'
 
         if not indices:
             indices = range(len(items))
@@ -329,8 +338,10 @@ def stack(nick, rest):
 
         Stack.store.save_items(topic, items)
         return " | ".join(["%d: %s" % (i, item) for i, item in enumerate(items, 1)]) or "(empty)"
+    elif subcommand == "help":
+        return help.get(new_item, help["help"])
     else:
-        return helpstr
+        return help["stack"]
 
 
 # -------------------- Unit Tests ----------------------- #
@@ -555,7 +566,7 @@ class TestStackPop(unittest.TestCase):
 
         self.assertEqual(
             stack("fumanchu", "pop [3, 'stray, comma', 7]"),
-            helpstr
+            help["index"]
         )
 
 
@@ -675,3 +686,22 @@ class TestStackTopics(unittest.TestCase):
             stack("fumanchu", "show"),
             "1: red | 2: orange | 3: yellow | 4: green | 5: blue | 6: indigo | 7: violet"
         )
+
+
+class TestStackHelp(unittest.TestCase):
+
+    def setUp(self):
+        if debug:
+            print("")
+
+    def test_stack_help(self):
+        Stack.store = DummyStorage()
+        self.assertEqual(stack("fumanchu", "help"), help["help"])
+        self.assertEqual(stack("fumanchu", "help add"), help["add"])
+        self.assertEqual(stack("fumanchu", "help pop"), help["pop"])
+        self.assertEqual(stack("fumanchu", "help show"), help["show"])
+        self.assertEqual(stack("fumanchu", "help shuffle"), help["shuffle"])
+        self.assertEqual(stack("fumanchu", "help index"), help["index"])
+        self.assertEqual(stack("fumanchu", "help stack"), help["stack"])
+
+        self.assertEqual(stack("fumanchu", "not a command"), help["stack"])
