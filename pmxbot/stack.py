@@ -168,7 +168,7 @@ class MongoDBStack(Stack, storage.MongoDBStorage):
     collection_name = 'stack'
 
     def get_topics(self):
-        docs = self.db.find_all({}, {'topic': True})
+        docs = self.db.find({}, {'topic': True})
         return [doc['topic'] for doc in docs]
 
     def get_items(self, topic):
