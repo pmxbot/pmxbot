@@ -413,6 +413,7 @@ class TestMongoDBStack:
         k.db = k.db.database.connection[k.db.database.name + '_test'][
             k.db.name]
         request.addfinalizer(k.db.drop)
+        return k
 
     def test_no_topics(self, mongodb_stack):
         assert mongodb_stack.get_topics() == []
