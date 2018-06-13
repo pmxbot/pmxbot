@@ -3,6 +3,8 @@
 dist/
 build/
 *.egg-info/
+*.pyc
 pmxbot.sqlite
 .tox/
 .cache/
+.pytest_cache/
