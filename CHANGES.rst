@@ -1,3 +1,14 @@
+1122.7
+======
+
+* #84: Corner cases in ``!stack`` command.
+* #84: Added ``list`` alias to stack command.
+* Refresh project metadata including using declarative config.
+* Cleaned up deprecation warnings.
+* #82: Use ``DangerousDumper`` for compatibility with PyYAML 3.12.
+* Switched to using ``entrypoints``, ``importlib_metadata``,
+  and ``importlib_resources`` instead of ``pkg_resources``.
+
 1122.6
 ======
 
