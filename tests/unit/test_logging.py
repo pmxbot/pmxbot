@@ -33,7 +33,7 @@ class TestMongoDBLogging:
 		self.setup_logging(mongodb_uri)
 		self.logger.message(
 			'#channel5', 'nik', 'something great happened today - the test passed')
-		assert self.logger.db.count() == 1
+		assert self.logger.db.count_documents({}) == 1
 		assert 'test passed' in self.logger.db.find_one()['message']
 
 	def test_list_channels(self, mongodb_uri):

@@ -190,14 +190,14 @@ class MongoDBKarma(Karma, storage.MongoDBStorage):
 		value = int(value)
 		query = {'names': {'$elemMatch': {'$in': [thing]}}}
 		oper = {'$set': {'value': value}, '$addToSet': {'names': thing}}
-		self.db.update(query, oper, upsert=True)
+		self.db.update_one(query, oper, upsert=True)
 
 	def change(self, thing, change):
 		thing = thing.strip().lower()
 		change = int(change)
 		query = {'names': {'$elemMatch': {'$in': [thing]}}}
 		oper = {'$inc': {'value': change}, '$addToSet': {'names': thing}}
-		self.db.update(query, oper, upsert=True)
+		self.db.update_one(query, oper, upsert=True)
 
 	def list(self, select=0):
 		res = list(self.db.find().sort('value', storage.pymongo.DESCENDING))
@@ -225,8 +225,8 @@ class MongoDBKarma(Karma, storage.MongoDBStorage):
 			'$inc': {'value': rec['value']},
 			'$push': {'names': {'$each': rec['names']}},
 		}
-		self.db.update(query, update)
-		self.db.remove(rec)
+		self.db.update_one(query, update)
+		self.db.delete_one(rec)
 
 	def search(self, term):
 		pattern = re.compile('.*' + re.escape(term) + '.*')

@@ -164,12 +164,12 @@ class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 
 	def add(self, quote):
 		quote = quote.strip()
-		quote_id = self.db.insert(dict(library=self.lib, text=quote))
+		quote_id = self.db.insert_one(dict(library=self.lib, text=quote))
 		# see if the quote added is in the last IRC message logged
 		newest_first = [('_id', storage.pymongo.DESCENDING)]
 		last_message = self.db.database.logs.find_one(sort=newest_first)
 		if last_message and quote in last_message['message']:
-			self.db.update(
+			self.db.update_one(
 				{'_id': quote_id},
 				{'$set': dict(log_id=last_message['_id'])})
 
@@ -192,7 +192,7 @@ class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 		log_id = log_id_map.get(log_id, log_id)
 		if log_id is not None:
 			quote['log_id'] = log_id
-		self.db.insert(quote)
+		self.db.insert_one(quote)
 
 
 @command(aliases='q')

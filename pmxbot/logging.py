@@ -241,8 +241,8 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 	collection_name = 'logs'
 
 	def _message(self, channel, nick, msg):
-		self.db.ensure_index('datetime.d')
-		self.db.ensure_index('channel')
+		self.db.create_index('datetime.d')
+		self.db.create_index('channel')
 		now = datetime.datetime.utcnow()
 		doc = dict(
 			channel=channel,
@@ -250,15 +250,15 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 			message=msg,
 			datetime=self._fmt_date(now)
 		)
-		id = self.db.insert(doc)
-		self._add_recent(doc, id)
+		res = self.db.insert_one(doc)
+		self._add_recent(doc, res.inserted_id)
 
 	def _add_recent(self, doc, logged_id):
 		"Keep a tab on the most recent message for each channel"
 		spec = dict(channel=doc['channel'])
 		doc['ref'] = logged_id
 		doc.pop('_id')
-		self._recent.update(spec, doc, upsert=True)
+		self._recent.replace_one(spec, doc, upsert=True)
 
 	@property
 	def _recent(self):
@@ -296,7 +296,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
 		return rows_deleted
 
 	def get_random_logs(self, limit):
-		count = min(limit, self.db.count())
+		count = min(limit, self.db.count_documents({}))
 		ids = self.db.find({}, {'_id': 1})
 		rand_ids = [r['_id'] for r in random.sample(list(ids), count)]
 		for rand_ids_chunk in chunked(rand_ids, 100):
@@ -426,7 +426,7 @@ class FullTextMongoDBLogger(MongoDBLogger):
 		"""
 		coll = cls._get_collection(uri)
 		with ExceptionTrap(storage.pymongo.errors.OperationFailure) as trap:
-			coll.ensure_index([('message', 'text')], background=True)
+			coll.create_index([('message', 'text')], background=True)
 		return not trap
 
 	def search(self, *terms):
