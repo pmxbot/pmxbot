@@ -345,7 +345,7 @@ def startup(config):
 
 	# Cherrypy configuration here
 	app_conf = {
-		cherrypy._cpcompat.tonative('global', encoding='ascii'): {
+		'global': {
 			'server.socket_port': config.port,
 			'server.socket_host': config.host,
 			'server.environment': 'production',
@@ -353,7 +353,7 @@ def startup(config):
 			# 'tools.encode.on': True,
 			'tools.encode.encoding': 'utf-8',
 		},
-		cherrypy._cpcompat.tonative('/pmxbot.png', encoding='ascii'): {
+		'/pmxbot.png': {
 			'tools.staticfile.on': True,
 			'tools.staticfile.filename': str(importlib_resources.path(
 				'pmxbot.web.templates', 'pmxbot.png')),
