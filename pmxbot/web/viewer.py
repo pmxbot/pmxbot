@@ -356,12 +356,12 @@ def startup(config):
 		cherrypy._cpcompat.tonative('/pmxbot.png', encoding='ascii'): {
 			'tools.staticfile.on': True,
 			'tools.staticfile.filename': str(importlib_resources.path(
-				'pmxbot.web', 'templates/pmxbot.png')),
+				'pmxbot.web.templates', 'pmxbot.png')),
 		},
 		'/Autolinker.js': {
 			'tools.staticfile.on': True,
 			'tools.staticfile.filename': str(importlib_resources.path(
-				'pmxbot.web', 'templates/Autolinker.js')),
+				'pmxbot.web.templates', 'Autolinker.js')),
 		},
 	}
 
