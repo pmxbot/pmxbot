@@ -1,4 +1,4 @@
-"""!stack, a crunchbot command for managing short lists.
+"""!stack, a pmxbot command for managing short lists.
 
 Example
 -------
@@ -133,17 +133,17 @@ class SQLiteStack(Stack, storage.SQLiteStorage):
 
     def get_items(self, topic):
         rows = self.db.execute(
-            "SELECT items FROM stack WHERE topic = ?", [topic])
+            "SELECT items FROM stack WHERE topic = ?", [topic]).fetchone()
         if not rows:
             return []
         else:
-            return rows[0][0].split("\n")
+            return rows[0].split("\n")
 
     def save_items(self, topic, items):
         items = "\n".join(items)
         has_entry = self.db.execute(
             "SELECT items FROM stack WHERE topic = ?", [topic]
-        )
+        ).fetchone()
         if has_entry:
             if items:
                 return self.db.execute(
@@ -165,7 +165,7 @@ class MongoDBStack(Stack, storage.MongoDBStorage):
     collection_name = 'stack'
 
     def get_topics(self):
-        docs = self.db.find_all({}, {'topic': True})
+        docs = self.db.find({}, {'topic': True})
         return [doc['topic'] for doc in docs]
 
     def get_items(self, topic):
@@ -187,7 +187,7 @@ class MongoDBStack(Stack, storage.MongoDBStorage):
 
 helpdoc = {
     "stack": '!stack <subcommand> <topic[index]> <item> '
-             '| subcommand: add, pop, show, shuffle, topics, help '
+             '| subcommand: add, pop, show, shuffle, topics, list, help '
              '| index: [2, 4:-3 (inclusive), "foo", /ba.*r/]',
     "help": "!stack help <show, add, pop, shuffle, help, stack, index>"
             ": Show help for the given subcommand or feature (default: help)",
@@ -207,6 +207,8 @@ helpdoc = {
              '`first` or `last`, or any combination of those '
              'separated by commas.'
 }
+
+helpdoc['list'] = helpdoc['topics']
 
 
 def parse_index(index, items):
@@ -289,6 +291,7 @@ def output(indexed_items, default="(empty)", pop=False):
 
 @command()
 def stack(nick, rest):
+    'Manage short lists in pmxbot. See !stack help for more info'
     atoms = [atom.strip() for atom in rest.split(' ', 1) if atom.strip()]
     if len(atoms) == 0:
         subcommand = "show"
@@ -315,7 +318,7 @@ def stack(nick, rest):
         index = None
         new_item = rest.strip()
 
-    if subcommand == "topics":
+    if subcommand == "topics" or subcommand == "list":
         items = Stack.store.get_topics()
         items.sort()
     else:
@@ -374,7 +377,7 @@ def stack(nick, rest):
         Stack.store.save_items(topic, items)
 
         return output(enumerate(items, 1))
-    elif subcommand == "topics":
+    elif subcommand == "topics" or subcommand == "list":
         if new_item:
             return helpdoc["topics"]
 
