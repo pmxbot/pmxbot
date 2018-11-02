@@ -9,7 +9,7 @@ from pmxbot.core import command
 @command()
 def config(client, event, channel, nick, rest):
 	"Change the running config, something like a=b or a+=b or a-=b"
-	pattern = re.compile('(?P<key>\w+)\s*(?P<op>[+-]?=)\s*(?P<value>.*)$')
+	pattern = re.compile(r'(?P<key>\w+)\s*(?P<op>[+-]?=)\s*(?P<value>.*)$')
 	match = pattern.match(rest)
 	if not match:
 		return "Command not recognized"

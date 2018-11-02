@@ -136,7 +136,7 @@ def annoy():
 @command(aliases="d")
 def dance():
 	"Do a little dance"
-	yield 'O-\-<'
+	yield r'O-\-<'
 	yield 'O-|-<'
 	yield 'O-/-<'
 
@@ -154,7 +154,7 @@ def panic():
 def duck():
 	"Display a helpful duck"
 	yield '__("<'
-	yield '\__/'
+	yield r'\__/'
 	yield ' ^^'
 
 
