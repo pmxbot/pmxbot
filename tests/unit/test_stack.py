@@ -1,3 +1,4 @@
+import pytest
 import unittest
 
 from pmxbot.stack import stack, Stack, helpdoc
@@ -369,5 +370,69 @@ class TestStackHelp(StackTestCase):
         self.assertEqual(stack("fumanchu", "help shuffle"), helpdoc["shuffle"])
         self.assertEqual(stack("fumanchu", "help index"), helpdoc["index"])
         self.assertEqual(stack("fumanchu", "help stack"), helpdoc["stack"])
+        self.assertEqual(stack("fumanchu", "help topics"), helpdoc["topics"])
+        self.assertEqual(stack("fumanchu", "help list"), helpdoc["topics"])
 
         self.assertEqual(stack("fumanchu", "not a command"), helpdoc["stack"])
+
+
+class TestSQLiteStack:
+    @pytest.fixture
+    def sqlite_stack(self, request, tmpdir):
+        filename = tmpdir / 'db.sqlite'
+        return Stack.from_URI('sqlite://{filename}'.format(**locals()))
+
+    def test_no_topics(self, sqlite_stack):
+        assert sqlite_stack.get_topics() == []
+
+        assert sqlite_stack.get_items(None) == []
+        assert sqlite_stack.get_items('nonexistanttopic') == []
+
+    def test_simple_workflow(self, sqlite_stack):
+        s = sqlite_stack
+        assert s.get_topics() == []
+        assert s.get_items('foo') == []
+
+        s.save_items('foo', ['a', 'b', 'c'])
+        assert s.get_items('foo') == ['a', 'b', 'c']
+        assert s.get_topics() == ['foo']
+
+        s.save_items('foo', ['1', '2', '3'])
+        assert s.get_items('foo') == ['1', '2', '3']
+
+        s.save_items('foo', [])
+        assert s.get_items('foo') == []
+
+        assert s.get_topics() == []
+
+
+class TestMongoDBStack:
+    @pytest.fixture
+    def mongodb_stack(self, request, mongodb_uri):
+        k = Stack.from_URI(mongodb_uri)
+        k.db = k.db.database.connection[k.db.database.name + '_test'][
+            k.db.name]
+        request.addfinalizer(k.db.drop)
+        return k
+
+    def test_no_topics(self, mongodb_stack):
+        assert mongodb_stack.get_topics() == []
+        assert mongodb_stack.get_items(None) == []
+        assert mongodb_stack.get_items('nonexistanttopic') == []
+
+    def test_simple_workflow(self, mongodb_stack):
+        s = mongodb_stack
+        assert s.get_topics() == []
+        assert s.get_items('foo') == []
+
+        s.save_items('foo', ['a', 'b', 'c'])
+        assert s.get_items('foo') == ['a', 'b', 'c']
+        assert s.get_topics() == ['foo']
+
+        s.save_items('foo', ['1', '2', '3'])
+        assert s.get_items('foo') == ['1', '2', '3']
+
+        s.save_items('foo', [])
+        assert s.get_items('foo') == []
+
+        assert s.get_topics() == []
