@@ -1,3 +1,8 @@
+1122.7.1
+========
+
+* Fixed issues with resource loading in web viewer.
+
 1122.7
 ======
 
