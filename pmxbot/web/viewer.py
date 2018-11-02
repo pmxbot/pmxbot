@@ -6,6 +6,8 @@ import textwrap
 import cgi
 import urllib.parse
 import operator
+import contextlib
+import functools
 
 from py31compat.functools import lru_cache
 
@@ -334,6 +336,17 @@ def init_config(config={}):
 	return config
 
 
+def resolve_file(mgr, filename):
+	"""
+	Given a file manager (ExitStack), load the filename
+	and set the exit stack to clean up. See
+	https://importlib-resources.readthedocs.io/en/latest/migration.html#pkg-resources-resource-filename
+	for more details.
+	"""
+	path = importlib_resources.path('pmxbot.web.templates', filename)
+	return str(mgr.enter_context(path))
+
+
 def startup(config):
 	patch_compat(config)
 
@@ -342,6 +355,9 @@ def startup(config):
 	_setup_logging()
 
 	pmxbot.core._load_library_extensions()
+
+	file_manager = contextlib.ExitStack()
+	static = functools.partial(resolve_file, file_manager)
 
 	# Cherrypy configuration here
 	app_conf = {
@@ -355,17 +371,16 @@ def startup(config):
 		},
 		'/pmxbot.png': {
 			'tools.staticfile.on': True,
-			'tools.staticfile.filename': str(importlib_resources.path(
-				'pmxbot.web.templates', 'pmxbot.png')),
+			'tools.staticfile.filename': static('pmxbot.png'),
 		},
 		'/Autolinker.js': {
 			'tools.staticfile.on': True,
-			'tools.staticfile.filename': str(importlib_resources.path(
-				'pmxbot.web.templates', 'Autolinker.js')),
+			'tools.staticfile.filename': static('Autolinker.js'),
 		},
 	}
 
-	cherrypy.quickstart(PmxbotPages(), config.web_base, config=app_conf)
+	with file_manager:
+		cherrypy.quickstart(PmxbotPages(), config.web_base, config=app_conf)
 
 
 def run():
