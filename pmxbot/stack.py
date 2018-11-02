@@ -91,9 +91,6 @@ Subcommands
 
 !stack topics [index]
     Return a list of topics, numbered in alphabetical order.
-
-!stack list...
-    Alias for !stack topics
 """
 
 import random
@@ -190,7 +187,7 @@ class MongoDBStack(Stack, storage.MongoDBStorage):
 
 helpdoc = {
     "stack": '!stack <subcommand> <topic[index]> <item> '
-             '| subcommand: add, pop, show, shuffle, topics|list, help '
+             '| subcommand: add, pop, show, shuffle, topics, list, help '
              '| index: [2, 4:-3 (inclusive), "foo", /ba.*r/]',
     "help": "!stack help <show, add, pop, shuffle, help, stack, index>"
             ": Show help for the given subcommand or feature (default: help)",
@@ -203,7 +200,7 @@ helpdoc = {
     "shuffle": "!stack shuffle <topic[index]>: Shuffle items from the given "
                "topic into the the given (1-based) index order "
                "(default: random)",
-    "topics": "!stack topics|list <[index]>: Show topic names, numbered in "
+    "topics": "!stack topics <[index]>: Show topic names, numbered in "
               "alphabetical order.",
     "index": '!stack indexes must be integers `[2]`, start:end slices '
              '(inclusive) `[4:-3]`, `"text"` or a `/regex/` to match, '
