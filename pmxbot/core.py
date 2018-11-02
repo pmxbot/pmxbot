@@ -11,7 +11,7 @@ import inspect
 import traceback
 import itertools
 
-import pkg_resources
+import entrypoints
 from jaraco.itertools import always_iterable
 from jaraco.collections import Projection
 from tempora import schedule
@@ -637,7 +637,7 @@ def _load_library_extensions():
 	of the plugin at initialization time.
 	"""
 	group = 'pmxbot_handlers'
-	entry_points = pkg_resources.iter_entry_points(group=group)
+	entry_points = entrypoints.get_group_all(group=group)
 	for ep in entry_points:
 		try:
 			log.info('Loading %s', ep.name)
@@ -656,5 +656,5 @@ def _load_filters():
 	True for the message not to be excluded.
 	"""
 	group = 'pmxbot_filters'
-	eps = pkg_resources.iter_entry_points(group=group)
+	eps = entrypoints.get_group_all(group=group)
 	return [ep.load() for ep in eps]

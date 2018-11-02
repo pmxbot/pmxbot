@@ -6,10 +6,10 @@ import csv
 import urllib.parse
 
 import dateutil.parser
-import pkg_resources
 from bs4 import BeautifulSoup
 import requests
 import pytz
+import importlib_metadata
 
 import pmxbot
 from .core import command, contains, attach, log
@@ -849,7 +849,7 @@ def version(rest):
 	pkg = rest.strip() or 'pmxbot'
 	if pkg.lower() == 'python':
 		return sys.version.split()[0]
-	return pkg_resources.require(pkg)[0].version
+	return importlib_metadata.version(pkg)
 
 
 _TIMEZONES = (pytz.timezone(name) for name in pytz.all_timezones)

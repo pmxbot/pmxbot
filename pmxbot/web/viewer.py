@@ -10,7 +10,7 @@ import operator
 from py31compat.functools import lru_cache
 
 import cherrypy
-import pkg_resources
+import importlib_resources
 import jinja2.loaders
 import pytz
 import inflect
@@ -355,13 +355,13 @@ def startup(config):
 		},
 		cherrypy._cpcompat.tonative('/pmxbot.png', encoding='ascii'): {
 			'tools.staticfile.on': True,
-			'tools.staticfile.filename': pkg_resources.resource_filename(
-				'pmxbot.web', 'templates/pmxbot.png'),
+			'tools.staticfile.filename': str(importlib_resources.path(
+				'pmxbot.web', 'templates/pmxbot.png')),
 		},
 		'/Autolinker.js': {
 			'tools.staticfile.on': True,
-			'tools.staticfile.filename': pkg_resources.resource_filename(
-				'pmxbot.web', 'templates/Autolinker.js'),
+			'tools.staticfile.filename': str(importlib_resources.path(
+				'pmxbot.web', 'templates/Autolinker.js')),
 		},
 	}
 

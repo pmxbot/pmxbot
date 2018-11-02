@@ -1,6 +1,4 @@
-import codecs
-
-import pkg_resources
+import importlib_resources
 
 
 ball8_opts = {
@@ -275,9 +273,7 @@ otrail_issues = [
 
 def text_lines(name):
 	filename = '{name}.txt'.format_map(locals())
-	raw_lines = pkg_resources.resource_stream(__name__, filename)
-	lines = codecs.getreader('utf-8')(raw_lines)
-	return list(lines)
+	return list(importlib_resources.read_text('pmxbot', filename))
 
 
 klingonisms = text_lines('klingonisms')
