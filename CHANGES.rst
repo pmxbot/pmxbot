@@ -1,3 +1,10 @@
+1122.7.2
+========
+
+* Workaround use of ``importlib_resources`` in phrases due
+  to `importlib_resources 68
+  <https://gitlab.com/python-devs/importlib_resources/issues/68>`_.
+
 1122.7.1
 ========
 

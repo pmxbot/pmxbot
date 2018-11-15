@@ -1,4 +1,4 @@
-import importlib_resources
+import pathlib
 
 
 ball8_opts = {
@@ -272,8 +272,11 @@ otrail_issues = [
 
 
 def text_lines(name):
+	pkg_root = pathlib.Path(__file__).parent
 	filename = '{name}.txt'.format_map(locals())
-	return list(importlib_resources.read_text('pmxbot', filename))
+	path = pkg_root / filename
+	with path.open() as strm:
+		return list(map(str.rstrip, strm))
 
 
 klingonisms = text_lines('klingonisms')
