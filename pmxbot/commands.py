@@ -34,7 +34,7 @@ def google(rest):
 		return "Configure 'Google API key' in config"
 	# Use a custom search that searches everything normally
 	# http://stackoverflow.com/a/11206266/70170
-	custom_search = '001691716015206881191:uu1-mnv98um'
+	custom_search = '004862762669074674786:hddvfu0gyg0'
 	params = dict(
 		key=key,
 		cx=custom_search,

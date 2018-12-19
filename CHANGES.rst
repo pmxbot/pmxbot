@@ -1,3 +1,10 @@
+1122.7.3
+========
+
+* Updated the custom search engine as the old one was discarded
+  when jaraco had to replace his G-Suite hosted account with a
+  regular one.
+
 1122.7.2
 ========
 
