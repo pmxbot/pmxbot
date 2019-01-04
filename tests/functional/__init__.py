@@ -8,7 +8,7 @@ import urllib.parse
 
 import irc.client
 import pytest
-import jaraco.timing
+import tempora.timing
 
 import pmxbot.dictlib
 
@@ -101,7 +101,7 @@ class PmxbotHarness:
 
 	@classmethod
 	def wait_for_tables(cls, timeout=30):
-		watch = jaraco.timing.Stopwatch()
+		watch = tempora.timing.Stopwatch()
 		while watch.split() < datetime.timedelta(seconds=timeout):
 			try:
 				cls.check_logs('#check')
