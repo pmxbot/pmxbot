@@ -1,3 +1,10 @@
+1122.8.0
+========
+
+* Refresh package metadata, fixing several DeprecationWarnings in test suite.
+* Drop support for Python 3.5.
+* Remove use of deprecated modules in test suite.
+
 1122.7.3
 ========
 
