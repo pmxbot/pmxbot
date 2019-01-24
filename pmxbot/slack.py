@@ -37,18 +37,25 @@ class Bot(pmxbot.core.Bot):
 	def handle_message(self, msg):
 		if msg.get('type') != 'message':
 			return
+		if msg.get('subtype') == 'message_changed':
+			# Pay attention to the revised message
+			msg['user'] = msg.get('user', msg['user'])
+			msg['text'] = msg.get('text', msg['text'])
+		
 		if msg.get('user'):
 			nick = self.slack.server.users.find(msg['user']).name
-		elif msg.get('username'):
-			nick = msg['username']
 		else:
-			log.warning("Unknown message %s", msg)
-			return
+			nick = self._resolve_nick_bot_message(msg)
 
 		channel = self.slack.server.channels.find(msg['channel']).name
 		channel = core.AugmentableMessage(channel, thread=msg.get('thread_ts'))
 
-		self.handle_action(channel, nick, html.unescape(msg['text']))
+		content = msg.get('text')
+		if not content and len(msg.get('attachments')):
+			att = msg['attachments'][0]
+			content = att.get('fallback') or att.get('pretext') or att.get('title')
+
+		self.handle_action(channel, nick, html.unescape(content))
 
 	def _resolve_nick_standard(self, msg):
 		return self.slack.server.users.find(msg['user']).name
