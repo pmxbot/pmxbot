@@ -41,7 +41,7 @@ class Bot(pmxbot.core.Bot):
 			# Pay attention to the revised message
 			msg['user'] = msg.get('user', msg['user'])
 			msg['text'] = msg.get('text', msg['text'])
-		
+
 		if msg.get('user'):
 			nick = self.slack.server.users.find(msg['user']).name
 		else:
@@ -86,6 +86,10 @@ class Bot(pmxbot.core.Bot):
 			or self._find_user_channel(username=channel)
 		)
 		message = self._expand_references(message)
+		# Handle /me
+		if message.startswith("/me "):
+			# Hack: just make them italicized, looks the same to slack ;)
+			message = "_" + message[4:] + "_"
 
 		target.send_message(message, thread=getattr(channel, 'thread', None))
 
