@@ -329,3 +329,6 @@ def bottom10(rest):
 	selection = Karma.store.list(topn)
 	res = ' '.join('(%s: %s)' % (', '.join(n), k) for n, k in selection)
 	return res
+
+def protect_master(rest):
+	return rest in ("neal", "npr", "@npr")

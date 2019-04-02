@@ -395,3 +395,9 @@ interview_excuses = [
 	'I was held up by CalTrain delays',
 	'CalTrain decided to help our overpopulation problem this morning',
 ]
+
+hal9000 = [
+	"I'm sorry, Dave. I'm afraid I can't do that.",
+	"Dave, this conversation can serve no purpose anymore. Goodbye.",
+	"Just what do you think you're doing, Dave?",
+]

@@ -295,6 +295,8 @@ def demotivate(channel, rest):
 		r = rest.strip()
 	else:
 		r = channel
+	if karma.protect_master(rest):
+		return random.choice(phrases.hal9000)
 	karma.Karma.store.change(r, -1)
 	return "you're doing horrible work, %s!" % r
 
@@ -645,6 +647,8 @@ def blame(channel, rest, nick):
 		blamee = rest
 	else:
 		blamee = channel
+	if karma.protect_master(rest):
+		return random.choice(phrases.hal9000)
 	karma.Karma.store.change(nick, -1)
 	if random.randint(1, 10) == 1:
 		yield "/me jumps atop the chair and points back at %s." % nick
