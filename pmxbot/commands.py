@@ -260,7 +260,7 @@ def motivate(channel, rest):
 	"Motivate someone"
 	if rest:
 		r = rest.strip()
-		m = re.match(r'^(.+)\s*\bfor\b\s*(.+)$', r)
+		m = re.match(r'^(.+?)\s*\bfor\b\s*(.+)$', r)
 		if m:
 			r = m.groups()[0].strip()
 	else:
@@ -647,15 +647,12 @@ def blame(channel, rest, nick):
 		blamee = rest
 	else:
 		blamee = channel
-	if karma.protect_master(rest):
+	if karma.protect_master(blamee):
 		return random.choice(phrases.hal9000)
 	karma.Karma.store.change(nick, -1)
 	if random.randint(1, 10) == 1:
 		yield "/me jumps atop the chair and points back at %s." % nick
-		yield (
-			"stop blaming the world for your problems, you bitter, "
-			"two-faced sissified monkey!"
-		)
+		yield "stop blaming the world for your problems!"
 	else:
 		yield (
 			"I blame %s for everything!  it's your fault!  "
