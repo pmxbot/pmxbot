@@ -648,17 +648,19 @@ def blame(channel, rest, nick):
 	else:
 		blamee = channel
 	if karma.protect_master(blamee):
-		return random.choice(phrases.hal9000)
-	karma.Karma.store.change(nick, -1)
-	if random.randint(1, 10) == 1:
-		yield "/me jumps atop the chair and points back at %s." % nick
-		yield "stop blaming the world for your problems!"
+		yield random.choice(phrases.hal9000)
 	else:
-		yield (
-			"I blame %s for everything!  it's your fault!  "
-			"it's all your fault!!" % blamee
-		)
-		yield "/me cries and weeps in despair"
+		# Note that this removes karma from the blamer, not the blamee
+		karma.Karma.store.change(nick, -1)
+		if random.randint(1, 10) == 1:
+			yield "/me jumps atop the chair and points back at %s." % nick
+			yield "stop blaming the world for your problems!"
+		else:
+			yield (
+				"I blame %s for everything!  it's your fault!  "
+				"it's all your fault!!" % blamee
+			)
+			yield "/me cries and weeps in despair"
 
 
 @contains('pmxbot', channels=logging.UnloggedChannels(), rate=.3)
