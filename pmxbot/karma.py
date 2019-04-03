@@ -331,4 +331,4 @@ def bottom10(rest):
 	return res
 
 def protect_master(rest):
-	return rest in ("neal", "npr", "@npr", "@u0btj3789")
+	return rest.lower() in ("neal", "npr", "@npr", "@u0btj3789", "<@u0btj3789>")
