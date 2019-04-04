@@ -54,6 +54,9 @@ class Bot(pmxbot.core.Bot):
 		if not content and len(msg.get('attachments')):
 			att = msg['attachments'][0]
 			content = att.get('fallback') or att.get('pretext') or att.get('title')
+			if 'fields' in att:
+				field_data = ['%s:%s' % (f['title'], f['value']) for f in att['fields']]
+				content += '; %s' % "; ".join(field_data)
 
 		self.handle_action(channel, nick, html.unescape(content))
 
