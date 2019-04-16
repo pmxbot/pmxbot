@@ -1,3 +1,12 @@
+1122.9.0
+========
+
+* ``core.command`` now raises an error when the first parameter is
+  a callable (such as when a function is decorated without calling
+  "command").
+
+* Refresh package metadata and update tests to support PyTest 4.
+
 1122.8.0
 ========
 
