@@ -6,7 +6,7 @@ class ConfigDict(ItemsAsAttributes, dict):
 	@classmethod
 	def from_yaml(cls, filename):
 		with open(filename) as f:
-			return cls(yaml.load(f))
+			return cls(yaml.safe_load(f))
 
 	def to_yaml(self, filename):
 		dumper = getattr(yaml, 'danger_dump', yaml.dump)
