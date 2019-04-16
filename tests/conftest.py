@@ -1,29 +1,14 @@
-import functools
-
 import pytest
+from jaraco.context import ExceptionTrap
 
 import pmxbot.util
 
 
-def throws_exception(call, exceptions=[Exception]):
-	"""
-	Invoke the function and return True if it raises any of the
-	exceptions provided. Otherwise, return False.
-	"""
-	try:
-		call()
-	except tuple(exceptions):
-		return True
-	except Exception:
-		pass
-	return False
-
-
 @pytest.fixture
 def needs_internet():
-	open_google = functools.partial(pmxbot.util.get_html, 'http://www.google.com')
-	has_internet = not throws_exception(open_google)
-	if not has_internet:
+	with ExceptionTrap() as trap:
+		pmxbot.util.get_html('http://www.google.com')
+	if trap:
 		pytest.skip('Internet connectivity unavailable')
 
 
