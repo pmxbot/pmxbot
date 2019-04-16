@@ -19,14 +19,15 @@ def throws_exception(call, exceptions=[Exception]):
 	return False
 
 
-def pytest_namespace():
-	return dict(
-		has_internet=pytest.mark.skipif('not pytest.config.has_internet'),
-		has_wordnik=pytest.mark.skipif('not pytest.config.has_wordnik'),
-	)
-
-
-def pytest_configure(config):
+@pytest.fixture
+def needs_internet():
 	open_google = functools.partial(pmxbot.util.get_html, 'http://www.google.com')
-	config.has_internet = not throws_exception(open_google)
-	config.has_wordnik = config.has_internet and 'wordnik' in dir(pmxbot.util)
+	has_internet = not throws_exception(open_google)
+	if not has_internet:
+		pytest.skip('Internet connectivity unavailable')
+
+
+@pytest.fixture
+def needs_wordnik(needs_internet):
+	if 'wordnik' not in dir(pmxbot.util):
+		pytest.skip('Wordnik not available')

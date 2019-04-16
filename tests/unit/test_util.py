@@ -1,18 +1,13 @@
-import pytest
-
 from pmxbot import util
 
 
-@pytest.has_wordnik
-def test_lookup():
+def test_lookup(needs_wordnik):
 	assert util.lookup('dachshund') is not None
 
 
-@pytest.has_internet
-def test_emergency_compliment():
+def test_emergency_compliment(needs_internet):
 	assert util.load_emergency_compliments()
 
 
-@pytest.has_internet
-def test_acronym_lookup():
+def test_acronym_lookup(needs_internet):
 	assert util.lookup_acronym('NSFW')

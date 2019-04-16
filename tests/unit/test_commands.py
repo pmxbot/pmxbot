@@ -49,8 +49,7 @@ class TestCommands:
 		path = os.path.dirname(os.path.abspath(__file__))
 		os.remove(os.path.join(path, 'pmxbot.sqlite'))
 
-	@pytest.has_internet
-	def test_google(self, google_api_key):
+	def test_google(self, google_api_key, needs_internet):
 		"""
 		Basic google search for "pmxbot". Result must contain a link.
 		"""
@@ -199,9 +198,8 @@ class TestCommands:
 			r"\d{1,4}.\d{1,4} \([+-]\d{1,3}.\d{1,4}%\)$"
 		)
 
-	@pytest.has_internet
 	@pytest.mark.xfail(reason="#71")
-	def test_ticker_goog(self):
+	def test_ticker_goog(self, needs_internet):
 		"""
 		Get the current stock price of Google.
 
@@ -211,9 +209,8 @@ class TestCommands:
 		print(res)
 		assert re.match(self.ticker_pattern('GOOG'), res), res
 
-	@pytest.has_internet
 	@pytest.mark.xfail(reason="#71")
-	def test_ticker_yougov(self):
+	def test_ticker_yougov(self, needs_internet):
 		"""
 		Get the current stock price of YouGov.
 
@@ -223,9 +220,8 @@ class TestCommands:
 		print(res)
 		assert re.match(self.ticker_pattern('YOU.L'), res), res
 
-	@pytest.has_internet
 	@pytest.mark.xfail(reason="#71")
-	def test_ticker_nasdaq(self):
+	def test_ticker_nasdaq(self, needs_internet):
 		"""
 		Get the current stock price of the NASDAQ.
 
@@ -391,16 +387,13 @@ class TestCommands:
 		print(res)
 		assert res.startswith("6.070566")
 
-	@pytest.has_internet
-	def test_insult(self):
+	def test_insult(self, needs_internet):
 		commands.insult("")
 
-	@pytest.has_internet
-	def test_targeted_insult(self):
+	def test_targeted_insult(self, needs_internet):
 		commands.insult("enemy")
 
-	@pytest.has_wordnik
-	def test_define_keyboard(self):
+	def test_define_keyboard(self, needs_wordnik):
 		"""
 		Test the dictionary with the word keyboard.
 		"""
@@ -411,8 +404,7 @@ class TestCommands:
 			"processor, typewriter, or piano."
 		)
 
-	@pytest.has_wordnik
-	def test_define_irc(self):
+	def test_define_irc(self, needs_wordnik):
 		"""
 		Test the dictionary with the word IRC.
 		"""
@@ -423,8 +415,7 @@ class TestCommands:
 			"Internet servers, using its own protocol through which "
 			"individual users can hold real-time online conversations.")
 
-	@pytest.has_wordnik
-	def test_define_notaword(self):
+	def test_define_notaword(self, needs_wordnik):
 		"""
 		Test the dictionary with a nonsense word.
 		"""
@@ -432,16 +423,14 @@ class TestCommands:
 		assert isinstance(res, str)
 		assert res == "Wordnik does not have a definition for that."
 
-	@pytest.has_internet
-	def test_urb_irc(self):
+	def test_urb_irc(self, needs_internet):
 		"""
 		Test the urban dictionary with the word IRC.
 		"""
 		res = commands.urbandict("irc")
 		assert "Internet Relay Chat" in res
 
-	@pytest.has_internet
-	def test_acronym_irc(self):
+	def test_acronym_irc(self, needs_internet):
 		"""
 		Test acronym finder with the word IRC.
 		"""
