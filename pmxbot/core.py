@@ -379,6 +379,8 @@ def contains(
 
 
 def command(name=None, aliases=None, doc=None):
+	if callable(name):
+		raise ValueError("Name should be a string, did you forget ()?")
 	handler = CommandHandler(name=name, doc=doc)
 	aliases = [
 		AliasHandler(name=alias, parent=handler)
