@@ -1,3 +1,8 @@
+1122.9.1
+========
+
+* #85: Pin to slackclient 1.x until asyncio support can be integrated.
+
 1122.9.0
 ========
 
