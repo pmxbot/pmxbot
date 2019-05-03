@@ -17,22 +17,22 @@ log = logging.getLogger(__name__)
 class Bot(pmxbot.core.Bot):
 	def __init__(self, server, port, nickname, channels, password=None):
 		token = pmxbot.config['slack token']
-		sc = importlib.import_module('slackclient')
-		self.slack = sc.SlackClient(token)
+		sc = importlib.import_module('slack')
+		self.slack = sc.RTMClient(token)
 		sr = importlib.import_module('slacker')
 		self.slacker = sr.Slacker(token)
 
 		self.scheduler = schedule.CallbackScheduler(self.handle_scheduled)
 
 	def start(self):
-		res = self.slack.rtm_connect()
-		assert res, "Error connecting"
+		@self.slack.__class__.run_on(event='message')
+		def handle_payload(**payload):
+			self.handle_message(payload)
+
 		self.init_schedule(self.scheduler)
-		while True:
-			for msg in self.slack.rtm_read():
-				self.handle_message(msg)
-			self.scheduler.run_pending()
-			time.sleep(0.1)
+		# todo: build an asyncio handler for scheduled tasks
+
+		self.slack.start()
 
 	def handle_message(self, msg):
 		if msg.get('type') != 'message':
