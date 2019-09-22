@@ -477,8 +477,7 @@ class TestCommands:
 		try:
 			res = commands.rand_bot('#test', 'testrunner', '')
 		except network_excs:
-			if not pytest.config.has_internet:
-				raise pytest.skip("Error suppressed for limited connectivity")
+			pytest.check_internet()
 			raise
 		if res is None:
 			return
