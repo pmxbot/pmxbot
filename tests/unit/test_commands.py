@@ -410,10 +410,12 @@ class TestCommands:
 		"""
 		res = commands.define("  IRC \t")
 		assert isinstance(res, str)
-		assert res == (
+		assert res in [
 			"Wordnik says: An international computer network of "
 			"Internet servers, using its own protocol through which "
-			"individual users can hold real-time online conversations.")
+			"individual users can hold real-time online conversations.",
+			"Wordnik does not have a definition for that.",
+		]
 
 	def test_define_notaword(self, needs_wordnik):
 		"""
