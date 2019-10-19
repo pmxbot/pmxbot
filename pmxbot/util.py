@@ -113,10 +113,11 @@ def lookup(word):
 	key = 'edc4b9b94b341eeae350e087c2e05d2f5a2a9e0478cefc6dc'
 	client = wordnik.swagger.ApiClient(key, 'http://api.wordnik.com/v4')
 	words = wordnik.WordApi.WordApi(client)
-	definitions = words.getDefinitions(word, limit=1)
-	if not definitions:
+	try:
+		definitions = words.getDefinitions(word, limit=1)
+		definition = definitions[0]
+	except Exception:
 		return
-	definition = definitions[0]
 	return str(definition.text)
 
 
