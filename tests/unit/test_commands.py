@@ -400,8 +400,8 @@ class TestCommands:
 		res = commands.define("keyboard")
 		assert isinstance(res, str)
 		assert res == (
-			"Wordnik says: A set of keys, as on a computer terminal, word "
-			"processor, typewriter, or piano."
+			"Wordnik says: A panel of buttons used for typing and performing "
+			"other functions on a computer or typewriter."
 		)
 
 	def test_define_irc(self, needs_wordnik):
