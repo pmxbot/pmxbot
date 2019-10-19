@@ -1,6 +1,9 @@
+import pytest
+
 from pmxbot import util
 
 
+@pytest.mark.xfail(reason="Wordnik is unreliable")
 def test_lookup(needs_wordnik):
 	assert util.lookup('dachshund') is not None
 
