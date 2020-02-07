@@ -1,10 +1,20 @@
 .. image:: https://img.shields.io/pypi/v/pmxbot.svg
-   :target: https://pypi.org/project/pmxbot
+   :target: `PyPI link`_
 
 .. image:: https://img.shields.io/pypi/pyversions/pmxbot.svg
+   :target: `PyPI link`_
+
+.. _PyPI link: https://pypi.org/project/pmxbot
+
+.. image:: https://dev.azure.com/jaraco/pmxbot/_apis/build/status/jaraco.skeleton?branchName=master
+   :target: https://dev.azure.com/jaraco/pmxbot/_build/latest?definitionId=1&branchName=master
 
 .. image:: https://img.shields.io/travis/yougov/pmxbot/master.svg
    :target: http://travis-ci.org/yougov/pmxbot
+
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/psf/black
+   :alt: Code style: Black
 
 .. .. image:: https://img.shields.io/appveyor/ci/jaraco/skeleton/master.svg
 ..    :target: https://ci.appveyor.com/project/jaraco/skeleton/branch/master

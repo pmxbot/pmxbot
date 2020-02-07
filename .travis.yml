@@ -3,21 +3,7 @@ language: python
 
 python:
 - 3.6
-- &latest_py3 3.7
-
-jobs:
-  fast_finish: true
-  include:
-  - stage: deploy
-    if: tag IS present
-    python: *latest_py3
-    before_script: skip
-    env:
-    - TWINE_USERNAME=jaraco
-    # TWINE_PASSWORD
-    - secure: 7SI09Nzl3L1RUpeESy+tq4SS8ZZBrrEmgfc1pVp7UPbMXjuLtD5jvxJWbZiTBb7DQ2/QWqBbHLlZb9ovF1Sfv58U+if5VYbkwNh9D1XsOBW6ZG2HFpT0FnHjvPAAaIXFI4forZeCPBFzKoPbFS3Qh5/nwlhi7pbYmpqS3plZ/UfdtQakRkoGJ1/81r8Jsl5Wy8VYS0A/vuE2gi7IDNJjkjl4dF2sYSm5Z/3StlmB0ZD8quOLZXVkCH8rUMBr89wpH2FQgIBOp8quIheFIvRaNubig3DVRiUPCRyjR+cdMQ+GfsDUHkBdQvVCHObNBnWbs6+13mZauNipK8L+t2cuLlYpl+UbD3951Y2YMU5J91MkZERpJ0siuR2FxXirESlsDgz6rrEEB/4xX4y40qd+YgbWW+Wgqw1cLrvmkMoE47N1VQRbUXZlwzjsh5E6tBRoBkr3XyBPtPuZdBJROev4DwGngOPX4NcqMJM9JmJ4/sEyuwkWaLRcl2UAUrimVjg4xARxHqvl4s73ORa36v3BjzOwXX0EEWiA7pbB1zZLxIDqp4hwFtBebt8EI1YCh8vSiNYbqYqj9N5uVz9rzmwLDFJiUmK/casw62WJ3Jti4gu+fe2IRXVHv7P11iPsGQ/Sf3BeGTKU3fFXTthK2ffurcl62GeoIplZ2R77CLbcuxk=
-    - TOX_TESTENV_PASSENV="TWINE_USERNAME TWINE_PASSWORD"
-    script: tox -e release
+- &latest_py3 3.8
 
 cache: pip
 
