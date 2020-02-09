@@ -1,3 +1,9 @@
+1122.9.2
+========
+
+* #86: Project has moved to a new organization at GitHub (pmxbot)
+  for easier shared custody.
+
 1122.9.1
 ========
 
