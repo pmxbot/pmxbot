@@ -255,7 +255,10 @@ def zinger(rest):
 	return "OH MAN!!! %s TOTALLY GOT ZING'D!" % (name.upper())
 
 
-@command(aliases=("m", "appreciate", "thanks", "thank", "gracias", "grazie"))
+@command(aliases=(
+	"m", "appreciate", "thanks", "thank", "gracias", "grazie", "danke", "хвала",
+	"faleminderit", "merci", "dziękuję",
+))
 def motivate(channel, rest):
 	"Motivate someone"
 	if rest:
