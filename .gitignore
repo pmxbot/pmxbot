@@ -2,6 +2,7 @@
 .eggs/
 dist/
 build/
+venv/
 *.egg-info/
 *.pyc
 pmxbot.sqlite
