@@ -105,9 +105,9 @@ def _patch_wordnik():
 
 
 def lookup(word):
-    '''
+    """
     Get a definition for a word (uses Wordnik)
-    '''
+    """
     _patch_wordnik()
     # Jason's key - do not abuse
     key = 'edc4b9b94b341eeae350e087c2e05d2f5a2a9e0478cefc6dc'
@@ -125,10 +125,10 @@ lookup.provider = 'Wordnik'
 
 
 def urban_lookup(word):
-    '''
+    """
     Return a Urban Dictionary definition for a word or None if no result was
     found.
-    '''
+    """
     url = "http://api.urbandictionary.com/v0/define"
     params = dict(term=word)
     resp = requests.get(url, params=params)
