@@ -1,3 +1,4 @@
+import functools
 import time
 import importlib
 import logging
@@ -13,6 +14,26 @@ from pmxbot import core
 
 log = logging.getLogger(__name__)
 
+SLACK_CACHE_SECONDS = 7 * 24 * 60 * 60
+
+
+def get_ttl_hash(seconds=None):
+    """
+    Return the same value withing `seconds` time period
+
+    default seconds:
+        7 days == 7days*24hours*60min*60seconds == 604800 seconds
+
+    Cache time can be configured in config using `slack_cache` in seconds
+    """
+    if not seconds:
+        try:
+            seconds = pmxbot.config.get('slack_cache', SLACK_CACHE_SECONDS)
+        except AttributeError:
+            # whenever pmxbot doesn't have config
+            seconds = SLACK_CACHE_SECONDS
+    return round(time.time() / seconds)
+
 
 class Bot(pmxbot.core.Bot):
     def __init__(self, server, port, nickname, channels, password=None):
@@ -23,6 +44,25 @@ class Bot(pmxbot.core.Bot):
         self.slacker = sr.Slacker(token)
 
         self.scheduler = schedule.CallbackScheduler(self.handle_scheduled)
+        # Store in cache users on init
+        self.get_email_username_map(
+            ttl_hash=get_ttl_hash(pmxbot.config.get('slack_cache'))
+        )
+
+    @functools.lru_cache(maxsize=1)
+    def get_email_username_map(self, ttl_hash=get_ttl_hash()):
+        """
+        Generate a map {email -> slack username}
+
+        :param ttl_hash: hash to control the lru_cache
+        """
+        users = self.slacker.users.list()
+        if users.body.get('ok', False):
+            members = users.body.get('members', [])
+            return {
+                member.get('profile', {}).get('email', ""): member.get("name")
+                for member in members
+            }
 
     def start(self):
         res = self.slack.rtm_connect()
@@ -74,12 +114,16 @@ class Bot(pmxbot.core.Bot):
         """
         Send the message to Slack.
 
-        :param channel: channel or user to whom the message should be sent.
+        :param channel: channel, user or email to whom the message should be sent.
             If a ``thread`` attribute is present, that thread ID is used.
         :param str message: message to send.
         """
-        target = self.slack.server.channels.find(channel) or self._find_user_channel(
-            username=channel
+        target = (
+            self.slack.server.channels.find(channel)
+            or self._find_user_channel(username=channel)
+            or self._find_user_channel(
+                username=self.get_email_username_map().get(channel)
+            )
         )
         message = self._expand_references(message)
 
