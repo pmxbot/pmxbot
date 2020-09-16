@@ -437,7 +437,7 @@ class TestCommands:
         Test the urban dictionary with the word IRC.
         """
         res = commands.urbandict("irc")
-        assert "Internet Relay Chat" in res
+        assert "It's a place where broken and odd people" in res
 
     def test_acronym_irc(self, needs_internet):
         """
