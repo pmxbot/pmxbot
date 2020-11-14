@@ -9,15 +9,13 @@
 .. image:: https://dev.azure.com/pmxbot/pmxbot/_apis/build/status/pmxbot.pmxbot?branchName=master
    :target: https://dev.azure.com/pmxbot/pmxbot/_build/latest?definitionId=1&branchName=master
 
-.. image:: https://img.shields.io/travis/pmxbot/pmxbot/master.svg
-   :target: http://travis-ci.org/pmxbot/pmxbot
+.. image:: https://github.com/pmxbot/pmxbot/workflows/Automated%20Tests/badge.svg
+   :target: https://github.com/pmxbot/pmxbot/actions?query=workflow%3A%22Automated+Tests%22
+   :alt: Automated Tests
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/psf/black
    :alt: Code style: Black
-
-.. .. image:: https://img.shields.io/appveyor/ci/jaraco/skeleton/master.svg
-..    :target: https://ci.appveyor.com/project/jaraco/skeleton/branch/master
 
 .. image:: https://readthedocs.org/projects/pmxbot/badge/?version=latest
    :target: https://pmxbot.readthedocs.io/en/latest/?badge=latest
