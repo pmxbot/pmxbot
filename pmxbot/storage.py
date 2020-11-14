@@ -4,6 +4,7 @@ import importlib
 import logging
 import threading
 import urllib.parse
+from typing import List, Callable
 
 from jaraco.classes.ancestry import iter_subclasses
 
@@ -25,7 +26,7 @@ class SelectableStorage:
     on the URI.
     """
 
-    _finalizers = []
+    _finalizers: List[Callable] = []
 
     @classmethod
     def from_URI(cls, URI=None):

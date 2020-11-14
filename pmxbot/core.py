@@ -11,6 +11,8 @@ import inspect
 import traceback
 import itertools
 
+from typing import List, Callable
+
 import entrypoints
 from jaraco.itertools import always_iterable
 from jaraco.collections import Projection
@@ -114,7 +116,7 @@ class SwitchChannel(str, Sentinel):
 
 class FinalRegistry:
     "A list of callbacks to run at exit."
-    _finalizers = []
+    _finalizers: List[Callable] = []
 
     @classmethod
     def at_exit(cls, finalizer):
@@ -130,7 +132,7 @@ class FinalRegistry:
 
 
 class Handler:
-    _registry = []
+    _registry: List['Handler'] = []
 
     class_priority = 1
     "priority of this class relative to other classes, precedence to higher"
@@ -329,7 +331,7 @@ class ContentHandler(ContainsHandler):
 
 
 class Scheduled(Handler):
-    _registry = []
+    _registry: List[Handler] = []
 
 
 class DelayHandler(Scheduled):
@@ -355,7 +357,7 @@ class AtHandler(Scheduled):
 
 
 class JoinHandler(Handler):
-    _registry = []
+    _registry: List[Handler] = []
 
 
 class LeaveHandler(Handler):
@@ -363,7 +365,7 @@ class LeaveHandler(Handler):
     Handles quits and parts.
     """
 
-    _registry = []
+    _registry: List[Handler] = []
 
 
 def contains(name, channels=(), exclude=(), rate=1.0, priority=1, doc=None, **kwargs):

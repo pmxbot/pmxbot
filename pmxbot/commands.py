@@ -4,6 +4,8 @@ import random
 import string
 import csv
 import urllib.parse
+import datetime
+from typing import Dict
 
 import dateutil.parser
 from bs4 import BeautifulSoup
@@ -874,11 +876,12 @@ def version(rest):
 
 
 _TIMEZONES = (pytz.timezone(name) for name in pytz.all_timezones)
-TZINFOS = {}
+TZINFOS: Dict[str, datetime.tzinfo] = {}
 for tz in _TIMEZONES:
     # Add entry for long and short tz names
     # E.g. Europe/Rome and RMT
-    TZINFOS[tz._tzname] = TZINFOS[tz.zone] = tz
+    TZINFOS[tz._tzname] = tz  # type: ignore
+    TZINFOS[tz.zone] = tz
 # Add tzones not defined in pytz mainly from
 # http://users.telenet.be/mm011/time%20zone%20abbreviations.html
 TZINFOS.update(

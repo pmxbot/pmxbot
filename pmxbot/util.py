@@ -121,7 +121,7 @@ def lookup(word):
     return str(definition.text)
 
 
-lookup.provider = 'Wordnik'
+lookup.provider = 'Wordnik'  # type: ignore
 
 
 def urban_lookup(word):
