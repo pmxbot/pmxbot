@@ -88,7 +88,7 @@ class MongoDBStorage(Storage):
 
     @classmethod
     def uri_matches(cls, uri):
-        return uri.startswith('mongodb:')
+        return uri.startswith('mongodb:') or uri.startswith('mongodb+srv:')
 
     def __init__(self, host_uri):
         globals().update(
