@@ -6,9 +6,6 @@
 
 .. _PyPI link: https://pypi.org/project/pmxbot
 
-.. image:: https://dev.azure.com/pmxbot/pmxbot/_apis/build/status/pmxbot.pmxbot?branchName=master
-   :target: https://dev.azure.com/pmxbot/pmxbot/_build/latest?definitionId=1&branchName=master
-
 .. image:: https://github.com/pmxbot/pmxbot/workflows/Automated%20Tests/badge.svg
    :target: https://github.com/pmxbot/pmxbot/actions?query=workflow%3A%22Automated+Tests%22
    :alt: Automated Tests
