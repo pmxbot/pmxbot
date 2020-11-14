@@ -1,3 +1,8 @@
+1122.9.3
+========
+
+* #89: For Slack client, added ability to send messages on POST to e-mail.
+
 1122.9.2
 ========
 
