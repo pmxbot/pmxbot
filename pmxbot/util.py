@@ -2,6 +2,7 @@ import random
 import re
 import warnings
 import itertools
+import logging
 
 import requests
 import bs4
@@ -15,6 +16,9 @@ except (ImportError, SyntaxError):
     warnings.warn("Wordnik failed to import")
 
 import pmxbot.phrases
+
+
+log = logging.getLogger(__name__)
 
 
 def wchoice(d):
@@ -117,6 +121,7 @@ def lookup(word):
         definitions = words.getDefinitions(word, limit=1)
         definition = definitions[0]
     except Exception:
+        log.exception(f"Unhandled exception looking up {word}.")
         return
     return str(definition.text)
 
