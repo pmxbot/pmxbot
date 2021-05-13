@@ -294,20 +294,8 @@ def output(indexed_items, default="(empty)", pop=False):
 def stack(nick, rest):
     'Manage short lists in pmxbot. See !stack help for more info'
     subcommand, params = _parse_stack_command(rest)
-    del rest
 
-    start = params.find("[")
-    finish = params.rfind("]")
-    sp = params.find(" ")
-    if start != -1 and finish != -1 and start < finish and (sp == -1 or start < sp):
-        topic, index = [atom.strip() for atom in params[:finish].split("[", 1)]
-        if not topic:
-            topic = nick
-        new_item = params[finish + 1 :].strip()
-    else:
-        topic = nick
-        index = None
-        new_item = params.strip()
+    index, new_item, topic = _parse_params(params, default_topic=nick)
 
     if subcommand == "topics" or subcommand == "list":
         items = Stack.store.get_topics()
@@ -387,6 +375,22 @@ def stack(nick, rest):
         return helpdoc.get(new_item, helpdoc["help"])
     else:
         return helpdoc["stack"]
+
+
+def _parse_params(params, default_topic):
+    start = params.find("[")
+    finish = params.rfind("]")
+    sp = params.find(" ")
+    if start != -1 and finish != -1 and start < finish and (sp == -1 or start < sp):
+        topic, index = [atom.strip() for atom in params[:finish].split("[", 1)]
+        if not topic:
+            topic = default_topic
+        new_item = params[finish + 1 :].strip()
+    else:
+        topic = default_topic
+        index = None
+        new_item = params.strip()
+    return index, new_item, topic
 
 
 def _parse_stack_command(text):
