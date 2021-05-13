@@ -1,3 +1,11 @@
+v1122.10.1
+==========
+
+* Packaging refresh.
+* Removed jaraco.compat dependency.
+* Refactorings for similicity.
+
+
 1122.10.0
 =========
 
