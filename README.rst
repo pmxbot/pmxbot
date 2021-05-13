@@ -6,9 +6,9 @@
 
 .. _PyPI link: https://pypi.org/project/pmxbot
 
-.. image:: https://github.com/pmxbot/pmxbot/workflows/Automated%20Tests/badge.svg
-   :target: https://github.com/pmxbot/pmxbot/actions?query=workflow%3A%22Automated+Tests%22
-   :alt: Automated Tests
+.. image:: https://github.com/pmxbot/pmxbot/workflows/tests/badge.svg
+   :target: https://github.com/pmxbot/pmxbot/actions?query=workflow%3A%22tests%22
+   :alt: tests
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/psf/black
@@ -16,6 +16,9 @@
 
 .. image:: https://readthedocs.org/projects/pmxbot/badge/?version=latest
    :target: https://pmxbot.readthedocs.io/en/latest/?badge=latest
+
+.. image:: https://img.shields.io/badge/skeleton-2021-informational
+   :target: https://blog.jaraco.com/skeleton
 
 pmxbot is bot for IRC and Slack written in
 `Python <https://python.org>`_. Originally built for internal use
