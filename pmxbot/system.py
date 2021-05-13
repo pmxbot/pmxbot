@@ -60,7 +60,15 @@ def ctlaltdel(rest):
 
 @command()
 def logo():
-    """The pmxbot logo in ascii art.  Fixed-width font recommended!"""
-    logo_txt = importlib_resources.read_text('pmxbot', 'asciilogo.txt')
-    for line in logo_txt:
+    """
+    The pmxbot logo in ascii art.  Fixed-width font recommended!
+
+    >>> from more_itertools import consume
+    >>> consume(map(print, logo()))
+                                                    MI=7+MM .M:
+                                                 M=..        .M M
+    ...
+    """
+    logo_txt = importlib_resources.files('pmxbot').joinpath('asciilogo.txt').read_text()
+    for line in logo_txt.splitlines():
         yield line.rstrip()
