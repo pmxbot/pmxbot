@@ -244,27 +244,11 @@ def _parse_atom(atom, items):
     if (atom.startswith("'") and atom.endswith("'")) or (
         atom.startswith('"') and atom.endswith('"')
     ):
-        atom = atom[1:-1].lower()
-        for i, item in enumerate(items):
-            if atom in item.lower():
-                yield i
+        yield from _parse_atom_substring(atom[1:-1].lower(), items)
     elif atom.startswith('/') and atom.endswith('/'):
-        atom = atom[1:-1]
-        for i, item in enumerate(items):
-            if re.search(atom, item):
-                yield i
+        yield from _parse_atom_pattern(atom[1:-1], items)
     elif ":" in atom:
-        start, end = [x.strip() for x in atom.split(":", 1)]
-        start = int(start) if start else 1
-        if start < 0:
-            start += len(items) + 1
-        end = int(end) if end else len(items)
-        if end < 0:
-            end += len(items) + 1
-        start -= 1  # Shift to Python 0-based indices
-        end -= 1  # Shift to Python 0-based indices
-        for i in range(start, end + 1):
-            yield i
+        yield from _parse_atom_range(atom, items)
     elif atom == "first":
         yield 0
     elif atom == "last":
@@ -273,8 +257,29 @@ def _parse_atom(atom, items):
         index = int(atom)
         if index < 0:
             index += len(items) + 1
-        index -= 1  # Shift to Python 0-based indices
-        yield index
+        # Shift to Python 0-based indices
+        yield index - 1
+
+
+def _parse_atom_substring(substring, items):
+    return (index for index, item in enumerate(items) if substring in item.lower())
+
+
+def _parse_atom_pattern(pattern, items):
+    return (index for index, item in enumerate(items) if re.search(pattern, item))
+
+
+def _parse_atom_range(range_str, items):
+    start, end = (x.strip() for x in range_str.split(":", 1))
+    start = int(start) if start else 1
+    if start < 0:
+        start += len(items) + 1
+    end = int(end) if end else len(items)
+    if end < 0:
+        end += len(items) + 1
+    start -= 1  # Shift to Python 0-based indices
+    end -= 1  # Shift to Python 0-based indices
+    return range(start, end + 1)
 
 
 def output(indexed_items, default="(empty)", pop=False):
