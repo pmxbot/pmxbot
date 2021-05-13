@@ -3,11 +3,15 @@ import re
 import warnings
 import itertools
 import logging
+import urllib.error
+import functools
+
 
 import requests
 import bs4
 import jaraco.functools
 import backports.method_request
+import tempora.timing
 
 try:
     import wordnik.swagger
@@ -108,6 +112,29 @@ def _patch_wordnik():
     wordnik.swagger.MethodRequest = backports.method_request.Request
 
 
+class TooManyRequests(urllib.error.HTTPError):
+    def __init__(self, orig):
+        vars(self).update(vars(orig))
+
+
+def extract_429(func):
+    """
+    For a callable, replace an HTTPError with a subclass
+    for 429 errors so they may be trapped selectively.
+    """
+
+    @functools.wraps(func)
+    def wrapper():
+        try:
+            return func()
+        except urllib.error.HTTPError as exc:
+            if exc.code == 429:
+                raise TooManyRequests(exc) from exc
+            raise
+
+    return wrapper
+
+
 def lookup(word):
     """
     Get a definition for a word (uses Wordnik)
@@ -117,8 +144,16 @@ def lookup(word):
     key = 'edc4b9b94b341eeae350e087c2e05d2f5a2a9e0478cefc6dc'
     client = wordnik.swagger.ApiClient(key, 'https://api.wordnik.com/v4')
     words = wordnik.WordApi.WordApi(client)
+    raw_getter = functools.partial(words.getDefinitions, word, limit=1)
+    getter = extract_429(raw_getter)
+
     try:
-        definitions = words.getDefinitions(word, limit=1)
+        definitions = jaraco.functools.retry_call(
+            getter,
+            cleanup=tempora.timing.BackoffDelay(2),
+            retries=2,
+            trap=TooManyRequests,
+        )
         definition = definitions[0]
     except Exception:
         log.exception(f"Unhandled exception looking up {word}.")
