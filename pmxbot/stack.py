@@ -185,28 +185,28 @@ class MongoDBStack(Stack, storage.MongoDBStorage):
             return self.db.delete_one({"topic": topic})
 
 
-helpdoc = {
-    "stack": '!stack <subcommand> <topic[index]> <item> '
+helpdoc = dict(
+    stack='!stack <subcommand> <topic[index]> <item> '
     '| subcommand: add, pop, show, shuffle, topics, list, help '
     '| index: [2, 4:-3 (inclusive), "foo", /ba.*r/]',
-    "help": "!stack help <show, add, pop, shuffle, help, stack, index>"
+    help="!stack help <show, add, pop, shuffle, help, stack, index>"
     ": Show help for the given subcommand or feature (default: help)",
-    "add": "!stack add <topic[index]> item: Add the given item to the "
+    add="!stack add <topic[index]> item: Add the given item to the "
     "given topic before the given (1-based) index (default: 1)",
-    "pop": "!stack pop <topic[index]>: Pop any items from the given topic "
+    pop="!stack pop <topic[index]>: Pop any items from the given topic "
     "at the given (1-based) index(es) (default: 1)",
-    "show": "!stack show <topic[index]>: Show items from the "
+    show="!stack show <topic[index]>: Show items from the "
     "given topic at the given (1-based) indexes (default: all)",
-    "shuffle": "!stack shuffle <topic[index]>: Shuffle items from the given "
+    shuffle="!stack shuffle <topic[index]>: Shuffle items from the given "
     "topic into the the given (1-based) index order "
     "(default: random)",
-    "topics": "!stack topics <[index]>: Show topic names, numbered in "
+    topics="!stack topics <[index]>: Show topic names, numbered in "
     "alphabetical order.",
-    "index": '!stack indexes must be integers `[2]`, start:end slices '
+    index='!stack indexes must be integers `[2]`, start:end slices '
     '(inclusive) `[4:-3]`, `"text"` or a `/regex/` to match, '
     '`first` or `last`, or any combination of those '
     'separated by commas.',
-}
+)
 
 helpdoc['list'] = helpdoc['topics']
 
