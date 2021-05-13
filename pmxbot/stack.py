@@ -96,14 +96,13 @@ Subcommands
 import random
 import re
 import itertools
+import os
 
 from . import storage
 from .core import command
 
 
 flatten = itertools.chain.from_iterable
-
-debug = False
 
 
 class Stack(storage.SelectableStorage):
@@ -309,17 +308,7 @@ def stack(nick, rest):
     except ValueError:
         return helpdoc["index"]
 
-    if debug:
-        print(
-            "SUBCOMMAND",
-            subcommand.ljust(8),
-            "TOPIC",
-            topic.ljust(8),
-            "INDICES",
-            str(indices).ljust(12),
-            "ITEM",
-            new_item,
-        )
+    _debug(subcommand, topic, indices, new_item)
 
     if subcommand == "add":
         if not new_item:
@@ -406,3 +395,19 @@ def _parse_stack_command(text):
     else:
         subcommand, rest = atoms
     return subcommand, rest
+
+
+def _debug(subcommand, topic, indices, new_item):
+    if not os.environ.get('PMXBOT_STACK_DEBUG'):
+        return
+
+    print(
+        "SUBCOMMAND",
+        subcommand.ljust(8),
+        "TOPIC",
+        topic.ljust(8),
+        "INDICES",
+        str(indices).ljust(12),
+        "ITEM",
+        new_item,
+    )
