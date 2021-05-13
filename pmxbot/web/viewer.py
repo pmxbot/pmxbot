@@ -9,8 +9,6 @@ import operator
 import contextlib
 import functools
 
-from py31compat.functools import lru_cache
-
 import cherrypy
 import importlib_resources
 import jinja2.loaders
@@ -221,7 +219,7 @@ class HelpPage:
         return page.render(**self.get_context()).encode('utf-8')
 
     @staticmethod
-    @lru_cache()
+    @functools.lru_cache()
     def get_context():
         context = get_context()
         commands = []
