@@ -6,6 +6,7 @@ import urllib.error
 
 import pytest
 import requests
+import responses
 
 import pmxbot.dictlib
 import pmxbot.storage
@@ -400,16 +401,20 @@ class TestCommands:
     def test_targeted_insult(self, needs_internet):
         commands.insult("enemy")
 
+    @responses.activate
     def test_define_keyboard(self, needs_wordnik):
         """
         Test the dictionary with the word keyboard.
         """
+        responses.add(
+            responses.GET,
+            "https://api.wordnik.com/v4/word.json/keyboard/definitions",
+            json=_wordnik_resp(keyboard="A panel of buttons."),
+        )
+
         res = commands.define("keyboard")
         assert isinstance(res, str)
-        assert res == (
-            "Wordnik says: A panel of buttons used for typing and performing "
-            "other functions on a computer or typewriter."
-        )
+        assert res == "Wordnik says: A panel of buttons."
 
     def test_define_irc(self, needs_wordnik):
         """
@@ -552,3 +557,31 @@ class TestCommands:
         """
         res = commands.password('test')
         assert res == 'need an integer password length!'
+
+
+def _wordnik_resp(**kwargs):
+    """
+    Mock a wordnik response for a given word and text.
+    """
+    ((word, text),) = kwargs.items()
+    return [
+        {
+            'id': 'K5046300-1',
+            'partOfSpeech': 'noun',
+            'attributionText': 'from The American Heritage® Dictionary of '
+            'the English Language, 5th Edition.',
+            'sourceDictionary': 'ahd-5',
+            'text': text,
+            'sequence': '1',
+            'score': 0,
+            'labels': [],
+            'citations': [],
+            'word': word,
+            'relatedWords': [],
+            'exampleUses': [],
+            'textProns': [],
+            'notes': [],
+            'attributionUrl': 'https://ahdictionary.com/',
+            'wordnikUrl': 'https://www.wordnik.com/words/keyboard',
+        }
+    ]
