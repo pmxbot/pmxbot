@@ -400,6 +400,7 @@ class TestCommands:
     def test_targeted_insult(self, needs_internet):
         commands.insult("enemy")
 
+    @pytest.mark.xfail(reason="#94")
     def test_define_keyboard(self, needs_wordnik):
         """
         Test the dictionary with the word keyboard.
@@ -411,18 +412,18 @@ class TestCommands:
             "other functions on a computer or typewriter."
         )
 
+    @pytest.mark.xfail(reason="#94")
     def test_define_irc(self, needs_wordnik):
         """
         Test the dictionary with the word IRC.
         """
         res = commands.define("  IRC \t")
         assert isinstance(res, str)
-        assert res in [
+        assert res == (
             "Wordnik says: An international computer network of "
             "Internet servers, using its own protocol through which "
-            "individual users can hold real-time online conversations.",
-            "Wordnik does not have a definition for that.",
-        ]
+            "individual users can hold real-time online conversations."
+        )
 
     def test_define_notaword(self, needs_wordnik):
         """
