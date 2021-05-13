@@ -5,7 +5,7 @@ import pytest
 from pmxbot import quotes
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def clean_quotes(mongodb_uri):
     q = quotes.Quotes.from_URI(mongodb_uri)
     q.lib = 'test'
