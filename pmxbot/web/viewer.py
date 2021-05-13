@@ -10,10 +10,10 @@ import contextlib
 import functools
 
 import cherrypy
-import importlib_resources
 import jinja2.loaders
 import pytz
 import inflect
+import importlib_resources as resources
 
 import pmxbot.core
 import pmxbot.logging
@@ -358,8 +358,8 @@ def resolve_file(mgr, filename):
     https://importlib-resources.readthedocs.io/en/latest/migration.html#pkg-resources-resource-filename
     for more details.
     """
-    path = importlib_resources.path('pmxbot.web.templates', filename)
-    return str(mgr.enter_context(path))
+    path = resources.files('pmxbot.web.templates') / filename
+    return str(mgr.enter_context(resources.as_file(path)))
 
 
 def startup(config):
