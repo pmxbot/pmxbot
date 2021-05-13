@@ -95,9 +95,13 @@ Subcommands
 
 import random
 import re
+import itertools
 
 from . import storage
 from .core import command
+
+
+flatten = itertools.chain.from_iterable
 
 debug = False
 
@@ -229,51 +233,48 @@ def parse_index(index, items):
       if the stack had another "8: indigo" entry, it would have been included.
 
     """
-    indices = []
     if index is None:
-        return indices
+        index = ""
 
-    for atom in index.split(","):
-        atom = atom.strip()
-        if not atom:
-            continue
+    atoms = filter(None, (atom.strip() for atom in index.split(",")))
+    return list(flatten(_parse_atom(atom, items) for atom in atoms))
 
-        if (atom.startswith("'") and atom.endswith("'")) or (
-            atom.startswith('"') and atom.endswith('"')
-        ):
-            atom = atom[1:-1].lower()
-            for i, item in enumerate(items):
-                if atom in item.lower():
-                    indices.append(i)
-        elif atom.startswith('/') and atom.endswith('/'):
-            atom = atom[1:-1]
-            for i, item in enumerate(items):
-                if re.search(atom, item):
-                    indices.append(i)
-        elif ":" in atom:
-            start, end = [x.strip() for x in atom.split(":", 1)]
-            start = int(start) if start else 1
-            if start < 0:
-                start += len(items) + 1
-            end = int(end) if end else len(items)
-            if end < 0:
-                end += len(items) + 1
-            start -= 1  # Shift to Python 0-based indices
-            end -= 1  # Shift to Python 0-based indices
-            for i in range(start, end + 1):
-                indices.append(i)
-        elif atom == "first":
-            indices.append(0)
-        elif atom == "last":
-            indices.append(len(items) - 1)
-        else:
-            index = int(atom)
-            if index < 0:
-                index += len(items) + 1
-            index -= 1  # Shift to Python 0-based indices
-            indices.append(index)
 
-    return indices
+def _parse_atom(atom, items):
+    if (atom.startswith("'") and atom.endswith("'")) or (
+        atom.startswith('"') and atom.endswith('"')
+    ):
+        atom = atom[1:-1].lower()
+        for i, item in enumerate(items):
+            if atom in item.lower():
+                yield i
+    elif atom.startswith('/') and atom.endswith('/'):
+        atom = atom[1:-1]
+        for i, item in enumerate(items):
+            if re.search(atom, item):
+                yield i
+    elif ":" in atom:
+        start, end = [x.strip() for x in atom.split(":", 1)]
+        start = int(start) if start else 1
+        if start < 0:
+            start += len(items) + 1
+        end = int(end) if end else len(items)
+        if end < 0:
+            end += len(items) + 1
+        start -= 1  # Shift to Python 0-based indices
+        end -= 1  # Shift to Python 0-based indices
+        for i in range(start, end + 1):
+            yield i
+    elif atom == "first":
+        yield 0
+    elif atom == "last":
+        yield len(items) - 1
+    else:
+        index = int(atom)
+        if index < 0:
+            index += len(items) + 1
+        index -= 1  # Shift to Python 0-based indices
+        yield index
 
 
 def output(indexed_items, default="(empty)", pop=False):
