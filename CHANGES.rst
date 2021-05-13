@@ -1,3 +1,8 @@
+v1122.10.2
+==========
+
+* #87: Removed dependencies on some backports.
+
 v1122.10.1
 ==========
 
