@@ -151,7 +151,7 @@ def lookup(word):
         definitions = jaraco.functools.retry_call(
             getter,
             cleanup=tempora.timing.BackoffDelay(2),
-            retries=2,
+            retries=4,
             trap=TooManyRequests,
         )
         definition = definitions[0]
