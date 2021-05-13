@@ -13,7 +13,7 @@ import itertools
 
 from typing import List, Callable
 
-import entrypoints
+import importlib_metadata
 from jaraco.itertools import always_iterable
 from jaraco.collections import Projection
 from tempora import schedule
@@ -622,8 +622,7 @@ def _load_library_extensions():
     `plugin name` can be anything, and is only used to display the name
     of the plugin at initialization time.
     """
-    group = 'pmxbot_handlers'
-    entry_points = entrypoints.get_group_all(group=group)
+    entry_points = importlib_metadata.entry_points(group='pmxbot_handlers')
     for ep in entry_points:
         try:
             log.info('Loading %s', ep.name)
@@ -641,6 +640,5 @@ def _load_filters():
     which should refer to a callable(channel, msg) that must return
     True for the message not to be excluded.
     """
-    group = 'pmxbot_filters'
-    eps = entrypoints.get_group_all(group=group)
+    eps = importlib_metadata.entry_points(group='pmxbot_filters')
     return [ep.load() for ep in eps]
