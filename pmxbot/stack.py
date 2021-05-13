@@ -293,28 +293,21 @@ def output(indexed_items, default="(empty)", pop=False):
 @command()
 def stack(nick, rest):
     'Manage short lists in pmxbot. See !stack help for more info'
-    atoms = [atom.strip() for atom in rest.split(' ', 1) if atom.strip()]
-    if len(atoms) == 0:
-        subcommand = "show"
-        rest = ""
-    elif len(atoms) == 1:
-        subcommand = atoms[0]
-        rest = ""
-    else:
-        subcommand, rest = atoms
+    subcommand, params = _parse_stack_command(rest)
+    del rest
 
-    start = rest.find("[")
-    finish = rest.rfind("]")
-    sp = rest.find(" ")
+    start = params.find("[")
+    finish = params.rfind("]")
+    sp = params.find(" ")
     if start != -1 and finish != -1 and start < finish and (sp == -1 or start < sp):
-        topic, index = [atom.strip() for atom in rest[:finish].split("[", 1)]
+        topic, index = [atom.strip() for atom in params[:finish].split("[", 1)]
         if not topic:
             topic = nick
-        new_item = rest[finish + 1 :].strip()
+        new_item = params[finish + 1 :].strip()
     else:
         topic = nick
         index = None
-        new_item = rest.strip()
+        new_item = params.strip()
 
     if subcommand == "topics" or subcommand == "list":
         items = Stack.store.get_topics()
@@ -394,3 +387,16 @@ def stack(nick, rest):
         return helpdoc.get(new_item, helpdoc["help"])
     else:
         return helpdoc["stack"]
+
+
+def _parse_stack_command(text):
+    atoms = [atom.strip() for atom in text.split(' ', 1) if atom.strip()]
+    if len(atoms) == 0:
+        subcommand = "show"
+        rest = ""
+    elif len(atoms) == 1:
+        subcommand = atoms[0]
+        rest = ""
+    else:
+        subcommand, rest = atoms
+    return subcommand, rest
