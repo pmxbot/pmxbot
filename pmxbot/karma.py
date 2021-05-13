@@ -260,6 +260,28 @@ class MongoDBKarma(Karma, storage.MongoDBStorage):
                 self.db.remove(duplicate)
 
 
+def _twiddle_karma(karmee):
+    change = random.choice(range(-1, 2))
+    Karma.store.change(karmee, change)
+    return {
+        1: f"{karmee} karma++",
+        0: f"{karmee} karma shall remain the same",
+        -1: f"{karmee} karma--",
+    }[change]
+
+
+def _link_karma(actor, *nicks):
+    try:
+        Karma.store.link(*nicks)
+    except SameName:
+        Karma.store.change(actor, -1)
+        return "Don't try to link a name to itself!"
+    except AlreadyLinked:
+        return "Those names were previously linked."
+    score = Karma.store.lookup(nicks[0])
+    return f"{' and '.join(nicks)} are now linked and have a score of {score}"
+
+
 @command(aliases="k")
 def karma(nick, rest):
     "Return or change the karma value for some(one|thing)"
@@ -269,29 +291,13 @@ def karma(nick, rest):
     elif '--' in rest:
         Karma.store.change(karmee, -1)
     elif '~~' in rest:
-        change = random.choice([-1, 0, 1])
-        Karma.store.change(karmee, change)
-        if change == 1:
-            return "%s karma++" % karmee
-        elif change == 0:
-            return "%s karma shall remain the same" % karmee
-        elif change == -1:
-            return "%s karma--" % karmee
+        return _twiddle_karma(karmee)
     elif '==' in rest:
-        t1, t2 = rest.split('==')
-        try:
-            Karma.store.link(t1, t2)
-        except SameName:
-            Karma.store.change(nick, -1)
-            return "Don't try to link a name to itself!"
-        except AlreadyLinked:
-            return "Those names were previously linked."
-        score = Karma.store.lookup(t1)
-        return "%s and %s are now linked and have a score of %s" % (t1, t2, score)
+        return _link_karma(rest.split('=='))
     else:
         karmee = rest or nick
         score = Karma.store.lookup(karmee)
-        return "%s has %s karmas" % (karmee, score)
+        return f"{karmee} has {score} karmas"
 
 
 @command("top10", aliases=("top",))
