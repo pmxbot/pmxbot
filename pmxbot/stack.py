@@ -310,62 +310,81 @@ def stack(nick, rest):
 
     _debug(subcommand, topic, indices, new_item)
 
-    if subcommand == "add":
-        if not new_item:
-            return '!stack add <topic[index]> item: ' 'You must provide an item to add.'
+    handler = globals().get(f'_handle_{subcommand}', _handle_other)
+    return handler(new_item, indices, items, topic)
 
-        if not indices:
-            items.insert(0, new_item)
-        else:
-            for i in reversed(sorted(set(indices))):
-                if i >= len(items):
-                    items.append(new_item)
-                else:
-                    items.insert(i + 1, new_item)
 
-        Stack.store.save_items(topic, items)
-    elif subcommand == "pop":
-        if not indices:
-            indices = [0]
+def _handle_add(new_item, indices, items, topic):
+    if not new_item:
+        return '!stack add <topic[index]> item: ' 'You must provide an item to add.'
 
-        popped_items = [
-            items.pop(i) for i in reversed(sorted(set(indices))) if len(items) > i >= 0
-        ]
-
-        Stack.store.save_items(topic, items)
-
-        return output(
-            [("-", item) for item in reversed(popped_items)], "(none popped)", pop=True
-        )
-    elif subcommand == "show":
-        if new_item:
-            return helpdoc["show"]
-
-        if not indices:
-            indices = range(len(items))
-
-        return output([(i + 1, items[i]) for i in indices if len(items) > i >= 0])
-    elif subcommand == "shuffle":
-        if not indices:
-            random.shuffle(items)
-        else:
-            items = [items[i] for i in indices if len(items) > i >= 0]
-
-        Stack.store.save_items(topic, items)
-
-        return output(enumerate(items, 1))
-    elif subcommand == "topics" or subcommand == "list":
-        if new_item:
-            return helpdoc["topics"]
-
-        if not indices:
-            indices = range(len(items))
-
-        return output([(i + 1, items[i]) for i in indices if len(items) > i >= 0])
-    elif subcommand == "help":
-        return helpdoc.get(new_item, helpdoc["help"])
+    if not indices:
+        items.insert(0, new_item)
     else:
-        return helpdoc["stack"]
+        for i in reversed(sorted(set(indices))):
+            if i >= len(items):
+                items.append(new_item)
+            else:
+                items.insert(i + 1, new_item)
+
+    Stack.store.save_items(topic, items)
+
+
+def _handle_pop(new_item, indices, items, topic):
+    if not indices:
+        indices = [0]
+
+    popped_items = [
+        items.pop(i) for i in reversed(sorted(set(indices))) if len(items) > i >= 0
+    ]
+
+    Stack.store.save_items(topic, items)
+
+    return output(
+        [("-", item) for item in reversed(popped_items)], "(none popped)", pop=True
+    )
+
+
+def _handle_show(new_item, indices, items, topic):
+    if new_item:
+        return helpdoc["show"]
+
+    if not indices:
+        indices = range(len(items))
+
+    return output([(i + 1, items[i]) for i in indices if len(items) > i >= 0])
+
+
+def _handle_shuffle(new_item, indices, items, topic):
+    if not indices:
+        random.shuffle(items)
+    else:
+        items = [items[i] for i in indices if len(items) > i >= 0]
+
+    Stack.store.save_items(topic, items)
+
+    return output(enumerate(items, 1))
+
+
+def _handle_topics(new_item, indices, items, topic):
+    if new_item:
+        return helpdoc["topics"]
+
+    if not indices:
+        indices = range(len(items))
+
+    return output([(i + 1, items[i]) for i in indices if len(items) > i >= 0])
+
+
+_handle_list = _handle_topics
+
+
+def _handle_help(new_item, indices, items, topic):
+    return helpdoc.get(new_item, helpdoc["help"])
+
+
+def _handle_other(new_item, indices, items, topic):
+    return helpdoc["stack"]
 
 
 def _parse_params(params, default_topic):
