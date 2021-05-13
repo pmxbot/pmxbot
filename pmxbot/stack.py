@@ -290,6 +290,11 @@ def output(indexed_items, default="(empty)", pop=False):
     return joined_output or default
 
 
+def _items_for_command(cmd, topic):
+    topics = cmd in 'topics list'.split()
+    return sorted(Stack.store.get_topics()) if topics else Stack.store.get_items(topic)
+
+
 @command()
 def stack(nick, rest):
     'Manage short lists in pmxbot. See !stack help for more info'
@@ -297,11 +302,8 @@ def stack(nick, rest):
 
     index, new_item, topic = _parse_params(params, default_topic=nick)
 
-    if subcommand == "topics" or subcommand == "list":
-        items = Stack.store.get_topics()
-        items.sort()
-    else:
-        items = Stack.store.get_items(topic)
+    items = _items_for_command(subcommand, topic)
+
     try:
         indices = parse_index(index, items)
     except ValueError:
