@@ -7,7 +7,6 @@ import logging
 import requests
 import bs4
 import jaraco.functools
-import backports.method_request
 
 try:
     import wordnik.swagger
@@ -101,18 +100,10 @@ def strip_tags(string):
     return re.sub('<.*?>', '', string).replace('&nbsp;', ' ')
 
 
-def _patch_wordnik():
-    """
-    https://github.com/wordnik/wordnik-python3/issues/1
-    """
-    wordnik.swagger.MethodRequest = backports.method_request.Request
-
-
 def lookup(word):
     """
     Get a definition for a word (uses Wordnik)
     """
-    _patch_wordnik()
     # Jason's key - do not abuse
     key = 'edc4b9b94b341eeae350e087c2e05d2f5a2a9e0478cefc6dc'
     client = wordnik.swagger.ApiClient(key, 'https://api.wordnik.com/v4')
