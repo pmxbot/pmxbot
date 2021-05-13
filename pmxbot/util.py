@@ -115,7 +115,7 @@ def lookup(word):
     _patch_wordnik()
     # Jason's key - do not abuse
     key = 'edc4b9b94b341eeae350e087c2e05d2f5a2a9e0478cefc6dc'
-    client = wordnik.swagger.ApiClient(key, 'http://api.wordnik.com/v4')
+    client = wordnik.swagger.ApiClient(key, 'https://api.wordnik.com/v4')
     words = wordnik.WordApi.WordApi(client)
     try:
         definitions = words.getDefinitions(word, limit=1)
