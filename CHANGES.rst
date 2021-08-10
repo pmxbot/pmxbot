@@ -1,3 +1,8 @@
+v1122.10.3
+==========
+
+* Prefer ``html.escape`` to deprecated/missing ``cgi.escape``.
+
 v1122.10.2
 ==========
 

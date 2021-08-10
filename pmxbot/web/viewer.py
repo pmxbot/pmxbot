@@ -3,7 +3,7 @@ import random
 import calendar
 import datetime
 import textwrap
-import cgi
+import html
 import urllib.parse
 import operator
 import contextlib
@@ -145,7 +145,7 @@ class DayPage:
         db = pmxbot.logging.Logger.store
         context = get_context()
         day_logs = db.get_day_logs(channel, day)
-        data = [(t, n, make_anchor((t, n)), cgi.escape(m)) for (t, n, m) in day_logs]
+        data = [(t, n, make_anchor((t, n)), html.escape(m)) for (t, n, m) in day_logs]
         usernames = [x[1] for x in data]
         color_map = {}
         clrs = colors[:]
@@ -309,7 +309,7 @@ class PmxbotPages:
                 last['datetime'].date(),
                 last['datetime'].time(),
                 last['nick'],
-                cgi.escape(last['message'][:75]),
+                html.escape(last['message'][:75]),
                 make_anchor([last['datetime'].time(), last['nick']]),
             ]
             chans.append(summary)
