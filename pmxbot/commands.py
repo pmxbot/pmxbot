@@ -12,6 +12,7 @@ from bs4 import BeautifulSoup
 import requests
 import pytz
 import importlib_metadata
+import jaraco.collections
 
 import pmxbot
 from .core import command, contains, attach, log
@@ -307,7 +308,7 @@ def eball(rest):
         url += rest
         result = requests.get(url).json()['magic']['answer']
     except Exception:
-        result = util.wchoice(phrases.ball8_opts)
+        result = jaraco.collections.WeightedLookup(phrases.ball8_opts).random()
     return result
 
 
