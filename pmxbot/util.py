@@ -3,10 +3,12 @@ import re
 import warnings
 import itertools
 import logging
+import operator
 
 import requests
 import bs4
 import jaraco.functools
+from jaraco.collections import RangeMap
 
 try:
     import wordnik.swagger
@@ -18,6 +20,15 @@ import pmxbot.phrases
 
 
 log = logging.getLogger(__name__)
+
+
+class Accumulator:
+    def __init__(self, initial=0):
+        self.val = initial
+
+    def __call__(self, val):
+        self.val += val
+        return self.val
 
 
 def wchoice(d):
@@ -34,14 +45,11 @@ def wchoice(d):
     >>> .4 < ratio < .6
     True
     """
-    total = sum(d.values())
-    target = random.random() * total
-    # elect the first item which pushes the count over target
-    count = 0
-    for word, proportion in d.items():
-        count += proportion
-        if count > target:
-            return word
+    # create a lookup that allocates keys by weight
+    indexes = map(Accumulator(), d.values())
+    lookup = RangeMap(zip(indexes, d.keys()), key_match_comparator=operator.lt)
+    selector = random.random() * sum(d.values())
+    return lookup[selector]
 
 
 def splitem(query):
