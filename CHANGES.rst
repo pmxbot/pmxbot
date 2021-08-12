@@ -1,3 +1,8 @@
+v1122.11.0
+==========
+
+* Moved WeightedLookup to ``jaraco.collections``.
+
 v1122.10.3
 ==========
 
