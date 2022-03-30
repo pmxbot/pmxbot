@@ -5,7 +5,7 @@ import string
 import csv
 import urllib.parse
 import datetime
-from typing import Dict
+from typing import Dict, cast
 
 import dateutil.parser
 from bs4 import BeautifulSoup
@@ -882,7 +882,7 @@ for tz in _TIMEZONES:
     # Add entry for long and short tz names
     # E.g. Europe/Rome and RMT
     TZINFOS[tz._tzname] = tz  # type: ignore
-    TZINFOS[tz.zone] = tz
+    TZINFOS[cast(str, tz.zone)] = tz
 # Add tzones not defined in pytz mainly from
 # http://users.telenet.be/mm011/time%20zone%20abbreviations.html
 TZINFOS.update(
