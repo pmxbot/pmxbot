@@ -464,6 +464,7 @@ v1122.10.1
 
 1114.0
 ======
+
 * Moved paste command to librarypaste package.
   Require it in your deployment to retain the paste command.
 * Removed support for 'silent_bot' config variable. Instead,
