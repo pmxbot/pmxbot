@@ -2,6 +2,7 @@ v1122.12.0
 ==========
 
 * ``pmxbot`` is now part of the Tidelift subscription.
+* Fixed ``insult`` command.
 
 v1122.11.0
 ==========
