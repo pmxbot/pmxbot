@@ -20,6 +20,9 @@
 .. image:: https://img.shields.io/badge/skeleton-2022-informational
    :target: https://blog.jaraco.com/skeleton
 
+.. image:: https://tidelift.com/badges/package/pypi/pmxbot
+   :target: https://tidelift.com/subscription/pkg/pypi-pmxbot?utm_source=pypi-pmxbot&utm_medium=readme
+
 pmxbot is bot for IRC and Slack written in
 `Python <https://python.org>`_. Originally built for internal use
 at `YouGov <https://yougov.com/>`_,
@@ -202,3 +205,19 @@ in Slack. Here's how:
 6. Consider leaving 'log_channels' and 'other_channels' empty, especially
    if relying on Slack logging. Slack will automatically re-join pmxbot to
    any channels to which it has been ``/invited``.
+
+For Enterprise
+==============
+
+Available as part of the Tidelift Subscription.
+
+This project and the maintainers of thousands of other packages are working with Tidelift to deliver one enterprise subscription that covers all of the open source you use.
+
+`Learn more <https://tidelift.com/subscription/pkg/pypi-pmxbot?utm_source=pypi-pmxbot&utm_medium=referral&utm_campaign=github>`_.
+
+Security Contact
+================
+
+To report a security vulnerability, please use the
+`Tidelift security contact <https://tidelift.com/security>`_.
+Tidelift will coordinate the fix and disclosure.
