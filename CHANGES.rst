@@ -1,3 +1,8 @@
+v1122.12.0
+==========
+
+* ``pmxbot`` is now part of the Tidelift subscription.
+
 v1122.11.0
 ==========
 
