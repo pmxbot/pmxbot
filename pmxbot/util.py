@@ -15,6 +15,7 @@ except (ImportError, SyntaxError):
     warnings.warn("Wordnik failed to import")
 
 import pmxbot.phrases
+from . import http
 
 
 log = logging.getLogger(__name__)
@@ -52,19 +53,6 @@ def splitem(query):
     choices[-1:] = choices[-1].split(' or ')
 
     return [choice.strip() for choice in choices if choice.strip()]
-
-
-def _raise(resp):
-    resp.raise_for_status()
-    return resp
-
-
-def open_url(url):
-    return _raise(requests.get(url))
-
-
-def get_html(url):
-    return open_url(url).text
 
 
 def strip_tags(string):
@@ -114,7 +102,7 @@ def urban_lookup(word):
 
 def lookup_acronym(acronym, limit=3):
     acronym = acronym.strip().upper().replace('.', '')
-    html = get_html('http://www.acronymfinder.com/%s.html' % acronym)
+    html = http.get_html('http://www.acronymfinder.com/%s.html' % acronym)
     soup = bs4.BeautifulSoup(html, 'html.parser')
     nodes = soup.findAll(name='td', attrs={'class': 'result-list__body__meaning'})
     return [node.text for node in itertools.islice(nodes, limit)]
@@ -127,7 +115,7 @@ def load_emergency_compliments():
         '1eEa2ra2yHBXVZ_ctH4J15tFSGEu-VTSunsrvaCAV598/od6/public/values'
         '?alt=json'
     )
-    doc = open_url(compurl).json()
+    doc = http.open_url(compurl).json()
     return [entry['title']['$t'] for entry in doc['feed']['entry']]
 
 
