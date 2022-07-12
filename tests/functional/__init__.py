@@ -108,7 +108,7 @@ class PmxbotHarness:
     def check_logs(cls, channel='', nick='', message=''):
         if channel.startswith('#'):
             channel = channel[1:]
-        time.sleep(0.1)
+        time.sleep(0.2)
         cursor = cls.db.cursor()
         query = "select * from logs where 1=1"
         if channel:
