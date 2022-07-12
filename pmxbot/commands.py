@@ -433,7 +433,7 @@ backoff = tempora.timing.BackoffDelay(delay=.5, factor=2)
     retries=10,
     cleanup=backoff,
     trap=requests.exceptions.ConnectionError)
-def get_insult():
+def get_insult(session=requests.Session()):
     """
     Load a random insult from autoinsult.
     """
@@ -441,7 +441,7 @@ def get_insult():
     ins_type = random.randrange(4)
     url = f'http://autoinsult.com/?style={ins_type}'
     insre = re.compile('<div class="insult" id="insult">(.*?)</div>')
-    resp = requests.get(url)
+    resp = session.get(url)
     resp.raise_for_status()
     backoff.reset()
     return insre.search(resp.text).group(1), ins_type
