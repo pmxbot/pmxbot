@@ -426,13 +426,12 @@ def password(rest):
     return ''.join(passwd)
 
 
-backoff = tempora.timing.BackoffDelay(delay=.5, factor=2)
+backoff = tempora.timing.BackoffDelay(delay=0.5, factor=2)
 
 
 @jaraco.functools.retry(
-    retries=3,
-    cleanup=backoff,
-    trap=requests.exceptions.ConnectionError)
+    retries=3, cleanup=backoff, trap=requests.exceptions.ConnectionError
+)
 def get_insult(session=requests.Session()):
     """
     Load a random insult from autoinsult.
