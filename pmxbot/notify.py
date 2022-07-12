@@ -12,6 +12,7 @@ class Notify(storage.SelectableStorage):
 
     @classmethod
     def finalize(cls):
+        cls.store.close()
         del cls.store
 
 

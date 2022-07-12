@@ -64,6 +64,9 @@ class Storage:
     def uri_matches(cls, uri):
         return False
 
+    def close(self):
+        pass
+
 
 class SQLiteStorage(Storage, threading.local):
     scheme = 'sqlite'
@@ -81,6 +84,10 @@ class SQLiteStorage(Storage, threading.local):
 
     def init_tables(self):
         pass
+
+    def close(self):
+        self.db.close()
+        del self.db
 
 
 class MongoDBStorage(Storage):

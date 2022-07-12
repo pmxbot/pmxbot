@@ -20,6 +20,7 @@ class ParticipantLogger(storage.SelectableStorage):
 
     @classmethod
     def finalize(cls):
+        cls.store.close()
         del cls.store
 
     def list_channels(self):

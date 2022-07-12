@@ -36,6 +36,7 @@ class Logger(storage.SelectableStorage):
 
     @classmethod
     def finalize(cls):
+        cls.store.close()
         del cls.store
 
     def message(self, channel, nick, msg):

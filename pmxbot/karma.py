@@ -22,6 +22,7 @@ class Karma(storage.SelectableStorage):
 
     @classmethod
     def finalize(cls):
+        cls.store.close()
         del cls.store
 
     def link(self, thing1, thing2):
