@@ -3,17 +3,26 @@ import functools
 import requests
 
 
-def raise(resp):
+def _raise(resp):
     resp.raise_for_status()
     return resp
 
 
 def open_url(url):
-    return raise(session().get(url))
+    return _raise(session().get(url))
 
 
 def get_html(url):
     return open_url(url).text
+
+
+def _mounted(session, adapter):
+    """
+    Mount the adapter on http/s for the session.
+    """
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+    return session
 
 
 @functools.lru_cache()
@@ -23,8 +32,4 @@ def session():
         backoff_factor=2,
     )
     adapter = requests.adapters.HTTPAdapter(max_retries=retry_strategy)
-    session = requests.Session()
-    session.mount("https://", adapter)
-    session.mount("http://", adapter)
-
-    return session
+    return _mounted(requests.Session(), adapter)
