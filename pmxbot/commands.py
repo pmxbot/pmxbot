@@ -429,7 +429,8 @@ def password(rest):
 @functools.lru_cache()
 def _get_session():
     retry_strategy = requests.packages.urllib3.util.retry.Retry(
-        total=3,
+        total=5,
+        backoff_factor=2,
     )
     adapter = requests.adapters.HTTPAdapter(max_retries=retry_strategy)
     session = requests.Session()
