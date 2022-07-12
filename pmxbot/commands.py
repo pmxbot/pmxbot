@@ -427,6 +427,15 @@ def password(rest):
     return ''.join(passwd)
 
 
+class Insult(str):
+    """
+    A specialized string that has a type.
+    """
+    def with_type(self, type):
+        self.type = type
+        return self
+
+
 # suppress exceptions because the site is unreliable
 @suppress(requests.exceptions.ConnectionError)
 def get_insult():
@@ -437,22 +446,22 @@ def get_insult():
     ins_type = random.randrange(4)
     url = f'http://autoinsult.com/?style={ins_type}'
     insre = re.compile('<div class="insult" id="insult">(.*?)</div>')
-    return insre.search(http.open(url).text).group(1), ins_type
+    return Insult(insre.search(http.open(url).text).group(1)).with_type(ins_type)
 
 
 @command()
 def insult(rest):
     "Generate a random insult"
-    insult, ins_type = get_insult()
+    insult = get_insult()
     if not insult:
         return
     if rest:
         insultee = rest.strip()
         karma.Karma.store.change(insultee, -1)
-        if ins_type in (0, 2):
+        if insult.type in (0, 2):
             cinsre = re.compile(r'\b(your)\b', re.IGNORECASE)
             insult = cinsre.sub("%s's" % insultee, insult)
-        elif ins_type in (1, 3):
+        elif insult.type in (1, 3):
             cinsre = re.compile(r'^([TY])')
             insult = cinsre.sub(
                 lambda m: "%s, %s" % (insultee, m.group(1).lower()), insult
