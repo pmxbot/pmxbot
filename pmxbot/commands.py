@@ -5,7 +5,6 @@ import string
 import csv
 import urllib.parse
 import datetime
-import functools
 from typing import Dict, cast
 
 import dateutil.parser
@@ -22,6 +21,7 @@ from . import util
 from . import karma
 from . import logging
 from . import phrases
+from . import http
 
 
 def plaintext(html):
@@ -426,20 +426,6 @@ def password(rest):
     return ''.join(passwd)
 
 
-@functools.lru_cache()
-def _get_session():
-    retry_strategy = requests.packages.urllib3.util.retry.Retry(
-        total=5,
-        backoff_factor=2,
-    )
-    adapter = requests.adapters.HTTPAdapter(max_retries=retry_strategy)
-    session = requests.Session()
-    session.mount("https://", adapter)
-    session.mount("http://", adapter)
-
-    return session
-
-
 def get_insult():
     """
     Load a random insult from autoinsult.
@@ -448,9 +434,7 @@ def get_insult():
     ins_type = random.randrange(4)
     url = f'http://autoinsult.com/?style={ins_type}'
     insre = re.compile('<div class="insult" id="insult">(.*?)</div>')
-    resp = _get_session().get(url)
-    resp.raise_for_status()
-    return insre.search(resp.text).group(1), ins_type
+    return insre.search(http.get_html(url)).group(1), ins_type
 
 
 @command()
