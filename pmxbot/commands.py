@@ -13,6 +13,8 @@ import requests
 import pytz
 import importlib_metadata
 import jaraco.collections
+import tempora
+import jaraco.functools
 
 import pmxbot
 from .core import command, contains, attach, log
@@ -424,16 +426,31 @@ def password(rest):
     return ''.join(passwd)
 
 
-@command()
-def insult(rest):
-    "Generate a random insult from datahamster"
+backoff = tempora.timing.BackoffDelay(delay=.5, factor=2)
+
+
+@jaraco.functools.retry(
+    retries=10,
+    cleanup=backoff,
+    trap=requests.exceptions.ConnectionError)
+def get_insult():
+    """
+    Load a random insult from autoinsult.
+    """
     # not supplying any style will automatically redirect to a random
     ins_type = random.randrange(4)
     url = f'http://autoinsult.com/?style={ins_type}'
     insre = re.compile('<div class="insult" id="insult">(.*?)</div>')
     resp = requests.get(url)
     resp.raise_for_status()
-    insult = insre.search(resp.text).group(1)
+    backoff.reset()
+    return insre.search(resp.text).group(1), ins_type
+
+
+@command()
+def insult(rest):
+    "Generate a random insult"
+    insult, ins_type = get_insult()
     if not insult:
         return
     if rest:
