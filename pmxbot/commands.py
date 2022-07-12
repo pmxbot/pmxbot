@@ -428,11 +428,10 @@ def password(rest):
 def insult(rest):
     "Generate a random insult from datahamster"
     # not supplying any style will automatically redirect to a random
-    url = 'http://autoinsult.com/'
     ins_type = random.randrange(4)
-    ins_url = url + "?style={ins_type}".format(**locals())
+    url = f'http://autoinsult.com/?style={ins_type}'
     insre = re.compile('<div class="insult" id="insult">(.*?)</div>')
-    resp = requests.get(ins_url)
+    resp = requests.get(url)
     resp.raise_for_status()
     insult = insre.search(resp.text).group(1)
     if not insult:
