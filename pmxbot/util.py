@@ -55,16 +55,6 @@ def splitem(query):
     return [choice.strip() for choice in choices if choice.strip()]
 
 
-def strip_tags(string):
-    """
-    Remove HTML tags from a string.
-
-    >>> strip_tags('<div>foo and <b>bar</b></div>')
-    'foo and bar'
-    """
-    return re.sub('<.*?>', '', string).replace('&nbsp;', ' ')
-
-
 def lookup(word):
     """
     Get a definition for a word (uses Wordnik)
