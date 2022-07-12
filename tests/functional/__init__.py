@@ -110,14 +110,13 @@ class PmxbotHarness:
             channel = channel[1:]
         time.sleep(0.2)
         cursor = cls.db.cursor()
-        query = "select * from logs where 1=1"
-        if channel:
-            query += " and channel = :channel"
-        if nick:
-            query += " and nick = :nick"
-        if message:
-            query += " and message = :message"
-        cursor.execute(query, dict(channel=channel, nick=nick, message=message))
+        query = (
+            "select * from logs where 1=1"
+            + " and channel = :channel" * bool(channel)
+            + " and nick = :nick" * bool(nick)
+            + " and message = :message" * bool(message)
+        )
+        cursor.execute(query, locals())
         res = cursor.fetchall()
         print(res)
         return len(res) >= 1
