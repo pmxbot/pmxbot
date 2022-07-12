@@ -376,7 +376,7 @@ def contains(name, channels=(), exclude=(), rate=1.0, priority=1, doc=None, **kw
         exclude=exclude,
         rate=rate,
         priority=priority,
-        **kwargs
+        **kwargs,
     ).decorate
 
 
@@ -462,16 +462,9 @@ class Bot(metaclass=abc.ABCMeta):
 
     def _handle_exception(self, exception, handler):
         expletives = ['Yikes!', 'Zoiks!', 'Ouch!']
-        res = [
-            "{expletive} An error occurred: {exception}".format(
-                expletive=random.choice(expletives), **locals()
-            )
-        ]
-        res.append('!{name} {doc}'.format(name=handler.name, doc=handler.doc))
-        print(
-            datetime.datetime.now(),
-            "Error with command {handler}".format(handler=handler),
-        )
+        res = [f"{random.choice(expletives)} An error occurred: {exception}"]
+        res.append(f'!{handler.name} {handler.doc}')
+        print(datetime.datetime.now(), f"Error with command {handler}")
         traceback.print_exc()
         return res
 

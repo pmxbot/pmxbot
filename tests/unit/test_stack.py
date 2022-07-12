@@ -342,7 +342,7 @@ class TestSQLiteStack:
     @pytest.fixture
     def sqlite_stack(self, request, tmpdir):
         filename = tmpdir / 'db.sqlite'
-        return Stack.from_URI('sqlite://{filename}'.format(**locals()))
+        return Stack.from_URI(f'sqlite://{filename}')
 
     def test_no_topics(self, sqlite_stack):
         assert sqlite_stack.get_topics() == []

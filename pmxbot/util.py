@@ -1,5 +1,4 @@
 import random
-import re
 import warnings
 import itertools
 import logging
@@ -125,6 +124,6 @@ def passagg(recipient, sender):
     body = random.choice(pmxbot.phrases.adj_intros) % adj
     if not lead:
         body = body.capitalize()
-    msg = "{lead}{body}{trail}.".format(**locals())
+    msg = f"{lead}{body}{trail}."
     fw = random.choice(pmxbot.phrases.farewells)
-    return "{msg} {fw}, {sender}.".format(**locals())
+    return f"{msg} {fw}, {sender}."

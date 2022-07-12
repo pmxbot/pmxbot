@@ -46,8 +46,9 @@ class WarnHistory(dict):
             return
         if not self.needs_warning(nick):
             return
-        logged_channels_string = ', '.join(pmxbot.config.log_channels)
-        msg = self.warn_message.format(**locals())
+        msg = self.warn_message.format(
+            logged_channels_string=', '.join(pmxbot.config.log_channels),
+        )
         for line in msg.splitlines():
             connection.notice(nick, line)
 

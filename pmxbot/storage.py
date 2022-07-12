@@ -113,4 +113,4 @@ def migrate_all(source, dest):
         try:
             cls.migrate(source, dest)
         except AttributeError:
-            print("Unable to migrate {cls}".format(**locals()))
+            print(f"Unable to migrate {cls}")

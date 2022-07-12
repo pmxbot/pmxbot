@@ -763,7 +763,7 @@ def urbandict(rest):
     definition = util.urban_lookup(word)
     if not definition:
         return "Arg!  I didn't find a definition for that."
-    return 'Urban Dictionary says {word}: {definition}'.format(**locals())
+    return f'Urban Dictionary says {word}: {definition}'
 
 
 @command("acronym", aliases=("ac",))
@@ -848,11 +848,11 @@ def storytime(rest):
     "A story is about to be told."
     gather = "Come everyone, gather around the fire. "
     add = (
-        "{rest} is about to tell us a story!"
+        f"{rest} is about to tell us a story!"
         if rest
         else "A story is about to be told!"
     )
-    return (gather + add).format(**locals())
+    return gather + add
 
 
 @command(aliases=('law',))

@@ -59,7 +59,7 @@ class TestSQLiteKarma:
     @pytest.fixture
     def sqlite_karma(self, request, tmpdir):
         filename = tmpdir / 'db.sqlite'
-        return karma.Karma.from_URI('sqlite://{filename}'.format(**locals()))
+        return karma.Karma.from_URI(f'sqlite://{filename}')
 
     def test_linking_same_does_nothing(self, sqlite_karma):
         k = sqlite_karma
