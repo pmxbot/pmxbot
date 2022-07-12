@@ -13,7 +13,6 @@ import requests
 import pytz
 import importlib_metadata
 import jaraco.collections
-import tempora
 import jaraco.functools
 
 import pmxbot
@@ -426,12 +425,6 @@ def password(rest):
     return ''.join(passwd)
 
 
-backoff = tempora.timing.BackoffDelay(delay=0.5, factor=2)
-
-
-@jaraco.functools.retry(
-    retries=3, cleanup=backoff, trap=requests.exceptions.ConnectionError
-)
 def get_insult(session=requests.Session()):
     """
     Load a random insult from autoinsult.
@@ -442,7 +435,6 @@ def get_insult(session=requests.Session()):
     insre = re.compile('<div class="insult" id="insult">(.*?)</div>')
     resp = session.get(url)
     resp.raise_for_status()
-    backoff.reset()
     return insre.search(resp.text).group(1), ins_type
 
 
