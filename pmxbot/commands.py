@@ -357,7 +357,7 @@ def ticker(rest):
     change_percent = 'p2'
     format = ''.join((symbol, last_trade_time, last_trade_price, change_percent))
     url = 'http://finance.yahoo.com/d/quotes.csv?s=%(ticker)s&f=%(format)s' % locals()
-    stock_info = csv.reader(util.open_url(url).text.splitlines())
+    stock_info = csv.reader(http.open(url).text.splitlines())
     (last_trade,) = stock_info
     ticker_given, time, price, diff = last_trade
     if ticker_given != ticker:
@@ -434,7 +434,7 @@ def get_insult():
     ins_type = random.randrange(4)
     url = f'http://autoinsult.com/?style={ins_type}'
     insre = re.compile('<div class="insult" id="insult">(.*?)</div>')
-    return insre.search(http.open_url(url).text).group(1), ins_type
+    return insre.search(http.open(url).text).group(1), ins_type
 
 
 @command()

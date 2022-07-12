@@ -8,7 +8,7 @@ def _raise(resp):
     return resp
 
 
-def open_url(url):
+def open(url):
     return _raise(session().get(url))
 
 

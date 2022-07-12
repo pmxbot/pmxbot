@@ -102,7 +102,7 @@ def urban_lookup(word):
 
 def lookup_acronym(acronym, limit=3):
     acronym = acronym.strip().upper().replace('.', '')
-    html = http.open_url('http://www.acronymfinder.com/%s.html' % acronym).text
+    html = http.open('http://www.acronymfinder.com/%s.html' % acronym).text
     soup = bs4.BeautifulSoup(html, 'html.parser')
     nodes = soup.findAll(name='td', attrs={'class': 'result-list__body__meaning'})
     return [node.text for node in itertools.islice(nodes, limit)]
@@ -115,7 +115,7 @@ def load_emergency_compliments():
         '1eEa2ra2yHBXVZ_ctH4J15tFSGEu-VTSunsrvaCAV598/od6/public/values'
         '?alt=json'
     )
-    doc = http.open_url(compurl).json()
+    doc = http.open(compurl).json()
     return [entry['title']['$t'] for entry in doc['feed']['entry']]
 
 
