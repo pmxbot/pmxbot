@@ -636,19 +636,16 @@ def chain(rest, nick):
     "Chain some(one|thing) down."
     chainee = rest or "someone nearby"
     if chainee == 'cperry':
-        tmpl = "/me ties the chains extra tight around {chainee}"
+        return f"/me ties the chains extra tight around {chainee}"
     elif random.random() < 0.9:
-        tmpl = (
-            "/me chains {chainee} to the nearest desk. " "you ain't going home, buddy."
-        )
+        return f"/me chains {chainee} to the nearest desk. you ain't going home, buddy."
     else:
         karma.Karma.store.change(nick, -1)
-        tmpl = (
-            "/me spins violently around and chains {nick} to the nearest "
+        return (
+            f"/me spins violently around and chains {nick} to the nearest "
             "desk.  your days of chaining people down and stomping on their "
             "dreams are over!  get a life, you miserable beast."
         )
-    return tmpl.format_map(locals())
 
 
 @command()

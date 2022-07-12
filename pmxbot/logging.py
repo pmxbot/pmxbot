@@ -31,8 +31,7 @@ class Logger(storage.SelectableStorage):
     @classmethod
     def initialize(cls):
         cls.store = cls.from_URI()
-        tmpl = "Logging with {cls.store.__class__.__name__}"
-        _log.info(tmpl.format_map(locals()))
+        _log.info(f"Logging with {cls.store.__class__.__name__}")
         cls._finalizers.append(cls.finalize)
 
     @classmethod

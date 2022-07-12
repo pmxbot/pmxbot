@@ -3,7 +3,6 @@ import time
 import importlib
 import logging
 import re
-import collections
 import html
 
 from tempora import schedule
@@ -80,9 +79,7 @@ class Bot(pmxbot.core.Bot):
 
         # resolve nick based on message subtype
         # https://api.slack.com/events/message
-        method_name = '_resolve_nick_{subtype}'.format_map(
-            collections.defaultdict(lambda: 'standard', msg)
-        )
+        method_name = f'_resolve_nick_{msg.get("subtype", "standard")}'
         resolve_nick = getattr(self, method_name, None)
         if not resolve_nick:
             log.debug('Unhandled message %s', msg)
@@ -147,7 +144,7 @@ class Bot(pmxbot.core.Bot):
                 log.exception("Error resolving slack reference: {}".format(message))
                 return match.group(0)
 
-            return '<{match_type}{ref}>'.format_map(locals())
+            return f'<{match_type}{ref}>'
 
         regex = r'(?P<type>[@#])(?P<name>[\w\d\.\-_\|]*)'
         slack_refs = re.compile(regex)
