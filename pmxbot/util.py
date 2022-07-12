@@ -54,14 +54,13 @@ def splitem(query):
     return [choice.strip() for choice in choices if choice.strip()]
 
 
-def open_url(url):
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) '
-        'Gecko/20100101 Firefox/12.0'
-    }
-    resp = requests.get(url, headers=headers)
+def _raise(resp):
     resp.raise_for_status()
     return resp
+
+
+def open_url(url):
+    return _raise(requests.get(url))
 
 
 def get_html(url):
