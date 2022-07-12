@@ -430,7 +430,7 @@ backoff = tempora.timing.BackoffDelay(delay=.5, factor=2)
 
 
 @jaraco.functools.retry(
-    retries=10,
+    retries=3,
     cleanup=backoff,
     trap=requests.exceptions.ConnectionError)
 def get_insult(session=requests.Session()):
