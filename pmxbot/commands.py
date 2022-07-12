@@ -14,6 +14,7 @@ import pytz
 import importlib_metadata
 import jaraco.collections
 import jaraco.functools
+from jaraco.context import suppress
 
 import pmxbot
 from .core import command, contains, attach, log
@@ -426,6 +427,8 @@ def password(rest):
     return ''.join(passwd)
 
 
+# suppress exceptions because the site is unreliable
+@suppress(requests.exceptions.ConnectionError)
 def get_insult():
     """
     Load a random insult from autoinsult.
