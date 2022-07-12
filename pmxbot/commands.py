@@ -431,6 +431,7 @@ class Insult(str):
     """
     A specialized string that has a type.
     """
+
     def with_type(self, type):
         self.type = type
         return self
@@ -443,10 +444,10 @@ def get_insult():
     Load a random insult from autoinsult.
     """
     # not supplying any style will automatically redirect to a random
-    ins_type = random.randrange(4)
-    url = f'http://autoinsult.com/?style={ins_type}'
+    type_ = random.randrange(4)
+    url = f'http://autoinsult.com/?style={type_}'
     insre = re.compile('<div class="insult" id="insult">(.*?)</div>')
-    return Insult(insre.search(http.open(url).text).group(1)).with_type(ins_type)
+    return Insult(insre.search(http.open(url).text).group(1)).with_type(type_)
 
 
 @command()
