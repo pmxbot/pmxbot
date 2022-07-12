@@ -102,7 +102,7 @@ def urban_lookup(word):
 
 def lookup_acronym(acronym, limit=3):
     acronym = acronym.strip().upper().replace('.', '')
-    html = http.get_html('http://www.acronymfinder.com/%s.html' % acronym)
+    html = http.open_url('http://www.acronymfinder.com/%s.html' % acronym).text
     soup = bs4.BeautifulSoup(html, 'html.parser')
     nodes = soup.findAll(name='td', attrs={'class': 'result-list__body__meaning'})
     return [node.text for node in itertools.islice(nodes, limit)]

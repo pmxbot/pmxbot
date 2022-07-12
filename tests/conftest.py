@@ -2,13 +2,13 @@ import pytest
 import jaraco.functools
 from jaraco.context import ExceptionTrap
 
-import pmxbot.util
+from pmxbot import http
 
 
 @jaraco.functools.once
 def has_internet():
     with ExceptionTrap() as trap:
-        pmxbot.util.get_html('http://www.google.com')
+        http.open_url('http://www.google.com')
     return not trap
 
 

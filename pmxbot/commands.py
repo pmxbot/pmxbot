@@ -434,7 +434,7 @@ def get_insult():
     ins_type = random.randrange(4)
     url = f'http://autoinsult.com/?style={ins_type}'
     insre = re.compile('<div class="insult" id="insult">(.*?)</div>')
-    return insre.search(http.get_html(url)).group(1), ins_type
+    return insre.search(http.open_url(url).text).group(1), ins_type
 
 
 @command()

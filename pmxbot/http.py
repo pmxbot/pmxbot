@@ -12,10 +12,6 @@ def open_url(url):
     return _raise(session().get(url))
 
 
-def get_html(url):
-    return open_url(url).text
-
-
 def _mounted(session, adapter):
     """
     Mount the adapter on http/s for the session.
