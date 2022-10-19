@@ -1,22 +1,33 @@
 .. image:: https://img.shields.io/pypi/v/pmxbot.svg
-   :target: https://pypi.org/project/pmxbot
+   :target: `PyPI link`_
 
 .. image:: https://img.shields.io/pypi/pyversions/pmxbot.svg
+   :target: `PyPI link`_
 
-.. image:: https://img.shields.io/travis/yougov/pmxbot/master.svg
-   :target: http://travis-ci.org/yougov/pmxbot
+.. _PyPI link: https://pypi.org/project/pmxbot
 
-.. .. image:: https://img.shields.io/appveyor/ci/jaraco/skeleton/master.svg
-..    :target: https://ci.appveyor.com/project/jaraco/skeleton/branch/master
+.. image:: https://github.com/pmxbot/pmxbot/workflows/tests/badge.svg
+   :target: https://github.com/pmxbot/pmxbot/actions?query=workflow%3A%22tests%22
+   :alt: tests
+
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/psf/black
+   :alt: Code style: Black
 
 .. image:: https://readthedocs.org/projects/pmxbot/badge/?version=latest
    :target: https://pmxbot.readthedocs.io/en/latest/?badge=latest
+
+.. image:: https://img.shields.io/badge/skeleton-2022-informational
+   :target: https://blog.jaraco.com/skeleton
+
+.. image:: https://tidelift.com/badges/package/pypi/pmxbot
+   :target: https://tidelift.com/subscription/pkg/pypi-pmxbot?utm_source=pypi-pmxbot&utm_medium=readme
 
 pmxbot is bot for IRC and Slack written in
 `Python <https://python.org>`_. Originally built for internal use
 at `YouGov <https://yougov.com/>`_,
 it's been sanitized and set free upon the world. You can find out more details
-on `the project website <https://github.com/yougov/pmxbot>`_.
+on `the project website <https://github.com/pmxbot/pmxbot>`_.
 
 Commands
 ========
@@ -97,7 +108,7 @@ pmxbot startup).
 
 Note that the ``pmxbot`` package is a namespace package, and you're welcome
 to use that namespace for your plugin (e.g.
-`pmxbot.nsfw <https://github.com/yougov/pmxbot.nsfw>`_).
+`pmxbot.nsfw <https://github.com/pmxbot/pmxbot.nsfw>`_).
 
 If your plugin requires any initialization, specify an initialization function
 (or class method) in the entry point. For example::
@@ -147,10 +158,10 @@ For an example of how to implement a setuptools-based plugin, see one of the
 many examples in the pmxbot project itself or one of the popular third-party
 projects:
 
- - `motivation <https://github.com/yougov/motivation>`_.
+ - `motivation <https://github.com/pmxbot/motivation>`_.
  - `wolframalpha <https://github.com/jaraco/wolframalpha>`_.
  - `jaraco.translate <https://github.com/jaraco/jaraco.translate>`_.
- - `excuses <https://github.com/yougov/excuses>`_.
+ - `excuses <https://github.com/pmxbot/excuses>`_.
 
 Web Interface
 =============
@@ -194,3 +205,19 @@ in Slack. Here's how:
 6. Consider leaving 'log_channels' and 'other_channels' empty, especially
    if relying on Slack logging. Slack will automatically re-join pmxbot to
    any channels to which it has been ``/invited``.
+
+For Enterprise
+==============
+
+Available as part of the Tidelift Subscription.
+
+This project and the maintainers of thousands of other packages are working with Tidelift to deliver one enterprise subscription that covers all of the open source you use.
+
+`Learn more <https://tidelift.com/subscription/pkg/pypi-pmxbot?utm_source=pypi-pmxbot&utm_medium=referral&utm_campaign=github>`_.
+
+Security Contact
+================
+
+To report a security vulnerability, please use the
+`Tidelift security contact <https://tidelift.com/security>`_.
+Tidelift will coordinate the fix and disclosure.

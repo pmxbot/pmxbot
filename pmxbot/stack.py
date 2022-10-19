@@ -91,18 +91,18 @@ Subcommands
 
 !stack topics [index]
     Return a list of topics, numbered in alphabetical order.
-
-!stack list...
-    Alias for !stack topics
 """
 
 import random
 import re
+import itertools
+import os
 
 from . import storage
 from .core import command
 
-debug = False
+
+flatten = itertools.chain.from_iterable
 
 
 class Stack(storage.SelectableStorage):
@@ -113,6 +113,7 @@ class Stack(storage.SelectableStorage):
 
     @classmethod
     def finalize(cls):
+        cls.store.close()
         del cls.store
 
 
@@ -136,7 +137,8 @@ class SQLiteStack(Stack, storage.SQLiteStorage):
 
     def get_items(self, topic):
         rows = self.db.execute(
-            "SELECT items FROM stack WHERE topic = ?", [topic]).fetchone()
+            "SELECT items FROM stack WHERE topic = ?", [topic]
+        ).fetchone()
         if not rows:
             return []
         else:
@@ -150,17 +152,13 @@ class SQLiteStack(Stack, storage.SQLiteStorage):
         if has_entry:
             if items:
                 return self.db.execute(
-                    "UPDATE stack SET items = ? WHERE topic = ?",
-                    [items, topic]
+                    "UPDATE stack SET items = ? WHERE topic = ?", [items, topic]
                 )
             else:
-                return self.db.execute(
-                    "DELETE FROM stack WHERE topic = ?", [topic]
-                )
+                return self.db.execute("DELETE FROM stack WHERE topic = ?", [topic])
         else:
             return self.db.execute(
-                "INSERT INTO stack (topic, items) VALUES (?, ?)",
-                [topic, items]
+                "INSERT INTO stack (topic, items) VALUES (?, ?)", [topic, items]
             )
 
 
@@ -168,7 +166,7 @@ class MongoDBStack(Stack, storage.MongoDBStorage):
     collection_name = 'stack'
 
     def get_topics(self):
-        docs = self.db.find_all({}, {'topic': True})
+        docs = self.db.find({}, {'topic': True})
         return [doc['topic'] for doc in docs]
 
     def get_items(self, topic):
@@ -181,35 +179,34 @@ class MongoDBStack(Stack, storage.MongoDBStorage):
     def save_items(self, topic, items):
         if items:
             return self.db.update_one(
-                {"topic": topic}, {"$set": {"items": items}},
-                upsert=True
+                {"topic": topic}, {"$set": {"items": items}}, upsert=True
             )
         else:
             return self.db.delete_one({"topic": topic})
 
 
-helpdoc = {
-    "stack": '!stack <subcommand> <topic[index]> <item> '
-             '| subcommand: add, pop, show, shuffle, topics|list, help '
-             '| index: [2, 4:-3 (inclusive), "foo", /ba.*r/]',
-    "help": "!stack help <show, add, pop, shuffle, help, stack, index>"
-            ": Show help for the given subcommand or feature (default: help)",
-    "add": "!stack add <topic[index]> item: Add the given item to the "
-            "given topic before the given (1-based) index (default: 1)",
-    "pop": "!stack pop <topic[index]>: Pop any items from the given topic "
-            "at the given (1-based) index(es) (default: 1)",
-    "show": "!stack show <topic[index]>: Show items from the "
-            "given topic at the given (1-based) indexes (default: all)",
-    "shuffle": "!stack shuffle <topic[index]>: Shuffle items from the given "
-               "topic into the the given (1-based) index order "
-               "(default: random)",
-    "topics": "!stack topics|list <[index]>: Show topic names, numbered in "
-              "alphabetical order.",
-    "index": '!stack indexes must be integers `[2]`, start:end slices '
-             '(inclusive) `[4:-3]`, `"text"` or a `/regex/` to match, '
-             '`first` or `last`, or any combination of those '
-             'separated by commas.'
-}
+helpdoc = dict(
+    stack='!stack <subcommand> <topic[index]> <item> '
+    '| subcommand: add, pop, show, shuffle, topics, list, help '
+    '| index: [2, 4:-3 (inclusive), "foo", /ba.*r/]',
+    help="!stack help <show, add, pop, shuffle, help, stack, index>"
+    ": Show help for the given subcommand or feature (default: help)",
+    add="!stack add <topic[index]> item: Add the given item to the "
+    "given topic before the given (1-based) index (default: 1)",
+    pop="!stack pop <topic[index]>: Pop any items from the given topic "
+    "at the given (1-based) index(es) (default: 1)",
+    show="!stack show <topic[index]>: Show items from the "
+    "given topic at the given (1-based) indexes (default: all)",
+    shuffle="!stack shuffle <topic[index]>: Shuffle items from the given "
+    "topic into the the given (1-based) index order "
+    "(default: random)",
+    topics="!stack topics <[index]>: Show topic names, numbered in "
+    "alphabetical order.",
+    index='!stack indexes must be integers `[2]`, start:end slices '
+    '(inclusive) `[4:-3]`, `"text"` or a `/regex/` to match, '
+    '`first` or `last`, or any combination of those '
+    'separated by commas.',
+)
 
 helpdoc['list'] = helpdoc['topics']
 
@@ -236,52 +233,53 @@ def parse_index(index, items):
       if the stack had another "8: indigo" entry, it would have been included.
 
     """
-    indices = []
     if index is None:
-        return indices
+        index = ""
 
-    for atom in index.split(","):
-        atom = atom.strip()
-        if not atom:
-            continue
+    atoms = filter(None, (atom.strip() for atom in index.split(",")))
+    return list(flatten(_parse_atom(atom, items) for atom in atoms))
 
-        if (
-            (atom.startswith("'") and atom.endswith("'")) or
-            (atom.startswith('"') and atom.endswith('"'))
-        ):
-            atom = atom[1:-1].lower()
-            for i, item in enumerate(items):
-                if atom in item.lower():
-                    indices.append(i)
-        elif atom.startswith('/') and atom.endswith('/'):
-            atom = atom[1:-1]
-            for i, item in enumerate(items):
-                if re.search(atom, item):
-                    indices.append(i)
-        elif ":" in atom:
-            start, end = [x.strip() for x in atom.split(":", 1)]
-            start = int(start) if start else 1
-            if start < 0:
-                start += len(items) + 1
-            end = int(end) if end else len(items)
-            if end < 0:
-                end += len(items) + 1
-            start -= 1  # Shift to Python 0-based indices
-            end -= 1    # Shift to Python 0-based indices
-            for i in range(start, end + 1):
-                indices.append(i)
-        elif atom == "first":
-            indices.append(0)
-        elif atom == "last":
-            indices.append(len(items) - 1)
-        else:
-            index = int(atom)
-            if index < 0:
-                index += len(items) + 1
-            index -= 1  # Shift to Python 0-based indices
-            indices.append(index)
 
-    return indices
+def _parse_atom(atom, items):
+    if (atom.startswith("'") and atom.endswith("'")) or (
+        atom.startswith('"') and atom.endswith('"')
+    ):
+        yield from _parse_atom_substring(atom[1:-1].lower(), items)
+    elif atom.startswith('/') and atom.endswith('/'):
+        yield from _parse_atom_pattern(atom[1:-1], items)
+    elif ":" in atom:
+        yield from _parse_atom_range(atom, items)
+    elif atom == "first":
+        yield 0
+    elif atom == "last":
+        yield len(items) - 1
+    else:
+        index = int(atom)
+        if index < 0:
+            index += len(items) + 1
+        # Shift to Python 0-based indices
+        yield index - 1
+
+
+def _parse_atom_substring(substring, items):
+    return (index for index, item in enumerate(items) if substring in item.lower())
+
+
+def _parse_atom_pattern(pattern, items):
+    return (index for index, item in enumerate(items) if re.search(pattern, item))
+
+
+def _parse_atom_range(range_str, items):
+    start, end = (x.strip() for x in range_str.split(":", 1))
+    start = int(start) if start else 1
+    if start < 0:
+        start += len(items) + 1
+    end = int(end) if end else len(items)
+    if end < 0:
+        end += len(items) + 1
+    start -= 1  # Shift to Python 0-based indices
+    end -= 1  # Shift to Python 0-based indices
+    return range(start, end + 1)
 
 
 def output(indexed_items, default="(empty)", pop=False):
@@ -292,10 +290,122 @@ def output(indexed_items, default="(empty)", pop=False):
     return joined_output or default
 
 
+def _items_for_command(cmd, topic):
+    topics = cmd in 'topics list'.split()
+    return sorted(Stack.store.get_topics()) if topics else Stack.store.get_items(topic)
+
+
 @command()
 def stack(nick, rest):
     'Manage short lists in pmxbot. See !stack help for more info'
-    atoms = [atom.strip() for atom in rest.split(' ', 1) if atom.strip()]
+    subcommand, params = _parse_stack_command(rest)
+
+    index, new_item, topic = _parse_params(params, default_topic=nick)
+
+    items = _items_for_command(subcommand, topic)
+
+    try:
+        indices = parse_index(index, items)
+    except ValueError:
+        return helpdoc["index"]
+
+    _debug(subcommand, topic, indices, new_item)
+
+    handler = globals().get(f'_handle_{subcommand}', _handle_other)
+    return handler(new_item, indices, items, topic)
+
+
+def _handle_add(new_item, indices, items, topic):
+    if not new_item:
+        return '!stack add <topic[index]> item: ' 'You must provide an item to add.'
+
+    if not indices:
+        items.insert(0, new_item)
+    else:
+        for i in reversed(sorted(set(indices))):
+            if i >= len(items):
+                items.append(new_item)
+            else:
+                items.insert(i + 1, new_item)
+
+    Stack.store.save_items(topic, items)
+
+
+def _handle_pop(new_item, indices, items, topic):
+    if not indices:
+        indices = [0]
+
+    popped_items = [
+        items.pop(i) for i in reversed(sorted(set(indices))) if len(items) > i >= 0
+    ]
+
+    Stack.store.save_items(topic, items)
+
+    return output(
+        [("-", item) for item in reversed(popped_items)], "(none popped)", pop=True
+    )
+
+
+def _handle_show(new_item, indices, items, topic):
+    if new_item:
+        return helpdoc["show"]
+
+    if not indices:
+        indices = range(len(items))
+
+    return output([(i + 1, items[i]) for i in indices if len(items) > i >= 0])
+
+
+def _handle_shuffle(new_item, indices, items, topic):
+    if not indices:
+        random.shuffle(items)
+    else:
+        items = [items[i] for i in indices if len(items) > i >= 0]
+
+    Stack.store.save_items(topic, items)
+
+    return output(enumerate(items, 1))
+
+
+def _handle_topics(new_item, indices, items, topic):
+    if new_item:
+        return helpdoc["topics"]
+
+    if not indices:
+        indices = range(len(items))
+
+    return output([(i + 1, items[i]) for i in indices if len(items) > i >= 0])
+
+
+_handle_list = _handle_topics
+
+
+def _handle_help(new_item, indices, items, topic):
+    return helpdoc.get(new_item, helpdoc["help"])
+
+
+def _handle_other(new_item, indices, items, topic):
+    return helpdoc["stack"]
+
+
+def _parse_params(params, default_topic):
+    start = params.find("[")
+    finish = params.rfind("]")
+    sp = params.find(" ")
+    if start != -1 and finish != -1 and start < finish and (sp == -1 or start < sp):
+        topic, index = [atom.strip() for atom in params[:finish].split("[", 1)]
+        if not topic:
+            topic = default_topic
+        new_item = params[finish + 1 :].strip()
+    else:
+        topic = default_topic
+        index = None
+        new_item = params.strip()
+    return index, new_item, topic
+
+
+def _parse_stack_command(text):
+    atoms = [atom.strip() for atom in text.split(' ', 1) if atom.strip()]
     if len(atoms) == 0:
         subcommand = "show"
         rest = ""
@@ -304,93 +414,20 @@ def stack(nick, rest):
         rest = ""
     else:
         subcommand, rest = atoms
+    return subcommand, rest
 
-    start = rest.find("[")
-    finish = rest.rfind("]")
-    sp = rest.find(" ")
-    if (
-        start != -1 and finish != -1 and start < finish and
-        (sp == -1 or start < sp)
-    ):
-        topic, index = [atom.strip() for atom in rest[:finish].split("[", 1)]
-        if not topic:
-            topic = nick
-        new_item = rest[finish + 1:].strip()
-    else:
-        topic = nick
-        index = None
-        new_item = rest.strip()
 
-    if subcommand == "topics" or subcommand == "list":
-        items = Stack.store.get_topics()
-        items.sort()
-    else:
-        items = Stack.store.get_items(topic)
-    try:
-        indices = parse_index(index, items)
-    except ValueError:
-        return helpdoc["index"]
+def _debug(subcommand, topic, indices, new_item):
+    if not os.environ.get('PMXBOT_STACK_DEBUG'):
+        return
 
-    if debug:
-        print("SUBCOMMAND", subcommand.ljust(8), "TOPIC", topic.ljust(8),
-              "INDICES", str(indices).ljust(12), "ITEM", new_item)
-
-    if subcommand == "add":
-        if not new_item:
-            return ('!stack add <topic[index]> item: '
-                    'You must provide an item to add.')
-
-        if not indices:
-            items.insert(0, new_item)
-        else:
-            for i in reversed(sorted(set(indices))):
-                if i >= len(items):
-                    items.append(new_item)
-                else:
-                    items.insert(i + 1, new_item)
-
-        Stack.store.save_items(topic, items)
-    elif subcommand == "pop":
-        if not indices:
-            indices = [0]
-
-        popped_items = [items.pop(i) for i in reversed(sorted(set(indices)))
-                        if len(items) > i >= 0]
-
-        Stack.store.save_items(topic, items)
-
-        return output([("-", item) for item in reversed(popped_items)],
-                      "(none popped)", pop=True)
-    elif subcommand == "show":
-        if new_item:
-            return helpdoc["show"]
-
-        if not indices:
-            indices = range(len(items))
-
-        return output(
-            [(i + 1, items[i]) for i in indices if len(items) > i >= 0]
-        )
-    elif subcommand == "shuffle":
-        if not indices:
-            random.shuffle(items)
-        else:
-            items = [items[i] for i in indices if len(items) > i >= 0]
-
-        Stack.store.save_items(topic, items)
-
-        return output(enumerate(items, 1))
-    elif subcommand == "topics" or subcommand == "list":
-        if new_item:
-            return helpdoc["topics"]
-
-        if not indices:
-            indices = range(len(items))
-
-        return output(
-            [(i + 1, items[i]) for i in indices if len(items) > i >= 0]
-        )
-    elif subcommand == "help":
-        return helpdoc.get(new_item, helpdoc["help"])
-    else:
-        return helpdoc["stack"]
+    print(
+        "SUBCOMMAND",
+        subcommand.ljust(8),
+        "TOPIC",
+        topic.ljust(8),
+        "INDICES",
+        str(indices).ljust(12),
+        "ITEM",
+        new_item,
+    )

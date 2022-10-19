@@ -1,3 +1,99 @@
+v1122.12.0
+==========
+
+* ``pmxbot`` is now part of the Tidelift subscription.
+* Fixed ``insult`` command.
+
+v1122.11.0
+==========
+
+* Moved WeightedLookup to ``jaraco.collections``.
+
+v1122.10.3
+==========
+
+* Prefer ``html.escape`` to deprecated/missing ``cgi.escape``.
+
+v1122.10.2
+==========
+
+* #87: Removed dependencies on some backports.
+
+v1122.10.1
+==========
+
+* Packaging refresh.
+* Removed jaraco.compat dependency.
+* Refactorings for similicity.
+
+
+1122.10.0
+=========
+
+* #90: Add support for ``mongodb+srv`` urls.
+
+1122.9.3
+========
+
+* #89: For Slack client, added ability to send messages on POST to e-mail.
+
+1122.9.2
+========
+
+* #86: Project has moved to a new organization at GitHub (pmxbot)
+  for easier shared custody.
+
+1122.9.1
+========
+
+* #85: Pin to slackclient 1.x until asyncio support can be integrated.
+
+1122.9.0
+========
+
+* ``core.command`` now raises an error when the first parameter is
+  a callable (such as when a function is decorated without calling
+  "command").
+
+* Refresh package metadata and update tests to support PyTest 4.
+
+1122.8.0
+========
+
+* Refresh package metadata, fixing several DeprecationWarnings in test suite.
+* Drop support for Python 3.5.
+* Remove use of deprecated modules in test suite.
+
+1122.7.3
+========
+
+* Updated the custom search engine as the old one was discarded
+  when jaraco had to replace his G-Suite hosted account with a
+  regular one.
+
+1122.7.2
+========
+
+* Workaround use of ``importlib_resources`` in phrases due
+  to `importlib_resources 68
+  <https://gitlab.com/python-devs/importlib_resources/issues/68>`_.
+
+1122.7.1
+========
+
+* Fixed issues with resource loading in web viewer.
+
+1122.7
+======
+
+* #84: Corner cases in ``!stack`` command.
+* #84: Added ``list`` alias to stack command.
+* Refresh project metadata including using declarative config.
+* Cleaned up deprecation warnings.
+* #82: Use ``DangerousDumper`` for compatibility with PyYAML 3.12.
+* Switched to using ``entrypoints``, ``importlib_metadata``,
+  and ``importlib_resources`` instead of ``pkg_resources``.
+
 1122.6
 ======
 
@@ -374,6 +470,7 @@
 
 1114.0
 ======
+
 * Moved paste command to librarypaste package.
   Require it in your deployment to retain the paste command.
 * Removed support for 'silent_bot' config variable. Instead,

@@ -1,32 +1,32 @@
-import functools
-
 import pytest
+import jaraco.functools
+from jaraco.context import ExceptionTrap
 
+from pmxbot import http
 import pmxbot.util
 
 
-def throws_exception(call, exceptions=[Exception]):
-	"""
-	Invoke the function and return True if it raises any of the
-	exceptions provided. Otherwise, return False.
-	"""
-	try:
-		call()
-	except tuple(exceptions):
-		return True
-	except Exception:
-		pass
-	return False
+@jaraco.functools.once
+def has_internet():
+    with ExceptionTrap() as trap:
+        http.open('http://www.google.com')
+    return not trap
 
 
-def pytest_namespace():
-	return dict(
-		has_internet=pytest.mark.skipif('not pytest.config.has_internet'),
-		has_wordnik=pytest.mark.skipif('not pytest.config.has_wordnik'),
-	)
+def check_internet():
+    has_internet() or pytest.skip('Internet connectivity unavailable')
 
 
-def pytest_configure(config):
-	open_google = functools.partial(pmxbot.util.get_html, 'http://www.google.com')
-	config.has_internet = not throws_exception(open_google)
-	config.has_wordnik = config.has_internet and 'wordnik' in dir(pmxbot.util)
+@pytest.fixture
+def needs_internet():
+    check_internet()
+
+
+@pytest.fixture
+def needs_wordnik(needs_internet):
+    if 'wordnik' not in dir(pmxbot.util):
+        pytest.skip('Wordnik not available')
+
+
+def pytest_configure():
+    pytest.check_internet = check_internet
