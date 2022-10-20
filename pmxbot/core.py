@@ -3,6 +3,7 @@ import random
 import functools
 import argparse
 import logging
+import os
 import pprint
 import re
 import importlib
@@ -549,7 +550,7 @@ def _setup_logging():
 
 def _load_bot_class():
     default = 'pmxbot.irc:LoggingCommandBot'
-    if 'slack token' in pmxbot.config:
+    if 'slack token' in pmxbot.config or os.environ.get("SLACK_TOKEN"):
         default = 'pmxbot.slack:Bot'
     class_spec = pmxbot.config.get('bot class', default)
     mod_name, sep, name = class_spec.partition(':')

@@ -1,8 +1,8 @@
 import functools
 import time
 import importlib
+import os
 import logging
-import re
 import html
 
 from tempora import schedule
@@ -10,6 +10,56 @@ from tempora import schedule
 import pmxbot
 from pmxbot import core
 
+import slacker
+
+# monkey patch slacker _request to send the auth header
+slacker.DEFAULT_RETRIES = 1
+
+import requests
+from slacker import Error, Response, DEFAULT_WAIT, get_api_url
+
+
+class SlackerMonkey(slacker.BaseAPI):
+    def _request(self, request_method, method, **kwargs):
+        #if self.token:
+        #    kwargs.setdefault('params', {})['token'] = self.token
+
+        url = get_api_url(method)
+
+        # while we have rate limit retries left, fetch the resource and back
+        # off as Slack's HTTP response suggests
+        for retry_num in range(self.rate_limit_retries):
+            response = request_method(
+                url, timeout=self.timeout, proxies=self.proxies,
+                headers={'Authorization': 'Bearer {}'.format(self.token)},
+            **kwargs
+            )
+
+            if response.status_code == requests.codes.ok:
+                break
+            # handle HTTP 429 as documented at
+            # https://api.slack.com/docs/rate-limits
+            if response.status_code == requests.codes.too_many:
+                time.sleep(int(
+                    response.headers.get('retry-after', DEFAULT_WAIT)
+                ))
+                continue
+            response.raise_for_status()
+        else:
+            # with no retries left, make one final attempt to fetch the
+            # resource, but do not handle too_many status differently
+            response = request_method(
+                url, timeout=self.timeout, proxies=self.proxies,
+                headers = {'Authorization': 'Bearer {}'.format(self.token)},
+                **kwargs
+            )
+            response.raise_for_status()
+        response = Response(response.text)
+        if not response.successful:
+            raise Error(response.error)
+        return response
+
+slacker.BaseAPI._request = SlackerMonkey._request
 
 log = logging.getLogger(__name__)
 
@@ -36,17 +86,51 @@ def get_ttl_hash(seconds=None):
 
 class Bot(pmxbot.core.Bot):
     def __init__(self, server, port, nickname, channels, password=None):
-        token = pmxbot.config['slack token']
+        token = os.environ.get("SLACK_TOKEN", pmxbot.config.get('slack token'))
         sc = importlib.import_module('slackclient')
         self.slack = sc.SlackClient(token)
-        sr = importlib.import_module('slacker')
-        self.slacker = sr.Slacker(token)
+        self.slacker = slacker.Slacker(token)
 
         self.scheduler = schedule.CallbackScheduler(self.handle_scheduled)
         # Store in cache users on init
         self.get_email_username_map(
             ttl_hash=get_ttl_hash(pmxbot.config.get('slack_cache'))
         )
+
+        self.recache_channels()
+
+    def recache_channels(self):
+        # cache all the slack channels that pmxbot uses
+        convos = self.slack.api_call("conversations.list",
+                                     types="public_channel,private_channel,mpim,im",
+                                     limit=1000)
+        self.slack.server.parse_channel_data(convos["channels"])
+
+    def get_channel(self, channel):
+        channel = self.slack.server.channels.find(channel)
+        if channel is None:
+            # try to get the channel listing again
+            self.recache_channels()
+            channel = self.slack.server.channels.find(channel)
+        if channel is None:
+            log.error("Unknown channel", channel)
+        return channel
+
+    @functools.lru_cache(maxsize=1)
+    def get_id_username_map(self, ttl_hash=get_ttl_hash()):
+        users = self.slacker.users.list()
+
+        if users.body.get('ok', False):
+            members = users.body.get('members', [])
+            mems = {
+                member.get('id'): member.get("name")
+                for member in members
+            }
+            return mems
+
+    @property
+    def users_by_id(self):
+        return self.get_id_username_map()
 
     @functools.lru_cache(maxsize=1)
     def get_email_username_map(self, ttl_hash=get_ttl_hash()):
@@ -64,7 +148,7 @@ class Bot(pmxbot.core.Bot):
             }
 
     def start(self):
-        res = self.slack.rtm_connect()
+        res = self.slack.rtm_connect(with_team_state=False)
         assert res, "Error connecting"
         self.init_schedule(self.scheduler)
         while True:
@@ -78,6 +162,9 @@ class Bot(pmxbot.core.Bot):
             return
         if msg.get('subtype') == 'message_changed':
             # Pay attention to the revised message
+            channel = msg["channel"]
+            msg = msg["message"]
+            msg["channel"] = channel
             msg['user'] = msg.get('user', msg['user'])
             msg['text'] = msg.get('text', msg['text'])
 
@@ -85,13 +172,18 @@ class Bot(pmxbot.core.Bot):
         # https://api.slack.com/events/message
         method_name = f'_resolve_nick_{msg.get("subtype", "standard")}'
         resolve_nick = getattr(self, method_name, None)
+
         if not resolve_nick:
-            log.debug('Unhandled message %s', msg)
+            log.info('Unhandled message %s', msg)
             return
         nick = resolve_nick(msg)
 
-        channel = self.slack.server.channels.find(msg['channel']).name
-        channel = core.AugmentableMessage(channel, thread=msg.get('thread_ts'))
+        channel = self.get_channel(msg["channel"])
+
+        if channel is None:
+            return
+
+        channel = core.AugmentableMessage(channel.name, thread=msg.get('thread_ts'))
 
         content = msg.get('text')
         if not content and len(msg.get('attachments')):
@@ -104,9 +196,11 @@ class Bot(pmxbot.core.Bot):
         self.handle_action(channel, nick, html.unescape(content))
 
     def _resolve_nick_standard(self, msg):
-        return self.slack.server.users.find(msg['user']).name
+        return self.users_by_id[msg["user"]]
 
     _resolve_nick_me_message = _resolve_nick_standard
+    _resolve_nick_channel_join = _resolve_nick_standard
+    _resolve_nick_slackbot_response = _resolve_nick_standard
 
     def _resolve_nick_bot_message(self, msg):
         return msg.get('username') or msg.get('bot_id') or 'Anonymous Bot'
@@ -134,33 +228,8 @@ class Bot(pmxbot.core.Bot):
                 username=self.get_email_username_map().get(channel)
             )
         )
-        message = self._expand_references(message)
         if message.startswith("/me "):
             # Hack: just make them italicized, looks the same to slack ;)
             message = "_" + message[4:] + "_"
 
         target.send_message(message, thread=getattr(channel, 'thread', None))
-
-    def _expand_references(self, message):
-        resolvers = {
-            '@': self.slacker.users.get_user_id,
-            '#': self.slacker.channels.get_channel_id,
-        }
-
-        def _expand(match):
-            match_type = match.groupdict()['type']
-            match_name = match.groupdict()['name']
-
-            try:
-                ref = resolvers[match_type](match_name)
-                assert ref is not None
-            except Exception:
-                # capture any exception, fallback to original text
-                log.exception("Error resolving slack reference: {}".format(message))
-                return match.group(0)
-
-            return f'<{match_type}{ref}>'
-
-        regex = r'(?P<type>[@#])(?P<name>[\w\d\.\-_\|]*)'
-        slack_refs = re.compile(regex)
-        return slack_refs.sub(_expand, message)
