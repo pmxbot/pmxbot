@@ -1,0 +1,14 @@
+FROM python:3.10-alpine
+
+USER root
+
+RUN apk --update add bash git
+
+RUN mkdir /crunchbot
+COPY . /crunchbot
+
+WORKDIR /crunchbot/
+
+RUN pip install -e ".[slack]"
+
+CMD /usr/local/bin/pmxbot /crunchbot/config.yaml

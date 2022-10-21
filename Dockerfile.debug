@@ -1,0 +1,26 @@
+FROM python:3.10
+
+USER root
+
+RUN apt update
+RUN apt install -y vim
+#RUN apk --update add bash musl-dev gcc libffi-dev
+
+# RUN apt-get -y update && rm -rf /var/lib/apt/lists/*
+# RUN pip install --upgrade-strategy=eager -U virtualenv pip setuptools
+
+
+COPY ./slackclient /slackclient
+WORKDIR /slackclient/
+RUN pip install -e .
+
+COPY ./slacker /slacker
+WORKDIR /slacker/
+RUN pip install -e .
+
+COPY ./crunchbot /crunchbot
+
+WORKDIR /crunchbot/
+
+RUN pip install -e ".[slack]"
+
