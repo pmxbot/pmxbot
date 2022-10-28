@@ -4,6 +4,7 @@ import importlib
 import logging
 import re
 import html
+import threading
 
 from tempora import schedule
 
@@ -37,8 +38,8 @@ def get_ttl_hash(seconds=None):
 class Bot(pmxbot.core.Bot):
     def __init__(self, server, port, nickname, channels, password=None):
         token = pmxbot.config['slack token']
-        sc = importlib.import_module('slackclient')
-        self.slack = sc.SlackClient(token)
+        sc = importlib.import_module('slack_sdk.rtm_v2')
+        self.slack = sc.RTMClient(token=token)
         sr = importlib.import_module('slacker')
         self.slacker = sr.Slacker(token)
 
@@ -64,14 +65,19 @@ class Bot(pmxbot.core.Bot):
             }
 
     def start(self):
-        res = self.slack.rtm_connect()
-        assert res, "Error connecting"
         self.init_schedule(self.scheduler)
+        threading.Thread(target=self.run_scheduler_loop).start()
+
+        @self.slack.on("message")
+        def handle_payload(client, event):
+            self.handle_message(event)
+
+        self.slack.start()
+
+    def run_scheduler_loop(self):
         while True:
-            for msg in self.slack.rtm_read():
-                self.handle_message(msg)
             self.scheduler.run_pending()
-            time.sleep(0.1)
+            time.sleep(1)
 
     def handle_message(self, msg):
         if msg.get('type') != 'message':
@@ -86,26 +92,24 @@ class Bot(pmxbot.core.Bot):
             return
         nick = resolve_nick(msg)
 
-        channel = self.slack.server.channels.find(msg['channel']).name
-        channel = core.AugmentableMessage(channel, thread=msg.get('thread_ts'))
+        channel_name = (
+            self.slacker.conversations.info(msg['channel'])
+            .body.get('channel', {})
+            .get('name')
+        )
+        channel = core.AugmentableMessage(
+            channel_name, channel_id=msg.get('channel'), thread=msg.get('thread_ts')
+        )
 
         self.handle_action(channel, nick, html.unescape(msg['text']))
 
     def _resolve_nick_standard(self, msg):
-        return self.slack.server.users.find(msg['user']).name
+        return self.slacker.users.info(msg['user']).body['user']['name']
 
     _resolve_nick_me_message = _resolve_nick_standard
 
     def _resolve_nick_bot_message(self, msg):
         return msg.get('username') or msg.get('bot_id') or 'Anonymous Bot'
-
-    def _find_user_channel(self, username):
-        """
-        Use slacker to resolve the username to an opened IM channel
-        """
-        user_id = self.slacker.users.get_user_id(username)
-        im = user_id and self.slacker.im.open(user_id).body['channel']['id']
-        return im and self.slack.server.channels.find(im)
 
     def transmit(self, channel, message):
         """
@@ -115,16 +119,33 @@ class Bot(pmxbot.core.Bot):
             If a ``thread`` attribute is present, that thread ID is used.
         :param str message: message to send.
         """
-        target = (
-            self.slack.server.channels.find(channel)
-            or self._find_user_channel(username=channel)
-            or self._find_user_channel(
-                username=self.get_email_username_map().get(channel)
-            )
-        )
         message = self._expand_references(message)
+        channel_id = self._get_channel_id(channel)
+        self.slack.web_client.chat_postMessage(
+            channel=channel_id, text=message, thread_ts=getattr(channel, 'thread', None)
+        )
 
-        target.send_message(message, thread=getattr(channel, 'thread', None))
+    @functools.lru_cache
+    def _get_channel_id(self, channel):
+        # If this action was generated from a slack message event then we should have
+        # the channel_id already. For other cases we need to query the Slack API to get
+        # the channel id
+        if getattr(channel, "channel_id", None):
+            return channel.channel_id
+
+        channel_name = channel.strip('#')
+        cursor = None
+        while True:
+            resp = self.slacker.conversations.list(cursor=cursor, exclude_archived=True)
+            if not resp.successful:
+                log.error('Failed calls to conversations.list')
+                return None
+            cursor = resp.body['response_metadata']['next_cursor']
+            chan_mapping = dict([(x['name'], x['id']) for x in resp.body['channels']])
+            if channel_name in chan_mapping:
+                return chan_mapping[channel_name]
+            if not cursor:
+                break
 
     def _expand_references(self, message):
         resolvers = {
