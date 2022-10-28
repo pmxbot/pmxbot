@@ -125,7 +125,7 @@ class Bot(pmxbot.core.Bot):
             channel=channel_id, text=message, thread_ts=getattr(channel, 'thread', None)
         )
 
-    @functools.lru_cache
+    @functools.lru_cache()
     def _get_channel_id(self, channel):
         # If this action was generated from a slack message event then we should have
         # the channel_id already. For other cases we need to query the Slack API to get
