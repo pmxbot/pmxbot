@@ -5,6 +5,7 @@ import logging
 import re
 import html
 import threading
+import contextlib
 
 from tempora import schedule
 
@@ -15,6 +16,23 @@ from pmxbot import core
 log = logging.getLogger(__name__)
 
 SLACK_CACHE_SECONDS = 7 * 24 * 60 * 60
+
+
+class UnsuccessfulResponse(Exception):
+    pass
+
+
+def iter_cursor(callable, cursor=None):
+    """
+    Iterate a slacker callable that uses paginated results.
+    """
+    resp = callable(cursor=cursor)
+    if not resp.successful:
+        raise UnsuccessfulResponse()
+    yield resp.body
+    next_cursor = resp.body['response_metadata']['next_cursor']
+    if next_cursor:
+        yield from iter_cursor(callable, cursor=next_cursor)
 
 
 def get_ttl_hash(seconds=None):
@@ -134,18 +152,29 @@ class Bot(pmxbot.core.Bot):
             return channel.channel_id
 
         channel_name = channel.strip('#')
-        cursor = None
-        while True:
-            resp = self.slacker.conversations.list(cursor=cursor, exclude_archived=True)
-            if not resp.successful:
-                log.error('Failed calls to conversations.list')
-                return None
-            cursor = resp.body['response_metadata']['next_cursor']
-            chan_mapping = dict([(x['name'], x['id']) for x in resp.body['channels']])
-            if channel_name in chan_mapping:
-                return chan_mapping[channel_name]
-            if not cursor:
-                break
+        try:
+            return self.search_dicts(channel_name, self._get_channel_mappings())
+        except UnsuccessfulResponse:
+            log.error('Failed calls to conversation.list')
+
+    @staticmethod
+    def search_dicts(key, dicts):
+        """
+        Return the value for the first dict in dicts that has key.
+        """
+        for dict in dicts:
+            with contextlib.suppress(KeyError):
+                return dict[key]
+
+    def get_channel_mappings(self):
+        convos = functools.partial(
+            self.slacker.conversations.list,
+            exclude_archived=True,
+        )
+        return (
+            {channel['name']: channel['id'] for channel in convo['channels']}
+            for convo in iter_cursor(convos)
+        )
 
     def _expand_references(self, message):
         resolvers = {
