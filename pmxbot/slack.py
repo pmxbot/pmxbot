@@ -86,18 +86,15 @@ class Bot(pmxbot.core.Bot):
         self.init_schedule(self.scheduler)
         threading.Thread(target=self.run_scheduler_loop).start()
 
-        @self.slack.on("message")
-        def handle_payload(client, event):
-            self.handle_message(event)
-
+        self.slack.on("message")(self.handle_message)
         self.slack.start()
 
     def run_scheduler_loop(self):
         while True:
             self.scheduler.run_pending()
-            time.sleep(1)
+            time.sleep(0.1)
 
-    def handle_message(self, msg):
+    def handle_message(self, client, msg):
         if msg.get('type') != 'message':
             return
 
@@ -112,8 +109,7 @@ class Bot(pmxbot.core.Bot):
 
         channel_name = (
             self.slacker.conversations.info(msg['channel'])
-            .body.get('channel', {})
-            .get('name')
+            .body['channel'].get('name')
         )
         channel = core.AugmentableMessage(
             channel_name, channel_id=msg.get('channel'), thread=msg.get('thread_ts')
