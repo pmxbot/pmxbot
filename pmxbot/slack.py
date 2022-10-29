@@ -18,10 +18,6 @@ log = logging.getLogger(__name__)
 SLACK_CACHE_SECONDS = 7 * 24 * 60 * 60
 
 
-class UnsuccessfulResponse(Exception):
-    pass
-
-
 def iter_cursor(callable, cursor=None):
     """
     Iterate a slack endpoint callable that uses paginated results.
@@ -31,24 +27,6 @@ def iter_cursor(callable, cursor=None):
     next_cursor = resp.data.get('response_metadata', {}).get('next_cursor')
     if next_cursor:
         yield from iter_cursor(callable, cursor=next_cursor)
-
-
-def get_ttl_hash(seconds=None):
-    """
-    Return the same value withing `seconds` time period
-
-    default seconds:
-        7 days == 7days*24hours*60min*60seconds == 604800 seconds
-
-    Cache time can be configured in config using `slack_cache` in seconds
-    """
-    if not seconds:
-        try:
-            seconds = pmxbot.config.get('slack_cache', SLACK_CACHE_SECONDS)
-        except AttributeError:
-            # whenever pmxbot doesn't have config
-            seconds = SLACK_CACHE_SECONDS
-    return round(time.time() / seconds)
 
 
 class Bot(pmxbot.core.Bot):
