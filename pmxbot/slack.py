@@ -24,13 +24,11 @@ class UnsuccessfulResponse(Exception):
 
 def iter_cursor(callable, cursor=None):
     """
-    Iterate a slacker callable that uses paginated results.
+    Iterate a slack endpoint callable that uses paginated results.
     """
     resp = callable(cursor=cursor)
-    if not resp.successful:
-        raise UnsuccessfulResponse()
-    yield resp.body
-    next_cursor = resp.body['response_metadata']['next_cursor']
+    yield resp.data
+    next_cursor = resp.data.get('response_metadata', {}).get('next_cursor')
     if next_cursor:
         yield from iter_cursor(callable, cursor=next_cursor)
 
@@ -58,35 +56,16 @@ class Bot(pmxbot.core.Bot):
         token = pmxbot.config['slack token']
         sc = importlib.import_module('slack_sdk.rtm_v2')
         self.slack = sc.RTMClient(token=token)
-        sr = importlib.import_module('slacker')
-        self.slacker = sr.Slacker(token)
-
         self.scheduler = schedule.CallbackScheduler(self.handle_scheduled)
-        # Store in cache users on init
-        self.get_email_username_map(
-            ttl_hash=get_ttl_hash(pmxbot.config.get('slack_cache'))
-        )
-
-    @functools.lru_cache(maxsize=1)
-    def get_email_username_map(self, ttl_hash=get_ttl_hash()):
-        """
-        Generate a map {email -> slack username}
-
-        :param ttl_hash: hash to control the lru_cache
-        """
-        users = self.slacker.users.list()
-        if users.body.get('ok', False):
-            members = users.body.get('members', [])
-            return {
-                member.get('profile', {}).get('email', ""): member.get("name")
-                for member in members
-            }
 
     def start(self):
         self.init_schedule(self.scheduler)
         threading.Thread(target=self.run_scheduler_loop).start()
 
-        self.slack.on("message")(self.handle_message)
+        @self.slack.on("message")
+        def handle_payload(client, event):
+            self.handle_message(event)
+
         self.slack.start()
 
     def run_scheduler_loop(self):
@@ -94,7 +73,7 @@ class Bot(pmxbot.core.Bot):
             self.scheduler.run_pending()
             time.sleep(0.1)
 
-    def handle_message(self, client, msg):
+    def handle_message(self, msg):
         if msg.get('type') != 'message':
             return
 
@@ -107,18 +86,20 @@ class Bot(pmxbot.core.Bot):
             return
         nick = resolve_nick(msg)
 
-        channel_name = (
-            self.slacker.conversations.info(msg['channel'])
-            .body['channel'].get('name')
-        )
+        channel_name = self._get_channel_name(msg['channel'])
         channel = core.AugmentableMessage(
             channel_name, channel_id=msg.get('channel'), thread=msg.get('thread_ts')
         )
 
         self.handle_action(channel, nick, html.unescape(msg['text']))
 
+    def _get_channel_name(self, channel_id):
+        return self.slack.web_client.conversations_info(
+            channel=channel_id
+        ).data['channel'].get('name')
+
     def _resolve_nick_standard(self, msg):
-        return self.slacker.users.info(msg['user']).body['user']['name']
+        return self.slack.web_client.users_info(user=msg['user']).data['user']['name']
 
     _resolve_nick_me_message = _resolve_nick_standard
 
@@ -134,24 +115,17 @@ class Bot(pmxbot.core.Bot):
         :param str message: message to send.
         """
         message = self._expand_references(message)
-        channel_id = self._get_channel_id(channel)
+
+        # If this action was generated from a slack message event then we should have
+        # the channel_id already. For other cases we need to query the Slack API
+        if getattr(channel, "channel_id", None):
+            channel_id = channel.channel_id
+        else:
+            channel_id = self._get_id_for_channel(channel)
+
         self.slack.web_client.chat_postMessage(
             channel=channel_id, text=message, thread_ts=getattr(channel, 'thread', None)
         )
-
-    @functools.lru_cache()
-    def _get_channel_id(self, channel):
-        # If this action was generated from a slack message event then we should have
-        # the channel_id already. For other cases we need to query the Slack API to get
-        # the channel id
-        if getattr(channel, "channel_id", None):
-            return channel.channel_id
-
-        channel_name = channel.strip('#')
-        try:
-            return self.search_dicts(channel_name, self._get_channel_mappings())
-        except UnsuccessfulResponse:
-            log.error('Failed calls to conversation.list')
 
     @staticmethod
     def search_dicts(key, dicts):
@@ -162,9 +136,9 @@ class Bot(pmxbot.core.Bot):
             with contextlib.suppress(KeyError):
                 return dict[key]
 
-    def get_channel_mappings(self):
+    def _get_channel_mappings(self):
         convos = functools.partial(
-            self.slacker.conversations.list,
+            self.slack.web_client.conversations_list,
             exclude_archived=True,
         )
         return (
@@ -172,10 +146,25 @@ class Bot(pmxbot.core.Bot):
             for convo in iter_cursor(convos)
         )
 
+    def get_user_mappings(self):
+        users = functools.partial(self.slack.web_client.users_list)
+        return (
+            {user['name']: user['id'] for user in user_list['members']}
+            for user_list in iter_cursor(users)
+        )
+
+    @functools.lru_cache()
+    def _get_id_for_user(self, user_name):
+        return self.search_dicts(user_name, self.get_user_mappings())
+
+    @functools.lru_cache()
+    def _get_id_for_channel(self, channel_name):
+        return self.search_dicts(channel_name.strip('#'), self._get_channel_mappings())
+
     def _expand_references(self, message):
         resolvers = {
-            '@': self.slacker.users.get_user_id,
-            '#': self.slacker.channels.get_channel_id,
+            '@': self._get_id_for_user,
+            '#': self._get_id_for_channel
         }
 
         def _expand(match):
