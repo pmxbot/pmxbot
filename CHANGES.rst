@@ -1,3 +1,9 @@
+v1122.13.0
+==========
+
+* #99: Updated to use ``slack_sdk`` instead of ``slackclient`` and
+  ``slacker``. Restores compatibility to supported interfaces in Slack.
+
 v1122.12.0
 ==========
 
