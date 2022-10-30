@@ -73,9 +73,11 @@ class Bot(pmxbot.core.Bot):
 
     @functools.lru_cache()
     def _get_channel_name(self, channel_id):
-        return self.slack.web_client.conversations_info(
-            channel=channel_id
-        ).data['channel'].get('name')
+        return (
+            self.slack.web_client.conversations_info(channel=channel_id)
+            .data['channel']
+            .get('name')
+        )
 
     def _resolve_nick_standard(self, msg):
         return self.slack.web_client.users_info(user=msg['user']).data['user']['name']
@@ -141,10 +143,7 @@ class Bot(pmxbot.core.Bot):
         return self.search_dicts(channel_name.strip('#'), self._get_channel_mappings())
 
     def _expand_references(self, message):
-        resolvers = {
-            '@': self._get_id_for_user,
-            '#': self._get_id_for_channel
-        }
+        resolvers = {'@': self._get_id_for_user, '#': self._get_id_for_channel}
 
         def _expand(match):
             match_type = match.groupdict()['type']
