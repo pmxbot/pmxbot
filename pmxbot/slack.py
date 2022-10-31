@@ -105,7 +105,10 @@ class Bot(pmxbot.core.Bot):
             channel_id = self._get_id_for_channel(channel)
 
         self.slack.web_client.chat_postMessage(
-            channel=channel_id, text=message, thread_ts=getattr(channel, 'thread', None)
+            channel=channel_id,
+            text=message,
+            thread_ts=getattr(channel, 'thread', None),
+            as_user=True,
         )
 
     @staticmethod
