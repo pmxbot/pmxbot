@@ -1,3 +1,9 @@
+v1122.13.1
+==========
+
+* #100: Hotfix for the name and avatar not appearing correctly when
+  posting messages
+
 v1122.13.0
 ==========
 
