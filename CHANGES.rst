@@ -1,3 +1,9 @@
+v1122.14.0
+==========
+
+* #103: Reintroduce the feature allowing a username or email to be used
+  in place of a channel ID, in order for pmxbot to DM users
+
 v1122.13.1
 ==========
 
