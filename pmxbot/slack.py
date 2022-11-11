@@ -98,18 +98,24 @@ class Bot(pmxbot.core.Bot):
         message = self._expand_references(message)
 
         # If this action was generated from a slack message event then we should have
-        # the channel_id already. For other cases we need to query the Slack API
-        if getattr(channel, "channel_id", None):
-            channel_id = channel.channel_id
-        else:
-            channel_id = self._get_id_for_channel(channel)
-
-        self.slack.web_client.chat_postMessage(
-            channel=channel_id,
-            text=message,
-            thread_ts=getattr(channel, 'thread', None),
-            as_user=True,
+        # the channel_id already. For other cases we need to query the Slack API using
+        # the channel name, or the username or email (for DMs)
+        channel_id = (
+            getattr(channel, "channel_id", None)
+            or self._get_id_for_channel_name(channel)
+            or self._get_id_for_user_name(channel)
+            or self._get_id_for_user_email(channel)
         )
+
+        if channel_id:
+            self.slack.web_client.chat_postMessage(
+                channel=channel_id,
+                text=message,
+                thread_ts=getattr(channel, 'thread', None),
+                as_user=True,
+            )
+        else:
+            log.error("Failed to resolve a channel ID for: '{}'".format(channel))
 
     @staticmethod
     def search_dicts(key, dicts):
@@ -130,23 +136,41 @@ class Bot(pmxbot.core.Bot):
             for convo in iter_cursor(convos)
         )
 
-    def _get_user_mappings(self):
+    def _get_user_name_to_id_mappings(self):
         users = functools.partial(self.slack.web_client.users_list)
         return (
             {user['name']: user['id'] for user in user_list['members']}
             for user_list in iter_cursor(users)
         )
 
-    @functools.lru_cache()
-    def _get_id_for_user(self, user_name):
-        return self.search_dicts(user_name, self._get_user_mappings())
+    def _get_user_email_to_id_mappings(self):
+        users = functools.partial(self.slack.web_client.users_list)
+        return (
+            {
+                user['profile']['email']: user['id']
+                for user in user_list['members']
+                if user['profile'].get('email')
+            }
+            for user_list in iter_cursor(users)
+        )
 
     @functools.lru_cache()
-    def _get_id_for_channel(self, channel_name):
+    def _get_id_for_user_name(self, user_name):
+        return self.search_dicts(user_name, self._get_user_name_to_id_mappings())
+
+    @functools.lru_cache()
+    def _get_id_for_user_email(self, user_email):
+        return self.search_dicts(user_email, self._get_user_email_to_id_mappings())
+
+    @functools.lru_cache()
+    def _get_id_for_channel_name(self, channel_name):
         return self.search_dicts(channel_name.strip('#'), self._get_channel_mappings())
 
     def _expand_references(self, message):
-        resolvers = {'@': self._get_id_for_user, '#': self._get_id_for_channel}
+        resolvers = {
+            '@': self._get_id_for_user_name,
+            '#': self._get_id_for_channel_name,
+        }
 
         def _expand(match):
             match_type = match.groupdict()['type']
