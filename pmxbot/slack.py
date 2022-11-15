@@ -99,7 +99,7 @@ class Bot(pmxbot.core.Bot):
 
         # If this action was generated from a slack message event then we should have
         # the channel_id already. For other cases we need to query the Slack API using
-        # the channel name, or the username or email (for DMs)
+        # the channel name, or the user name or email (for DMs)
         channel_id = (
             getattr(channel, "channel_id", None)
             or self._get_id_for_channel_name(channel)
@@ -108,6 +108,7 @@ class Bot(pmxbot.core.Bot):
         )
 
         if channel_id:
+            log.info("Logging to channel " + str(channel_id))
             self.slack.web_client.chat_postMessage(
                 channel=channel_id,
                 text=message,
@@ -132,14 +133,14 @@ class Bot(pmxbot.core.Bot):
             exclude_archived=True,
         )
         return (
-            {channel['name']: channel['id'] for channel in convo['channels']}
+            {channel['name'].lower(): channel['id'] for channel in convo['channels']}
             for convo in iter_cursor(convos)
         )
 
     def _get_user_name_to_id_mappings(self):
         users = functools.partial(self.slack.web_client.users_list)
         return (
-            {user['name']: user['id'] for user in user_list['members']}
+            {user['name'].lower(): user['id'] for user in user_list['members']}
             for user_list in iter_cursor(users)
         )
 
@@ -147,7 +148,7 @@ class Bot(pmxbot.core.Bot):
         users = functools.partial(self.slack.web_client.users_list)
         return (
             {
-                user['profile']['email']: user['id']
+                user['profile']['email'].lower(): user['id']
                 for user in user_list['members']
                 if user['profile'].get('email')
             }
@@ -156,15 +157,21 @@ class Bot(pmxbot.core.Bot):
 
     @functools.lru_cache()
     def _get_id_for_user_name(self, user_name):
-        return self.search_dicts(user_name, self._get_user_name_to_id_mappings())
+        return self.search_dicts(
+            user_name.lower(), self._get_user_name_to_id_mappings()
+        )
 
     @functools.lru_cache()
     def _get_id_for_user_email(self, user_email):
-        return self.search_dicts(user_email, self._get_user_email_to_id_mappings())
+        return self.search_dicts(
+            user_email.lower(), self._get_user_email_to_id_mappings()
+        )
 
     @functools.lru_cache()
     def _get_id_for_channel_name(self, channel_name):
-        return self.search_dicts(channel_name.strip('#'), self._get_channel_mappings())
+        return self.search_dicts(
+            channel_name.strip('#').lower(), self._get_channel_mappings()
+        )
 
     def _expand_references(self, message):
         resolvers = {

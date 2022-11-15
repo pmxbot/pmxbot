@@ -1,3 +1,9 @@
+v1122.14.1
+==========
+
+* #104: Normalised character case when resolving channel IDs to provide
+  greater flexibility on input
+
 v1122.14.0
 ==========
 
