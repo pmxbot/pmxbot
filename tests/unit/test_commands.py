@@ -6,6 +6,7 @@ import urllib.error
 
 import pytest
 import requests
+import jaraco.test.http
 
 import pmxbot.dictlib
 import pmxbot.storage
@@ -479,7 +480,7 @@ class TestCommands:
             res = commands.rand_bot('#test', 'testrunner', '')
         except network_excs:
             # Allow network errors to be skipped if offline
-            pytest.check_internet()
+            jaraco.test.http.check_internet()
             raise
         if res is None:
             return
