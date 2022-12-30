@@ -486,6 +486,7 @@ class TestCommands:
         try:
             res = commands.rand_bot('#test', 'testrunner', '')
         except network_excs:
+            # Allow network errors to be skipped if offline
             pytest.check_internet()
             raise
         if res is None:
