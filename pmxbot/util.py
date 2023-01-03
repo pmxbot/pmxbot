@@ -99,13 +99,9 @@ def lookup_acronym(acronym, limit=3):
 
 @jaraco.functools.once
 def load_emergency_compliments():
-    compurl = (
-        'https://spreadsheets.google.com/feeds/list/'
-        '1eEa2ra2yHBXVZ_ctH4J15tFSGEu-VTSunsrvaCAV598/od6/public/values'
-        '?alt=json'
-    )
-    doc = http.open(compurl).json()
-    return [entry['title']['$t'] for entry in doc['feed']['entry']]
+    url = 'https://www.dropbox.com/s/2i54optwv59ykm2/compliments.txt?dl=1'
+    doc = http.open(url).text
+    return doc.splitlines()
 
 
 def passagg(recipient, sender):

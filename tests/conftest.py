@@ -1,3 +1,5 @@
+import os
+
 import pytest
 import jaraco.functools
 from jaraco.context import ExceptionTrap
@@ -30,3 +32,11 @@ def needs_wordnik(needs_internet):
 
 def pytest_configure():
     pytest.check_internet = check_internet
+
+
+@pytest.fixture
+def google_api_key(monkeypatch):
+    key = os.environ.get('GOOGLE_API_KEY')
+    if not key:
+        pytest.skip("Need GOOGLE_API_KEY environment variable")
+    monkeypatch.setitem(pmxbot.config, 'Google API key', key)
