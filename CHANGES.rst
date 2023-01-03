@@ -1,3 +1,8 @@
+v1122.14.2
+==========
+
+* #97: Restored emergency compliments functionality.
+
 v1122.14.1
 ==========
 
