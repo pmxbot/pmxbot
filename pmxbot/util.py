@@ -2,6 +2,7 @@ import random
 import warnings
 import itertools
 import logging
+import operator
 
 import requests
 import bs4
@@ -99,13 +100,16 @@ def lookup_acronym(acronym, limit=3):
 
 @jaraco.functools.once
 def load_emergency_compliments():
-    compurl = (
-        'https://spreadsheets.google.com/feeds/list/'
-        '1eEa2ra2yHBXVZ_ctH4J15tFSGEu-VTSunsrvaCAV598/od6/public/values'
-        '?alt=json'
+    sheet_id = '14sYGzhjFAMLFA90wFUZ-4biW_UmwHXj5r9p2zQtGiaM'
+    sheet_name = 'sheet'
+    api_key = pmxbot.config['Google API key']
+    url = (
+        f'https://sheets.googleapis.com/v4/spreadsheets/{sheet_id}'
+        f'/values/{sheet_name}?alt=json&key={api_key}'
     )
-    doc = http.open(compurl).json()
-    return [entry['title']['$t'] for entry in doc['feed']['entry']]
+    doc = http.open(url).json()
+    breakpoint()
+    return list(map(operator.itemgetter(0), doc['values']))
 
 
 def passagg(recipient, sender):

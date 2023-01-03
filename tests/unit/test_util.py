@@ -9,7 +9,7 @@ def test_lookup(needs_wordnik):
 
 
 @pytest.mark.xfail(reason="#97: Google is unreliable")
-def test_emergency_compliment(needs_internet):
+def test_emergency_compliment(needs_internet, google_api_key):
     assert util.load_emergency_compliments()
 
 
