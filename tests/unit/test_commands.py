@@ -6,6 +6,7 @@ import urllib.error
 
 import pytest
 import requests
+import jaraco.test.http
 
 import pmxbot.dictlib
 import pmxbot.storage
@@ -41,7 +42,8 @@ class TestCommands:
         path = os.path.dirname(os.path.abspath(__file__))
         os.remove(os.path.join(path, 'pmxbot.sqlite'))
 
-    def test_google(self, google_api_key, needs_internet):
+    @pytest.mark.network
+    def test_google(self, google_api_key):
         """
         Basic google search for "pmxbot". Result must contain a link.
         """
@@ -198,7 +200,8 @@ class TestCommands:
         )
 
     @pytest.mark.xfail(reason="#71")
-    def test_ticker_goog(self, needs_internet):
+    @pytest.mark.network
+    def test_ticker_goog(self):
         """
         Get the current stock price of Google.
 
@@ -209,7 +212,8 @@ class TestCommands:
         assert re.match(self.ticker_pattern('GOOG'), res), res
 
     @pytest.mark.xfail(reason="#71")
-    def test_ticker_yougov(self, needs_internet):
+    @pytest.mark.network
+    def test_ticker_yougov(self):
         """
         Get the current stock price of YouGov.
 
@@ -220,7 +224,8 @@ class TestCommands:
         assert re.match(self.ticker_pattern('YOU.L'), res), res
 
     @pytest.mark.xfail(reason="#71")
-    def test_ticker_nasdaq(self, needs_internet):
+    @pytest.mark.network
+    def test_ticker_nasdaq(self):
         """
         Get the current stock price of the NASDAQ.
 
@@ -386,10 +391,12 @@ class TestCommands:
         print(res)
         assert res.startswith("6.070566")
 
-    def test_insult(self, needs_internet):
+    @pytest.mark.network
+    def test_insult(self):
         commands.insult("")
 
-    def test_targeted_insult(self, needs_internet):
+    @pytest.mark.network
+    def test_targeted_insult(self):
         commands.insult("enemy")
 
     @pytest.mark.xfail(reason="#94")
@@ -425,14 +432,16 @@ class TestCommands:
         assert isinstance(res, str)
         assert res == "Wordnik does not have a definition for that."
 
-    def test_urb_irc(self, needs_internet):
+    @pytest.mark.network
+    def test_urb_irc(self):
         """
         Test the urban dictionary with the word IRC.
         """
         res = commands.urbandict("irc")
         assert "It's a place where broken and odd people" in res
 
-    def test_acronym_irc(self, needs_internet):
+    @pytest.mark.network
+    def test_acronym_irc(self):
         """
         Test acronym finder with the word IRC.
         """
@@ -479,7 +488,7 @@ class TestCommands:
             res = commands.rand_bot('#test', 'testrunner', '')
         except network_excs:
             # Allow network errors to be skipped if offline
-            pytest.check_internet()
+            jaraco.test.http.check_internet()
             raise
         if res is None:
             return
