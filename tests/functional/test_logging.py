@@ -1,7 +1,7 @@
 import time
 import uuid
 
-from . import PmxbotHarness
+from .harness import PmxbotHarness
 
 
 class TestPmxbotLog(PmxbotHarness):
