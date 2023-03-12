@@ -1,6 +1,6 @@
 import time
 
-from . import PmxbotHarness
+from .harness import PmxbotHarness
 
 
 class TestPmxbotExceptions(PmxbotHarness):
