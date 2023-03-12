@@ -1,6 +1,6 @@
 import time
 
-from tests.functional import PmxbotHarness
+from . import PmxbotHarness
 
 
 class TestPmxbotRegexp(PmxbotHarness):
