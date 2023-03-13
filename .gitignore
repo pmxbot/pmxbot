@@ -9,3 +9,4 @@ pmxbot.sqlite
 .tox/
 .cache/
 .pytest_cache/
+config.yaml
