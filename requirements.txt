@@ -22,10 +22,11 @@ jaraco.text==3.11.1
 jaraco.ui==2.3.0
 more-itertools==9.1.0
 path==16.6.0
-pmxbot==1122.14.2
+pmxbot[slack]==1122.14.2
 portend==3.1.0
+pyaml-env==1.2.1
 pydantic==1.10.6
-pymongo==4.3.3
+pymongo[ocsp]==4.3.3
 python-dateutil==2.8.2
 pytimeparse==1.1.8
 pytz==2022.7.1

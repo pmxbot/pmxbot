@@ -2,9 +2,9 @@
 import re
 import random
 from unittest import TestCase
-import slackbot.pivotal as commands
-from slackbot.pivotal import tests
-from slackbot.pivotal import api
+import src.pivotal as commands
+from src.pivotal import tests
+from src.pivotal import api
 
 
 class TestRegularExpressions(TestCase):

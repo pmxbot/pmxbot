@@ -2,10 +2,6 @@
 #server_host: "crunch-io.irc.slack.com"
 #server_port: 6697
 #password: "crunch-io.5ehTHZcmNtSSO4KhHgkU"
-pivotal_token: e16a3a3da394d5308edc60b7a3dc68cb
-  #{PIVOTAL_TOKEN}
-#slack_token: xoxb-11936109057-4272008828081-KouFgOPJchazfU0l7KETJXBL
-  #{SLACK_TOKEN}
 bot_nickname: crunchbot
 message rate limit: 2.5
 log_channels: []
@@ -13,7 +9,7 @@ other_channels: []
 inane_channel: "#inane"
 # database should be something like a MongoDB URI (mongodb://localhost)
 #  or sqlite URI (sqlite:path/filename)
-database: sqlite:/crunchbot.sqlite
+database: sqlite:crunchbot.sqlite
 places: ["Palo Alto, CA", "Chicago", "Washington, DC", "London, England", "Durham, NC"]
 lunch_choices:
     PA: ["Pasta?", "Thaiphoon", "Pluto's", "Penninsula Creamery", "Kan Zeman"]
@@ -28,6 +24,9 @@ web_port: 8787
 web_host: 0.0.0.0
 #logo: /pmxbot.png
 log level: 10
-# this is for doing dataset lookups with the !ds command
-mongo_ip_address: 127.0.0.1
-  #{MONGO_IP_ADDRESS}
+
+# pmxbot has no support for env variables so make sure to run crunchbot.py which utilizes pyaml_env
+pivotal_token: !ENV ${PIVOTAL_TOKEN}
+"slack token": !ENV ${SLACK_TOKEN}
+mongo_ip_address: !ENV ${MONGO_IP_ADDRESS}
+mongo_database: !ENV ${MONGO_DATABASE}

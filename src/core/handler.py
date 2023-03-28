@@ -1,12 +1,13 @@
 import json
 import re
 import subprocess
-
 import pmxbot
 from pmxbot.core import command, contains, regexp
 import random
+from pymongo import MongoClient
+from src.pivotal.api import pivotalAPICall, SLACK_TO_PT_USER
 
-from slackbot.pivotal.api import pivotalAPICall, SLACK_TO_PT_USER
+_mongodb = None
 
 #TODO: move these to their own plugin dirs, maybe?
 
@@ -115,7 +116,8 @@ def rimshot(client, event, channel, nick, rest):
 def echo(client, event, channel, nick, rest):
     return rest
 
-def lookup_dataset(id):
+def lookup_datasetR(id):
+    # NOTE using R is deprecated - use mongodb instead
     cmd = "getDatasets(dsid='%s')" % id
     # Call R
     info = R(cmd)
@@ -125,6 +127,31 @@ def lookup_dataset(id):
         return '"<https://eu.superadmin.crint.net/datasets/%s/|%s>", in project <https://eu.superadmin.crint.net/projects/%s|%s>' % tuple(facts)
     else:
         return None
+
+def lookup_dataset(dataset_id):
+    global _mongodb
+    if _mongodb is None:
+        mongo_url = f"mongodb://{pmxbot.config.mongo_ip_address}"
+        print(f"Connecting to mongo host {mongo_url}")
+        client = MongoClient(mongo_url, tls=True, directConnection=True, tlsInsecure=True)
+        mongo_database = pmxbot.config.mongo_database
+        print(f"Connecting to mongo database {mongo_database}")
+        _mongodb = client[mongo_database]
+
+    # query dataset
+    datasets = _mongodb['datasets']
+    ds = datasets.find_one({"crunch_id": dataset_id})
+    if ds:
+        dataset_name = ds['name']
+
+        # query project
+        project_id = ds['paths'][0]['p'][0][2:]
+        projects = _mongodb['projects']
+        project = projects.find_one({"crunch_id": project_id})
+        if project:
+            project_name = project["name"]
+            return 'Dataset <https://eu.superadmin.crint.net/datasets/%s/|%s> in project <https://eu.superadmin.crint.net/projects/%s|%s>' % (dataset_id, dataset_name, project_id, project_name)
+    return None
 
 @command('ds', doc='Look up a dataset in superadmin by id or URL')
 def ds(client, event, channel, nick, rest):

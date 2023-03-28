@@ -11,3 +11,4 @@ pmxbot.sqlite
 .pytest_cache/
 .idea
 venv
+crunchbot.sqlite

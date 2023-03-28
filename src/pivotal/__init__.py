@@ -1,6 +1,6 @@
 import re
 
-from pmxbot.core import command, contains, regexp
+from pmxbot.core import command, regexp
 from . import api
 
 @command('pivotal', aliases=('pivot', 'pv'), doc="From an id, show a link to the pivotal issue referenced")
