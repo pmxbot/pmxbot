@@ -506,7 +506,7 @@ otrail_issues = [
 def text_lines(name):
     pkg_root = pathlib.Path(__file__).parent
     path = pkg_root / f'{name}.txt'
-    with path.open() as strm:
+    with path.open(encoding='utf-8') as strm:
         return list(map(str.rstrip, strm))
 
 

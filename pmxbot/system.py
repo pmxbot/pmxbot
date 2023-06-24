@@ -69,6 +69,10 @@ def logo():
                                                  M=..        .M M
     ...
     """
-    logo_txt = importlib_resources.files('pmxbot').joinpath('asciilogo.txt').read_text()
+    logo_txt = (
+        importlib_resources.files('pmxbot')
+        .joinpath('asciilogo.txt')
+        .read_text(encoding='utf-8')
+    )
     for line in logo_txt.splitlines():
         yield line.rstrip()
