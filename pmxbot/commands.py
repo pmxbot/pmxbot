@@ -680,7 +680,7 @@ def blame(channel, rest, nick):
         yield "/me cries and weeps in despair"
 
 
-@contains('pmxbot', channels=logging.UnloggedChannels(), rate=0.3)
+@contains('pmxbot', channels=..., rate=0.3)
 def rand_bot(channel, nick, rest):
     log.debug('I was mentioned in %s: %s', channel, rest)
     default_commands = [
