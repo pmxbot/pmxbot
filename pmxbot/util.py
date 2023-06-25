@@ -13,7 +13,6 @@ try:
 except (ImportError, SyntaxError):
     warnings.warn("Wordnik failed to import")
 
-import pmxbot.phrases
 from . import http
 
 

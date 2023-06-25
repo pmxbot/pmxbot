@@ -21,7 +21,6 @@ from .core import command, contains, attach, log
 from . import util
 from . import karma
 from . import logging
-from . import phrases
 from . import http
 
 
