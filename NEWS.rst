@@ -1,3 +1,12 @@
+v1122.16.0
+==========
+
+Features
+--------
+
+- ``pmxbot`` is now a native namespace package and no longer relies on ``pkg_resources`` for that old technique for a namespace package. (#108)
+
+
 v1122.15.0
 ==========
 

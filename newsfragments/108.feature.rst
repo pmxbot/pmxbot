@@ -1,1 +1,0 @@
-``pmxbot`` is now a native namespace package and no longer relies on ``pkg_resources`` for that old technique for a namespace package.
