@@ -71,7 +71,7 @@ class Bot(pmxbot.core.Bot):
 
         self.handle_action(channel, nick, html.unescape(msg['text']))
 
-    @functools.lru_cache()
+    @functools.lru_cache
     def _get_channel_name(self, channel_id):
         return (
             self.slack.web_client.conversations_info(channel=channel_id)
@@ -155,19 +155,19 @@ class Bot(pmxbot.core.Bot):
             for user_list in iter_cursor(users)
         )
 
-    @functools.lru_cache()
+    @functools.lru_cache
     def _get_id_for_user_name(self, user_name):
         return self.search_dicts(
             user_name.lower(), self._get_user_name_to_id_mappings()
         )
 
-    @functools.lru_cache()
+    @functools.lru_cache
     def _get_id_for_user_email(self, user_email):
         return self.search_dicts(
             user_email.lower(), self._get_user_email_to_id_mappings()
         )
 
-    @functools.lru_cache()
+    @functools.lru_cache
     def _get_id_for_channel_name(self, channel_name):
         return self.search_dicts(
             channel_name.strip('#').lower(), self._get_channel_mappings()

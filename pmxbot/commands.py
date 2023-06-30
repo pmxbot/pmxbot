@@ -193,8 +193,8 @@ def golfclap(rest):
     if rest:
         clapee = rest.strip()
         karma.Karma.store.change(clapee, 1)
-        return "/me claps {} for {}, {} {}.".format(clapv, rest, adv, adj)
-    return "/me claps {}, {} {}.".format(clapv, adv, adj)
+        return f"/me claps {clapv} for {rest}, {adv} {adj}."
+    return f"/me claps {clapv}, {adv} {adj}."
 
 
 @command(aliases='fc')
@@ -203,7 +203,7 @@ def featurecreep():
     verb = random.choice(phrases.fcverbs).capitalize()
     adjective = random.choice(phrases.fcadjectives)
     noun = random.choice(phrases.fcnouns)
-    return '{} {} {}!'.format(verb, adjective, noun)
+    return f'{verb} {adjective} {noun}!'
 
 
 @command(aliases='card')
@@ -212,7 +212,7 @@ def job():
     j1 = random.choice(phrases.jobs1)
     j2 = random.choice(phrases.jobs2)
     j3 = random.choice(phrases.jobs3)
-    return '{} {} {}'.format(j1, j2, j3)
+    return f'{j1} {j2} {j3}'
 
 
 @command()
@@ -220,7 +220,7 @@ def hire():
     "When all else fails, pmxbot delivers the perfect employee."
     title = job()
     task = featurecreep()
-    return "/me finds a new {} to {}".format(title, task.lower())
+    return f"/me finds a new {title} to {task.lower()}"
 
 
 @command()
@@ -243,9 +243,9 @@ def oregontrail(channel, nick, rest):
     action = random.choice(phrases.otrail_actions)
     if action in ('has', 'has died from'):
         issue = random.choice(phrases.otrail_issues)
-        text = '{} {} {}.'.format(who, action, issue)
+        text = f'{who} {action} {issue}.'
     else:
-        text = '{} {}'.format(who, action)
+        text = f'{who} {action}'
     return text
 
 
@@ -330,21 +330,21 @@ def roll(rest, nick):
     else:
         die = 100
     myroll = random.randint(1, die)
-    return "{} rolls {}".format(nick, myroll)
+    return f"{nick} rolls {myroll}"
 
 
 @command()
 def flip(nick):
     "Flip a coin"
     myflip = random.choice(('Heads', 'Tails'))
-    return "{} gets {}".format(nick, myflip)
+    return f"{nick} gets {myflip}"
 
 
 @command()
 def deal(nick):
     "Deal or No Deal?"
     mydeal = random.choice(('Deal!', 'No Deal!'))
-    return "{} gets {}".format(nick, mydeal)
+    return f"{nick} gets {mydeal}"
 
 
 @command(aliases="t")
@@ -376,7 +376,7 @@ def pick(rest):
     else:
         pick = random.choice(choices)
         certainty = random.sample(phrases.certainty_opts, 1)[0]
-        return "{}... {} {}".format(pick, certainty, pick)
+        return f"{pick}... {certainty} {pick}"
 
 
 @command(aliases=("lunchpick", "lunchpicker"))
@@ -465,7 +465,7 @@ def insult(rest):
         elif insult.type in (1, 3):
             cinsre = re.compile(r'^([TY])')
             insult = cinsre.sub(
-                lambda m: "{}, {}".format(insultee, m.group(1).lower()), insult
+                lambda m: f"{insultee}, {m.group(1).lower()}", insult
             )
     return insult
 
@@ -509,7 +509,7 @@ def emer_comp(rest):
     if rest:
         complimentee = rest.strip()
         karma.Karma.store.change(complimentee, 1)
-        return "{}: {}".format(complimentee, compliment)
+        return f"{complimentee}: {compliment}"
     return compliment
 
 
@@ -805,7 +805,7 @@ def fight(nick, rest):
         winner, loser = contenders
         karma.Karma.store.change(winner, 1)
         karma.Karma.store.change(loser, -1)
-        return "{} {} {} in {}.".format(winner, vtype, loser, fdesc)
+        return f"{winner} {vtype} {loser} in {fdesc}."
 
 
 @command()

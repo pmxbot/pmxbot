@@ -216,4 +216,4 @@ def quote(rest):
     qt, i, n = Quotes.store.lookup(rest)
     if not qt:
         return
-    return '({}/{}): {}'.format(i, n, qt)
+    return f'({i}/{n}): {qt}'

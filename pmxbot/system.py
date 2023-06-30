@@ -21,7 +21,7 @@ def help(rest):
         # give help for matching commands
         for handler in Handler._registry:
             if handler.name == rs.lower():
-                yield '!{}: {}'.format(handler.name, handler.doc)
+                yield f'!{handler.name}: {handler.doc}'
                 break
         else:
             yield "command not found"

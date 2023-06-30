@@ -626,7 +626,7 @@ def _load_library_extensions():
             log.exception("Error initializing plugin %s." % ep)
 
 
-@functools.lru_cache()
+@functools.lru_cache
 def _load_filters():
     """
     Locate all entry points by the name 'pmxbot_filters', each of

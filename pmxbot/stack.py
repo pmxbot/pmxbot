@@ -283,7 +283,7 @@ def _parse_atom_range(range_str, items):
 
 
 def output(indexed_items, default="(empty)", pop=False):
-    output = ["{}: {}".format(i, item) for i, item in indexed_items]
+    output = [f"{i}: {item}" for i, item in indexed_items]
     joined_output = " | ".join(output)
     if len(joined_output) > 100:
         joined_output = "\n".join(output)

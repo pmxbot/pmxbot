@@ -21,7 +21,7 @@ def _mounted(session, adapter):
     return session
 
 
-@functools.lru_cache()
+@functools.lru_cache
 def session():
     retry_strategy = requests.packages.urllib3.util.retry.Retry(
         total=5,

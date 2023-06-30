@@ -219,7 +219,7 @@ class HelpPage:
         return page.render(**self.get_context()).encode('utf-8')
 
     @staticmethod
-    @functools.lru_cache()
+    @functools.lru_cache
     def get_context():
         context = get_context()
         commands = []
