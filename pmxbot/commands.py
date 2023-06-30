@@ -464,9 +464,7 @@ def insult(rest):
             insult = cinsre.sub("%s's" % insultee, insult)
         elif insult.type in (1, 3):
             cinsre = re.compile(r'^([TY])')
-            insult = cinsre.sub(
-                lambda m: f"{insultee}, {m.group(1).lower()}", insult
-            )
+            insult = cinsre.sub(lambda m: f"{insultee}, {m.group(1).lower()}", insult)
     return insult
 
 
