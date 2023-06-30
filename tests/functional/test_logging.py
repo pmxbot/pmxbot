@@ -108,3 +108,7 @@ class TestPmxbotLog(PmxbotHarness):
         self.client.send_message("#inane", '  ')
         time.sleep(1)
         assert self.bot.poll() is None
+
+    def test_action(self):
+        self.client.send_message("#logged", '/me initiates an action')
+        assert self.check_logs(channel='#logged', message='/me initiates an action')
