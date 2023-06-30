@@ -222,7 +222,7 @@ class ErrorReportingBuffer(buffer.LineBuffer):
             try:
                 yield line.decode(self.encoding)
             except UnicodeDecodeError:
-                log.error("Unable to decode line: {line!r}".format(line=line))
+                log.error(f"Unable to decode line: {line!r}")
 
     @classmethod
     def install(cls):

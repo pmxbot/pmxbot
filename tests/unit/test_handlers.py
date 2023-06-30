@@ -14,7 +14,7 @@ def test_contains_rate_limit():
     Contains handler with a rate should only appear sometimes.
     """
     handler = core.ContainsHandler(name='#', func=None, rate=0.5)
-    results = set(
+    results = {
         handler.match('Tell me about #foo', channel='bar') for x in range(1000)
-    )
+    }
     assert True in results and False in results

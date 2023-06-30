@@ -69,7 +69,7 @@ def get_context():
 
 def make_anchor(line):
     time, nick = line
-    return "%s.%s" % (str(time).replace(':', '.'), nick)
+    return "{}.{}".format(str(time).replace(':', '.'), nick)
 
 
 def pmon(month):
@@ -101,7 +101,7 @@ def pday(dayfmt):
 
 
 class ChannelPage:
-    month_ordinal = dict((calendar.month_name[m_ord], m_ord) for m_ord in range(1, 13))
+    month_ordinal = {calendar.month_name[m_ord]: m_ord for m_ord in range(1, 13)}
 
     @cherrypy.expose
     def default(self, channel):

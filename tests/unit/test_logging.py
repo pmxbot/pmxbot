@@ -15,7 +15,7 @@ class TestLogging:
         logger.message('#inane', 'nik', 'message two')
         messages = list(logger.get_random_logs(2))
         assert len(messages) == 2
-        assert set(messages) == set(['message one', 'message two'])
+        assert set(messages) == {'message one', 'message two'}
 
 
 class TestMongoDBLogging:
@@ -44,7 +44,7 @@ class TestMongoDBLogging:
         logger.message('#bar', 'nik', 'in walk two olives')
         channels = logger.list_channels()
         assert len(channels) == 2
-        assert set(channels) == set(['bar', 'inane'])
+        assert set(channels) == {'bar', 'inane'}
 
     def test_search_miss(self, mongodb_uri):
         logger = self.setup_logging(mongodb_uri)

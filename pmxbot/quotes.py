@@ -179,10 +179,10 @@ class MongoDBQuotes(Quotes, storage.MongoDBStorage):
 
         if not hasattr(logging.Logger, 'log_id_map'):
             log_db = self.db.database.logs
-            logging.Logger.log_id_map = dict(
-                (logging.MongoDBLogger.extract_legacy_id(rec['_id']), rec['_id'])
+            logging.Logger.log_id_map = {
+                logging.MongoDBLogger.extract_legacy_id(rec['_id']): rec['_id']
                 for rec in log_db.find(projection=[])
-            )
+            }
         return logging.Logger.log_id_map
 
     def import_(self, quote):
@@ -216,4 +216,4 @@ def quote(rest):
     qt, i, n = Quotes.store.lookup(rest)
     if not qt:
         return
-    return '(%s/%s): %s' % (i, n, qt)
+    return '({}/{}): {}'.format(i, n, qt)

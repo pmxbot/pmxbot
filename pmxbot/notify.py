@@ -99,5 +99,5 @@ def donotify(nick, rest):
 @on_join()
 def notifier(client, nick):
     for msg in Notify.store.lookup(nick):
-        out = '%s wanted to say %s' % (msg['fromnick'], msg['message'])
+        out = '{} wanted to say {}'.format(msg['fromnick'], msg['message'])
         client.notice(nick, out)

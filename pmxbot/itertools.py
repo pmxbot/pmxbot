@@ -6,8 +6,7 @@ def generate_results(function):
     Take a function, which may return an iterator or a static result
     and convert it to a late-dispatched generator.
     """
-    for item in always_iterable(function()):
-        yield item
+    yield from always_iterable(function())
 
 
 def trap_exceptions(results, handler, exceptions=Exception):
@@ -17,8 +16,6 @@ def trap_exceptions(results, handler, exceptions=Exception):
     the results with the output from the exception handler.
     """
     try:
-        for result in results:
-            yield result
+        yield from results
     except exceptions as exc:
-        for result in always_iterable(handler(exc)):
-            yield result
+        yield from always_iterable(handler(exc))

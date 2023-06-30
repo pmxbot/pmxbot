@@ -283,7 +283,7 @@ def _parse_atom_range(range_str, items):
 
 
 def output(indexed_items, default="(empty)", pop=False):
-    output = ["%s: %s" % (i, item) for i, item in indexed_items]
+    output = ["{}: {}".format(i, item) for i, item in indexed_items]
     joined_output = " | ".join(output)
     if len(joined_output) > 100:
         joined_output = "\n".join(output)
@@ -393,7 +393,7 @@ def _parse_params(params, default_topic):
     finish = params.rfind("]")
     sp = params.find(" ")
     if start != -1 and finish != -1 and start < finish and (sp == -1 or start < sp):
-        topic, index = [atom.strip() for atom in params[:finish].split("[", 1)]
+        topic, index = (atom.strip() for atom in params[:finish].split("[", 1))
         if not topic:
             topic = default_topic
         new_item = params[finish + 1 :].strip()

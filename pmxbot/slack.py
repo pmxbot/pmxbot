@@ -116,7 +116,7 @@ class Bot(pmxbot.core.Bot):
                 as_user=True,
             )
         else:
-            log.error("Failed to resolve a channel ID for: '{}'".format(channel))
+            log.error(f"Failed to resolve a channel ID for: '{channel}'")
 
     @staticmethod
     def search_dicts(key, dicts):
@@ -188,7 +188,7 @@ class Bot(pmxbot.core.Bot):
                 assert ref is not None
             except Exception:
                 # capture any exception, fallback to original text
-                log.exception("Error resolving slack reference: {}".format(message))
+                log.exception(f"Error resolving slack reference: {message}")
                 return match.group(0)
 
             return f'<{match_type}{ref}>'

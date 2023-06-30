@@ -312,7 +312,7 @@ def top10(rest):
     else:
         topn = 10
     selection = Karma.store.list(topn)
-    res = ' '.join('(%s: %s)' % (', '.join(n), k) for n, k in selection)
+    res = ' '.join('({}: {})'.format(', '.join(n), k) for n, k in selection)
     return res
 
 
@@ -327,5 +327,5 @@ def bottom10(rest):
     else:
         topn = -10
     selection = Karma.store.list(topn)
-    res = ' '.join('(%s: %s)' % (', '.join(n), k) for n, k in selection)
+    res = ' '.join('({}: {})'.format(', '.join(n), k) for n, k in selection)
     return res

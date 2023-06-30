@@ -281,7 +281,7 @@ class CommandHandler(Handler):
 
     def match(self, message, channel):
         cmd, _, cmd_args = message.partition(' ')
-        return cmd.lower() == '!{name}'.format(name=self.name)
+        return cmd.lower() == f'!{self.name}'
 
     def process(self, message):
         cmd, _, cmd_args = message.partition(' ')
