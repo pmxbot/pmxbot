@@ -584,7 +584,7 @@ def stab(nick, rest):
         weapon = random.choice(phrases.weapon_opts)
         weaponadj = random.choice(phrases.weapon_adjs)
         violentact = random.choice(phrases.violent_acts)
-        return "/me grabs a {} {} and {} {}!".format(weaponadj, weapon, violentact, stabee)
+        return f"/me grabs a {weaponadj} {weapon} and {violentact} {stabee}!"
     elif random.random() < 0.6:
         karma.Karma.store.change(stabee, -1)
         return (
