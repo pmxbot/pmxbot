@@ -116,6 +116,7 @@ class SwitchChannel(str, Sentinel):
 
 class FinalRegistry:
     "A list of callbacks to run at exit."
+
     _finalizers: List[Callable] = []
 
     @classmethod

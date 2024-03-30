@@ -899,40 +899,38 @@ for tz in _TIMEZONES:
     TZINFOS[cast(str, tz.zone)] = tz
 # Add tzones not defined in pytz mainly from
 # http://users.telenet.be/mm011/time%20zone%20abbreviations.html
-TZINFOS.update(
-    {
-        # Europe
-        'BST': pytz.FixedOffset(60),
-        'IST': pytz.FixedOffset(60),
-        'WEST': pytz.FixedOffset(60),
-        'CEST': pytz.FixedOffset(60),
-        'EEST': pytz.FixedOffset(180),
-        'MSK': pytz.FixedOffset(180),
-        'MSD': pytz.FixedOffset(240),
-        'LDN': pytz.timezone('Europe/London'),
-        # America
-        'CT': pytz.timezone('US/Central'),
-        'ET': pytz.timezone('US/Eastern'),
-        'MT': pytz.timezone('US/Mountain'),
-        'PT': pytz.timezone('US/Pacific'),
-        'AST': pytz.FixedOffset(-240),
-        'ADT': pytz.FixedOffset(-180),
-        'EDT': pytz.FixedOffset(-240),
-        'CST': pytz.FixedOffset(-360),
-        'CDT': pytz.FixedOffset(-300),
-        'MDT': pytz.FixedOffset(-360),
-        'PST': pytz.FixedOffset(-480),
-        'PDT': pytz.FixedOffset(-420),
-        'AKST': pytz.FixedOffset(-540),
-        'AKDT': pytz.FixedOffset(-480),
-        # Australia
-        'AEST': pytz.FixedOffset(600),
-        'AEDT': pytz.FixedOffset(660),
-        'ACST': pytz.FixedOffset(570),
-        'ACDT': pytz.FixedOffset(630),
-        'AWST': pytz.FixedOffset(480),
-    }
-)
+TZINFOS.update({
+    # Europe
+    'BST': pytz.FixedOffset(60),
+    'IST': pytz.FixedOffset(60),
+    'WEST': pytz.FixedOffset(60),
+    'CEST': pytz.FixedOffset(60),
+    'EEST': pytz.FixedOffset(180),
+    'MSK': pytz.FixedOffset(180),
+    'MSD': pytz.FixedOffset(240),
+    'LDN': pytz.timezone('Europe/London'),
+    # America
+    'CT': pytz.timezone('US/Central'),
+    'ET': pytz.timezone('US/Eastern'),
+    'MT': pytz.timezone('US/Mountain'),
+    'PT': pytz.timezone('US/Pacific'),
+    'AST': pytz.FixedOffset(-240),
+    'ADT': pytz.FixedOffset(-180),
+    'EDT': pytz.FixedOffset(-240),
+    'CST': pytz.FixedOffset(-360),
+    'CDT': pytz.FixedOffset(-300),
+    'MDT': pytz.FixedOffset(-360),
+    'PST': pytz.FixedOffset(-480),
+    'PDT': pytz.FixedOffset(-420),
+    'AKST': pytz.FixedOffset(-540),
+    'AKDT': pytz.FixedOffset(-480),
+    # Australia
+    'AEST': pytz.FixedOffset(600),
+    'AEDT': pytz.FixedOffset(660),
+    'ACST': pytz.FixedOffset(570),
+    'ACDT': pytz.FixedOffset(630),
+    'AWST': pytz.FixedOffset(480),
+})
 
 
 @command(aliases=('tz'))

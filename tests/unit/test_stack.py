@@ -21,19 +21,17 @@ class DummyStorage:
 class StackTestCase(unittest.TestCase):
     def make_colors(self):
         """Set Store.stack to a dummy with ROYGBIV color names as items."""
-        Stack.store = DummyStorage(
-            {
-                "fumanchu": [
-                    "red",
-                    "orange",
-                    "yellow",
-                    "green",
-                    "blue",
-                    "indigo",
-                    "violet",
-                ]
-            }
-        )
+        Stack.store = DummyStorage({
+            "fumanchu": [
+                "red",
+                "orange",
+                "yellow",
+                "green",
+                "blue",
+                "indigo",
+                "violet",
+            ]
+        })
         self.assertEqual(
             stack("fumanchu", "show"),
             "1: red | 2: orange | 3: yellow | 4: green | "

@@ -89,12 +89,10 @@ class MongoDBLogger(ParticipantLogger, storage.MongoDBStorage):
     collection_name = 'rolls'
 
     def log(self, nick, channel, change):
-        self.db.ensure_index(
-            [
-                ('datetime.d', storage.pymongo.DESCENDING),
-                ('channel', storage.pymongo.ASCENDING),
-            ]
-        )
+        self.db.ensure_index([
+            ('datetime.d', storage.pymongo.DESCENDING),
+            ('channel', storage.pymongo.ASCENDING),
+        ])
         now = datetime.datetime.utcnow()
         doc = dict(
             channel=channel,
