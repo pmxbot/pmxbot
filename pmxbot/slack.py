@@ -1,11 +1,11 @@
 import functools
-import time
 import importlib
+import itertools
 import logging
 import re
 import html
 import threading
-import contextlib
+import time
 
 from tempora import schedule
 
@@ -15,7 +15,8 @@ from pmxbot import core
 
 log = logging.getLogger(__name__)
 
-SLACK_CACHE_SECONDS = 7 * 24 * 60 * 60
+DEFAULT_SLACK_CACHE_TTL = 60 * 60 * 4
+DEFAULT_SLACK_PAGESIZE = 1000
 
 
 def iter_cursor(callable, cursor=None):
@@ -30,11 +31,26 @@ def iter_cursor(callable, cursor=None):
 
 
 class Bot(pmxbot.core.Bot):
-    def __init__(self, server, port, nickname, channels, password=None):
+    def __init__(
+        self,
+        server,
+        port,
+        nickname,
+        channels,
+        password=None,
+        slack_cache_ttl=DEFAULT_SLACK_CACHE_TTL,
+        slack_pagesize=DEFAULT_SLACK_PAGESIZE,
+    ):
         token = pmxbot.config['slack token']
         sc = importlib.import_module('slack_sdk.rtm_v2')
         self.slack = sc.RTMClient(token=token)
         self.scheduler = schedule.CallbackScheduler(self.handle_scheduled)
+        self.slack_cache_ttl = slack_cache_ttl
+        self.slack_pagesize = slack_pagesize
+
+    @property
+    def slack_cache_ttl_key(self):
+        return time.time() // self.slack_cache_ttl
 
     def start(self):
         self.init_schedule(self.scheduler)
@@ -102,9 +118,9 @@ class Bot(pmxbot.core.Bot):
         # the channel name, or the user name or email (for DMs)
         channel_id = (
             getattr(channel, "channel_id", None)
-            or self._get_id_for_channel_name(channel)
-            or self._get_id_for_user_name(channel)
-            or self._get_id_for_user_email(channel)
+            or self.get_id_for_channel_name(channel)
+            or self.get_id_for_user_name(channel)
+            or self.get_id_for_user_email(channel)
         )
 
         if channel_id:
@@ -118,65 +134,64 @@ class Bot(pmxbot.core.Bot):
         else:
             log.error(f"Failed to resolve a channel ID for: '{channel}'")
 
-    @staticmethod
-    def search_dicts(key, dicts):
-        """
-        Return the value for the first dict in dicts that has key.
-        """
-        for dict in dicts:
-            with contextlib.suppress(KeyError):
-                return dict[key]
-
-    def _get_channel_mappings(self):
+    @functools.lru_cache(maxsize=1)
+    def _get_channel_mappings(self, _ttl_key):
         convos = functools.partial(
             self.slack.web_client.conversations_list,
             exclude_archived=True,
+            limit=self.slack_pagesize,
         )
-        return (
-            {channel['name'].lower(): channel['id'] for channel in convo['channels']}
-            for convo in iter_cursor(convos)
+        return {
+            channel['name'].lower(): channel['id']
+            for channel in itertools.chain(*[
+                convo['channels'] for convo in iter_cursor(convos)
+            ])
+        }
+
+    @functools.lru_cache(maxsize=1)
+    def _get_users_mappings(self, _ttl_key):
+        users = functools.partial(
+            self.slack.web_client.users_list,
+            limit=self.slack_pagesize,
         )
+        return [
+            {
+                "id": user["id"],
+                "name": user["name"].lower(),
+                "email": user["profile"]["email"].lower()
+                if "email" in user["profile"]
+                else None,
+            }
+            for user in itertools.chain(*[
+                user_list['members'] for user_list in iter_cursor(users)
+            ])
+        ]
 
     def _get_user_name_to_id_mappings(self):
-        users = functools.partial(self.slack.web_client.users_list)
-        return (
-            {user['name'].lower(): user['id'] for user in user_list['members']}
-            for user_list in iter_cursor(users)
-        )
+        users = self._get_users_mappings(self.slack_cache_ttl_key)
+        return {user["name"]: user["id"] for user in users}
 
     def _get_user_email_to_id_mappings(self):
-        users = functools.partial(self.slack.web_client.users_list)
-        return (
-            {
-                user['profile']['email'].lower(): user['id']
-                for user in user_list['members']
-                if user['profile'].get('email')
-            }
-            for user_list in iter_cursor(users)
-        )
+        users = self._get_users_mappings(self.slack_cache_ttl_key)
+        return {user["email"]: user["id"] for user in users if user.get("email")}
 
     @functools.lru_cache
-    def _get_id_for_user_name(self, user_name):
-        return self.search_dicts(
-            user_name.lower(), self._get_user_name_to_id_mappings()
-        )
+    def get_id_for_user_name(self, user_name):
+        return self._get_user_name_to_id_mappings().get(user_name.lower())
 
     @functools.lru_cache
-    def _get_id_for_user_email(self, user_email):
-        return self.search_dicts(
-            user_email.lower(), self._get_user_email_to_id_mappings()
-        )
+    def get_id_for_user_email(self, user_email):
+        return self._get_user_email_to_id_mappings().get(user_email.lower())
 
     @functools.lru_cache
-    def _get_id_for_channel_name(self, channel_name):
-        return self.search_dicts(
-            channel_name.strip('#').lower(), self._get_channel_mappings()
-        )
+    def get_id_for_channel_name(self, channel_name):
+        channels = self._get_channel_mappings(self.slack_cache_ttl_key)
+        return channels.get(channel_name.strip('#').lower())
 
     def _expand_references(self, message):
         resolvers = {
-            '@': self._get_id_for_user_name,
-            '#': self._get_id_for_channel_name,
+            '@': self.get_id_for_user_name,
+            '#': self.get_id_for_channel_name,
         }
 
         def _expand(match):
