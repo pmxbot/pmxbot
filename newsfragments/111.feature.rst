@@ -1,0 +1,1 @@
+Avoid Slack rate limiter failures when decoding channels and users
