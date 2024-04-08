@@ -1,3 +1,12 @@
+v1122.17.0
+==========
+
+Features
+--------
+
+- Avoid Slack rate limiter failures when decoding channels and users (#111)
+
+
 v1122.16.0
 ==========
 
