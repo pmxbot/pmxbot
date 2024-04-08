@@ -430,7 +430,7 @@ class Bot(metaclass=abc.ABCMeta):
 
     @classmethod
     @abc.abstractmethod
-    def from_config(cls, config):
+    def from_config(cls, config):  # pragma: no cover
         raise NotImplementedError("Must implement `from_config`")
 
     def out(self, channel, s, log=True):
