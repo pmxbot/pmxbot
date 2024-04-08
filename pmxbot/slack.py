@@ -31,22 +31,39 @@ def iter_cursor(callable, cursor=None):
 
 
 class Bot(pmxbot.core.Bot):
-    def __init__(
-        self,
-        server,
-        port,
-        nickname,
-        channels,
-        password=None,
-        slack_cache_ttl=DEFAULT_SLACK_CACHE_TTL,
-        slack_pagesize=DEFAULT_SLACK_PAGESIZE,
-    ):
-        token = pmxbot.config['slack token']
+    def __init__(self, token, slack_cache_ttl, slack_pagesize):
         sc = importlib.import_module('slack_sdk.rtm_v2')
         self.slack = sc.RTMClient(token=token)
         self.scheduler = schedule.CallbackScheduler(self.handle_scheduled)
         self.slack_cache_ttl = slack_cache_ttl
         self.slack_pagesize = slack_pagesize
+
+    @classmethod
+    def from_config(cls, config):
+        slack_cache_ttl = int(
+            config.get("slack_cache_ttl")
+            if config.get("slack_cache_ttl") is not None
+            else DEFAULT_SLACK_CACHE_TTL
+        )
+        slack_pagesize = int(
+            config.get("slack_pagesize")
+            if config.get("slack_pagesize") is not None
+            else DEFAULT_SLACK_PAGESIZE
+        )
+
+        if slack_cache_ttl < 1:
+            raise ValueError(
+                "Slack cache TTL must be a number greater than or equal to 1"
+            )
+
+        if slack_pagesize < 1 or slack_pagesize > 1000:
+            raise ValueError("Slack pagesize must be a number between 1 and 1000")
+
+        return cls(
+            config['slack token'],
+            slack_cache_ttl,
+            slack_pagesize,
+        )
 
     @property
     def slack_cache_ttl_key(self):

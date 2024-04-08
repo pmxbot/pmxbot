@@ -68,6 +68,16 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
         self._nickname = nickname
         self.warn_history = WarnHistory()
 
+    @classmethod
+    def from_config(cls, config):
+        return cls(
+            config.get('server_host', 'localhost'),
+            config.get('server_port', 6667),
+            config.bot_nickname,
+            config.log_channels + config.other_channels,
+            config.get('password'),
+        )
+
     def connect(self, *args, **kwargs):
         factory = irc.connection.Factory(wrapper=self._get_wrapper())
         res = super().connect(connect_factory=factory, *args, **kwargs)

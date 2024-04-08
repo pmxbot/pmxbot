@@ -428,6 +428,11 @@ class Bot(metaclass=abc.ABCMeta):
     The abstract interface for the bot.
     """
 
+    @classmethod
+    @abc.abstractmethod
+    def from_config(cls, config):
+        raise NotImplementedError("Must implement `from_config`")
+
     def out(self, channel, s, log=True):
         try:
             sent = self.allow(channel, s) and self.transmit(channel, s)
@@ -572,6 +577,10 @@ def init_config(overrides):
 def initialize(config):
     "Initialize the bot with a dictionary of config items"
     config = init_config(config)
+    config.setdefault('log_channels', [])
+    config.setdefault('other_channels', [])
+    log.info('Running with config')
+    log.info(pprint.pformat(config))
 
     _setup_logging()
     _load_library_extensions()
@@ -579,25 +588,7 @@ def initialize(config):
         raise RuntimeError("No handlers registered")
 
     class_ = _load_bot_class()
-
-    config.setdefault('log_channels', [])
-    config.setdefault('other_channels', [])
-
-    channels = config.log_channels + config.other_channels
-
-    log.info('Running with config')
-    log.info(pprint.pformat(config))
-
-    host = config.get('server_host', 'localhost')
-    port = config.get('server_port', 6667)
-
-    return class_(
-        host,
-        port,
-        config.bot_nickname,
-        channels=channels,
-        password=config.get('password'),
-    )
+    return class_.from_config(config)
 
 
 def _load_library_extensions():

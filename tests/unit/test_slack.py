@@ -1,15 +1,13 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
-import pmxbot
 from pmxbot import slack
 
 
 @pytest.fixture
 def slack_bot():
     with patch("slack_sdk.rtm_v2.RTMClient"):
-        pmxbot.config['slack token'] = "fake token"
-        slack_bot = slack.Bot("fake", 666, "test-bot", ["some-channel"])
+        slack_bot = slack.Bot("fake token", 1, 1)
         return slack_bot
 
 
