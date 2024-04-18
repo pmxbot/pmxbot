@@ -1,5 +1,111 @@
 [build-system]
-requires = ["setuptools>=56", "setuptools_scm[toml]>=3.4.1"]
+requires = ["setuptools>=61.2", "setuptools_scm[toml]>=3.4.1"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "pmxbot"
+authors = [
+	{ name = "YouGov", email = "dev@yougov.com" }, { name = "Plc." },
+]
+maintainers = [
+	{ name = "Jason R. Coombs", email = "jaraco@jaraco.com" },
+]
+description = "IRC bot - full featured, yet extensible and customizable"
+readme = "README.rst"
+classifiers = [
+	"Development Status :: 5 - Production/Stable",
+	"Intended Audience :: Developers",
+	"License :: OSI Approved :: MIT License",
+	"Programming Language :: Python :: 3",
+	"Programming Language :: Python :: 3 :: Only",
+	"Topic :: Communications :: Chat :: Internet Relay Chat",
+	"Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
+]
+requires-python = ">=3.8"
+dependencies = [
+	"requests",
+	"pyyaml",
+	"feedparser",
+	"pytz",
+	"beautifulsoup4",
+	"wordnik-py3",
+	"more_itertools",
+	"tempora",
+	"jaraco.collections>=3.4",
+	"jaraco.itertools",
+	"jaraco.context",
+	"jaraco.classes",
+	"jaraco.functools",
+	"inflect",
+	"python-dateutil",
+	"jaraco.mongodb>=7.3.1",
+	"importlib_metadata>=3.6",
+	"importlib_resources>=1.3",
+	# required by pymongo to honor mongodb+srv scheme
+	"dnspython",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/pmxbot/pmxbot"
+
+[project.optional-dependencies]
+testing = [
+	# upstream
+	"pytest >= 6",
+	"pytest-checkdocs >= 2.4",
+	"pytest-cov",
+	"pytest-mypy",
+	"pytest-enabler >= 2.2",
+	"pytest-ruff >= 0.2.1",
+
+	# local
+	"more_itertools",
+	"jaraco.mongodb",
+	"setuptools_scm",
+	"types-requests",
+	"types-python-dateutil",
+	"types-pytz",
+	"types-pyyaml",
+	"jaraco.test >= 5.3",
+]
+docs = [
+	# upstream
+	"sphinx >= 3.5",
+	"jaraco.packaging >= 9.3",
+	"rst.linker >= 1.9",
+	"furo",
+	"sphinx-lint",
+
+	# tidelift
+	"jaraco.tidelift >= 1.4",
+
+	# local
+]
+mongodb = ["pymongo>=3"]
+viewer = [
+	"cherrypy>=3.2.3",
+	"jinja2>=2.11.2",
+]
+slack = ["slack_sdk"]
+irc = ["irc >=15.0"]
+
+[project.entry-points]
+pytest11 = {"pmxbot core" = "pmxbot.testing.fixtures"}
+
+[project.entry-points.pmxbot_handlers]
+"pmxbot logging" = "pmxbot.logging:Logger.initialize"
+"pmxbot karma" = "pmxbot.karma:Karma.initialize"
+"pmxbot quotes" = "pmxbot.quotes:Quotes.initialize"
+"pmxbot core commands" = "pmxbot.commands"
+"pmxbot notifier" = "pmxbot.notify:Notify.init"
+"pmxbot stack" = "pmxbot.stack:Stack.init"
+"pmxbot rolls" = "pmxbot.rolls:ParticipantLogger.initialize"
+"pmxbot config" = "pmxbot.config_"
+"pmxbot system commands" = "pmxbot.system"
+
+[project.scripts]
+pmxbot = "pmxbot.core:run"
+pmxbotweb = "pmxbot.web.viewer:run"
 
 [tool.setuptools_scm]
