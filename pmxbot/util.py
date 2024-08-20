@@ -68,7 +68,7 @@ def lookup(word):
     except Exception:
         log.exception(f"Unhandled exception looking up {word}.")
         return
-    return str(definition.text)
+    return definition.text
 
 
 lookup.provider = 'Wordnik'  # type: ignore
