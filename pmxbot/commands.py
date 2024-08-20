@@ -415,8 +415,7 @@ def password(rest):
     except ValueError:
         return 'need an integer password length!'
 
-    for i in range(length):
-        passwd.append(random.choice(''.join(charsets)))
+    passwd.extend(random.choice(''.join(charsets)) for i in range(length))
 
     if length >= len(charsets):
         # Ensure we have at least one character from each charset
