@@ -53,22 +53,14 @@ Source = "https://github.com/pmxbot/pmxbot"
 test = [
 	# upstream
 	"pytest >= 6, != 8.1.*",
-	"pytest-checkdocs >= 2.4",
-	"pytest-cov",
-	"pytest-mypy",
-	"pytest-enabler >= 2.2",
-	"pytest-ruff >= 0.2.1; sys_platform != 'cygwin'",
 
 	# local
 	"more_itertools",
 	"jaraco.mongodb",
 	"setuptools_scm",
-	"types-requests",
-	"types-python-dateutil",
-	"types-pytz",
-	"types-pyyaml",
 	"jaraco.test >= 5.3",
 ]
+
 doc = [
 	# upstream
 	"sphinx >= 3.5",
@@ -81,6 +73,29 @@ doc = [
 	"jaraco.tidelift >= 1.4",
 
 	# local
+]
+check = [
+	"pytest-checkdocs >= 2.4",
+	"pytest-ruff >= 0.2.1; sys_platform != 'cygwin'",
+]
+
+cover = [
+	"pytest-cov",
+]
+
+enabler = [
+	"pytest-enabler >= 2.2",
+]
+
+type = [
+	# upstream
+	"pytest-mypy",
+
+	# local
+	"types-requests",
+	"types-python-dateutil",
+	"types-pytz",
+	"types-pyyaml",
 ]
 mongodb = ["pymongo>=3"]
 viewer = [
@@ -107,5 +122,6 @@ pytest11 = {"pmxbot core" = "pmxbot.testing.fixtures"}
 [project.scripts]
 pmxbot = "pmxbot.core:run"
 pmxbotweb = "pmxbot.web.viewer:run"
+
 
 [tool.setuptools_scm]
