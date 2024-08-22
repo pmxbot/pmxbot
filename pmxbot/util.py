@@ -71,7 +71,7 @@ def lookup(word):
     return definition.text
 
 
-lookup.provider = 'Wordnik'  # type: ignore
+lookup.provider = 'Wordnik'  # type: ignore[attr-defined]
 
 
 def urban_lookup(word):
