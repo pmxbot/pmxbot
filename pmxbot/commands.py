@@ -894,7 +894,7 @@ TZINFOS: Dict[str, datetime.tzinfo] = {}
 for tz in _TIMEZONES:
     # Add entry for long and short tz names
     # E.g. Europe/Rome and RMT
-    TZINFOS[tz._tzname] = tz  # type: ignore
+    TZINFOS[tz._tzname] = tz  # type: ignore[index]
     TZINFOS[cast(str, tz.zone)] = tz
 # Add tzones not defined in pytz mainly from
 # http://users.telenet.be/mm011/time%20zone%20abbreviations.html

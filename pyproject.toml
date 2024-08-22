@@ -96,6 +96,7 @@ type = [
 	"types-python-dateutil",
 	"types-pytz",
 	"types-pyyaml",
+	"types-beautifulsoup4",
 ]
 mongodb = ["pymongo>=3"]
 viewer = [
