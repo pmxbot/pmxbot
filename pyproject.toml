@@ -124,5 +124,8 @@ pytest11 = {"pmxbot core" = "pmxbot.testing.fixtures"}
 pmxbot = "pmxbot.core:run"
 pmxbotweb = "pmxbot.web.viewer:run"
 
-
 [tool.setuptools_scm]
+
+
+[tool.pytest-enabler.mypy]
+# Disabled due to jaraco/skeleton#143
