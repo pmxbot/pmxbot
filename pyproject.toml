@@ -21,7 +21,7 @@ classifiers = [
 	"Topic :: Communications :: Chat :: Internet Relay Chat",
 	"Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 dependencies = [
 	"requests",
 	"pyyaml",
