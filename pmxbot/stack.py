@@ -200,8 +200,7 @@ helpdoc = dict(
     shuffle="!stack shuffle <topic[index]>: Shuffle items from the given "
     "topic into the the given (1-based) index order "
     "(default: random)",
-    topics="!stack topics <[index]>: Show topic names, numbered in "
-    "alphabetical order.",
+    topics="!stack topics <[index]>: Show topic names, numbered in alphabetical order.",
     index='!stack indexes must be integers `[2]`, start:end slices '
     '(inclusive) `[4:-3]`, `"text"` or a `/regex/` to match, '
     '`first` or `last`, or any combination of those '
@@ -317,7 +316,7 @@ def stack(nick, rest):
 
 def _handle_add(new_item, indices, items, topic):
     if not new_item:
-        return '!stack add <topic[index]> item: ' 'You must provide an item to add.'
+        return '!stack add <topic[index]> item: You must provide an item to add.'
 
     if not indices:
         items.insert(0, new_item)

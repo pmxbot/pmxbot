@@ -108,8 +108,7 @@ def annoy():
         yield "I'M HENRY THE EIGHTH I AM"
         yield "HENRY THE EIGHTH I AM I AM"
         yield (
-            "I GOT MARRIED TO THE GIRL NEXT DOOR; SHE'S BEEN MARRIED "
-            "SEVEN TIMES BEFORE"
+            "I GOT MARRIED TO THE GIRL NEXT DOOR; SHE'S BEEN MARRIED SEVEN TIMES BEFORE"
         )
 
     def a3():
@@ -566,7 +565,7 @@ def tinytear(rest):
     if rest:
         return "/me sheds a single tear for %s" % rest
     else:
-        return "/me sits and cries as a single tear slowly trickles down " "its cheek"
+        return "/me sits and cries as a single tear slowly trickles down its cheek"
 
 
 @command(aliases=("shank", "shiv"))

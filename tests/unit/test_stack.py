@@ -59,7 +59,7 @@ class TestStackAdd(StackTestCase):
         stack("fumanchu", "add ['distract'] lunch")
         self.assertEqual(
             stack("fumanchu", ""),
-            "1: an interruption | 2: a Distraction | 3: lunch | " "4: foo | 5: cleanup",
+            "1: an interruption | 2: a Distraction | 3: lunch | 4: foo | 5: cleanup",
         )
         stack("fumanchu", "add [0] bar")
         self.assertEqual(
@@ -89,7 +89,7 @@ class TestStackPop(StackTestCase):
         self.assertEqual(stack("fumanchu", "pop"), "-: red")
         self.assertEqual(
             stack("fumanchu", "show"),
-            "1: orange | 2: yellow | 3: green | 4: blue | " "5: indigo | 6: violet",
+            "1: orange | 2: yellow | 3: green | 4: blue | 5: indigo | 6: violet",
         )
 
     def test_stack_pop_integer_index(self):
@@ -166,7 +166,7 @@ class TestStackPop(StackTestCase):
         self.assertEqual(stack("fumanchu", "pop [first]"), "-: red")
         self.assertEqual(
             stack("fumanchu", "show"),
-            "1: orange | 2: yellow | 3: green | 4: blue | " "5: indigo | 6: violet",
+            "1: orange | 2: yellow | 3: green | 4: blue | 5: indigo | 6: violet",
         )
 
     def test_stack_pop_last(self):
