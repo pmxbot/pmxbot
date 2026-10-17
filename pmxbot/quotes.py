@@ -63,14 +63,11 @@ class SQLiteQuotes(Quotes, storage.SQLiteStorage):
             """
         thing = thing.strip().lower()
         num = int(num)
-        if thing:
-            wtf = ' AND {}'.format(
-                ' AND '.join([f"quote like '%{x}%'" for x in thing.split()])
-            )
-            SEARCH_SQL = BASE_SEARCH_SQL % wtf
-        else:
-            SEARCH_SQL = BASE_SEARCH_SQL % ''
-        results = [x[1] for x in self.db.execute(SEARCH_SQL, (lib,)).fetchall()]
+        terms = thing.split()
+        wtf = ''.join(" AND quote like ?" for _ in terms)
+        SEARCH_SQL = BASE_SEARCH_SQL % wtf
+        params = (lib, *(f'%{term}%' for term in terms))
+        results = [x[1] for x in self.db.execute(SEARCH_SQL, params).fetchall()]
         n = len(results)
         if n > 0:
             if num:
