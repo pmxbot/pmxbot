@@ -433,7 +433,7 @@ class Insult(str):
 
 
 # suppress exceptions because the site is unreliable
-@suppress(requests.exceptions.ConnectionError)
+@suppress(requests.exceptions.RequestException)
 def get_insult():
     """
     Load a random insult from autoinsult.
