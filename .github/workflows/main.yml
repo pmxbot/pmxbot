@@ -39,6 +39,10 @@ jobs:
           platform: ubuntu-latest
         - python: pypy3.11
           platform: ubuntu-latest
+        exclude:
+        # pywin32 (via jaraco.mongodb) has no free-threaded wheels; pmxbot/pmxbot#116
+        - python: "3.14t"
+          platform: windows-latest
     uses: ./.github/workflows/test-suite.yml
     with:
       python: ${{ matrix.python }}
