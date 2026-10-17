@@ -434,7 +434,8 @@ class TestCommands:
         Test the urban dictionary with the word IRC.
         """
         res = commands.urbandict("irc")
-        assert "It's a place where broken and odd people" in res
+        # the top definition changes over time
+        assert res.startswith("Urban Dictionary says irc: ")
 
     @pytest.mark.network
     def test_acronym_irc(self):
