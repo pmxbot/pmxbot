@@ -438,6 +438,7 @@ class TestCommands:
         assert res.startswith("Urban Dictionary says irc: ")
 
     @pytest.mark.network
+    @pytest.mark.xfail(reason='pmxbot/pmxbot#115: acronymfinder.com blocks lookups')
     def test_acronym_irc(self):
         """
         Test acronym finder with the word IRC.

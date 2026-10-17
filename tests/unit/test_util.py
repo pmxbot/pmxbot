@@ -14,5 +14,6 @@ def test_emergency_compliment():
 
 
 @pytest.mark.network
+@pytest.mark.xfail(reason='pmxbot/pmxbot#115: acronymfinder.com blocks lookups')
 def test_acronym_lookup():
     assert util.lookup_acronym('NSFW')
