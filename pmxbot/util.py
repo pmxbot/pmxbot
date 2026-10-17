@@ -1,11 +1,11 @@
-import random
-import warnings
 import itertools
 import logging
+import random
+import warnings
 
-import requests
 import bs4
 import jaraco.functools
+import requests
 
 try:
     import wordnik.swagger
@@ -14,8 +14,8 @@ except (ImportError, SyntaxError):
     warnings.warn("Wordnik failed to import")
 
 import pmxbot.phrases
-from . import http
 
+from . import http
 
 log = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ def splitem(query):
     >>> splitem('stuff: a, b, c')
     ['a', 'b', 'c']
     """
-    prompt, sep, query = query.rstrip('?.!').rpartition(':')
+    _prompt, _sep, query = query.rstrip('?.!').rpartition(':')
 
     choices = query.split(',')
     choices[-1:] = choices[-1].split(' or ')
@@ -91,7 +91,7 @@ def urban_lookup(word):
 
 def lookup_acronym(acronym, limit=3):
     acronym = acronym.strip().upper().replace('.', '')
-    html = http.open('http://www.acronymfinder.com/%s.html' % acronym).text
+    html = http.open(f'http://www.acronymfinder.com/{acronym}.html').text
     soup = bs4.BeautifulSoup(html, 'html.parser')
     nodes = soup.findAll(name='td', attrs={'class': 'result-list__body__meaning'})
     return [node.text for node in itertools.islice(nodes, limit)]
@@ -112,10 +112,10 @@ def passagg(recipient, sender):
     if random.choice([False, True]):
         # address the recipient last
         lead = ""
-        trail = recipient if not recipient else ", %s" % recipient
+        trail = recipient if not recipient else f", {recipient}"
     else:
         # address the recipient first
-        lead = recipient if not recipient else "%s, " % recipient
+        lead = recipient if not recipient else f"{recipient}, "
         trail = ""
     body = random.choice(pmxbot.phrases.adj_intros) % adj
     if not lead:

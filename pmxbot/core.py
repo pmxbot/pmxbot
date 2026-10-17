@@ -1,27 +1,27 @@
-import datetime
-import random
-import functools
+import abc
 import argparse
+import datetime
+import functools
+import importlib
+import inspect
+import itertools
 import logging
 import pprint
+import random
 import re
-import importlib
-import abc
-import inspect
 import traceback
-import itertools
-
-from typing import List, Callable
+from collections.abc import Callable
+from typing import ClassVar
 
 import importlib_metadata
-from jaraco.itertools import always_iterable
 from jaraco.collections import Projection
+from jaraco.itertools import always_iterable
 from tempora import schedule
 
 import pmxbot.dictlib
 import pmxbot.itertools
-from .dictlib import ConfigDict
 
+from .dictlib import ConfigDict
 
 log = logging.getLogger('pmxbot')
 
@@ -117,7 +117,7 @@ class SwitchChannel(str, Sentinel):
 class FinalRegistry:
     "A list of callbacks to run at exit."
 
-    _finalizers: List[Callable] = []
+    _finalizers: ClassVar[list[Callable]] = []
 
     @classmethod
     def at_exit(cls, finalizer):
@@ -128,12 +128,12 @@ class FinalRegistry:
         for callback in cls._finalizers:
             try:
                 callback()
-            except Exception:
+            except Exception:  # noqa: BLE001, S110 (one failed finalizer must not block the rest)
                 pass
 
 
 class Handler:
-    _registry: List['Handler'] = []
+    _registry: ClassVar[list['Handler']] = []
 
     class_priority = 1
     "priority of this class relative to other classes, precedence to higher"
@@ -281,11 +281,11 @@ class CommandHandler(Handler):
         return rem_alias(self) == rem_alias(other)
 
     def match(self, message, channel):
-        cmd, _, cmd_args = message.partition(' ')
+        cmd, _, _cmd_args = message.partition(' ')
         return cmd.lower() == f'!{self.name}'
 
     def process(self, message):
-        cmd, _, cmd_args = message.partition(' ')
+        _cmd, _, cmd_args = message.partition(' ')
         return cmd_args
 
     @property
@@ -332,7 +332,7 @@ class ContentHandler(ContainsHandler):
 
 
 class Scheduled(Handler):
-    _registry: List[Handler] = []
+    _registry: ClassVar[list[Handler]] = []
 
 
 class DelayHandler(Scheduled):
@@ -358,7 +358,7 @@ class AtHandler(Scheduled):
 
 
 class JoinHandler(Handler):
-    _registry: List[Handler] = []
+    _registry: ClassVar[list[Handler]] = []
 
 
 class LeaveHandler(Handler):
@@ -366,7 +366,7 @@ class LeaveHandler(Handler):
     Handles quits and parts.
     """
 
-    _registry: List[Handler] = []
+    _registry: ClassVar[list[Handler]] = []
 
 
 def contains(name, channels=(), exclude=(), rate=1.0, priority=1, doc=None, **kwargs):
@@ -383,7 +383,9 @@ def contains(name, channels=(), exclude=(), rate=1.0, priority=1, doc=None, **kw
 
 def command(name=None, aliases=None, doc=None):
     if callable(name):
-        raise ValueError("Name should be a string, did you forget ()?")
+        raise ValueError(  # noqa: TRY004 (retain the established exception type)
+            "Name should be a string, did you forget ()?"
+        )
     handler = CommandHandler(name=name, doc=doc)
     aliases = [
         AliasHandler(name=alias, parent=handler) for alias in always_iterable(aliases)
@@ -436,7 +438,7 @@ class Bot(metaclass=abc.ABCMeta):
     def out(self, channel, s, log=True):
         try:
             sent = self.allow(channel, s) and self.transmit(channel, s)
-        except Exception:
+        except Exception:  # noqa: BLE001 (logged; a failed send must not crash the bot)
             msg = "Unhandled exception transmitting message: %r"
             globals()['log'].exception(msg, s)
             return
@@ -558,7 +560,7 @@ def _load_bot_class():
     if 'slack token' in pmxbot.config:
         default = 'pmxbot.slack:Bot'
     class_spec = pmxbot.config.get('bot class', default)
-    mod_name, sep, name = class_spec.partition(':')
+    mod_name, _sep, name = class_spec.partition(':')
     module = importlib.import_module(mod_name)
     return eval(name, vars(module))
 
@@ -615,7 +617,7 @@ def _load_library_extensions():
             if callable(init_func):
                 init_func()
         except Exception:
-            log.exception("Error initializing plugin %s." % ep)
+            log.exception(f"Error initializing plugin {ep}.")
 
 
 @functools.lru_cache

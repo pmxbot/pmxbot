@@ -1,7 +1,8 @@
-import pytest
 import unittest
 
-from pmxbot.stack import stack, Stack, helpdoc
+import pytest
+
+from pmxbot.stack import Stack, helpdoc, stack
 
 
 class DummyStorage:

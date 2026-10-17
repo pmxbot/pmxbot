@@ -1,6 +1,5 @@
 import pathlib
 
-
 ball8_opts = {
     "Signs point to yes.": 21,
     "Yes.": 21,

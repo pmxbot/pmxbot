@@ -1,5 +1,5 @@
-import random
 import operator
+import random
 
 from . import storage
 from .core import command
@@ -20,7 +20,7 @@ class Quotes(storage.SelectableStorage):
 
     @staticmethod
     def split_num(lookup):
-        prefix, sep, num = lookup.rpartition(' ')
+        prefix, _sep, num = lookup.rpartition(' ')
         if not prefix or not num.isdigit():
             return lookup, 0
         return prefix, int(num)
@@ -64,8 +64,8 @@ class SQLiteQuotes(Quotes, storage.SQLiteStorage):
         thing = thing.strip().lower()
         num = int(num)
         if thing:
-            wtf = ' AND %s' % (
-                ' AND '.join(["quote like '%%%s%%'" % x for x in thing.split()])
+            wtf = ' AND {}'.format(
+                ' AND '.join([f"quote like '%{x}%'" for x in thing.split()])
             )
             SEARCH_SQL = BASE_SEARCH_SQL % wtf
         else:
@@ -204,13 +204,13 @@ def quote(rest):
     matching exactly one query.
     """
     rest = rest.strip()
-    if rest.startswith('add: ') or rest.startswith('add '):
+    if rest.startswith(('add: ', 'add ')):
         quote_to_add = rest.split(' ', 1)[1]
         Quotes.store.add(quote_to_add)
         qt = False
         return 'Quote added!'
-    if rest.startswith('del: ') or rest.startswith('del '):
-        cmd, sep, lookup = rest.partition(' ')
+    if rest.startswith(('del: ', 'del ')):
+        _cmd, _sep, lookup = rest.partition(' ')
         Quotes.store.delete(lookup)
         return 'Deleted the sole quote that matched'
     qt, i, n = Quotes.store.lookup(rest)

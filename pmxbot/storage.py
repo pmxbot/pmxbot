@@ -1,15 +1,15 @@
 import abc
-import itertools
 import importlib
+import itertools
 import logging
 import threading
 import urllib.parse
-from typing import List, Callable
+from collections.abc import Callable
+from typing import ClassVar
 
 from jaraco.classes.ancestry import iter_subclasses
 
 import pmxbot
-
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ class SelectableStorage:
     on the URI.
     """
 
-    _finalizers: List[Callable] = []
+    _finalizers: ClassVar[list[Callable]] = []
 
     @classmethod
     def from_URI(cls, URI=None):
@@ -95,7 +95,7 @@ class MongoDBStorage(Storage):
 
     @classmethod
     def uri_matches(cls, uri):
-        return uri.startswith('mongodb:') or uri.startswith('mongodb+srv:')
+        return uri.startswith(('mongodb:', 'mongodb+srv:'))
 
     def __init__(self, host_uri):
         globals().update(

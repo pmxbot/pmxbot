@@ -1,6 +1,6 @@
 import itertools
-import re
 import random
+import re
 
 from . import storage
 from .core import command
@@ -77,7 +77,7 @@ class SQLiteKarma(Karma, storage.SQLiteStorage):
             """
         try:
             karma = self.db.execute(LOOKUP_SQL, [thing]).fetchone()[0]
-        except Exception:
+        except Exception:  # noqa: BLE001 (unknown or unreadable karma counts as zero)
             karma = 0
         if karma is None:
             karma = 0
@@ -286,7 +286,7 @@ def _link_karma(actor, *nicks):
 @command(aliases="k")
 def karma(nick, rest):
     "Return or change the karma value for some(one|thing)"
-    karmee = rest.strip('++').strip('--').strip('~~')
+    karmee = rest.strip('+').strip('-').strip('~')
     if '++' in rest:
         Karma.store.change(karmee, 1)
     elif '--' in rest:

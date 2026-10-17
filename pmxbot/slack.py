@@ -1,9 +1,9 @@
 import functools
+import html
 import importlib
 import itertools
 import logging
 import re
-import html
 import threading
 import time
 
@@ -11,7 +11,6 @@ from tempora import schedule
 
 import pmxbot
 from pmxbot import core
-
 
 log = logging.getLogger(__name__)
 
@@ -104,10 +103,11 @@ class Bot(pmxbot.core.Bot):
 
         self.handle_action(channel, nick, html.unescape(msg['text']))
 
-    @functools.lru_cache
+    @functools.lru_cache  # noqa: B019 (the bot lives for the life of the process)
     def _get_channel_name(self, channel_id):
         return (
-            self.slack.web_client.conversations_info(channel=channel_id)
+            self.slack.web_client
+            .conversations_info(channel=channel_id)
             .data['channel']
             .get('name')
         )
@@ -151,7 +151,7 @@ class Bot(pmxbot.core.Bot):
         else:
             log.error(f"Failed to resolve a channel ID for: '{channel}'")
 
-    @functools.lru_cache(maxsize=1)
+    @functools.lru_cache(maxsize=1)  # noqa: B019 (the bot lives for the life of the process)
     def _get_channel_mappings(self, _ttl_key):
         convos = functools.partial(
             self.slack.web_client.conversations_list,
@@ -165,7 +165,7 @@ class Bot(pmxbot.core.Bot):
             ])
         }
 
-    @functools.lru_cache(maxsize=1)
+    @functools.lru_cache(maxsize=1)  # noqa: B019 (the bot lives for the life of the process)
     def _get_users_mappings(self, _ttl_key):
         users = functools.partial(
             self.slack.web_client.users_list,
@@ -192,15 +192,15 @@ class Bot(pmxbot.core.Bot):
         users = self._get_users_mappings(self.slack_cache_ttl_key)
         return {user["email"]: user["id"] for user in users if user.get("email")}
 
-    @functools.lru_cache
+    @functools.lru_cache  # noqa: B019 (the bot lives for the life of the process)
     def get_id_for_user_name(self, user_name):
         return self._get_user_name_to_id_mappings().get(user_name.lower())
 
-    @functools.lru_cache
+    @functools.lru_cache  # noqa: B019 (the bot lives for the life of the process)
     def get_id_for_user_email(self, user_email):
         return self._get_user_email_to_id_mappings().get(user_email.lower())
 
-    @functools.lru_cache
+    @functools.lru_cache  # noqa: B019 (the bot lives for the life of the process)
     def get_id_for_channel_name(self, channel_name):
         channels = self._get_channel_mappings(self.slack_cache_ttl_key)
         return channels.get(channel_name.strip('#').lower())

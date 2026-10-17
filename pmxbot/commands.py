@@ -1,28 +1,25 @@
-import sys
-import re
-import random
-import string
 import csv
-import urllib.parse
 import datetime
-from typing import Dict, cast
+import random
+import re
+import string
+import sys
+import urllib.parse
+from typing import cast
 
 import dateutil.parser
-from bs4 import BeautifulSoup
-import requests
-import pytz
 import importlib_metadata
 import jaraco.collections
 import jaraco.functools
+import pytz
+import requests
+from bs4 import BeautifulSoup
 from jaraco.context import suppress
 
 import pmxbot
-from .core import command, contains, attach, log
-from . import util
-from . import karma
-from . import logging
-from . import phrases
-from . import http
+
+from . import http, karma, logging, phrases, util
+from .core import attach, command, contains, log
 
 
 def plaintext(html):
@@ -73,7 +70,7 @@ def boo(rest):
     "Boo someone"
     slapee = rest
     karma.Karma.store.change(slapee, -1)
-    return "/me BOOO %s!!! BOOO!!!" % slapee
+    return f"/me BOOO {slapee}!!! BOOO!!!"
 
 
 @command(aliases=("slap", "ts"))
@@ -81,7 +78,7 @@ def troutslap(rest):
     "Slap some(one|thing) with a fish"
     slapee = rest
     karma.Karma.store.change(slapee, -1)
-    return "/me slaps %s around a bit with a large trout" % slapee
+    return f"/me slaps {slapee} around a bit with a large trout"
 
 
 @command(aliases="kh")
@@ -90,8 +87,8 @@ def keelhaul(rest):
     keelee = rest
     karma.Karma.store.change(keelee, -1)
     return (
-        "/me straps %s to a dirty rope, tosses 'em overboard and pulls "
-        "with great speed. Yarrr!" % keelee
+        f"/me straps {keelee} to a dirty rope, tosses 'em overboard and pulls "
+        "with great speed. Yarrr!"
     )
 
 
@@ -167,7 +164,7 @@ def rubberstamp(rest):
     parts = ["Bad credit? No credit? Slow credit?"]
     rest = rest.strip()
     if rest:
-        parts.append("%s is" % rest)
+        parts.append(f"{rest} is")
         karma.Karma.store.change(rest, 1)
     parts.append("APPROVED!")
     return " ".join(parts)
@@ -178,7 +175,7 @@ def cheer(rest):
     "Cheer for something"
     if rest:
         karma.Karma.store.change(rest, 1)
-        return "/me cheers for %s!" % rest
+        return f"/me cheers for {rest}!"
     karma.Karma.store.change('the day', 1)
     return "/me cheers!"
 
@@ -255,7 +252,7 @@ def zinger(rest):
     if rest:
         name = rest.strip()
         karma.Karma.store.change(name, -1)
-    return "OH MAN!!! %s TOTALLY GOT ZING'D!" % (name.upper())
+    return f"OH MAN!!! {name.upper()} TOTALLY GOT ZING'D!"
 
 
 @command(aliases=("m", "appreciate", "thanks", "thank", "gracias", "grazie"))
@@ -269,7 +266,7 @@ def motivate(channel, rest):
     else:
         r = channel
     karma.Karma.store.change(r, 1)
-    return "you're doing good work, %s!" % r
+    return f"you're doing good work, {r}!"
 
 
 @command(aliases=("im", 'ironicmotivate'))
@@ -280,7 +277,7 @@ def imotivate(channel, rest):
         karma.Karma.store.change(r, -1)
     else:
         r = channel
-    return '''you're "doing" "good" "work", %s!''' % r
+    return f'''you're "doing" "good" "work", {r}!'''
 
 
 @command(aliases=("nail", "n"))
@@ -299,7 +296,7 @@ def demotivate(channel, rest):
     else:
         r = channel
     karma.Karma.store.change(r, -1)
-    return "you're doing horrible work, %s!" % r
+    return f"you're doing horrible work, {r}!"
 
 
 @command(name="8ball", aliases="8")
@@ -309,7 +306,7 @@ def eball(rest):
         url = 'https://8ball.delegator.com/magic/JSON/'
         url += rest
         result = requests.get(url).json()['magic']['answer']
-    except Exception:
+    except Exception:  # noqa: BLE001 (fall back to local answers on any failure)
         result = jaraco.collections.WeightedLookup(phrases.ball8_opts).random()
     return result
 
@@ -355,14 +352,14 @@ def ticker(rest):
     last_trade_price = 'l1'
     last_trade_time = 't1'
     change_percent = 'p2'
-    format = ''.join((symbol, last_trade_time, last_trade_price, change_percent))
-    url = 'http://finance.yahoo.com/d/quotes.csv?s=%(ticker)s&f=%(format)s' % locals()
+    format = f'{symbol}{last_trade_time}{last_trade_price}{change_percent}'
+    url = f'http://finance.yahoo.com/d/quotes.csv?s={ticker}&f={format}'
     stock_info = csv.reader(http.open(url).text.splitlines())
     (last_trade,) = stock_info
     ticker_given, time, price, diff = last_trade
     if ticker_given != ticker:
-        return "d'oh... could not find information for symbol %s" % ticker
-    return '%(ticker)s at %(time)s (ET): %(price)s (%(diff)s)' % locals()
+        return f"d'oh... could not find information for symbol {ticker}"
+    return f'{ticker} at {time} (ET): {price} ({diff})'
 
 
 @command(aliases=("p", 'p:', "pick:"))
@@ -383,11 +380,11 @@ def lunch(rest):
     "Pick where to go to lunch"
     rs = rest.strip()
     if not rs:
-        return "Give me an area and I'll pick a place: (%s)" % (
+        return "Give me an area and I'll pick a place: ({})".format(
             ', '.join(list(pmxbot.config.lunch_choices))
         )
     if rs not in pmxbot.config.lunch_choices:
-        return "I didn't recognize that area; here's what i have: (%s)" % (
+        return "I didn't recognize that area; here's what i have: ({})".format(
             ', '.join(list(pmxbot.config.lunch_choices))
         )
     choices = pmxbot.config.lunch_choices[rs]
@@ -459,7 +456,7 @@ def insult(rest):
         karma.Karma.store.change(insultee, -1)
         if insult.type in (0, 2):
             cinsre = re.compile(r'\b(your)\b', re.IGNORECASE)
-            insult = cinsre.sub("%s's" % insultee, insult)
+            insult = cinsre.sub(f"{insultee}'s", insult)
         elif insult.type in (1, 3):
             cinsre = re.compile(r'^([TY])')
             insult = cinsre.sub(lambda m: f"{insultee}, {m.group(1).lower()}", insult)
@@ -480,19 +477,19 @@ def compliment(rest):
         comphtml.find(compmark1) + len(compmark1) : comphtml.find(compmark2)
     ]
     if compliment:
-        compliment = re.compile(r'\n').sub('%s' % ' ', compliment)
-        compliment = re.compile(r'  ').sub('%s' % ' ', compliment)
+        compliment = re.compile(r'\n').sub(' ', compliment)
+        compliment = re.compile(r'  ').sub(' ', compliment)
         if rest:
             complimentee = rest.strip()
             karma.Karma.store.change(complimentee, 1)
             compliment = re.compile(r'\b(your)\b', re.IGNORECASE).sub(
-                '%s\'s' % complimentee, compliment
+                f'{complimentee}\'s', compliment
             )
             compliment = re.compile(r'\b(you are)\b', re.IGNORECASE).sub(
-                '%s is' % complimentee, compliment
+                f'{complimentee} is', compliment
             )
             compliment = re.compile(r'\b(you have)\b', re.IGNORECASE).sub(
-                '%s has' % complimentee, compliment
+                f'{complimentee} has', compliment
             )
         return compliment
 
@@ -528,7 +525,7 @@ def gettowork(channel, nick, rest):
     rest = rest.strip()
     if rest:
         karma.Karma.store.change(rest, -1)
-        suggestion = suggestion + ', %s' % rest
+        suggestion = suggestion + f', {rest}'
     else:
         karma.Karma.store.change(channel, -1)
     karma.Karma.store.change(nick, -1)
@@ -544,7 +541,7 @@ def bitchingisuseless(channel, rest):
     else:
         karma.Karma.store.change(channel, -1)
         rest = "foo'"
-    advice = 'Quiet bitching is useless, %s. Do something about it.' % rest
+    advice = f'Quiet bitching is useless, {rest}. Do something about it.'
     return advice
 
 
@@ -556,14 +553,14 @@ def curse(rest):
     else:
         cursee = 'the day'
     karma.Karma.store.change(cursee, -1)
-    return "/me curses %s!" % cursee
+    return f"/me curses {cursee}!"
 
 
 @command(aliases=('tt', 'tear', 'cry'))
 def tinytear(rest):
     "I cry a tiny tear for you."
     if rest:
-        return "/me sheds a single tear for %s" % rest
+        return f"/me sheds a single tear for {rest}"
     else:
         return "/me sits and cries as a single tear slowly trickles down its cheek"
 
@@ -591,8 +588,8 @@ def stab(nick, rest):
     else:
         karma.Karma.store.change(nick, -1)
         return (
-            "/me turns on its master and shivs %s. This is reality man, "
-            "and you never know what you're going to get!" % nick
+            f"/me turns on its master and shivs {nick}. This is reality man, "
+            "and you never know what you're going to get!"
         )
 
 
@@ -605,9 +602,9 @@ def disembowel(rest):
     else:
         stabee = "someone nearby"
     return (
-        "/me takes %s, brings them down to the basement, ties them to a "
+        f"/me takes {stabee}, brings them down to the basement, ties them to a "
         "leaky pipe, and once bored of playing with them mercifully "
-        "ritually disembowels them..." % stabee
+        "ritually disembowels them..."
     )
 
 
@@ -621,9 +618,9 @@ def embowel(rest):
         stabee = "someone nearby"
     return (
         "/me (wearing a bright pink cape and yellow tights) swoops in "
-        "through an open window, snatches %s, races out of the basement, "
+        f"through an open window, snatches {stabee}, races out of the basement, "
         "takes them to the hospital with entrails on ice, and mercifully "
-        "embowels them, saving the day..." % stabee
+        "embowels them, saving the day..."
     )
 
 
@@ -652,7 +649,7 @@ def bless(rest):
     else:
         blesse = 'the day'
     karma.Karma.store.change(blesse, 1)
-    return "/me blesses %s!" % blesse
+    return f"/me blesses {blesse}!"
 
 
 @command()
@@ -664,15 +661,14 @@ def blame(channel, rest, nick):
         blamee = channel
     karma.Karma.store.change(nick, -1)
     if random.randint(1, 10) == 1:
-        yield "/me jumps atop the chair and points back at %s." % nick
+        yield f"/me jumps atop the chair and points back at {nick}."
         yield (
             "stop blaming the world for your problems, you bitter, "
             "two-faced sissified monkey!"
         )
     else:
         yield (
-            "I blame %s for everything!  it's your fault!  "
-            "it's all your fault!!" % blamee
+            f"I blame {blamee} for everything!  it's your fault!  it's all your fault!!"
         )
         yield "/me cries and weeps in despair"
 
@@ -743,7 +739,7 @@ def calc(rest):
     if mo:
         try:
             return str(eval(rest))
-        except Exception:
+        except Exception:  # noqa: BLE001 (report any evaluation failure to the user)
             return "eval failed... check your syntax"
     else:
         return "misformatted arithmetic!"
@@ -795,7 +791,7 @@ def fight(nick, rest):
         if not matcher:
             karma.Karma.store.change(nick.lower(), -1)
             args = (vtype, nick, fdesc)
-            return "/me %s %s in %s for bad protocol." % args
+            return "/me {} {} in {} for bad protocol.".format(*args)
         contenders = [c.strip() for c in matcher.groups()]
         random.shuffle(contenders)
         winner, loser = contenders
@@ -809,9 +805,9 @@ def progress(rest):
     "Display the progress of something: start|end|percent"
     if rest:
         left, right, amount = (piece.strip() for piece in rest.split('|'))
-        ticks = min(int(round(float(amount) / 10)), 10)
+        ticks = min(round(float(amount) / 10), 10)
         bar = "=" * ticks
-        return "%s [%-10s] %s" % (left, bar, right)
+        return f"{left} [{bar:<10}] {right}"
 
 
 @command(aliases=('nerf', 'passive', 'bcc'))
@@ -832,7 +828,7 @@ def therethere(rest):
     "Sympathy for you."
     if rest:
         karma.Karma.store.change(rest, 1)
-        return "There there %s... There there." % rest
+        return f"There there {rest}... There there."
     else:
         return "/me shares its sympathy."
 
@@ -889,7 +885,7 @@ def version(rest):
 
 
 _TIMEZONES = (pytz.timezone(name) for name in pytz.all_timezones)
-TZINFOS: Dict[str, datetime.tzinfo] = {}
+TZINFOS: dict[str, datetime.tzinfo] = {}
 for tz in _TIMEZONES:
     # Add entry for long and short tz names
     # E.g. Europe/Rome and RMT

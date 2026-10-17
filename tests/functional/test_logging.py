@@ -15,7 +15,7 @@ class TestPmxbotLog(PmxbotHarness):
         Test that a basic message in an unlogged room is unlogged.
         """
         id = str(uuid.uuid4())
-        msg = 'Unlogged msg from test_not_logged_channel. %s' % id
+        msg = f'Unlogged msg from test_not_logged_channel. {id}'
         self.client.send_message('#inane', msg)
         assert not self.check_logs(channel="#inane", message=msg)
 
@@ -24,7 +24,7 @@ class TestPmxbotLog(PmxbotHarness):
         Test whether a basic message in a logged room is logged.
         """
         id = str(uuid.uuid4())
-        msg = 'Logged msg from test_logged_channel. %s' % id
+        msg = f'Logged msg from test_logged_channel. {id}'
         self.client.send_message('#logged', msg)
         assert self.check_logs(channel="#logged", message=msg)
 
@@ -33,7 +33,7 @@ class TestPmxbotLog(PmxbotHarness):
         Test whether a second basic message in a logged room is logged.
         """
         id = str(uuid.uuid4())
-        msg = 'Logged msg number 2 from test_logged_channel_again. %s' % id
+        msg = f'Logged msg number 2 from test_logged_channel_again. {id}'
         self.client.send_message('#logged', msg)
         assert self.check_logs(channel="#logged", message=msg)
 
@@ -41,7 +41,7 @@ class TestPmxbotLog(PmxbotHarness):
         """
         Test that international characters get logged properly.
         """
-        msg = f'Я предпочитаю круассаны с рыбой. {str(uuid.uuid4())}'
+        msg = f'Я предпочитаю круассаны с рыбой. {uuid.uuid4()!s}'
         self.client.send_message('#logged', msg)
         assert self.check_logs(channel='#logged', message=msg)
 
@@ -54,11 +54,11 @@ class TestPmxbotLog(PmxbotHarness):
         that it was deleted and the single line remains.
         """
         id = str(uuid.uuid4())
-        pre_text = 'Strike pre-text msg from test_strike_1. %s' % id
+        pre_text = f'Strike pre-text msg from test_strike_1. {id}'
         self.client.send_message('#logged', pre_text)
         assert self.check_logs(channel="#logged", message=pre_text)
 
-        msg = 'Strike ME msg from test_strike_1. %s' % id
+        msg = f'Strike ME msg from test_strike_1. {id}'
         self.client.send_message('#logged', msg)
         assert self.check_logs(channel="#logged", message=msg)
 
@@ -75,7 +75,7 @@ class TestPmxbotLog(PmxbotHarness):
         removed, and the pre-text still remains.
         """
         id = str(uuid.uuid4())
-        pre_text = "Strike test pre-text from test_strike_3 %s" % id
+        pre_text = f"Strike test pre-text from test_strike_3 {id}"
         self.client.send_message("#logged", pre_text)
         assert self.check_logs(channel="#logged", message=pre_text)
 

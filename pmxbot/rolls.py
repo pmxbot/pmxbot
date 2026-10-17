@@ -5,9 +5,9 @@ Support for rolls, quit and join events (i.e. Roll Call).
 import datetime
 
 import pmxbot
-from . import storage
-from . import logging
 from pmxbot.core import on_join, on_leave
+
+from . import logging, storage
 
 
 class ParticipantLogger(storage.SelectableStorage):
@@ -80,7 +80,8 @@ class SQLiteLogger(ParticipantLogger, storage.SQLiteStorage):
             (datetime, channel, nick, change)
             VALUES (?, ?, ?, ?)
             """
-        now = datetime.datetime.utcnow()
+        # store naive UTC, as before
+        now = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
         self.db.execute(INSERT_LOG_SQL, [now, channel, nick, change])
         self.db.commit()
 
@@ -93,7 +94,7 @@ class MongoDBLogger(ParticipantLogger, storage.MongoDBStorage):
             ('datetime.d', storage.pymongo.DESCENDING),
             ('channel', storage.pymongo.ASCENDING),
         ])
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.timezone.utc)
         doc = dict(
             channel=channel,
             nick=nick,

@@ -20,7 +20,6 @@ def config(client, event, channel, nick, rest):
     if op in ('+=', '-='):
         # list operation
         op_name = {'+=': 'append', '-=': 'remove'}[op]
-        op_name
         if key not in pmxbot.config:
             return f"{key} not found in config. Can't {op_name}."
         if not isinstance(pmxbot.config[key], (list, tuple)):

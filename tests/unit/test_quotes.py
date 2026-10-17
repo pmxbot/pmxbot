@@ -24,9 +24,9 @@ def test_MongoDBQuotes(clean_quotes):
     q.add('who would ever say such a thing')
     q.add('go ahead, take my pay')
     q.add("let's do the Time Warp again")
-    qt, i, n = q.lookup('time warp')
+    qt, _i, _n = q.lookup('time warp')
     assert qt.startswith("let's")
     q.lookup('nonexistent')
     q.delete('Time Warp')
-    qt, i, n = q.lookup('Time Warp')
+    qt, _i, _n = q.lookup('Time Warp')
     assert qt == ''

@@ -47,8 +47,8 @@ class SQLiteNotify(Notify, storage.SQLiteStorage):
         ids = [x['notifyid'] for x in messages]
         query = """
             DELETE FROM notify
-            WHERE notifyid IN (%s)
-            """ % ','.join('?' for x in ids)
+            WHERE notifyid IN ({})
+            """.format(','.join('?' for x in ids))
         self.db.execute(query, ids)
 
         return messages

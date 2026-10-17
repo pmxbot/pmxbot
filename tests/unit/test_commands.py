@@ -1,21 +1,16 @@
-import re
 import os
+import re
 import string
-import uuid
 import urllib.error
+import uuid
 
+import jaraco.test.http
 import pytest
 import requests
-import jaraco.test.http
 
 import pmxbot.dictlib
 import pmxbot.storage
-from pmxbot import core
-from pmxbot import logging
-from pmxbot import commands
-from pmxbot import karma
-from pmxbot import quotes
-from pmxbot import system
+from pmxbot import commands, core, karma, logging, quotes, system
 
 
 def logical_xor(a, b):
@@ -58,7 +53,7 @@ class TestCommands:
         subject = "foo"
         pre = karma.Karma.store.lookup(subject)
         res = commands.boo(subject)
-        assert res == "/me BOOO %s!!! BOOO!!!" % subject
+        assert res == f"/me BOOO {subject}!!! BOOO!!!"
         post = karma.Karma.store.lookup(subject)
         assert post == pre - 1
 
@@ -69,7 +64,7 @@ class TestCommands:
         subject = "foo"
         pre = karma.Karma.store.lookup(subject)
         res = commands.troutslap(subject)
-        assert res == "/me slaps %s around a bit with a large trout" % subject
+        assert res == f"/me slaps {subject} around a bit with a large trout"
         post = karma.Karma.store.lookup(subject)
         assert post == pre - 1
 
@@ -81,8 +76,8 @@ class TestCommands:
         pre = karma.Karma.store.lookup(subject)
         res = commands.keelhaul(subject)
         assert res == (
-            "/me straps %s to a dirty rope, tosses 'em overboard and "
-            "pulls with great speed. Yarrr!" % subject
+            f"/me straps {subject} to a dirty rope, tosses 'em overboard and "
+            "pulls with great speed. Yarrr!"
         )
         post = karma.Karma.store.lookup(subject)
         assert post == pre - 1
@@ -94,7 +89,7 @@ class TestCommands:
         subject = "foo"
         pre = karma.Karma.store.lookup(subject)
         res = commands.motivate(channel="#test", rest=subject)
-        assert res == "you're doing good work, %s!" % subject
+        assert res == f"you're doing good work, {subject}!"
         post = karma.Karma.store.lookup(subject)
         assert post == pre + 1
 
@@ -105,9 +100,10 @@ class TestCommands:
         subject = "foo"
         pre = karma.Karma.store.lookup(subject)
         res = commands.motivate(
-            channel="#test", rest=" %s\tfor some really incredible reason" % subject
+            channel="#test",
+            rest=f" {subject}\tfor some really incredible reason",
         )
-        assert res == "you're doing good work, %s!" % subject
+        assert res == f"you're doing good work, {subject}!"
         post = karma.Karma.store.lookup(subject)
         assert post == pre + 1
 
@@ -117,8 +113,8 @@ class TestCommands:
         """
         subject = "foo"
         pre = karma.Karma.store.lookup(subject)
-        res = commands.motivate(channel="#test", rest="   %s \t  " % subject)
-        assert res == "you're doing good work, %s!" % subject
+        res = commands.motivate(channel="#test", rest=f"   {subject} \t  ")
+        assert res == f"you're doing good work, {subject}!"
         post = karma.Karma.store.lookup(subject)
         assert post == pre + 1
 
@@ -129,7 +125,7 @@ class TestCommands:
         subject = "foo"
         pre = karma.Karma.store.lookup(subject)
         res = commands.demotivate(rest=subject, channel="#test")
-        assert res == "you're doing horrible work, %s!" % subject
+        assert res == f"you're doing horrible work, {subject}!"
         post = karma.Karma.store.lookup(subject)
         assert post == pre - 1
 
@@ -140,7 +136,7 @@ class TestCommands:
         subject = "foo"
         pre = karma.Karma.store.lookup(subject)
         res = commands.imotivate(rest=subject, channel="#test")
-        assert res == """you're "doing" "good" "work", %s!""" % subject
+        assert res == f"""you're "doing" "good" "work", {subject}!"""
         post = karma.Karma.store.lookup(subject)
         assert post == pre - 1
 
@@ -148,8 +144,8 @@ class TestCommands:
         """
         Try adding a quote
         """
-        quote = "And then she said %s" % str(uuid.uuid4())
-        res = quotes.quote("add %s" % quote)
+        quote = f"And then she said {uuid.uuid4()!s}"
+        res = quotes.quote(f"add {quote}")
         assert res == "Quote added!"
         cursor = logging.Logger.store.db.cursor()
         cursor.execute(
@@ -163,8 +159,8 @@ class TestCommands:
         Try adding a quote, then retrieving it
         """
         id = str(uuid.uuid4())
-        quote = "So I says to Mabel, I says, %s" % id
-        res = quotes.quote("add %s" % quote)
+        quote = f"So I says to Mabel, I says, {id}"
+        res = quotes.quote(f"add {quote}")
         assert res == "Quote added!"
         cursor = logging.Logger.store.db.cursor()
         cursor.execute(
@@ -174,7 +170,7 @@ class TestCommands:
         assert numquotes == 1
 
         res = quotes.quote(id)
-        assert res == "(1/1): %s" % quote
+        assert res == f"(1/1): {quote}"
 
     def test_roll(self):
         """
@@ -184,7 +180,7 @@ class TestCommands:
         assert res >= 0 and res <= 100
         n = 6668
 
-        res = commands.roll(rest="%s" % n, nick="testrunner").split()[-1]
+        res = commands.roll(rest=f"{n}", nick="testrunner").split()[-1]
         res = int(res)
         assert res >= 0 and res <= n
 
@@ -298,7 +294,7 @@ class TestCommands:
         """
         id = str(uuid.uuid4())[:15]
         res = karma.karma(nick=id, rest="")
-        assert re.match(r"^%s has 0 karmas$" % id, res)
+        assert re.match(rf"^{id} has 0 karmas$", res)
 
     def test_karma_check_other_blank(self):
         """
@@ -306,7 +302,7 @@ class TestCommands:
         """
         id = str(uuid.uuid4())
         res = karma.karma(nick="testrunner", rest=id)
-        assert re.match("^%s has 0 karmas$" % id, res)
+        assert re.match(f"^{id} has 0 karmas$", res)
 
     def test_karma_set_and_check(self):
         """
@@ -314,13 +310,13 @@ class TestCommands:
         """
         id = str(uuid.uuid4())
         res = karma.karma(nick="testrunner", rest=id)
-        assert re.match("^%s has 0 karmas$" % id, res)
-        res = karma.karma(nick="testrunner", rest="%s++" % id)
-        res = karma.karma(nick="testrunner", rest="%s++" % id)
-        res = karma.karma(nick="testrunner", rest="%s++" % id)
-        res = karma.karma(nick="testrunner", rest="%s--" % id)
+        assert re.match(f"^{id} has 0 karmas$", res)
+        res = karma.karma(nick="testrunner", rest=f"{id}++")
+        res = karma.karma(nick="testrunner", rest=f"{id}++")
+        res = karma.karma(nick="testrunner", rest=f"{id}++")
+        res = karma.karma(nick="testrunner", rest=f"{id}--")
         res = karma.karma(nick="testrunner", rest=id)
-        assert re.match(r"^%s has 2 karmas$" % id, res)
+        assert re.match(rf"^{id} has 2 karmas$", res)
 
     def test_karma_set_and_check_with_space(self):
         """
@@ -329,13 +325,13 @@ class TestCommands:
         """
         id = str(uuid.uuid4()).replace("-", " ")
         res = karma.karma(nick="testrunner", rest=id)
-        assert re.match("^%s has 0 karmas$" % id, res)
-        res = karma.karma(nick="testrunner", rest="%s++" % id)
-        res = karma.karma(nick="testrunner", rest="%s++" % id)
-        res = karma.karma(nick="testrunner", rest="%s++" % id)
-        res = karma.karma(nick="testrunner", rest="%s--" % id)
+        assert re.match(f"^{id} has 0 karmas$", res)
+        res = karma.karma(nick="testrunner", rest=f"{id}++")
+        res = karma.karma(nick="testrunner", rest=f"{id}++")
+        res = karma.karma(nick="testrunner", rest=f"{id}++")
+        res = karma.karma(nick="testrunner", rest=f"{id}--")
         res = karma.karma(nick="testrunner", rest=id)
-        assert re.match(r"^%s has 2 karmas$" % id, res)
+        assert re.match(rf"^{id} has 2 karmas$", res)
 
     def test_karma_randomchange(self):
         """
@@ -345,15 +341,15 @@ class TestCommands:
         id = str(uuid.uuid4())
         flags = {}
         i = 0
-        karmafetch = re.compile(r"^%s has (\-?\d+) karmas$" % id)
+        karmafetch = re.compile(rf"^{id} has (\-?\d+) karmas$")
         while len(flags) < 3 and i <= 30:
             res = karma.karma(nick="testrunner", rest=id)
             prekarma = int(karmafetch.findall(res)[0])
-            change = karma.karma(nick="testrunner", rest="%s~~" % id)
+            change = karma.karma(nick="testrunner", rest=f"{id}~~")
             assert change in [
-                "%s karma++" % id,
-                "%s karma--" % id,
-                "%s karma shall remain the same" % id,
+                f"{id} karma++",
+                f"{id} karma--",
+                f"{id} karma shall remain the same",
             ]
             if change.endswith('karma++'):
                 flags['++'] = True

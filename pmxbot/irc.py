@@ -1,20 +1,20 @@
-import textwrap
 import datetime
 import importlib
 import logging
 import numbers
-import time
 import re
+import textwrap
+import time
 
 import irc.bot
-import irc.schedule
 import irc.client
+import irc.schedule
 import tempora
 from jaraco.stream import buffer
 
 import pmxbot.itertools
-from . import core
 
+from . import core
 
 log = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ class WarnHistory(dict):
     ).lstrip()
 
     def needs_warning(self, key):
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.timezone.utc)
         if key not in self or self._expired(self[key], now):
             self[key] = now
             return True
@@ -80,7 +80,7 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
 
     def connect(self, *args, **kwargs):
         factory = irc.connection.Factory(wrapper=self._get_wrapper())
-        res = super().connect(connect_factory=factory, *args, **kwargs)
+        res = super().connect(*args, connect_factory=factory, **kwargs)
         limit = pmxbot.config.get('message rate limit', float('inf'))
         self.connection.set_rate_limit(limit)
         return res
@@ -130,7 +130,7 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
         # save the connection object so .out has something to call
         self._conn = connection
         if pmxbot.config.get('nickserv_password'):
-            msg = 'identify %s' % pmxbot.config.nickserv_password
+            msg = f'identify {pmxbot.config.nickserv_password}'
             connection.privmsg('NickServ', msg)
 
         # join channels
@@ -207,7 +207,7 @@ class LoggingCommandBot(core.Bot, irc.bot.SingleServerIRCBot):
         time.sleep(1)
         connection.join(channel)
         time.sleep(1)
-        connection.privmsg(channel, "You summoned me, master %s?" % nick)
+        connection.privmsg(channel, f"You summoned me, master {nick}?")
 
 
 class SilentCommandBot(LoggingCommandBot):

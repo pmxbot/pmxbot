@@ -1,19 +1,20 @@
+import calendar
+import contextlib
+import datetime
+import functools
+import html
+import operator
 import os
 import random
-import calendar
-import datetime
 import textwrap
-import html
 import urllib.parse
-import operator
-import contextlib
-import functools
+from typing import ClassVar
 
 import cherrypy
+import importlib_resources as resources
+import inflect
 import jinja2.loaders
 import pytz
-import inflect
-import importlib_resources as resources
 
 import pmxbot.core
 import pmxbot.logging
@@ -80,9 +81,7 @@ def pmon(month):
     August, 2012
     """
     year, month = month.split('-')
-    return '{month_name}, {year}'.format(
-        month_name=calendar.month_name[int(month)], year=year
-    )
+    return f'{calendar.month_name[int(month)]}, {year}'
 
 
 def pday(dayfmt):
@@ -94,14 +93,14 @@ def pday(dayfmt):
     """
 
     year, month, day = map(int, dayfmt.split('-'))
-    return '{day} the {number}'.format(
-        day=calendar.day_name[calendar.weekday(year, month, day)],
-        number=inflect.engine().ordinal(day),
-    )
+    day_name = calendar.day_name[calendar.weekday(year, month, day)]
+    return f'{day_name} the {inflect.engine().ordinal(day)}'
 
 
 class ChannelPage:
-    month_ordinal = {calendar.month_name[m_ord]: m_ord for m_ord in range(1, 13)}
+    month_ordinal: ClassVar = {
+        calendar.month_name[m_ord]: m_ord for m_ord in range(1, 13)
+    }
 
     @cherrypy.expose
     def default(self, channel):
@@ -112,7 +111,7 @@ class ChannelPage:
         contents = db.get_channel_days(channel)
         months = {}
         for fn in sorted(contents, reverse=True):
-            mon_des, day = fn.rsplit('-', 1)
+            mon_des, _day = fn.rsplit('-', 1)
             months.setdefault(pmon(mon_des), []).append((pday(fn), fn))
         context['months'] = sorted(months.items(), key=self.by_date, reverse=True)
         context['channel'] = channel
@@ -120,7 +119,7 @@ class ChannelPage:
 
     @classmethod
     def by_date(cls, month_item):
-        month_string, days = month_item
+        month_string, _days = month_item
         return cls.date_key(month_string)
 
     @classmethod
@@ -272,7 +271,7 @@ class LegacyPage:
         """
         Given an HREF in the legacy timezone, redirect to an href for UTC.
         """
-        time_s, sep, nick = fragment.rpartition('.')
+        time_s, _sep, nick = fragment.rpartition('.')
         time = datetime.datetime.strptime(time_s, '%H.%M.%S')
         date = datetime.datetime.strptime(date_s, '%Y-%m-%d')
         dt = datetime.datetime.combine(date, time.time())
@@ -330,10 +329,12 @@ def _setup_logging():
     pmxbot.core._setup_logging()
 
 
-def init_config(config={}):
+def init_config(config=None):
+    if config is None:
+        config = {}
     config.setdefault('web_base', '/')
     config.setdefault('host', '::0')
-    config.setdefault('port', int(os.environ.get('PORT', 8080)))
+    config.setdefault('port', int(os.environ.get('PORT', '8080')))
 
     config = pmxbot.core.init_config(config)
 

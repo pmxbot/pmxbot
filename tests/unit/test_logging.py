@@ -55,9 +55,9 @@ class TestMongoDBLogging:
         logger.message('#inane', 'joe', "who da foo?")
         logger.make_anchor = "anchor".format
         (result,) = logger.search("foo")
-        channel, date, anchor, msgs = result
+        channel, _date, anchor, msgs = result
         (msg_info,) = msgs
-        time, nick, text = msg_info
+        _time, nick, text = msg_info
         assert channel == 'inane'
         assert anchor == 'anchor'
         assert nick == 'joe'

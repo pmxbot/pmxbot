@@ -1,13 +1,12 @@
-import datetime
 import copy
+import datetime
 
 import pytest
 from tempora.schedule import DelayedCommand, now
 
+from pmxbot import irc, slack
 from pmxbot.core import AtHandler, Handler, Scheduled, command, initialize
 from pmxbot.dictlib import ConfigDict
-from pmxbot import irc
-from pmxbot import slack
 
 
 class DelayedCommandMatch:

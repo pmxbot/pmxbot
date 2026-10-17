@@ -1,23 +1,22 @@
-import re
-import random
 import datetime
 import itertools
+import logging
+import operator
+import random
+import re
+import socket
 import struct
 import traceback
 import urllib.parse
-import socket
-import operator
-import logging
 
 import pytz
 from jaraco.context import ExceptionTrap
 from more_itertools import chunked
 
 import pmxbot
-from . import storage
-from . import core
-from pmxbot.core import command, NoLog
+from pmxbot.core import NoLog, command
 
+from . import core, storage
 
 first = operator.itemgetter(0)
 
@@ -103,8 +102,7 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
 
     def strike(self, channel, nick, count):
         count += 1  # let's get rid of 'the last !strike' too!
-        if count > 20:
-            count = 20
+        count = min(count, 20)
         LAST_N_IDS_SQL = """
             select channel, nick, id
             from logs
@@ -131,7 +129,7 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
         return rows_deleted
 
     def get_random_logs(self, limit):
-        query = "SELECT message FROM logs order by random() limit %(limit)s" % vars()
+        query = f"SELECT message FROM logs order by random() limit {limit}"
         return map(first, self.db.execute(query))
 
     def get_channel_days(self, channel):
@@ -148,8 +146,9 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
     def search(self, *terms):
         SEARCH_SQL = (
             'SELECT id, date(datetime), time(datetime), datetime, '
-            'channel, nick, message FROM logs WHERE %s'
-            % (' AND '.join(["message like '%%%s%%'" % x for x in terms]))
+            'channel, nick, message FROM logs WHERE {}'.format(
+                ' AND '.join([f"message like '%{x}%'" for x in terms])
+            )
         )
 
         matches = []
@@ -239,7 +238,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
     def _message(self, channel, nick, msg):
         self.db.create_index('datetime.d')
         self.db.create_index('channel')
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.timezone.utc)
         doc = dict(
             channel=channel, nick=nick, message=msg, datetime=self._fmt_date(now)
         )
@@ -277,7 +276,9 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
         # get rid of 'the last !strike' too!
         limit = count + 1
         # don't delete anything beyond the past 18 hours
-        cutoff = datetime.datetime.utcnow() - datetime.timedelta(hours=18)
+        cutoff = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(
+            hours=18
+        )
         date_limit = storage.bson.objectid.ObjectId.from_datetime(cutoff)
         query = dict(channel=channel, nick=nick, _id={'$gt': date_limit})
         cursor = self.db.find(query).sort('_id', storage.pymongo.DESCENDING)
@@ -333,13 +334,15 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
                 continue
             # get the context for this line
             prev2 = (
-                self.db.find(dict(channel=match['channel'], _id={'$lt': match['_id']}))
+                self.db
+                .find(dict(channel=match['channel'], _id={'$lt': match['_id']}))
                 .sort('_id', storage.pymongo.DESCENDING)
                 .limit(2)
             )
             prev2 = map(to_line, prev2)
             next2 = (
-                self.db.find(dict(channel=match['channel'], _id={'$gt': match['_id']}))
+                self.db
+                .find(dict(channel=match['channel'], _id={'$gt': match['_id']}))
                 .sort('_id', storage.pymongo.ASCENDING)
                 .limit(2)
             )
@@ -382,7 +385,7 @@ class MongoDBLogger(Logger, storage.MongoDBStorage):
         oid_new = oid_time.binary[:4] + orig_id_packed
         oid = storage.bson.objectid.ObjectId(oid_new)
         if not hasattr(Logger, 'log_id_map'):
-            Logger.log_id_map = dict()
+            Logger.log_id_map = {}
         Logger.log_id_map[orig_id] = oid
         message['_id'] = oid
         message['datetime'] = self._fmt_date(dt)
@@ -463,7 +466,7 @@ def strike(channel, nick, rest):
             "by %s were stricken from the record."
         )
         yield tmpl % (struck, 's' if struck > 1 else '', nick)
-    except Exception:
+    except Exception:  # noqa: BLE001 (report any failure to the user)
         traceback.print_exc()
         yield "Hmm.. I didn't find anything of yours to strike!"
 
@@ -478,7 +481,7 @@ def where(channel, nick, rest):
         tmpl = "I last saw {onick} speak at {tm} in channel #{chan}"
         return tmpl.format(tm=tm, chan=chan, onick=onick)
     else:
-        return "Sorry!  I don't have any record of %s speaking" % onick
+        return f"Sorry!  I don't have any record of {onick} speaking"
 
 
 class LoggedChannels:

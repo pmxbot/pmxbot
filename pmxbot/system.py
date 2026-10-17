@@ -2,15 +2,15 @@
 System commands
 """
 
-import sys
-import operator
 import io
+import operator
+import sys
 import time
 
 import importlib_resources
 
 import pmxbot.core
-from pmxbot.core import command, Handler
+from pmxbot.core import Handler, command
 
 
 @command(aliases='h')
@@ -39,7 +39,7 @@ def help(rest):
             res = "!" + handler.name
             if handler.aliases:
                 alias_names = (alias.name for alias in handler.aliases)
-                res += " (%s)" % ', '.join(alias_names)
+                res += " ({})".format(', '.join(alias_names))
             yield res
 
     o = io.StringIO(" ".join(mk_entries()))
@@ -70,7 +70,8 @@ def logo():
     ...
     """
     logo_txt = (
-        importlib_resources.files('pmxbot')
+        importlib_resources
+        .files('pmxbot')
         .joinpath('asciilogo.txt')
         .read_text(encoding='utf-8')
     )

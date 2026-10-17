@@ -1,9 +1,9 @@
-import subprocess
+import datetime
 import os
+import sqlite3
+import subprocess
 import sys
 import time
-import sqlite3
-import datetime
 import urllib.parse
 
 import irc.client
@@ -98,7 +98,7 @@ class PmxbotHarness:
             try:
                 cls.check_logs('#check')
                 return
-            except Exception:
+            except Exception:  # noqa: BLE001 (keep polling until the bot is ready)
                 # short-circuit if the bot has stopped
                 if cls.bot.poll() is not None:
                     return
@@ -106,8 +106,7 @@ class PmxbotHarness:
 
     @classmethod
     def check_logs(cls, channel='', nick='', message=''):
-        if channel.startswith('#'):
-            channel = channel[1:]
+        channel = channel.removeprefix('#')
         time.sleep(0.2)
         cursor = cls.db.cursor()
         query = (

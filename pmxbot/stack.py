@@ -93,14 +93,13 @@ Subcommands
     Return a list of topics, numbered in alphabetical order.
 """
 
-import random
-import re
 import itertools
 import os
+import random
+import re
 
 from . import storage
 from .core import command
-
 
 flatten = itertools.chain.from_iterable
 
@@ -290,7 +289,7 @@ def output(indexed_items, default="(empty)", pop=False):
 
 
 def _items_for_command(cmd, topic):
-    topics = cmd in 'topics list'.split()
+    topics = cmd in ['topics', 'list']
     return sorted(Stack.store.get_topics()) if topics else Stack.store.get_items(topic)
 
 
@@ -321,7 +320,7 @@ def _handle_add(new_item, indices, items, topic):
     if not indices:
         items.insert(0, new_item)
     else:
-        for i in reversed(sorted(set(indices))):
+        for i in sorted(set(indices), reverse=True):
             if i >= len(items):
                 items.append(new_item)
             else:
@@ -335,7 +334,7 @@ def _handle_pop(new_item, indices, items, topic):
         indices = [0]
 
     popped_items = [
-        items.pop(i) for i in reversed(sorted(set(indices))) if len(items) > i >= 0
+        items.pop(i) for i in sorted(set(indices), reverse=True) if len(items) > i >= 0
     ]
 
     Stack.store.save_items(topic, items)
