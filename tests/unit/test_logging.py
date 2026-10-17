@@ -18,6 +18,15 @@ class TestLogging:
         assert set(messages) == {'message one', 'message two'}
 
 
+def test_sqlite_search_with_quote(tmp_path):
+    logger = logging.Logger.from_URI(f'sqlite:{tmp_path / "pmxbot.sqlite"}')
+    logger.message('#inane', 'joe', "it's a trap")
+    logger.make_anchor = "anchor".format
+    (result,) = logger.search("it's")
+    *_, msgs = result
+    assert "it's a trap" in [text for _time, _nick, text in msgs]
+
+
 class TestMongoDBLogging:
     def setup_logging(self, mongodb_uri):
         mongodb_uri = mongodb_uri + '/pmxbot_test'

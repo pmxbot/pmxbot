@@ -147,13 +147,14 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
         SEARCH_SQL = (
             'SELECT id, date(datetime), time(datetime), datetime, '
             'channel, nick, message FROM logs WHERE {}'.format(
-                ' AND '.join([f"message like '%{x}%'" for x in terms])
+                ' AND '.join(["message like ?"] * len(terms))
             )
         )
 
         matches = []
         alllines = []
-        search_res = self.db.execute(SEARCH_SQL).fetchall()
+        params = [f'%{term}%' for term in terms]
+        search_res = self.db.execute(SEARCH_SQL, params).fetchall()
         for id, date, time, dt, channel, nick, message in search_res:
             line = (time, nick, message)
             if line in alllines:
