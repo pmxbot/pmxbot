@@ -196,12 +196,10 @@ class SQLiteLogger(Logger, storage.SQLiteStorage):
         query = 'SELECT id, datetime, nick, message, channel from logs'
 
         def robust_text(text):
-            for encoding in 'utf-8', 'latin-1':
-                try:
-                    return text.decode(encoding)
-                except UnicodeDecodeError:
-                    pass
-            raise
+            try:
+                return text.decode('utf-8')
+            except UnicodeDecodeError:
+                return text.decode('latin-1')
 
         self.db.text_factory = robust_text
         cursor = self.db.execute(query)
@@ -225,7 +223,7 @@ def parse_date(record):
         except ValueError:
             pass
     else:
-        raise
+        raise ValueError(f"Unrecognized datetime {dt!r}")
     tz = pytz.timezone('US/Pacific')
     loc_dt = tz.localize(dt)
     record['datetime'] = loc_dt
@@ -457,7 +455,7 @@ def strike(channel, nick, rest):
     else:
         if not rest.isdigit():
             yield "Strike how many?  Argument must be a positive integer."
-            raise StopIteration
+            return
         count = int(rest)
     try:
         struck = Logger.store.strike(channel, nick, count)
